@@ -1,4 +1,3 @@
-
 function openBook() {
     const pages = document.querySelector('#portfolio .pages');
     pages.style.transform = 'rotateY(0deg)';
@@ -28,16 +27,26 @@ window.addEventListener('scroll', () => {
 
     lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
 });
+
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext('2d');
 
-// for intro motion
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// For intro motion
 let mouseMoved = false;
 
 const pointer = {
     x: .5 * window.innerWidth,
     y: .5 * window.innerHeight,
 }
+
 const params = {
     pointsNumber: 40,
     widthFactor: .3,
@@ -73,3 +82,31 @@ function updateMousePosition(eX, eY) {
     pointer.y = eY;
 }
 
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < trail.length; i++) {
+        const point = trail[i];
+        const dx = pointer.x - point.x;
+        const dy = pointer.y - point.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const force = (distance - params.mouseThreshold) * params.spring;
+
+        point.dx += dx * force;
+        point.dy += dy * force;
+        point.dx *= params.friction;
+        point.dy *= params.friction;
+
+        point.x += point.dx;
+        point.y += point.dy;
+
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 0, 0, ' + (1 - i / trail.length) + ')';
+        ctx.fill();
+    }
+
+    requestAnimationFrame(animate);
+}
+
+animate();
