@@ -66,8 +66,8 @@
             overflow-y: auto;
         }
         #snapcode {
-            width: 30%;
-            margin-bottom: 20px;
+            width: 60px;
+            margin-bottom: 10px;
         }
         .social-btn {
             display: block;
@@ -95,6 +95,21 @@
             font-style: italic;
             font-size: 16px;
             line-height: 1.5;
+        }
+        #musicToggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #musicToggle:hover {
+            background-color: rgba(255, 255, 255, 0.4);
         }
     </style>
 </head>
@@ -127,6 +142,7 @@
             </div>
         </div>
     </div>
+    <button id="musicToggle">Pause Music</button>
 
     <script>
         const video1 = document.getElementById('video1');
@@ -137,6 +153,7 @@
         const ooo = document.getElementById('ooo');
         const verseText = document.getElementById('verse-text');
         const backgroundMusic = document.getElementById('backgroundMusic');
+        const musicToggle = document.getElementById('musicToggle');
 
         // Ensure the first video is loaded before trying to play
         video1.load();
@@ -182,6 +199,16 @@
                 })
                 .catch(error => console.error('Error loading verses:', error));
         }
+
+        musicToggle.addEventListener('click', () => {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play();
+                musicToggle.textContent = 'Pause Music';
+            } else {
+                backgroundMusic.pause();
+                musicToggle.textContent = 'Play Music';
+            }
+        });
     </script>
 </body>
 </html>
