@@ -16,6 +16,9 @@
         }
         #content {
             text-align: center;
+            position: relative;
+            width: 100%;
+            height: 100%;
         }
         #enterBtn {
             padding: 10px 20px;
@@ -23,6 +26,10 @@
             cursor: pointer;
             display: none;
             animation: fadeInOut 2s infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
         @keyframes fadeInOut {
             0%, 100% { opacity: 0.5; }
@@ -32,21 +39,30 @@
             color: white;
             font-size: 24px;
             display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        video, img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
     </style>
 </head>
 <body>
     <div id="content">
         <video id="video1" style="display:none;">
-            <source src="1.mov" type="video/quicktime">
+            <source src="1.mp4" type="video/mp4">
         </video>
         <img id="introImg" src="intro.jpeg" style="display:none;">
         <button id="enterBtn">Enter</button>
         <video id="paperVideo" style="display:none;">
-            <source src="paper.mov" type="video/quicktime">
+            <source src="paper.mp4" type="video/mp4">
         </video>
         <video id="loopVideo" style="display:none;" loop>
-            <source src="2.mov" type="video/quicktime">
+            <source src="2.mp4" type="video/mp4">
         </video>
         <div id="hiText">Hi</div>
     </div>
@@ -66,7 +82,7 @@
         setTimeout(() => {
             video1.style.display = 'none';
             introImg.style.display = 'block';
-            enterBtn.style.display = 'inline-block';
+            enterBtn.style.display = 'block';
         }, 4000);
 
         enterBtn.addEventListener('click', () => {
