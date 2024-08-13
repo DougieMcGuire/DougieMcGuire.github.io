@@ -61,11 +61,11 @@
             width: 80%;
             max-width: 350px;
             height: auto;
-            min-height: 600px; /* Increased minimum height */
-            max-height: 90vh;
+            min-height: 550px; /* Adjusted minimum height */
+            max-height: 85vh; /* Adjusted maximum height */
             background-color: rgba(210, 180, 140, 0.9);
             border-radius: 20px;
-            padding: 80px 20px 20px; /* Increased top padding */
+            padding: 60px 20px 20px; /* Adjusted padding */
             box-sizing: border-box;
             overflow-y: auto;
             scrollbar-width: none;
@@ -77,12 +77,12 @@
             display: none;
         }
         #snapcode {
-            width: 120px; /* Increased size */
-            height: 120px; /* Increased size */
-            object-fit: cover;
+            width: 100px; /* Adjusted size */
+            height: 100px; /* Adjusted size */
+            object-fit: contain; /* Changed from cover to contain */
             border-radius: 50%;
             position: absolute;
-            top: -60px; /* Adjusted position */
+            top: -50px; /* Adjusted position */
             left: 50%;
             transform: translateX(-50%);
             border: 5px solid rgba(210, 180, 140, 0.7);
@@ -95,9 +95,9 @@
         }
         .social-btn {
             display: block;
-            width: 80%;
-            padding: 12px;
-            margin: 10px auto;
+            width: 90%; /* Adjusted width */
+            padding: 14px; /* Adjusted padding */
+            margin: 15px auto; /* Adjusted margin */
             background-color: rgba(255, 255, 255, 0.2);
             color: #333;
             text-decoration: none;
@@ -112,7 +112,7 @@
             transform: translateY(-3px);
         }
         #bible-verse {
-            margin-top: 20px;
+            margin-top: 25px; /* Adjusted margin */
             padding: 15px;
             background-color: rgba(255, 255, 255, 0.3);
             border-radius: 15px;
