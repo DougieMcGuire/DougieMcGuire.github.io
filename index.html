@@ -3,108 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIF Sequence with Fade</title>
+    <title>Dougie.WTF</title>
     <style>
         body, html {
-            height: 100%;
             margin: 0;
+            padding: 0;
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
             background-color: black;
         }
-        .fullscreen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
+        #content {
+            text-align: center;
         }
-        #initialGif {
-            opacity: 1;
-            transition: opacity 1s ease-in-out;
-        }
-        #container {
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            opacity: 0;
-        }
-        #enterButton {
-            margin-top: 20px;
+        #enterBtn {
             padding: 10px 20px;
-            font-size: 20px;
-            background-color: white;
-            border: none;
+            font-size: 18px;
             cursor: pointer;
-            z-index: 10;
+            display: none;
+            animation: fadeInOut 2s infinite;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        #hiText {
+            color: white;
+            font-size: 24px;
+            display: none;
         }
     </style>
 </head>
 <body>
-
-    <!-- Initial GIF as background -->
-    <img id="initialGif" class="fullscreen" src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExMWo4c2R6enpjY2J3MWlzcXNldnZ4bjU0OHZqaWtucXplZ2F6eXdtZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/SZsmjNkwzu4qZ8Pn1q/giphy.gif" alt="Initial GIF">
-
-    <!-- Container for PNG and Enter Button -->
-    <div id="container">
-        <img id="introImage" class="fullscreen" src="intro.jpeg" alt="Intro Image">
-        <button id="enterButton">Enter</button>
+    <div id="content">
+        <video id="video1" style="display:none;">
+            <source src="1.mov" type="video/quicktime">
+        </video>
+        <img id="introImg" src="intro.jpeg" style="display:none;">
+        <button id="enterBtn">Enter</button>
+        <video id="paperVideo" style="display:none;">
+            <source src="paper.mov" type="video/quicktime">
+        </video>
+        <video id="loopVideo" style="display:none;" loop>
+            <source src="2.mov" type="video/quicktime">
+        </video>
+        <div id="hiText">Hi</div>
     </div>
 
-    <!-- Second GIF -->
-    <img id="secondGif" class="fullscreen" src="https://media.giphy.com/media/VW4ATxpcueKIp0JM8u/giphy.gif" alt="Second GIF" style="display: none;">
-
-    <!-- Video -->
-    <video id="video" class="fullscreen" autoplay loop style="display: none;">
-        <source src="2.mov" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-
     <script>
-        // Variables to easily edit durations and element IDs
-        const initialGifDuration =1200; // Duration in milliseconds
-        const secondGifDuration = 600;  // Duration in milliseconds
-        const fadeDuration = 1000; // Fade duration in milliseconds
+        const video1 = document.getElementById('video1');
+        const introImg = document.getElementById('introImg');
+        const enterBtn = document.getElementById('enterBtn');
+        const paperVideo = document.getElementById('paperVideo');
+        const loopVideo = document.getElementById('loopVideo');
+        const hiText = document.getElementById('hiText');
 
-        const initialGif = document.getElementById('initialGif');
-        const container = document.getElementById('container');
-        const secondGif = document.getElementById('secondGif');
-        const video = document.getElementById('video');
-        const introImage = document.getElementById('introImage');
+        // Play first video
+        video1.style.display = 'block';
+        video1.play();
 
-        // Display the initial GIF for the specified duration
         setTimeout(() => {
-            initialGif.style.opacity = '0';
-            setTimeout(() => {
-                container.style.display = 'flex';
-                introImage.style.opacity = '1';
-            }, fadeDuration);
-        }, initialGifDuration);
+            video1.style.display = 'none';
+            introImg.style.display = 'block';
+            enterBtn.style.display = 'inline-block';
+        }, 4000);
 
-        // When the Enter button is clicked
-        document.getElementById('enterButton').addEventListener('click', () => {
-            container.style.display = 'none';
-            secondGif.style.display = 'block';
+        enterBtn.addEventListener('click', () => {
+            introImg.style.display = 'none';
+            enterBtn.style.display = 'none';
+            paperVideo.style.display = 'block';
+            paperVideo.play();
 
-            // Play the second GIF for the specified duration
             setTimeout(() => {
-                secondGif.style.display = 'none';
-                video.style.display = 'block';
-            }, secondGifDuration);
+                paperVideo.style.display = 'none';
+                loopVideo.style.display = 'block';
+                loopVideo.play();
+                hiText.style.display = 'block';
+            }, 800);
         });
     </script>
-
 </body>
 </html>
