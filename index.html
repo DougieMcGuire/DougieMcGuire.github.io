@@ -38,9 +38,6 @@
             50% { opacity: 1; }
         }
         video, img {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -51,14 +48,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 90%;
+            width: 80%;
             max-width: 400px;
-            height: 90%;
             background-color: rgba(0, 0, 0, 0.8);
             border-radius: 20px;
             padding: 20px;
             box-sizing: border-box;
-            overflow-y: auto;
         }
         #snapcode {
             width: 50%;
@@ -75,36 +70,30 @@
             border-radius: 5px;
         }
         #bible-verse {
-            margin: 20px 0;
+            max-width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
         }
-        #music-player {
-            margin-top: 20px;
+        .audio-player {
+            margin-bottom: 15px;
         }
-        #song-title {
-            font-weight: bold;
-            margin-bottom: 10px;
+        .audio-player h4 {
+            margin: 5px 0;
+            font-size: 16px;
         }
-        #time-bar {
+        .progress-bar {
             width: 100%;
-            height: 5px;
             background-color: #444;
-            margin-bottom: 10px;
+            height: 5px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
         }
-        #time-progress {
-            width: 0;
+        .progress-bar span {
+            display: block;
             height: 100%;
             background-color: #fff;
-        }
-        #playlist {
-            list-style-type: none;
-            padding: 0;
-        }
-        #playlist li {
-            cursor: pointer;
-            padding: 5px;
-            margin: 5px 0;
-            background-color: #222;
-            border-radius: 3px;
+            width: 0;
         }
     </style>
 </head>
@@ -122,28 +111,36 @@
             <source src="2.mp4" type="video/mp4">
         </video>
         <div id="ooo">
+            <div id="bible-verse">
+                <h3>Daily Bible Verse</h3>
+                <p id="verse-text"></p>
+            </div>
+            <div class="audio-player" id="player1">
+                <h4>Letting Someone Go</h4>
+                <audio id="audio1" src="lsg.wav"></audio>
+                <div class="progress-bar"><span></span></div>
+            </div>
+            <div class="audio-player" id="player2">
+                <h4>loom</h4>
+                <audio id="audio2" src="loom.wav"></audio>
+                <div class="progress-bar"><span></span></div>
+            </div>
+            <div class="audio-player" id="player3">
+                <h4>28</h4>
+                <audio id="audio3" src="28.wav"></audio>
+                <div class="progress-bar"><span></span></div>
+            </div>
+            <div class="audio-player" id="player4">
+                <h4>The Great American Bar Scene</h4>
+                <audio id="audio4" src="tgabs.wav"></audio>
+                <div class="progress-bar"><span></span></div>
+            </div>
             <img id="snapcode" src="snapcode.png" alt="Snapcode">
             <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSN?is_from_webapp=1&sender_device=pc" class="social-btn" target="_blank">TikTok</a>
             <a href="https://instagram.com/d8ugie" class="social-btn" target="_blank">Instagram</a>
             <a href="https://youtube.com/@dcug" class="social-btn" target="_blank">YouTube</a>
             <a href="https://snapchat.com/add/dovgie" class="social-btn" target="_blank">Snapchat</a>
             <a href="https://dougie.wtf/explore" class="social-btn">Explore</a>
-            <div id="bible-verse">
-                <h3>Daily Bible Verse</h3>
-                <p id="verse-text"></p>
-            </div>
-            <div id="music-player">
-                <div id="song-title">Letting Someone Go</div>
-                <div id="time-bar"><div id="time-progress"></div></div>
-                <audio id="audio-player" src="lsg.wav"></audio>
-                <button id="play-pause">Play/Pause</button>
-                <ul id="playlist">
-                    <li data-src="lsg.wav">Letting Someone Go</li>
-                    <li data-src="loom.wav">loom</li>
-                    <li data-src="28.wav">28</li>
-                    <li data-src="tgabs.wav">The Great American Bar Scene</li>
-                </ul>
-            </div>
         </div>
     </div>
 
@@ -155,12 +152,9 @@
         const loopVideo = document.getElementById('loopVideo');
         const ooo = document.getElementById('ooo');
         const verseText = document.getElementById('verse-text');
-        const audioPlayer = document.getElementById('audio-player');
-        const playPauseBtn = document.getElementById('play-pause');
-        const songTitle = document.getElementById('song-title');
-        const timeProgress = document.getElementById('time-progress');
-        const playlist = document.getElementById('playlist');
+        const audioPlayers = document.querySelectorAll('.audio-player');
 
+        // Ensure the first video is loaded before trying to play
         video1.load();
         video1.oncanplaythrough = function() {
             video1.style.display = 'block';
@@ -204,25 +198,28 @@
                 .catch(error => console.error('Error loading verses:', error));
         }
 
-        playPauseBtn.addEventListener('click', () => {
-            if (audioPlayer.paused) {
-                audioPlayer.play();
-            } else {
-                audioPlayer.pause();
-            }
-        });
+        // Audio Player Logic
+        audioPlayers.forEach(player => {
+            const audio = player.querySelector('audio');
+            const progressBar = player.querySelector('.progress-bar span');
 
-        audioPlayer.addEventListener('timeupdate', () => {
-            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-            timeProgress.style.width = `${progress}%`;
-        });
+            audio.addEventListener('timeupdate', () => {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = progress + '%';
+            });
 
-        playlist.addEventListener('click', (e) => {
-            if (e.target.tagName === 'LI') {
-                songTitle.textContent = e.target.textContent;
-                audioPlayer.src = e.target.getAttribute('data-src');
-                audioPlayer.play();
-            }
+            player.addEventListener('click', () => {
+                if (audio.paused) {
+                    // Pause all other players
+                    audioPlayers.forEach(p => {
+                        const otherAudio = p.querySelector('audio');
+                        if (otherAudio !== audio) otherAudio.pause();
+                    });
+                    audio.play();
+                } else {
+                    audio.pause();
+                }
+            });
         });
     </script>
 </body>
