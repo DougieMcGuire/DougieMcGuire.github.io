@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>See Previous Bitmoji</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --button-hover: #3a7bc8;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .image-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 40px;
+        }
+        .main-image {
+            width: 45%;
+            aspect-ratio: 1;
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .main-image:hover {
+            transform: scale(1.05);
+        }
+        .main-image img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 1em;
+            color: white;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        button:hover {
+            background-color: var(--button-hover);
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .version-control {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 5px;
+            border-radius: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .version-control button {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            font-size: 1.2em;
+            border-radius: 50%;
+        }
+        #versionDisplay {
+            margin: 0 15px;
+            font-weight: bold;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 80%;
+            max-width: 500px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-content h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .preview-images {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .preview-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .preview-image:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Bitmoji Viewer - By Dougie</h1>
+    <div class="image-container">
+        <div class="main-image">
+            <img id="image2d" src="" alt="2D Bitmoji">
+        </div>
+        <div class="main-image">
+            <img id="image3d" src="" alt="3D Bitmoji">
+        </div>
+    </div>
+    <div class="controls">
+        <div class="version-control">
+            <button onclick="changeVersion(-1)">-</button>
+            <span id="versionDisplay">Version: 126</span>
+            <button onclick="changeVersion(1)">+</button>
+        </div>
+        <button onclick="openModal()">Change Person's Bitmoji</button>
+    </div>
+
+    <div id="idModal" class="modal">
+        <div class="modal-content">
+            <h2>Enter New Bitmoji ID</h2>
+            <input type="text" id="fullIdInput" placeholder="Enter Avatar_ID (e.g., 103468003750_126)" value="103468003750_126">
+            <!-- Removed Preview button -->
+            <div class="preview-images">
+                <img id="previewImage2d" class="preview-image" src="" alt="2D Preview">
+                <img id="previewImage3d" class="preview-image" src="" alt="3D Preview">
+            </div>
+            <button onclick="updateImages()">Confirm</button>
+        </div>
+    </div>
+
+    <script>
+        let currentId = '103468003750';
+        let currentVersion = 126;
+
+        function openModal() {
+            document.getElementById('idModal').style.display = 'block';
+            document.getElementById('fullIdInput').value = `${currentId}_${currentVersion}`;
+            previewImages(); // Call previewImages to set the initial preview
+        }
+
+        function previewImages() {
+            const fullId = document.getElementById('fullIdInput').value;
+            const [id, version] = fullId.split('_');
+            updatePreviewSources(id, version);
+        }
+
+        function updatePreviewSources(id, version) {
+            const baseUrl2d = "https://sdk.bitmoji.com/render/panel/10226428-";
+            const baseUrl3d = "https://cf-st.sc-cdn.net/3d/render/10226428-";
+            const params2d = "-s5-v1.png?transparent=1&palette=1&scale=2";
+            const params3d = "-s5-v1.webp?trim=circle&scale=1&ua=2";
+            
+            document.getElementById('previewImage2d').src = `${baseUrl2d}${id}_${version}${params2d}`;
+            document.getElementById('previewImage3d').src = `${baseUrl3d}${id}_${version}${params3d}`;
+        }
+
+        function updateImages() {
+            const fullId = document.getElementById('fullIdInput').value;
+            const [id, version] = fullId.split('_');
+            currentId = id;
+            currentVersion = parseInt(version) || 1;
+            updateImageSources();
+            document.getElementById('idModal').style.display = 'none';
+        }
+
+        function changeVersion(change) {
+            currentVersion += change;
+            if (currentVersion < 1) currentVersion = 1;
+            updateImageSources();
+        }
+
+        function updateImageSources() {
+            const baseUrl2d = "https://sdk.bitmoji.com/render/panel/20053424-";
+            const baseUrl3d = "https://cf-st.sc-cdn.net/3d/render/20026949-";
+            const params2d = "-s5-v1.png?transparent=1&palette=1&scale=2";
+            const params3d = "-s5-v1.webp?scale=1&ua=2";
+            
+            document.getElementById('image2d').src = `${baseUrl2d}${currentId}_${currentVersion}${params2d}`;
+            document.getElementById('image3d').src = `${baseUrl3d}${currentId}_${currentVersion}${params3d}`;
+            document.getElementById('versionDisplay').textContent = `Version: ${currentVersion}`;
+        }
+
+        // Event listener to update previews when the input value changes
+        document.getElementById('fullIdInput').addEventListener('input', previewImages);
+
+        // Initial load
+        updateImageSources();
+    </script>
+</body>
+</html>
