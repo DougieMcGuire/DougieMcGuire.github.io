@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dougie.WTF</title>
     <style>
-        /* Common Styles */
         body, html {
             margin: 0;
             padding: 0;
@@ -13,142 +12,76 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            background-color: black;
+            color: white;
             font-family: Arial, sans-serif;
         }
-        
-        /* Desktop Styles */
-        @media (min-width: 768px) {
-            body {
-                background-color: black;
-                color: white;
-            }
-            #desktopContent {
-                text-align: center;
-                position: relative;
-                width: 100%;
-                height: 100%;
-            }
-            #enterBtn {
-                padding: 10px 20px;
-                font-size: 18px;
-                cursor: pointer;
-                display: none;
-                animation: fadeInOut 2s infinite;
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-            }
-            @keyframes fadeInOut {
-                0%, 100% { opacity: 0.5; }
-                50% { opacity: 1; }
-            }
-            video, img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-            #ooo {
-                display: none;
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 80%;
-                max-width: 400px;
-                height: 80%;
-                background-color: rgba(0, 0, 0, 0.8);
-                border-radius: 20px;
-                padding: 20px;
-                box-sizing: border-box;
-            }
-            #snapcode {
-                width: 50%;
-                margin-bottom: 20px;
-            }
-            .social-btn {
-                display: block;
-                width: 100%;
-                padding: 10px;
-                margin: 10px 0;
-                background-color: #333;
-                color: white;
-                text-decoration: none;
-                border-radius: 5px;
-            }
-            #bible-verse {
-                position: absolute;
-                right: 20px;
-                top: 50%;
-                transform: translateY(-50%);
-                max-width: 200px;
-                text-align: right;
-            }
+        #content {
+            text-align: center;
+            position: relative;
+            width: 100%;
+            height: 100%;
         }
-
-        /* Mobile Styles */
-        @media (max-width: 767px) {
-            body {
-                background-color: #f4e1d2; /* Sand color */
-                color: black;
-            }
-            #mobileContent {
-                text-align: center;
-                position: relative;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                flex-direction: column;
-            }
-            #startBtn {
-                padding: 15px 30px;
-                font-size: 20px;
-                cursor: pointer;
-                background-color: #d8b4a6; /* Slightly darker sand color */
-                border: none;
-                border-radius: 5px;
-                color: black;
-                display: block;
-            }
-            #scene2 {
-                display: none;
-                width: 100%;
-                height: 100%;
-                background-color: #d8b4a6; /* Darker sand color */
-                color: black;
-                text-align: center;
-                padding: 20px;
-                box-sizing: border-box;
-            }
-            #ooo {
-                display: none;
-                max-width: 90%;
-                margin: 0 auto;
-                padding: 20px;
-                background-color: rgba(0, 0, 0, 0.8);
-                border-radius: 10px;
-            }
-            .social-btn {
-                display: block;
-                width: 100%;
-                padding: 10px;
-                margin: 10px 0;
-                background-color: #333;
-                color: white;
-                text-decoration: none;
-                border-radius: 5px;
-            }
-            #bible-verse {
-                display: none;
-            }
+        #enterBtn {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            display: none;
+            animation: fadeInOut 2s infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        video, img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #ooo {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 400px;
+            height: 80%;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #snapcode {
+            width: 50%;
+            margin-bottom: 20px;
+        }
+        .social-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        #bible-verse {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            max-width: 200px;
+            text-align: right;
         }
     </style>
 </head>
 <body>
-    <!-- Desktop Content -->
-    <div id="desktopContent">
+    <div id="content">
         <video id="video1" style="display:none;" muted playsinline>
             <source src="1.mp4" type="video/mp4">
         </video>
@@ -174,85 +107,57 @@
         </div>
     </div>
 
-    <!-- Mobile Content -->
-    <div id="mobileContent">
-        <button id="startBtn">Start</button>
-        <div id="scene2">
-            <div id="ooo">
-                <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSN?is_from_webapp=1&sender_device=pc" class="social-btn" target="_blank">TikTok</a>
-                <a href="https://instagram.com/d8ugie" class="social-btn" target="_blank">Instagram</a>
-                <a href="https://youtube.com/@dcug" class="social-btn" target="_blank">YouTube</a>
-                <a href="https://snapchat.com/add/dovgie" class="social-btn" target="_blank">Snapchat</a>
-                <a href="https://dougie.wtf/explore" class="social-btn">Explore</a>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Desktop JavaScript
-        if (window.matchMedia("(min-width: 768px)").matches) {
-            const video1 = document.getElementById('video1');
-            const introImg = document.getElementById('introImg');
-            const enterBtn = document.getElementById('enterBtn');
-            const paperVideo = document.getElementById('paperVideo');
-            const loopVideo = document.getElementById('loopVideo');
-            const ooo = document.getElementById('ooo');
-            const verseText = document.getElementById('verse-text');
+        const video1 = document.getElementById('video1');
+        const introImg = document.getElementById('introImg');
+        const enterBtn = document.getElementById('enterBtn');
+        const paperVideo = document.getElementById('paperVideo');
+        const loopVideo = document.getElementById('loopVideo');
+        const ooo = document.getElementById('ooo');
+        const verseText = document.getElementById('verse-text');
 
-            // Ensure the first video is loaded before trying to play
-            video1.load();
-            video1.oncanplaythrough = function() {
-                video1.style.display = 'block';
-                video1.play().catch(error => {
-                    console.error("Error playing video1:", error);
-                    showIntroImage();
-                });
-            };
-
-            function showIntroImage() {
-                video1.style.display = 'none';
-                introImg.style.display = 'block';
-                enterBtn.style.display = 'block';
-            }
-
-            setTimeout(showIntroImage, 4000);
-
-            enterBtn.addEventListener('click', () => {
-                introImg.style.display = 'none';
-                enterBtn.style.display = 'none';
-                paperVideo.style.display = 'block';
-                paperVideo.play();
-
-                setTimeout(() => {
-                    paperVideo.style.display = 'none';
-                    loopVideo.style.display = 'block';
-                    loopVideo.play();
-                    ooo.style.display = 'block';
-                    loadRandomVerse();
-                }, 800);
+        // Ensure the first video is loaded before trying to play
+        video1.load();
+        video1.oncanplaythrough = function() {
+            video1.style.display = 'block';
+            video1.play().catch(error => {
+                console.error("Error playing video1:", error);
+                showIntroImage();
             });
+        };
 
-            function loadRandomVerse() {
-                fetch('verses.txt')
-                    .then(response => response.text())
-                    .then(text => {
-                        const verses = text.split('\n').filter(verse => verse.trim() !== '');
-                        const randomVerse = verses[Math.floor(Math.random() * verses.length)];
-                        verseText.textContent = randomVerse;
-                    })
-                    .catch(error => console.error('Error loading verses:', error));
-            }
+        function showIntroImage() {
+            video1.style.display = 'none';
+            introImg.style.display = 'block';
+            enterBtn.style.display = 'block';
         }
 
-        // Mobile JavaScript
-        if (window.matchMedia("(max-width: 767px)").matches) {
-            const startBtn = document.getElementById('startBtn');
-            const scene2 = document.getElementById('scene2');
+        setTimeout(showIntroImage, 4000);
 
-            startBtn.addEventListener('click', () => {
-                startBtn.style.display = 'none';
-                scene2.style.display = 'block';
-            });
+        enterBtn.addEventListener('click', () => {
+            introImg.style.display = 'none';
+            enterBtn.style.display = 'none';
+            paperVideo.style.display = 'block';
+            paperVideo.play();
+
+            setTimeout(() => {
+                paperVideo.style.display = 'none';
+                loopVideo.style.display = 'block';
+                loopVideo.play();
+                ooo.style.display = 'block';
+                loadRandomVerse();
+            }, 800);
+        });
+
+        function loadRandomVerse() {
+            fetch('verses.txt')
+                .then(response => response.text())
+                .then(text => {
+                    const verses = text.split('\n').filter(verse => verse.trim() !== '');
+                    const randomVerse = verses[Math.floor(Math.random() * verses.length)];
+                    verseText.textContent = randomVerse;
+                })
+                .catch(error => console.error('Error loading verses:', error));
         }
     </script>
 </body>
