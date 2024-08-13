@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dougie.WTF</title>
     <style>
+        /* Base styles */
         body, html {
             margin: 0;
             padding: 0;
@@ -12,15 +13,18 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: black;
-            color: white;
             font-family: Arial, sans-serif;
         }
-        #content {
+
+        /* Desktop styles */
+        #desktopContent {
+            display: none;
             text-align: center;
             position: relative;
             width: 100%;
             height: 100%;
+            background-color: black;
+            color: white;
         }
         #enterBtn {
             padding: 10px 20px;
@@ -78,10 +82,80 @@
             max-width: 200px;
             text-align: right;
         }
+
+        /* Mobile styles */
+        #mobileContent {
+            display: none;
+            text-align: center;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: #f4e1d2; /* Sand color */
+            color: black;
+        }
+        #startBtn {
+            padding: 15px 30px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #d8b4a6; /* Slightly darker sand color */
+            border: none;
+            border-radius: 5px;
+            color: black;
+        }
+        #scene2 {
+            display: none;
+            width: 100%;
+            height: 100%;
+            background-color: #d8b4a6; /* Darker sand color */
+            color: black;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #ooo {
+            display: none;
+            max-width: 90%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+        }
+        .social-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        #bible-verse {
+            display: none;
+        }
+
+        /* Media queries */
+        @media (min-width: 768px) {
+            #mobileContent {
+                display: none;
+            }
+            #desktopContent {
+                display: block;
+            }
+        }
+        @media (max-width: 767px) {
+            #desktopContent {
+                display: none;
+            }
+            #mobileContent {
+                display: block;
+            }
+        }
     </style>
 </head>
 <body>
-    <div id="content">
+    <!-- Desktop version -->
+    <div id="desktopContent">
         <video id="video1" style="display:none;" muted playsinline>
             <source src="1.mp4" type="video/mp4">
         </video>
@@ -104,6 +178,20 @@
         <div id="bible-verse">
             <h3>Daily Bible Verse</h3>
             <p id="verse-text"></p>
+        </div>
+    </div>
+
+    <!-- Mobile version -->
+    <div id="mobileContent">
+        <button id="startBtn">Start</button>
+        <div id="scene2">
+            <div id="ooo">
+                <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSN?is_from_webapp=1&sender_device=pc" class="social-btn" target="_blank">TikTok</a>
+                <a href="https://instagram.com/d8ugie" class="social-btn" target="_blank">Instagram</a>
+                <a href="https://youtube.com/@dcug" class="social-btn" target="_blank">YouTube</a>
+                <a href="https://snapchat.com/add/dovgie" class="social-btn" target="_blank">Snapchat</a>
+                <a href="https://dougie.wtf/explore" class="social-btn">Explore</a>
+            </div>
         </div>
     </div>
 
@@ -159,6 +247,14 @@
                 })
                 .catch(error => console.error('Error loading verses:', error));
         }
+
+        const startBtn = document.getElementById('startBtn');
+        const scene2 = document.getElementById('scene2');
+
+        startBtn.addEventListener('click', () => {
+            startBtn.style.display = 'none';
+            scene2.style.display = 'block';
+        });
     </script>
 </body>
 </html>
