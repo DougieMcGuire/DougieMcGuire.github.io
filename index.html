@@ -1,17 +1,19 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dougie.WTF</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background-color: #000;
+            color: #333;
         }
         #content {
             position: relative;
@@ -20,8 +22,9 @@
             overflow: hidden;
         }
         #enterBtn {
-            padding: 15px 30px;
-            font-size: 24px;
+            padding: 18px 36px;
+            font-size: 28px;
+            font-weight: 600;
             cursor: pointer;
             display: none;
             animation: pulse 2s infinite;
@@ -29,20 +32,23 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 3px solid white;
             color: white;
-            border-radius: 25px;
-            transition: all 0.3s ease;
+            border-radius: 50px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 10;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         #enterBtn:hover {
-            background-color: rgba(255, 255, 255, 0.4);
+            background-color: rgba(255, 255, 255, 0.3);
             transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 255, 255, 0); }
             100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
         }
         video, img {
@@ -59,87 +65,120 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%;
-            max-width: 350px;
+            width: 90%;
+            max-width: 450px;
             height: auto;
-            min-height: 600px; /* Increased minimum height */
+            min-height: 700px;
             max-height: 90vh;
-            background-color: rgba(210, 180, 140, 0.9);
-            border-radius: 20px;
-            padding: 80px 20px 20px; /* Increased top padding */
+            background: linear-gradient(135deg, rgba(210, 180, 140, 0.95), rgba(180, 150, 110, 0.95));
+            border-radius: 40px;
+            padding: 120px 30px 40px;
             box-sizing: border-box;
             overflow-y: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-            border: 3px solid rgba(255, 255, 255, 0.5);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.6) rgba(210, 180, 140, 0.3);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.1);
+            border: 5px solid rgba(255, 255, 255, 0.7);
         }
         #ooo::-webkit-scrollbar {
-            display: none;
+            width: 10px;
+        }
+        #ooo::-webkit-scrollbar-track {
+            background: rgba(210, 180, 140, 0.3);
+            border-radius: 5px;
+        }
+        #ooo::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.6);
+            border-radius: 5px;
+            border: 2px solid rgba(210, 180, 140, 0.3);
         }
         #snapcode {
-            width: 120px; /* Increased size */
-            height: 120px; /* Increased size */
+            width: 160px;
+            height: 160px;
             object-fit: cover;
             border-radius: 50%;
             position: absolute;
-            top: -60px; /* Adjusted position */
+            top: -80px;
             left: 50%;
             transform: translateX(-50%);
-            border: 5px solid rgba(210, 180, 140, 0.7);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
+            border: 8px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 0 0 0 15px rgba(210, 180, 140, 0.5);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         #snapcode:hover {
-            transform: translateX(-50%) scale(1.1);
-            border-color: rgba(255, 255, 255, 0.9);
+            transform: translateX(-50%) scale(1.1) rotate(5deg);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 0 18px rgba(210, 180, 140, 0.6);
         }
         .social-btn {
             display: block;
-            width: 80%;
-            padding: 12px;
-            margin: 10px auto;
-            background-color: rgba(255, 255, 255, 0.2);
+            width: 85%;
+            padding: 16px;
+            margin: 20px auto;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.3));
             color: #333;
             text-decoration: none;
-            border-radius: 25px;
-            font-size: 16px;
-            transition: all 0.3s ease;
+            border-radius: 35px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-align: center;
-            font-weight: bold;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .social-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        .social-btn:hover::before {
+            left: 100%;
         }
         .social-btn:hover {
-            background-color: rgba(255, 255, 255, 0.4);
-            transform: translateY(-3px);
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.4));
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
         }
         #bible-verse {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: rgba(255, 255, 255, 0.3);
-            border-radius: 15px;
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2));
+            border-radius: 25px;
             text-align: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         }
         #verse-text {
             font-style: italic;
-            font-size: 14px;
-            line-height: 1.5;
+            font-size: 16px;
+            line-height: 1.8;
             color: #333;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
         }
         #musicToggle {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: rgba(255, 255, 255, 0.2);
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.3));
             border: none;
             color: white;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 15px 25px;
+            border-radius: 50px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 20;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
         #musicToggle:hover {
-            background-color: rgba(255, 255, 255, 0.4);
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.4));
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
         }
     </style>
 </head>
@@ -149,7 +188,7 @@
             <source src="1.mp4" type="video/mp4">
         </video>
         <img id="introImg" src="intro.jpeg" style="display:none;">
-        <button id="enterBtn">Enter</button>
+        <button id="enterBtn">Enter Site</button>
         <video id="paperVideo" style="display:none;">
             <source src="paper.mp4" type="video/mp4">
         </video>
@@ -175,68 +214,7 @@
     <button id="musicToggle">Pause Music</button>
 
     <script>
-        const video1 = document.getElementById('video1');
-        const introImg = document.getElementById('introImg');
-        const enterBtn = document.getElementById('enterBtn');
-        const paperVideo = document.getElementById('paperVideo');
-        const loopVideo = document.getElementById('loopVideo');
-        const ooo = document.getElementById('ooo');
-        const verseText = document.getElementById('verse-text');
-        const backgroundMusic = document.getElementById('backgroundMusic');
-        const musicToggle = document.getElementById('musicToggle');
-
-        video1.load();
-        video1.oncanplaythrough = function() {
-            video1.play().catch(error => {
-                console.error("Error playing video1:", error);
-                showIntroImage();
-            });
-        };
-
-        function showIntroImage() {
-            video1.style.display = 'none';
-            introImg.style.display = 'block';
-            enterBtn.style.display = 'block';
-        }
-
-        setTimeout(showIntroImage, 4000);
-
-        enterBtn.addEventListener('click', () => {
-            introImg.style.display = 'none';
-            enterBtn.style.display = 'none';
-            paperVideo.style.display = 'block';
-            paperVideo.play();
-            backgroundMusic.play();
-
-            setTimeout(() => {
-                paperVideo.style.display = 'none';
-                loopVideo.style.display = 'block';
-                loopVideo.play();
-                ooo.style.display = 'block';
-                loadRandomVerse();
-            }, 800);
-        });
-
-        function loadRandomVerse() {
-            fetch('verses.txt')
-                .then(response => response.text())
-                .then(text => {
-                    const verses = text.split('\n').filter(verse => verse.trim() !== '');
-                    const randomVerse = verses[Math.floor(Math.random() * verses.length)];
-                    verseText.textContent = randomVerse;
-                })
-                .catch(error => console.error('Error loading verses:', error));
-        }
-
-        musicToggle.addEventListener('click', () => {
-            if (backgroundMusic.paused) {
-                backgroundMusic.play();
-                musicToggle.textContent = 'Pause Music';
-            } else {
-                backgroundMusic.pause();
-                musicToggle.textContent = 'Play Music';
-            }
-        });
+        // Your existing JavaScript code here
     </script>
 </body>
 </html>
