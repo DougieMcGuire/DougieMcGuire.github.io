@@ -3,100 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Scene</title>
+    <title>GIF Sequence</title>
     <style>
-        /* Basic styling for the scene */
         body, html {
+            height: 100%;
             margin: 0;
-            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             overflow: hidden;
             background-color: black;
         }
-        #video-container, #intro-container {
+        .fullscreen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            object-fit: cover;
+        }
+        #container {
             display: none;
             justify-content: center;
             align-items: center;
-        }
-        #intro-container {
-            display: flex;
             flex-direction: column;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
         }
-        #start-button {
-            display: none;
-            font-size: 24px;
+        #enterButton {
+            margin-top: 20px;
             padding: 10px 20px;
+            font-size: 20px;
             background-color: white;
             border: none;
             cursor: pointer;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-        }
-        #start-button.fade {
-            animation: fade 2s infinite alternate;
-        }
-        @keyframes fade {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
+            z-index: 10;
         }
     </style>
 </head>
 <body>
 
-    <!-- Video containers -->
-    <div id="video-container">
-        <video id="video" width="100%" height="100%"></video>
+    <!-- Initial GIF as background -->
+    <img id="initialGif" class="fullscreen" src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExMWo4c2R6enpjY2J3MWlzcXNldnZ4bjU0OHZqaWtucXplZ2F6eXdtZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/SZsmjNkwzu4qZ8Pn1q/giphy.gif" alt="Initial GIF">
+
+    <!-- Container for PNG and Enter Button -->
+    <div id="container">
+        <img id="introImage" class="fullscreen" src="intro.jpeg" alt="Intro Image">
+        <button id="enterButton">Enter</button>
     </div>
 
-    <!-- Intro container with the image and start button -->
-    <div id="intro-container">
-        <img id="intro-image" src="intro.jpeg" alt="Intro Image">
-        <button id="start-button" class="fade">Start</button>
-    </div>
+    <!-- Second GIF -->
+    <img id="secondGif" class="fullscreen" src="https://media.giphy.com/media/VW4ATxpcueKIp0JM8u/giphy.gif" alt="Second GIF" style="display: none;">
+
+    <!-- Video -->
+    <video id="video" class="fullscreen" autoplay loop style="display: none;">
+        <source src="2.mov" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Elements
-            const videoContainer = document.getElementById('video-container');
-            const video = document.getElementById('video');
-            const introContainer = document.getElementById('intro-container');
-            const startButton = document.getElementById('start-button');
+        // Variables to easily edit durations and element IDs
+        const initialGifDuration = 1500; // Duration in milliseconds
+        const secondGifDuration = 700;  // Duration in milliseconds
 
-            // Step 1: Play 1.mov for one second
-            video.src = "1.mov";
-            videoContainer.style.display = "flex";
-            video.play();
+        const initialGif = document.getElementById('initialGif');
+        const container = document.getElementById('container');
+        const secondGif = document.getElementById('secondGif');
+        const video = document.getElementById('video');
+
+        // Display the initial GIF for the specified duration
+        setTimeout(() => {
+            initialGif.style.display = 'none';
+            container.style.display = 'flex';
+        }, initialGifDuration);
+
+        // When the Enter button is clicked
+        document.getElementById('enterButton').addEventListener('click', () => {
+            container.style.display = 'none';
+            secondGif.style.display = 'block';
+
+            // Play the second GIF for the specified duration
             setTimeout(() => {
-                video.pause();
-                videoContainer.style.display = "none";
-                
-                // Step 2: Show intro image with start button
-                introContainer.style.display = "flex";
-                setTimeout(() => {
-                    startButton.style.display = "block";
-                    startButton.style.opacity = 1;
-                }, 500);
-            }, 1000); // play for 1 second
-
-            // Step 3: Handle Start button click
-            startButton.addEventListener('click', () => {
-                introContainer.style.display = "none";
-                videoContainer.style.display = "flex";
-
-                // Play paper.mov
-                video.src = "paper.mov";
-                video.play();
-                video.onended = () => {
-                    // Loop 2.mov after paper.mov ends
-                    video.src = "2.mov";
-                    video.loop = true;
-                    video.play();
-                };
-            });
+                secondGif.style.display = 'none';
+                video.style.display = 'block';
+            }, secondGifDuration);
         });
     </script>
 
