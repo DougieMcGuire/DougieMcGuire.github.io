@@ -23,8 +23,8 @@
             height: 100%;
         }
         #enterBtn {
-            padding: 10px 20px;
-            font-size: 18px;
+            padding: 15px 30px;
+            font-size: 24px;
             cursor: pointer;
             display: none;
             animation: fadeInOut 2s infinite;
@@ -32,6 +32,14 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        #enterBtn:hover {
+            background-color: rgba(255, 255, 255, 0.4);
         }
         @keyframes fadeInOut {
             0%, 100% { opacity: 0.5; }
@@ -48,35 +56,45 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%;
+            width: 90%;
             max-width: 400px;
-            height: 80%;
+            height: 90%;
             background-color: rgba(0, 0, 0, 0.8);
             border-radius: 20px;
             padding: 20px;
             box-sizing: border-box;
+            overflow-y: auto;
         }
         #snapcode {
-            width: 10%;
+            width: 30%;
             margin-bottom: 20px;
         }
         .social-btn {
             display: block;
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            background-color: #333;
+            padding: 15px;
+            margin: 15px 0;
+            background-color: rgba(255, 255, 255, 0.1);
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 10px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        .social-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
         }
         #bible-verse {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            max-width: 200px;
-            text-align: right;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        #verse-text {
+            font-style: italic;
+            font-size: 16px;
+            line-height: 1.5;
         }
     </style>
 </head>
@@ -93,6 +111,9 @@
         <video id="loopVideo" style="display:none;" loop>
             <source src="2.mp4" type="video/mp4">
         </video>
+        <audio id="backgroundMusic" loop>
+            <source src="music.wav" type="audio/wav">
+        </audio>
         <div id="ooo">
             <img id="snapcode" src="snapcode.png" alt="Snapcode">
             <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSN?is_from_webapp=1&sender_device=pc" class="social-btn" target="_blank">TikTok</a>
@@ -100,10 +121,10 @@
             <a href="https://youtube.com/@dcug" class="social-btn" target="_blank">YouTube</a>
             <a href="https://snapchat.com/add/dovgie" class="social-btn" target="_blank">Snapchat</a>
             <a href="https://dougie.wtf/explore" class="social-btn">Explore</a>
-        </div>
-        <div id="ooo">
-            <h3>Daily Bible Verse</h3>
-            <p id="verse-text"></p>
+            <div id="bible-verse">
+                <h3>Daily Bible Verse</h3>
+                <p id="verse-text"></p>
+            </div>
         </div>
     </div>
 
@@ -115,6 +136,7 @@
         const loopVideo = document.getElementById('loopVideo');
         const ooo = document.getElementById('ooo');
         const verseText = document.getElementById('verse-text');
+        const backgroundMusic = document.getElementById('backgroundMusic');
 
         // Ensure the first video is loaded before trying to play
         video1.load();
@@ -139,6 +161,7 @@
             enterBtn.style.display = 'none';
             paperVideo.style.display = 'block';
             paperVideo.play();
+            backgroundMusic.play();
 
             setTimeout(() => {
                 paperVideo.style.display = 'none';
