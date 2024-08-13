@@ -58,56 +58,62 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 400px;
-            height: 90%;
-            max-height: 600px;
-            background-color: rgba(0, 0, 0, 0.8);
+            width: 80%;
+            max-width: 350px;
+            height: auto;
+            max-height: 80vh;
+            background-color: rgba(210, 180, 140, 0.9);
             border-radius: 20px;
             padding: 20px;
             box-sizing: border-box;
             overflow-y: auto;
             scrollbar-width: none;
             -ms-overflow-style: none;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.5);
         }
         #ooo::-webkit-scrollbar {
             display: none;
         }
         #snapcode {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             object-fit: cover;
             border-radius: 50%;
             margin: 0 auto 20px;
             display: block;
+            border: 2px solid white;
         }
         .social-btn {
             display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 15px 0;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
+            width: 80%;
+            padding: 12px;
+            margin: 10px auto;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #333;
             text-decoration: none;
-            border-radius: 10px;
-            font-size: 18px;
+            border-radius: 25px;
+            font-size: 16px;
             transition: all 0.3s ease;
             text-align: center;
+            font-weight: bold;
         }
         .social-btn:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.4);
             transform: translateY(-3px);
         }
         #bible-verse {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            text-align: center;
         }
         #verse-text {
             font-style: italic;
-            font-size: 16px;
+            font-size: 14px;
             line-height: 1.5;
+            color: #333;
         }
         #musicToggle {
             position: fixed;
