@@ -53,7 +53,7 @@
 </head>
 <body>
     <div id="content">
-        <video id="video1" style="display:none;">
+        <video id="video1" style="display:none;" muted playsinline>
             <source src="1.mp4" type="video/mp4">
         </video>
         <img id="introImg" src="intro.jpeg" style="display:none;">
@@ -75,15 +75,26 @@
         const loopVideo = document.getElementById('loopVideo');
         const hiText = document.getElementById('hiText');
 
-        // Play first video
-        video1.style.display = 'block';
-        video1.play();
+        // Ensure the first video is loaded before trying to play
+        video1.load();
+        video1.oncanplaythrough = function() {
+            video1.style.display = 'block';
+            video1.play().catch(error => {
+                console.error("Error playing video1:", error);
+                // If video fails to play, skip to next step
+                showIntroImage();
+            });
+        };
 
-        setTimeout(() => {
+        // Function to show intro image and enter button
+        function showIntroImage() {
             video1.style.display = 'none';
             introImg.style.display = 'block';
             enterBtn.style.display = 'block';
-        }, 4000);
+        }
+
+        // Set timeout to show intro image after 4 seconds
+        setTimeout(showIntroImage, 4000);
 
         enterBtn.addEventListener('click', () => {
             introImg.style.display = 'none';
