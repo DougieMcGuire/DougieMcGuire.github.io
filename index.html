@@ -61,10 +61,11 @@
             width: 80%;
             max-width: 350px;
             height: auto;
-            max-height: 80vh;
+            min-height: 500px; /* Increased minimum height */
+            max-height: 90vh;
             background-color: rgba(210, 180, 140, 0.9);
             border-radius: 20px;
-            padding: 60px 20px 20px;
+            padding: 80px 20px 20px; /* Increased top padding */
             box-sizing: border-box;
             overflow-y: auto;
             scrollbar-width: none;
@@ -76,12 +77,12 @@
             display: none;
         }
         #snapcode {
-            width: 100px;
-            height: 100px;
+            width: 120px; /* Increased size */
+            height: 120px; /* Increased size */
             object-fit: cover;
             border-radius: 50%;
             position: absolute;
-            top: -50px;
+            top: -60px; /* Adjusted position */
             left: 50%;
             transform: translateX(-50%);
             border: 5px solid rgba(210, 180, 140, 0.7);
