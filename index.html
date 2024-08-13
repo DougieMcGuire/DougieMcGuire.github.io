@@ -1,3 +1,5 @@
+
+You said:
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,41 +61,38 @@
             left: 50%;
             transform: translate(-50%, -50%);
             width: 80%;
-            max-width: 400px; /* Increased maximum width */
+            max-width: 350px;
             height: auto;
-            min-height: 600px;
+            min-height: 600px; /* Increased minimum height */
             max-height: 90vh;
             background-color: rgba(210, 180, 140, 0.9);
             border-radius: 20px;
-            padding: 20px; /* Adjusted padding */
+            padding: 80px 20px 20px; /* Increased top padding */
             box-sizing: border-box;
             overflow-y: auto;
             scrollbar-width: none;
             -ms-overflow-style: none;
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
             border: 3px solid rgba(255, 255, 255, 0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
         }
         #ooo::-webkit-scrollbar {
             display: none;
         }
         #snapcode {
-            width: 100%;
-            height: auto;
-            max-width: 150px; /* Increased maximum size */
-            max-height: 150px; /* Increased maximum size */
+            width: 120px; /* Increased size */
+            height: 120px; /* Increased size */
             object-fit: cover;
             border-radius: 50%;
+            position: absolute;
+            top: -60px; /* Adjusted position */
+            left: 50%;
+            transform: translateX(-50%);
             border: 5px solid rgba(210, 180, 140, 0.7);
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
-            margin-bottom: 20px; /* Space between image and buttons */
         }
         #snapcode:hover {
-            transform: scale(1.1);
+            transform: translateX(-50%) scale(1.1);
             border-color: rgba(255, 255, 255, 0.9);
         }
         .social-btn {
