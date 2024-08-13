@@ -38,6 +38,9 @@
             50% { opacity: 1; }
         }
         video, img {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -48,13 +51,14 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%;
+            width: 90%;
             max-width: 400px;
-            height: 80%;
+            height: 90%;
             background-color: rgba(0, 0, 0, 0.8);
             border-radius: 20px;
             padding: 20px;
             box-sizing: border-box;
+            overflow-y: auto;
         }
         #snapcode {
             width: 50%;
@@ -71,12 +75,36 @@
             border-radius: 5px;
         }
         #bible-verse {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            max-width: 200px;
-            text-align: right;
+            margin: 20px 0;
+        }
+        #music-player {
+            margin-top: 20px;
+        }
+        #song-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        #time-bar {
+            width: 100%;
+            height: 5px;
+            background-color: #444;
+            margin-bottom: 10px;
+        }
+        #time-progress {
+            width: 0;
+            height: 100%;
+            background-color: #fff;
+        }
+        #playlist {
+            list-style-type: none;
+            padding: 0;
+        }
+        #playlist li {
+            cursor: pointer;
+            padding: 5px;
+            margin: 5px 0;
+            background-color: #222;
+            border-radius: 3px;
         }
     </style>
 </head>
@@ -100,10 +128,22 @@
             <a href="https://youtube.com/@dcug" class="social-btn" target="_blank">YouTube</a>
             <a href="https://snapchat.com/add/dovgie" class="social-btn" target="_blank">Snapchat</a>
             <a href="https://dougie.wtf/explore" class="social-btn">Explore</a>
-        </div>
-        <div id="bible-verse">
-            <h3>Daily Bible Verse</h3>
-            <p id="verse-text"></p>
+            <div id="bible-verse">
+                <h3>Daily Bible Verse</h3>
+                <p id="verse-text"></p>
+            </div>
+            <div id="music-player">
+                <div id="song-title">Letting Someone Go</div>
+                <div id="time-bar"><div id="time-progress"></div></div>
+                <audio id="audio-player" src="lsg.wav"></audio>
+                <button id="play-pause">Play/Pause</button>
+                <ul id="playlist">
+                    <li data-src="lsg.wav">Letting Someone Go</li>
+                    <li data-src="loom.wav">loom</li>
+                    <li data-src="28.wav">28</li>
+                    <li data-src="tgabs.wav">The Great American Bar Scene</li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -115,8 +155,12 @@
         const loopVideo = document.getElementById('loopVideo');
         const ooo = document.getElementById('ooo');
         const verseText = document.getElementById('verse-text');
+        const audioPlayer = document.getElementById('audio-player');
+        const playPauseBtn = document.getElementById('play-pause');
+        const songTitle = document.getElementById('song-title');
+        const timeProgress = document.getElementById('time-progress');
+        const playlist = document.getElementById('playlist');
 
-        // Ensure the first video is loaded before trying to play
         video1.load();
         video1.oncanplaythrough = function() {
             video1.style.display = 'block';
@@ -159,6 +203,27 @@
                 })
                 .catch(error => console.error('Error loading verses:', error));
         }
+
+        playPauseBtn.addEventListener('click', () => {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+            } else {
+                audioPlayer.pause();
+            }
+        });
+
+        audioPlayer.addEventListener('timeupdate', () => {
+            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            timeProgress.style.width = `${progress}%`;
+        });
+
+        playlist.addEventListener('click', (e) => {
+            if (e.target.tagName === 'LI') {
+                songTitle.textContent = e.target.textContent;
+                audioPlayer.src = e.target.getAttribute('data-src');
+                audioPlayer.play();
+            }
+        });
     </script>
 </body>
 </html>
