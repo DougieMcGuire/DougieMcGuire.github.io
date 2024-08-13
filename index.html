@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIF Sequence</title>
+    <title>GIF Sequence with Fade</title>
     <style>
         body, html {
             height: 100%;
@@ -21,6 +21,12 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        #initialGif {
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
         }
         #container {
             display: none;
@@ -33,6 +39,7 @@
             width: 100%;
             height: 100%;
             background-size: cover;
+            opacity: 0;
         }
         #enterButton {
             margin-top: 20px;
@@ -67,18 +74,23 @@
 
     <script>
         // Variables to easily edit durations and element IDs
-        const initialGifDuration = 1500; // Duration in milliseconds
-        const secondGifDuration = 700;  // Duration in milliseconds
+        const initialGifDuration =1200; // Duration in milliseconds
+        const secondGifDuration = 600;  // Duration in milliseconds
+        const fadeDuration = 1000; // Fade duration in milliseconds
 
         const initialGif = document.getElementById('initialGif');
         const container = document.getElementById('container');
         const secondGif = document.getElementById('secondGif');
         const video = document.getElementById('video');
+        const introImage = document.getElementById('introImage');
 
         // Display the initial GIF for the specified duration
         setTimeout(() => {
-            initialGif.style.display = 'none';
-            container.style.display = 'flex';
+            initialGif.style.opacity = '0';
+            setTimeout(() => {
+                container.style.display = 'flex';
+                introImage.style.opacity = '1';
+            }, fadeDuration);
         }, initialGifDuration);
 
         // When the Enter button is clicked
