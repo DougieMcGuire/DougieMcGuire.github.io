@@ -15,12 +15,22 @@
             background-color: black;
             color: white;
             font-family: Arial, sans-serif;
+            overflow: hidden;
         }
         #content {
             text-align: center;
             position: relative;
             width: 100%;
             height: 100%;
+        }
+        video, img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none; /* Makes videos and image non-interactable */
         }
         #enterBtn {
             padding: 15px 30px;
@@ -37,6 +47,7 @@
             color: white;
             border-radius: 5px;
             transition: all 0.3s ease;
+            z-index: 2; /* Ensures button stays on top */
         }
         #enterBtn:hover {
             background-color: rgba(255, 255, 255, 0.4);
@@ -44,11 +55,6 @@
         @keyframes fadeInOut {
             0%, 100% { opacity: 0.5; }
             50% { opacity: 1; }
-        }
-        video, img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
         #ooo {
             display: none;
@@ -64,6 +70,7 @@
             padding: 20px;
             box-sizing: border-box;
             overflow-y: auto;
+            z-index: 3; /* Ensures content stays on top */
         }
         #snapcode {
             width: 10px;
@@ -107,6 +114,7 @@
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
+            z-index: 3; /* Ensures button stays on top */
         }
         #musicToggle:hover {
             background-color: rgba(255, 255, 255, 0.4);
@@ -115,7 +123,7 @@
 </head>
 <body>
     <div id="content">
-        <video id="video1" style="display:none;" muted playsinline>
+        <video id="video1" muted playsinline>
             <source src="1.mp4" type="video/mp4">
         </video>
         <img id="introImg" src="intro.jpeg" style="display:none;">
