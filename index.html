@@ -14,71 +14,92 @@
             background-color: #111;
             color: #eee;
         }
+        
         #content {
             position: relative;
             width: 100vw;
             height: 100vh;
             overflow: hidden;
         }
-        #enterBtn {
-            padding: 15px 30px;
-            font-size: 24px;
-            cursor: pointer;
-            display: none;
-            animation: pulse 2s infinite;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.6);
-            border: 2px solid #ffcc00;
-            color: #ffcc00;
-            border-radius: 30px;
-            transition: all 0.3s ease;
-            z-index: 10;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+
+        /* Desktop styles */
+        @media screen and (min-width: 768px) {
+            #enterBtn {
+                padding: 15px 30px;
+                font-size: 24px;
+                cursor: pointer;
+                display: none;
+                animation: pulse 2s infinite;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(0, 0, 0, 0.6);
+                border: 2px solid #ffcc00;
+                color: #ffcc00;
+                border-radius: 30px;
+                transition: all 0.3s ease;
+                z-index: 10;
+                text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+            }
+
+            #enterBtn:hover {
+                background-color: rgba(0, 0, 0, 0.8);
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+
+            @keyframes pulse {
+                0% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.7); }
+                70% { box-shadow: 0 0 0 20px rgba(255, 204, 0, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0); }
+            }
+
+            video, img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
         }
-        #enterBtn:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-            transform: translate(-50%, -50%) scale(1.1);
+
+        /* Mobile styles */
+        @media screen and (max-width: 767px) {
+            body, html {
+                background-color: rgba(255, 179, 153, 0.95);
+            }
+
+            #content {
+                background-color: rgba(255, 179, 153, 0.95);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #ooo {
+                position: relative;
+                display: block;
+                width: 90%;
+                max-width: 400px;
+                min-height: 650px;
+                max-height: 90vh;
+                background: linear-gradient(145deg, rgba(255, 179, 153, 0.95), rgba(255, 140, 105, 0.85));
+                border-radius: 30px;
+                padding: 100px 20px 20px;
+                box-sizing: border-box;
+                overflow-y: auto;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+                border: 2px solid rgba(255, 255, 255, 0.3);
+            }
         }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(255, 204, 0, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0); }
-        }
-        video, img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        #ooo {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            max-width: 400px;
-            height: auto;
-            min-height: 650px;
-            max-height: 90vh;
-            background: linear-gradient(145deg, rgba(255, 179, 153, 0.95), rgba(255, 140, 105, 0.85)); /* Peach gradient */
-            border-radius: 30px;
-            padding: 100px 20px 20px;
-            box-sizing: border-box;
-            overflow-y: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
+
         #ooo::-webkit-scrollbar {
             display: none;
         }
+
         #snapcode {
             width: 90px;
             height: 90px;
@@ -92,30 +113,33 @@
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
         }
+
         #snapcode:hover {
             transform: translateX(-50%) scale(1.1);
             border-color: rgba(255, 255, 255, 0.9);
         }
-       .social-btn {
-    display: block;
-    width: 90%;
-    padding: 15px;
-    margin: 15px auto;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: #ffcc00;
-    text-decoration: none;
-    border-radius: 25px;
-    font-size: 18px;
-    transition: all 0.3s ease;
-    text-align: center;
-    font-weight: bold;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-}
-.social-btn:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    color: #fff;
-    transform: translateY(-5px) scale(1.05) rotate(1deg);
-}
+
+        .social-btn {
+            display: block;
+            width: 90%;
+            padding: 15px;
+            margin: 15px auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #ffcc00;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .social-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #fff;
+            transform: translateY(-5px) scale(1.05) rotate(1deg);
+        }
 
         #bible-verse {
             margin-top: 25px;
@@ -126,12 +150,14 @@
             color: #ffcc00;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
+
         #verse-text {
             font-style: italic;
             font-size: 16px;
             line-height: 1.6;
             color: #fff;
         }
+
         #musicToggle {
             position: fixed;
             bottom: 20px;
@@ -146,6 +172,7 @@
             z-index: 20;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
+
         #musicToggle:hover {
             background-color: rgba(255, 255, 255, 0.3);
             color: #fff;
@@ -155,6 +182,7 @@
 </head>
 <body>
     <div id="content">
+        <!-- Desktop Version -->
         <video id="video1" muted playsinline>
             <source src="1.mp4" type="video/mp4">
         </video>
@@ -166,9 +194,8 @@
         <video id="loopVideo" style="display:none;" loop>
             <source src="2.mp4" type="video/mp4">
         </video>
-        <audio id="backgroundMusic" loop>
-            <source src="audio.mp3" type="audio/mp3">
-        </audio>
+
+        <!-- Shared Content (both Desktop and Mobile) -->
         <div id="ooo">
             <img id="snapcode" src="Untitled.png" alt="Snapcode">
             <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSN?is_from_webapp=1&sender_device=pc" class="social-btn" target="_blank">TikTok</a>
@@ -195,36 +222,42 @@
         const backgroundMusic = document.getElementById('backgroundMusic');
         const musicToggle = document.getElementById('musicToggle');
 
-        video1.load();
-        video1.oncanplaythrough = function() {
-            video1.play().catch(error => {
-                console.error("Error playing video1:", error);
-                showIntroImage();
+        if (window.innerWidth >= 768) {
+            video1.load();
+            video1.oncanplaythrough = function() {
+                video1.play().catch(error => {
+                    console.error("Error playing video1:", error);
+                    showIntroImage();
+                });
+            };
+
+            function showIntroImage() {
+                introImg.style.display = 'block';
+                enterBtn.style.display = 'block';
+            }
+
+            setTimeout(showIntroImage, 4000);
+
+            enterBtn.addEventListener('click', () => {
+                introImg.style.display = 'none';
+                enterBtn.style.display = 'none';
+                paperVideo.style.display = 'block';
+                paperVideo.play();
+                backgroundMusic.play();
+
+                setTimeout(() => {
+                    paperVideo.style.display = 'none';
+                    loopVideo.style.display = 'block';
+                    loopVideo.play();
+                    ooo.style.display = 'block';
+                    loadRandomVerse();
+                }, 800);
             });
-        };
-
-        function showIntroImage() {
-            introImg.style.display = 'block';
-            enterBtn.style.display = 'block';
-        }
-
-        setTimeout(showIntroImage, 4000);
-
-        enterBtn.addEventListener('click', () => {
-            introImg.style.display = 'none';
-            enterBtn.style.display = 'none';
-            paperVideo.style.display = 'block';
-            paperVideo.play();
+        } else {
+            ooo.style.display = 'block';
+            loadRandomVerse();
             backgroundMusic.play();
-
-            setTimeout(() => {
-                paperVideo.style.display = 'none';
-                loopVideo.style.display = 'block';
-                loopVideo.play();
-                ooo.style.display = 'block';
-                loadRandomVerse();
-            }, 800);
-        });
+        }
 
         function loadRandomVerse() {
             fetch('verses.txt')
