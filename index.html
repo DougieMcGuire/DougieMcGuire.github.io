@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -78,7 +77,7 @@
             height: auto;
             min-height: 650px;
             max-height: 90vh;
-            background: linear-gradient(145deg, rgba(255, 179, 153, 0.95), rgba(255, 140, 105, 0.85)); /* Peach gradient */
+            background: linear-gradient(145deg, rgba(255, 179, 153, 0.95), rgba(255, 140, 105, 0.85));
             border-radius: 30px;
             padding: 100px 20px 20px;
             box-sizing: border-box;
@@ -97,7 +96,7 @@
             object-fit: cover;
             border-radius: 50%;
             position: absolute;
-            top: 5px; /* Adjusted for better visibility */
+            top: 5px;
             left: 50%;
             transform: translateX(-50%);
             border: 5px solid rgba(255, 204, 0, 0.7);
@@ -163,6 +162,44 @@
             color: #fff;
             transform: scale(1.1);
         }
+        #musicPlayer {
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #ffcc00;
+        }
+        #musicPlayer .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #musicPlayer button {
+            background: none;
+            border: none;
+            color: #ffcc00;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        #musicPlayer .progress {
+            width: 100%;
+            height: 5px;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        #musicPlayer .progress-bar {
+            width: 0;
+            height: 100%;
+            background-color: #ffcc00;
+            transition: width 0.1s linear;
+        }
+        #currentSong {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -178,8 +215,8 @@
         <video id="loopVideo" style="display:none;" loop>
             <source src="2.mp4" type="video/mp4">
         </video>
-        <audio id="backgroundMusic" loop>
-            <source src="audio.mp3" type="audio/mp3">
+        <audio id="backgroundMusic">
+            <source src="audio1.mp3" type="audio/mp3">
         </audio>
         <div id="ooo">
             <img id="snapcode" src="Untitled.png" alt="Snapcode">
@@ -188,6 +225,18 @@
             <a href="https://youtube.com/@dcug" class="social-btn" target="_blank">YouTube</a>
             <a href="https://snapchat.com/add/dovgie" class="social-btn" target="_blank">Snapchat</a>
             <a href="https://dougie.wtf/explore" class="social-btn">Explore</a>
+            <div id="musicPlayer">
+                <div class="controls">
+                    <button id="prevBtn">⏮</button>
+                    <button id="playPauseBtn">▶</button>
+                    <button id="nextBtn">⏭</button>
+                    <button id="shuffleBtn">🔀</button>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar"></div>
+                </div>
+                <div id="currentSong">Song 1</div>
+            </div>
             <div id="bible-verse">
                 <h3>Random Bible Verse</h3>
                 <p id="verse-text"></p>
@@ -206,6 +255,13 @@
         const verseText = document.getElementById('verse-text');
         const backgroundMusic = document.getElementById('backgroundMusic');
         const musicToggle = document.getElementById('musicToggle');
+
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        const progressBar = document.querySelector('.progress-bar');
+        const currentSongDisplay = document.getElementById('currentSong');
 
         video1.load();
         video1.oncanplaythrough = function() {
@@ -253,11 +309,90 @@
             if (backgroundMusic.paused) {
                 backgroundMusic.play();
                 musicToggle.textContent = 'Pause Music';
+                playPauseBtn.textContent = '⏸';
             } else {
                 backgroundMusic.pause();
                 musicToggle.textContent = 'Play Music';
+                playPauseBtn.textContent = '▶';
             }
         });
+
+        const songs = [
+            'audio1.mp3', 'audio2.mp3', 'audio3.mp3', 'audio4.mp3', 'audio5.mp3',
+            'audio6.mp3', 'audio7.mp3', 'audio8.mp3', 'audio9.mp3', 'audio10.mp3'
+        ];
+        let currentSongIndex = 0;
+        let isShuffled = false;
+
+        function loadSong(index) {
+            backgroundMusic.src = songs[index];
+            currentSongDisplay.textContent = `Song ${index + 1}`;
+        }
+
+        function playSong() {
+            backgroundMusic.play();
+            playPauseBtn.textContent = '⏸';
+            musicToggle.textContent = 'Pause Music';
+        }
+
+        function pauseSong() {
+            backgroundMusic.pause();
+            playPauseBtn.textContent = '▶';
+            musicToggle.textContent = 'Play Music';
+        }
+
+        function prevSong() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            loadSong(currentSongIndex);
+            playSong();
+        }
+
+        function nextSong() {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            loadSong(currentSongIndex);
+            playSong();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        playPauseBtn.addEventListener('click', () => {
+            if (backgroundMusic.paused) {
+                playSong();
+            } else {
+                pauseSong();
+            }
+        });
+
+        prevBtn.addEventListener('click', prevSong);
+        nextBtn.addEventListener('click', nextSong);
+
+        shuffleBtn.addEventListener('click', () => {
+            isShuffled = !isShuffled;
+            if (isShuffled) {
+                shuffleArray(songs);
+                shuffleBtn.style.color = '#ff0000';
+            } else {
+                songs.sort((a, b) => a.localeCompare(b));
+                shuffleBtn.style.color = '#ffcc00';
+            }
+            currentSongIndex = 0;
+            loadSong(currentSongIndex);
+            playSong();
+        });
+
+        backgroundMusic.addEventListener('timeupdate', () => {
+            const progress = (backgroundMusic.currentTime / backgroundMusic.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+        });
+
+        backgroundMusic.addEventListener('ended', nextSong);
+
+        loadSong(currentSongIndex);
     </script>
 </body>
 </html>
