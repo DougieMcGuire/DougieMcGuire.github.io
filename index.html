@@ -7,12 +7,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const isMobile = window.matchMedia("only screen and (max-width: 767px)").matches;
-
             if (isMobile) {
                 window.location.href = "https://dougie.wtf/mobile";
             }
         });
     </script>
+
     <style>
         body, html {
             margin: 0;
@@ -70,12 +70,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 500px;
+            width: 80%;
+            max-width: 450px;
             height: auto;
-            min-height: 800px;
+            min-height: 800px; /* Increased for more content */
             max-height: 90vh;
-            background: linear-gradient(145deg, rgba(255, 179, 153, 0.95), rgba(255, 140, 105, 0.85)); /* Peach gradient */
+            background: linear-gradient(145deg, rgba(255, 179, 153, 0.95), rgba(255, 140, 105, 0.85));
             border-radius: 30px;
             padding: 100px 20px 20px;
             box-sizing: border-box;
@@ -94,7 +94,7 @@
             object-fit: cover;
             border-radius: 50%;
             position: absolute;
-            top: 5px; /* Adjusted for better visibility */
+            top: 5px;
             left: 50%;
             transform: translateX(-50%);
             border: 5px solid rgba(255, 204, 0, 0.7);
@@ -140,28 +140,46 @@
             line-height: 1.6;
             color: #fff;
         }
-        .music-controls {
+
+        #musicPlayer {
             display: flex;
-            justify-content: space-around;
+            flex-direction: column;
             align-items: center;
-            margin: 20px 0;
+            margin-bottom: 20px;
         }
-        .music-controls img {
+        #musicPlayer img {
             width: 40px;
             height: 40px;
+            margin: 10px;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: transform 0.2s;
         }
-        .music-controls img:hover {
+        #musicPlayer img:hover {
             transform: scale(1.1);
         }
-        .music-info {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 18px;
-            color: #fff;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+        #songTitle {
+            font-size: 20px;
+            margin: 10px 0;
+            color: #ffcc00;
+        }
+        #songArtist {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #ffcc00;
+        }
+        #timeBar {
+            width: 90%;
+            height: 5px;
+            background-color: #ffcc00;
+            margin: 20px 0;
+            border-radius: 5px;
+            position: relative;
+        }
+        #timeBar div {
+            height: 100%;
+            background-color: #111;
+            border-radius: 5px;
+            transition: width 0.2s;
         }
     </style>
 </head>
@@ -178,158 +196,140 @@
         <video id="loopVideo" style="display:none;" loop>
             <source src="2.mp4" type="video/mp4">
         </video>
+        <audio id="backgroundMusic" loop>
+            <source src="audio.mp3" type="audio/mp3">
+        </audio>
         <div id="ooo">
             <img id="snapcode" src="Untitled.png" alt="Snapcode">
 
-            <div class="music-controls">
-                <img id="prevBtn" src="https://cdn-icons-png.flaticon.com/128/3318/3318703.png" alt="Previous">
-                <img id="playPauseBtn" src="https://cdn-icons-png.flaticon.com/128/3249/3249396.png" alt="Play/Pause">
-                <img id="nextBtn" src="https://cdn-icons-png.flaticon.com/128/3318/3318722.png" alt="Next">
-                <img id="shuffleBtn" src="https://cdn-icons-png.flaticon.com/128/3031/3031711.png" alt="Shuffle">
+            <!-- Music Player -->
+            <div id="musicPlayer">
+                <div id="songTitle">Song Title</div>
+                <div id="songArtist">Artist Name</div>
+                <div id="timeBar">
+                    <div style="width: 0%;"></div>
+                </div>
+                <div>
+                    <img id="prevBtn" src="https://cdn-icons-png.flaticon.com/128/3318/3318703.png" alt="Previous">
+                    <img id="playPauseBtn" src="https://cdn-icons-png.flaticon.com/128/3249/3249396.png" alt="Play">
+                    <img id="nextBtn" src="https://cdn-icons-png.flaticon.com/128/3318/3318722.png" alt="Skip">
+                    <img id="shuffleBtn" src="https://cdn-icons-png.flaticon.com/128/3031/3031711.png" alt="Shuffle">
+                </div>
             </div>
-            <div class="music-info" id="currentSong">Song Name</div>
 
-            <audio id="audioPlayer">
-                <source id="audioSource" src="audio1.mp3" type="audio/mp3">
-            </audio>
+            <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJfHLmY9W1r" class="social-btn">TikTok</a>
+            <a href="https://www.snapchat.com/add/notswind" class="social-btn">Snapchat</a>
+            <a href="https://soundcloud.com/moneyswank" class="social-btn">SoundCloud</a>
 
-            <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSN?is_from_webapp=1&sender_device=pc" class="social-btn" target="_blank">TikTok</a>
-            <a href="https://instagram.com/d8ugie" class="social-btn" target="_blank">Instagram</a>
-            <a href="https://youtube.com/@dcug" class="social-btn" target="_blank">YouTube</a>
-            <a href="https://snapchat.com/add/dovgie" class="social-btn" target="_blank">Snapchat</a>
-            <a href="https://dougie.wtf/explore" class="social-btn">Explore</a>
-            
             <div id="bible-verse">
-                <h3>Random Bible Verse</h3>
-                <p id="verse-text"></p>
+                <div id="verse-text">
+                    <script src="https://www.biblegateway.com/votd/get/?format=json&version=NIV&callback=myCallback">
+                    </script>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const video1 = document.getElementById('video1');
-        const introImg = document.getElementById('introImg');
-        const enterBtn = document.getElementById('enterBtn');
-        const paperVideo = document.getElementById('paperVideo');
-        const loopVideo = document.getElementById('loopVideo');
-        const ooo = document.getElementById('ooo');
-        const verseText = document.getElementById('verse-text');
+        document.addEventListener("DOMContentLoaded", function () {
+            const enterBtn = document.getElementById("enterBtn");
+            const video1 = document.getElementById("video1");
+            const paperVideo = document.getElementById("paperVideo");
+            const loopVideo = document.getElementById("loopVideo");
+            const backgroundMusic = document.getElementById("backgroundMusic");
+            const ooo = document.getElementById("ooo");
+            const snapcode = document.getElementById("snapcode");
 
-        const audioPlayer = document.getElementById('audioPlayer');
-        const audioSource = document.getElementById('audioSource');
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const shuffleBtn = document.getElementById('shuffleBtn');
-        const currentSong = document.getElementById('currentSong');
+            // Music Player variables
+            const playPauseBtn = document.getElementById("playPauseBtn");
+            const nextBtn = document.getElementById("nextBtn");
+            const prevBtn = document.getElementById("prevBtn");
+            const shuffleBtn = document.getElementById("shuffleBtn");
+            const songTitle = document.getElementById("songTitle");
+            const songArtist = document.getElementById("songArtist");
+            const timeBar = document.getElementById("timeBar").firstElementChild;
 
-        const songs = [
-            { name: "Song 1", src: "audio1.mp3" },
-            { name: "Song 2", src: "audio2.mp3" },
-            { name: "Song 3", src: "audio3.mp3" },
-            { name: "Song 4", src: "audio4.mp3" },
-            { name: "Song 5", src: "audio5.mp3" },
-            { name: "Song 6", src: "audio6.mp3" },
-            { name: "Song 7", src: "audio7.mp3" },
-            { name: "Song 8", src: "audio8.mp3" },
-            { name: "Song 9", src: "audio9.mp3" },
-            { name: "Song 10", src: "audio10.mp3" }
-        ];
-        let currentSongIndex = 0;
-        let isPlaying = false;
-        let isShuffleOn = false;
+            let isPlaying = false;
+            let currentSongIndex = 0;
+            let isShuffling = false;
 
-        function loadSong(index) {
-            audioSource.src = songs[index].src;
-            currentSong.textContent = songs[index].name;
-            audioPlayer.load();
-        }
+            const songs = [
+                { title: "Song 1", artist: "Artist 1", src: "song1.mp3" },
+                { title: "Song 2", artist: "Artist 2", src: "song2.mp3" },
+                { title: "Song 3", artist: "Artist 3", src: "song3.mp3" }
+            ];
 
-        function playSong() {
-            audioPlayer.play();
-            playPauseBtn.src = "https://cdn-icons-png.flaticon.com/128/12659/12659790.png"; // Pause icon
-            isPlaying = true;
-        }
-
-        function pauseSong() {
-            audioPlayer.pause();
-            playPauseBtn.src = "https://cdn-icons-png.flaticon.com/128/3249/3249396.png"; // Play icon
-            isPlaying = false;
-        }
-
-        function nextSong() {
-            if (isShuffleOn) {
-                currentSongIndex = Math.floor(Math.random() * songs.length);
-            } else {
-                currentSongIndex = (currentSongIndex + 1) % songs.length;
+            function loadSong(songIndex) {
+                const song = songs[songIndex];
+                backgroundMusic.src = song.src;
+                songTitle.textContent = song.title;
+                songArtist.textContent = song.artist;
+                timeBar.style.width = "0%";
             }
-            loadSong(currentSongIndex);
-            playSong();
-        }
 
-        function prevSong() {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
-            loadSong(currentSongIndex);
-            playSong();
-        }
-
-        playPauseBtn.addEventListener('click', () => {
-            if (isPlaying) {
-                pauseSong();
-            } else {
-                playSong();
+            function playPauseMusic() {
+                if (isPlaying) {
+                    backgroundMusic.pause();
+                    playPauseBtn.src = "https://cdn-icons-png.flaticon.com/128/3249/3249396.png"; // Play icon
+                } else {
+                    backgroundMusic.play();
+                    playPauseBtn.src = "https://cdn-icons-png.flaticon.com/128/3249/3249396.png"; // Pause icon
+                }
+                isPlaying = !isPlaying;
             }
-        });
 
-        nextBtn.addEventListener('click', nextSong);
-        prevBtn.addEventListener('click', prevSong);
-
-        shuffleBtn.addEventListener('click', () => {
-            isShuffleOn = !isShuffleOn;
-            shuffleBtn.classList.toggle('active');
-        });
-
-        video1.load();
-        video1.oncanplaythrough = function() {
-            video1.play().catch(error => {
-                console.error("Error playing video1:", error);
-                showIntroImage();
-            });
-        };
-
-        function showIntroImage() {
-            introImg.style.display = 'block';
-            enterBtn.style.display = 'block';
-        }
-
-        setTimeout(showIntroImage, 4000);
-
-        enterBtn.addEventListener('click', () => {
-            introImg.style.display = 'none';
-            enterBtn.style.display = 'none';
-            paperVideo.style.display = 'block';
-            paperVideo.play();
-
-            setTimeout(() => {
-                paperVideo.style.display = 'none';
-                loopVideo.style.display = 'block';
-                loopVideo.play();
-                ooo.style.display = 'block';
-                loadRandomVerse();
+            function nextSong() {
+                if (isShuffling) {
+                    currentSongIndex = Math.floor(Math.random() * songs.length);
+                } else {
+                    currentSongIndex = (currentSongIndex + 1) % songs.length;
+                }
                 loadSong(currentSongIndex);
-            }, 800);
-        });
+                playPauseMusic();
+            }
 
-        function loadRandomVerse() {
-            fetch('verses.txt')
-                .then(response => response.text())
-                .then(text => {
-                    const verses = text.split('\n').filter(verse => verse.trim() !== '');
-                    const randomVerse = verses[Math.floor(Math.random() * verses.length)];
-                    verseText.textContent = randomVerse;
-                })
-                .catch(error => console.error('Error loading verses:', error));
-        }
+            function prevSong() {
+                currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+                loadSong(currentSongIndex);
+                playPauseMusic();
+            }
+
+            function toggleShuffle() {
+                isShuffling = !isShuffling;
+                shuffleBtn.classList.toggle("active", isShuffling);
+            }
+
+            playPauseBtn.addEventListener("click", playPauseMusic);
+            nextBtn.addEventListener("click", nextSong);
+            prevBtn.addEventListener("click", prevSong);
+            shuffleBtn.addEventListener("click", toggleShuffle);
+
+            loadSong(currentSongIndex);
+
+            backgroundMusic.addEventListener("timeupdate", () => {
+                const progress = (backgroundMusic.currentTime / backgroundMusic.duration) * 100;
+                timeBar.style.width = progress + "%";
+            });
+
+            // Page loading animation
+            setTimeout(() => {
+                enterBtn.style.display = "block";
+            }, 2500);
+
+            enterBtn.addEventListener("click", function () {
+                video1.style.display = "none";
+                paperVideo.style.display = "block";
+                paperVideo.play();
+                setTimeout(() => {
+                    paperVideo.style.display = "none";
+                    loopVideo.style.display = "block";
+                    loopVideo.play();
+                    backgroundMusic.play();
+                    enterBtn.style.display = "none";
+                    ooo.style.display = "block";
+                }, 4000);
+            });
+        });
     </script>
 </body>
 </html>
