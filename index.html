@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dougie.WTF</title>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const isMobile = window.matchMedia("only screen and (max-width: 767px)").matches;
-        if (isMobile) {
-            window.location.href = "https://dougie.wtf/mobile";
-        }
-    });
-    </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const isMobile = window.matchMedia("only screen and (max-width: 767px)").matches;
+
+    if (isMobile) {
+      window.location.href = "https://dougie.wtf/mobile";
+    }
+  });
+</script>
+
+
     <style>
         body, html {
             margin: 0;
@@ -74,7 +77,7 @@
             height: auto;
             min-height: 650px;
             max-height: 90vh;
-            background: linear-gradient(145deg, rgba(255, 179, 153, 0.95), rgba(255, 140, 105, 0.85));
+            background: linear-gradient(145deg, rgba(255, 179, 153, 0.95), rgba(255, 140, 105, 0.85)); /* Peach gradient */
             border-radius: 30px;
             padding: 100px 20px 20px;
             box-sizing: border-box;
@@ -93,7 +96,7 @@
             object-fit: cover;
             border-radius: 50%;
             position: absolute;
-            top: 5px;
+            top: 5px; /* Adjusted for better visibility */
             left: 50%;
             transform: translateX(-50%);
             border: 5px solid rgba(255, 204, 0, 0.7);
@@ -104,26 +107,27 @@
             transform: translateX(-50%) scale(1.1);
             border-color: rgba(255, 255, 255, 0.9);
         }
-        .social-btn {
-            display: block;
-            width: 90%;
-            padding: 15px;
-            margin: 15px auto;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: #ffcc00;
-            text-decoration: none;
-            border-radius: 25px;
-            font-size: 18px;
-            transition: all 0.3s ease;
-            text-align: center;
-            font-weight: bold;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-        }
-        .social-btn:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-            color: #fff;
-            transform: translateY(-5px) scale(1.05) rotate(1deg);
-        }
+       .social-btn {
+    display: block;
+    width: 90%;
+    padding: 15px;
+    margin: 15px auto;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #ffcc00;
+    text-decoration: none;
+    border-radius: 25px;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+.social-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+    transform: translateY(-5px) scale(1.05) rotate(1deg);
+}
+
         #bible-verse {
             margin-top: 25px;
             padding: 20px;
@@ -139,53 +143,24 @@
             line-height: 1.6;
             color: #fff;
         }
-        #musicPlayer {
-            background-color: rgba(0, 0, 0, 0.8);
-            border-radius: 15px;
-            padding: 15px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            color: #ffcc00;
-        }
-        #musicPlayer .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        #musicPlayer button {
-            background: none;
+        #musicToggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
             border: none;
+            color: #ffcc00;
+            padding: 12px;
+            border-radius: 8px;
             cursor: pointer;
-            padding: 0;
+            transition: all 0.3s ease;
+            z-index: 20;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
-        #musicPlayer button img {
-            width: 24px;
-            height: 24px;
-            position: static;
-            transition: transform 0.3s ease;
-        }
-        #musicPlayer button:hover img {
-            transform: scale(1.2);
-        }
-        #musicPlayer .progress {
-            width: 100%;
-            height: 5px;
-            background-color: #333;
-            border-radius: 5px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-        #musicPlayer .progress-bar {
-            width: 0;
-            height: 100%;
-            background-color: #ffcc00;
-            transition: width 0.1s linear;
-        }
-        #currentSong {
-            text-align: center;
-            margin-top: 10px;
-            font-weight: bold;
+        #musicToggle:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #fff;
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -202,122 +177,85 @@
         <video id="loopVideo" style="display:none;" loop>
             <source src="2.mp4" type="video/mp4">
         </video>
-        <audio id="backgroundMusic">
-            <source src="audio1.mp3" type="audio/mp3">
+        <audio id="backgroundMusic" loop>
+            <source src="audio.mp3" type="audio/mp3">
         </audio>
         <div id="ooo">
             <img id="snapcode" src="Untitled.png" alt="Snapcode">
-            <div id="musicPlayer">
-                <div class="controls">
-                    <button id="prevBtn"><img src="https://cdn-icons-png.flaticon.com/128/3318/3318703.png" alt="Previous"></button>
-                    <button id="playPauseBtn"><img src="https://cdn-icons-png.flaticon.com/128/3249/3249396.png" alt="Play/Pause"></button>
-                    <button id="nextBtn"><img src="https://cdn-icons-png.flaticon.com/128/3318/3318722.png" alt="Next"></button>
-                    <button id="shuffleBtn"><img src="https://cdn-icons-png.flaticon.com/128/3031/3031711.png" alt="Shuffle"></button>
-                </div>
-                <div class="progress">
-                    <div class="progress-bar"></div>
-                </div>
-                <div id="currentSong">Track 1</div>
-            </div>
-            <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSJ" class="social-btn">TikTok</a>
-            <a href="https://www.instagram.com/dougieonallplatforms/" class="social-btn">Instagram</a>
-            <a href="https://www.snapchat.com/add/Dougie_150" class="social-btn">Snapchat</a>
+            <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSN?is_from_webapp=1&sender_device=pc" class="social-btn" target="_blank">TikTok</a>
+            <a href="https://instagram.com/d8ugie" class="social-btn" target="_blank">Instagram</a>
+            <a href="https://youtube.com/@dcug" class="social-btn" target="_blank">YouTube</a>
+            <a href="https://snapchat.com/add/dovgie" class="social-btn" target="_blank">Snapchat</a>
+            <a href="https://dougie.wtf/explore" class="social-btn">Explore</a>
             <div id="bible-verse">
-                <div id="verse-text">“I can do all this through him who gives me strength.”<br>—Philippians 4:13 (NIV)</div>
+                <h3>Random Bible Verse</h3>
+                <p id="verse-text"></p>
             </div>
         </div>
     </div>
+    <button id="musicToggle">Pause Music</button>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const video1 = document.getElementById('video1');
-            const paperVideo = document.getElementById('paperVideo');
-            const loopVideo = document.getElementById('loopVideo');
-            const introImg = document.getElementById('introImg');
-            const enterBtn = document.getElementById('enterBtn');
-            const ooo = document.getElementById('ooo');
-            const snapcode = document.getElementById('snapcode');
-            const backgroundMusic = document.getElementById('backgroundMusic');
-            const playPauseBtn = document.getElementById('playPauseBtn');
-            const progressBar = document.querySelector('.progress-bar');
-            const currentSong = document.getElementById('currentSong');
-            const songList = ['audio1.mp3', 'audio2.mp3', 'audio3.mp3']; 
-            let currentSongIndex = 0;
-            let isPlaying = false;
-            let isPaused = false;
-            let musicTimer;
-            
-            function playSong(index) {
-                backgroundMusic.src = songList[index];
-                currentSong.textContent = `Track ${index + 1}`;
-                backgroundMusic.play();
-                isPlaying = true;
-                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3249/3249399.png";
-                musicTimer = setInterval(updateProgress, 500);
-            }
+        const video1 = document.getElementById('video1');
+        const introImg = document.getElementById('introImg');
+        const enterBtn = document.getElementById('enterBtn');
+        const paperVideo = document.getElementById('paperVideo');
+        const loopVideo = document.getElementById('loopVideo');
+        const ooo = document.getElementById('ooo');
+        const verseText = document.getElementById('verse-text');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const musicToggle = document.getElementById('musicToggle');
 
-            function pauseSong() {
-                backgroundMusic.pause();
-                isPaused = true;
-                isPlaying = false;
-                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3249/3249396.png";
-                clearInterval(musicTimer);
-            }
-
-            function resumeSong() {
-                backgroundMusic.play();
-                isPaused = false;
-                isPlaying = true;
-                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3249/3249399.png";
-                musicTimer = setInterval(updateProgress, 500);
-            }
-
-            playPauseBtn.addEventListener('click', function() {
-                if (isPlaying) {
-                    pauseSong();
-                } else if (isPaused) {
-                    resumeSong();
-                } else {
-                    playSong(currentSongIndex);
-                }
+        video1.load();
+        video1.oncanplaythrough = function() {
+            video1.play().catch(error => {
+                console.error("Error playing video1:", error);
+                showIntroImage();
             });
+        };
 
-            function updateProgress() {
-                const progressPercentage = (backgroundMusic.currentTime / backgroundMusic.duration) * 100;
-                progressBar.style.width = `${progressPercentage}%`;
-            }
+        function showIntroImage() {
+            introImg.style.display = 'block';
+            enterBtn.style.display = 'block';
+        }
 
-            backgroundMusic.addEventListener('ended', function() {
-                clearInterval(musicTimer);
-                progressBar.style.width = '0';
-                isPlaying = false;
-                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3249/3249396.png";
-            });
+        setTimeout(showIntroImage, 4000);
 
-            backgroundMusic.volume = 0.2;
-            playSong(currentSongIndex); // Auto-start music unpaused
+        enterBtn.addEventListener('click', () => {
+            introImg.style.display = 'none';
+            enterBtn.style.display = 'none';
+            paperVideo.style.display = 'block';
+            paperVideo.play();
+            backgroundMusic.play();
 
-            video1.addEventListener('ended', function() {
-                video1.style.display = 'none';
-                paperVideo.style.display = 'block';
-                paperVideo.play();
-                enterBtn.style.display = 'block';
-            });
-
-            enterBtn.addEventListener('click', function() {
-                enterBtn.style.display = 'none';
-                introImg.style.display = 'block';
+            setTimeout(() => {
                 paperVideo.style.display = 'none';
-                setTimeout(function() {
-                    introImg.style.display = 'none';
-                    loopVideo.style.display = 'block';
-                    loopVideo.play();
-                    ooo.style.display = 'block';
-                }, 3000);
-            });
-
-            snapcode.addEventListener('click', function() {
+                loopVideo.style.display = 'block';
                 loopVideo.play();
-            });
+                ooo.style.display = 'block';
+                loadRandomVerse();
+            }, 800);
+        });
+
+        function loadRandomVerse() {
+            fetch('verses.txt')
+                .then(response => response.text())
+                .then(text => {
+                    const verses = text.split('\n').filter(verse => verse.trim() !== '');
+                    const randomVerse = verses[Math.floor(Math.random() * verses.length)];
+                    verseText.textContent = randomVerse;
+                })
+                .catch(error => console.error('Error loading verses:', error));
+        }
+
+        musicToggle.addEventListener('click', () => {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play();
+                musicToggle.textContent = 'Pause Music';
+            } else {
+                backgroundMusic.pause();
+                musicToggle.textContent = 'Play Music';
+            }
         });
     </script>
 </body>
