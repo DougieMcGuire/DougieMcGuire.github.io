@@ -217,12 +217,16 @@
                 <div class="progress">
                     <div class="progress-bar"></div>
                 </div>
-                <div id="currentSong">Song 1</div>
+                <div id="currentSong">Track 1</div>
             </div>
-            <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSN?is_from_webapp=1&sender_device=pc" class="social-btn">TikTok</a>
-            <a href="https://www.instagram.com/dougie.wtf" class="social-btn">Instagram</a>
+            <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSN?is_from_webapp=1&sender_device=pc" class="social-btn" target="_blank">TikTok</a>
+            <a href="https://instagram.com/d8ugie" class="social-btn" target="_blank">Instagram</a>
+            <a href="https://youtube.com/@dcug" class="social-btn" target="_blank">YouTube</a>
+            <a href="https://snapchat.com/add/dovgie" class="social-btn" target="_blank">Snapchat</a>
+            <a href="https://dougie.wtf/explore" class="social-btn">Explore</a>
             <div id="bible-verse">
-                <p id="verse-text">"The LORD is my shepherd; I shall not want. He maketh me to lie down in green pastures: he leadeth me beside the still waters." - Psalm 23:1-2</p>
+                <h3>Random Bible Verse</h3>
+                <p id="verse-text"></p>
             </div>
         </div>
     </div>
@@ -245,7 +249,7 @@
         const progressContainer = document.querySelector('.progress');
         const currentSongDisplay = document.getElementById('currentSong');
 
-        // Preload video1 and handle errors
+        video1.load();
         video1.oncanplaythrough = function() {
             video1.play().catch(error => {
                 console.error("Error playing video1:", error);
@@ -253,89 +257,155 @@
             });
         };
 
-        // Fallback if video1 does not play
-        setTimeout(() => {
-            if (video1.paused) {
-                showIntroImage();
-            }
-        }, 4000);
-
         function showIntroImage() {
             introImg.style.display = 'block';
             enterBtn.style.display = 'block';
         }
 
-        enterBtn.addEventListener('click', function() {
+        setTimeout(showIntroImage, 4000);
+
+        enterBtn.addEventListener('click', () => {
             introImg.style.display = 'none';
             enterBtn.style.display = 'none';
             paperVideo.style.display = 'block';
-            paperVideo.play().then(() => {
-                paperVideo.addEventListener('ended', function() {
-                    loopVideo.style.display = 'block';
-                    loopVideo.play();
-                    ooo.style.display = 'block';
-                    backgroundMusic.play();
-                });
-            }).catch(error => {
-                console.error("Error playing paperVideo:", error);
-            });
+            paperVideo.play();
+            
+            setTimeout(() => {
+                paperVideo.style.display = 'none';
+                loopVideo.style.display = 'block';
+                loopVideo.play();
+                ooo.style.display = 'block';
+                loadRandomVerse();
+                setTimeout(() => {
+                    playSong();
+                }, 1000);
+            }, 800);
         });
 
-        // Music Player Functionality
+        function loadRandomVerse() {
+            fetch('verses.txt')
+                .then(response => response.text())
+                .then(text => {
+                    const verses = text.split('\n').filter(verse => verse.trim() !== '');
+                    const randomVerse = verses[Math.floor(Math.random() * verses.length)];
+                    verseText.textContent = randomVerse;
+                })
+                .catch(error => console.error('Error loading verses:', error));
+        }
+
+        const songs = [
+            { file: 'audio1.mp3', name: 'Track 1' },
+            { file: 'audio2.mp3', name: 'Track 2' },
+            { file: 'audio3.mp3', name: 'Track 3' },
+            { file: 'audio4.mp3', name: 'Track 4' },
+            { file: 'audio5.mp3', name: 'Track 5' },
+            { file: 'audio6.mp3', name: 'Track 6' },
+            { file: 'audio7.mp3', name: 'Track 7' },
+            { file: 'audio8.mp3', name: 'Track 8' },
+            { file: 'audio9.mp3', name: 'Track 9' },
+            { file: 'audio10.mp3', name: 'Track 10' }
+        ];
         let currentSongIndex = 0;
-        const songs = ["audio1.mp3", "audio2.mp3", "audio3.mp3"];
-        backgroundMusic.src = songs[currentSongIndex];
+        let isShuffled = false;
+        let shuffledPlaylist = [...songs];
+
+        function loadSong(index) {
+            const song = isShuffled ? shuffledPlaylist[index] : songs[index];
+            backgroundMusic.src = song.file;
+            currentSongDisplay.textContent = song.name;
+        }
+
+        function playSong() {
+            backgroundMusic.play().then(() => {
+                updatePlayPauseButton();
+            }).catch(error => {
+                console.error("Error playing audio:", error);
+            });
+        }
+
+        function pauseSong() {
+            backgroundMusic.pause();
+            updatePlayPauseButton();
+        }
+
+        function prevSong() {
+            currentSongIndex = (currentSongIndex - 1 + (isShuffled ? shuffledPlaylist.length : songs.length)) % (isShuffled ? shuffledPlaylist.length : songs.length);
+            loadSong(currentSongIndex);
+            playSong();
+        }
+
+        function nextSong() {
+            currentSongIndex = (currentSongIndex + 1) % (isShuffled ? shuffledPlaylist.length : songs.length);
+            loadSong(currentSongIndex);
+            playSong();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function updatePlayPauseButton() {
+            if (backgroundMusic.paused) {
+                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/12659/12659790.png";
+            } else {
+                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3249/3249396.png";
+            }
+        }
 
         playPauseBtn.addEventListener('click', () => {
             if (backgroundMusic.paused) {
-                backgroundMusic.play();
-                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3177/3177433.png";
+                playSong();
             } else {
-                backgroundMusic.pause();
-                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/12659/12659790.png";
+                pauseSong();
             }
         });
 
-        prevBtn.addEventListener('click', () => {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
-            backgroundMusic.src = songs[currentSongIndex];
-            backgroundMusic.play();
-            updateSongDisplay();
-        });
-
-        nextBtn.addEventListener('click', () => {
-            currentSongIndex = (currentSongIndex + 1) % songs.length;
-            backgroundMusic.src = songs[currentSongIndex];
-            backgroundMusic.play();
-            updateSongDisplay();
-        });
+        prevBtn.addEventListener('click', prevSong);
+        nextBtn.addEventListener('click', nextSong);
 
         shuffleBtn.addEventListener('click', () => {
-            currentSongIndex = Math.floor(Math.random() * songs.length);
-            backgroundMusic.src = songs[currentSongIndex];
-            backgroundMusic.play();
-            updateSongDisplay();
+            isShuffled = !isShuffled;
+            if (isShuffled) {
+                shuffledPlaylist = [...songs];
+                shuffleArray(shuffledPlaylist);
+                shuffleBtn.querySelector('img').style.filter = 'brightness(0) invert(1)';
+            } else {
+                shuffleBtn.querySelector('img').style.filter = 'none';
+            }
+            currentSongIndex = 0;
+            loadSong(currentSongIndex);
+            playSong();
         });
 
         backgroundMusic.addEventListener('timeupdate', () => {
-            const progressPercent = (backgroundMusic.currentTime / backgroundMusic.duration) * 100;
-            progressBar.style.width = `${progressPercent}%`;
+            const progress = (backgroundMusic.currentTime / backgroundMusic.duration) * 100;
+            progressBar.style.width = `${progress}%`;
         });
 
-        progressContainer.addEventListener('click', (e) => {
-            const width = progressContainer.clientWidth;
-            const clickX = e.offsetX;
-            const duration = backgroundMusic.duration;
-            backgroundMusic.currentTime = (clickX / width) * duration;
+progressContainer.addEventListener('click', (e) => {
+            const clickPosition = e.offsetX / progressContainer.offsetWidth;
+            backgroundMusic.currentTime = clickPosition * backgroundMusic.duration;
         });
 
-        function updateSongDisplay() {
-            const songTitles = ["Song 1", "Song 2", "Song 3"];
-            currentSongDisplay.textContent = songTitles[currentSongIndex];
-            playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3177/3177433.png";
+        backgroundMusic.addEventListener('ended', nextSong);
+
+        loadSong(currentSongIndex);
+
+        // Add this function to update the play/pause button state
+        function updatePlayPauseButton() {
+            if (backgroundMusic.paused) {
+                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/12659/12659790.png";
+            } else {
+                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3249/3249396.png";
+            }
         }
 
-        updateSongDisplay();
+        // Add event listeners to update the play/pause button
+        backgroundMusic.addEventListener('play', updatePlayPauseButton);
+        backgroundMusic.addEventListener('pause', updatePlayPauseButton);
     </script>
 </body>
 </html>
