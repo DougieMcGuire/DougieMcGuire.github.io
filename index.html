@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dougie.WTF</title>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const isMobile = window.matchMedia("only screen and (max-width: 767px)").matches;
-        if (isMobile) {
-        window.location.href = "https://dougie.wtf/mobile";
-        }
-    });
+        document.addEventListener('DOMContentLoaded', function() {
+            const isMobile = window.matchMedia("only screen and (max-width: 767px)").matches;
+
+            if (isMobile) {
+                window.location.href = "https://dougie.wtf/mobile";
+            }
+        });
     </script>
     <style>
         body, html {
@@ -69,12 +70,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%;
-            max-width: 400px;
+            width: 90%;
+            max-width: 500px;
             height: auto;
-            min-height: 650px;
+            min-height: 800px;
             max-height: 90vh;
-            background: linear-gradient(145deg, rgba(255, 179, 153, 0.95), rgba(255, 140, 105, 0.85));
+            background: linear-gradient(145deg, rgba(255, 179, 153, 0.95), rgba(255, 140, 105, 0.85)); /* Peach gradient */
             border-radius: 30px;
             padding: 100px 20px 20px;
             box-sizing: border-box;
@@ -93,7 +94,7 @@
             object-fit: cover;
             border-radius: 50%;
             position: absolute;
-            top: 5px;
+            top: 5px; /* Adjusted for better visibility */
             left: 50%;
             transform: translateX(-50%);
             border: 5px solid rgba(255, 204, 0, 0.7);
@@ -139,53 +140,28 @@
             line-height: 1.6;
             color: #fff;
         }
-        #musicPlayer {
-            background-color: rgba(0, 0, 0, 0.8);
-            border-radius: 15px;
-            padding: 15px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            color: #ffcc00;
-        }
-        #musicPlayer .controls {
+        .music-controls {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             align-items: center;
-            margin-bottom: 10px;
+            margin: 20px 0;
         }
-        #musicPlayer button {
-            background: none;
-            border: none;
+        .music-controls img {
+            width: 40px;
+            height: 40px;
             cursor: pointer;
-            padding: 0;
-        }
-        #musicPlayer button img {
-            width: 24px;
-            height: 24px;
-            position: static;
             transition: transform 0.3s ease;
         }
-        #musicPlayer button:hover img {
-            transform: scale(1.2);
+        .music-controls img:hover {
+            transform: scale(1.1);
         }
-        #musicPlayer .progress {
-            width: 100%;
-            height: 5px;
-            background-color: #333;
-            border-radius: 5px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-        #musicPlayer .progress-bar {
-            width: 0;
-            height: 100%;
-            background-color: #ffcc00;
-            transition: width 0.1s linear;
-        }
-        #currentSong {
+        .music-info {
             text-align: center;
             margin-top: 10px;
+            font-size: 18px;
+            color: #fff;
             font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
         }
     </style>
 </head>
@@ -202,28 +178,27 @@
         <video id="loopVideo" style="display:none;" loop>
             <source src="2.mp4" type="video/mp4">
         </video>
-        <audio id="backgroundMusic">
-            <source src="audio1.mp3" type="audio/mp3">
-        </audio>
         <div id="ooo">
             <img id="snapcode" src="Untitled.png" alt="Snapcode">
-            <div id="musicPlayer">
-                <div class="controls">
-                    <button id="prevBtn"><img src="https://cdn-icons-png.flaticon.com/128/3318/3318703.png" alt="Previous"></button>
-                    <button id="playPauseBtn"><img src="https://cdn-icons-png.flaticon.com/128/12659/12659790.png" alt="Play/Pause"></button>
-                    <button id="nextBtn"><img src="https://cdn-icons-png.flaticon.com/128/3318/3318722.png" alt="Next"></button>
-                    <button id="shuffleBtn"><img src="https://cdn-icons-png.flaticon.com/128/3031/3031711.png" alt="Shuffle"></button>
-                </div>
-                <div class="progress">
-                    <div class="progress-bar"></div>
-                </div>
-                <div id="currentSong">Song 1</div>
+
+            <div class="music-controls">
+                <img id="prevBtn" src="https://cdn-icons-png.flaticon.com/128/3318/3318703.png" alt="Previous">
+                <img id="playPauseBtn" src="https://cdn-icons-png.flaticon.com/128/3249/3249396.png" alt="Play/Pause">
+                <img id="nextBtn" src="https://cdn-icons-png.flaticon.com/128/3318/3318722.png" alt="Next">
+                <img id="shuffleBtn" src="https://cdn-icons-png.flaticon.com/128/3031/3031711.png" alt="Shuffle">
             </div>
+            <div class="music-info" id="currentSong">Song Name</div>
+
+            <audio id="audioPlayer">
+                <source id="audioSource" src="audio1.mp3" type="audio/mp3">
+            </audio>
+
             <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSN?is_from_webapp=1&sender_device=pc" class="social-btn" target="_blank">TikTok</a>
             <a href="https://instagram.com/d8ugie" class="social-btn" target="_blank">Instagram</a>
             <a href="https://youtube.com/@dcug" class="social-btn" target="_blank">YouTube</a>
             <a href="https://snapchat.com/add/dovgie" class="social-btn" target="_blank">Snapchat</a>
             <a href="https://dougie.wtf/explore" class="social-btn">Explore</a>
+            
             <div id="bible-verse">
                 <h3>Random Bible Verse</h3>
                 <p id="verse-text"></p>
@@ -239,15 +214,80 @@
         const loopVideo = document.getElementById('loopVideo');
         const ooo = document.getElementById('ooo');
         const verseText = document.getElementById('verse-text');
-        const backgroundMusic = document.getElementById('backgroundMusic');
 
+        const audioPlayer = document.getElementById('audioPlayer');
+        const audioSource = document.getElementById('audioSource');
         const playPauseBtn = document.getElementById('playPauseBtn');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
         const shuffleBtn = document.getElementById('shuffleBtn');
-        const progressBar = document.querySelector('.progress-bar');
-        const progressContainer = document.querySelector('.progress');
-        const currentSongDisplay = document.getElementById('currentSong');
+        const currentSong = document.getElementById('currentSong');
+
+        const songs = [
+            { name: "Song 1", src: "audio1.mp3" },
+            { name: "Song 2", src: "audio2.mp3" },
+            { name: "Song 3", src: "audio3.mp3" },
+            { name: "Song 4", src: "audio4.mp3" },
+            { name: "Song 5", src: "audio5.mp3" },
+            { name: "Song 6", src: "audio6.mp3" },
+            { name: "Song 7", src: "audio7.mp3" },
+            { name: "Song 8", src: "audio8.mp3" },
+            { name: "Song 9", src: "audio9.mp3" },
+            { name: "Song 10", src: "audio10.mp3" }
+        ];
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        let isShuffleOn = false;
+
+        function loadSong(index) {
+            audioSource.src = songs[index].src;
+            currentSong.textContent = songs[index].name;
+            audioPlayer.load();
+        }
+
+        function playSong() {
+            audioPlayer.play();
+            playPauseBtn.src = "https://cdn-icons-png.flaticon.com/128/12659/12659790.png"; // Pause icon
+            isPlaying = true;
+        }
+
+        function pauseSong() {
+            audioPlayer.pause();
+            playPauseBtn.src = "https://cdn-icons-png.flaticon.com/128/3249/3249396.png"; // Play icon
+            isPlaying = false;
+        }
+
+        function nextSong() {
+            if (isShuffleOn) {
+                currentSongIndex = Math.floor(Math.random() * songs.length);
+            } else {
+                currentSongIndex = (currentSongIndex + 1) % songs.length;
+            }
+            loadSong(currentSongIndex);
+            playSong();
+        }
+
+        function prevSong() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            loadSong(currentSongIndex);
+            playSong();
+        }
+
+        playPauseBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                pauseSong();
+            } else {
+                playSong();
+            }
+        });
+
+        nextBtn.addEventListener('click', nextSong);
+        prevBtn.addEventListener('click', prevSong);
+
+        shuffleBtn.addEventListener('click', () => {
+            isShuffleOn = !isShuffleOn;
+            shuffleBtn.classList.toggle('active');
+        });
 
         video1.load();
         video1.oncanplaythrough = function() {
@@ -269,7 +309,6 @@
             enterBtn.style.display = 'none';
             paperVideo.style.display = 'block';
             paperVideo.play();
-            backgroundMusic.play();
 
             setTimeout(() => {
                 paperVideo.style.display = 'none';
@@ -277,6 +316,7 @@
                 loopVideo.play();
                 ooo.style.display = 'block';
                 loadRandomVerse();
+                loadSong(currentSongIndex);
             }, 800);
         });
 
@@ -290,100 +330,6 @@
                 })
                 .catch(error => console.error('Error loading verses:', error));
         }
-
-        const songs = [
-            'audio1.mp3', 'audio2.mp3', 'audio3.mp3', 'audio4.mp3', 'audio5.mp3',
-            'audio6.mp3', 'audio7.mp3', 'audio8.mp3', 'audio9.mp3', 'audio10.mp3'
-        ];
-        let currentSongIndex = 0;
-        let isShuffled = false;
-        let shuffledPlaylist = [...songs];
-
-        function loadSong(index) {
-            backgroundMusic.src = isShuffled ? shuffledPlaylist[index] : songs[index];
-            currentSongDisplay.textContent = `Song ${isShuffled ? shuffledPlaylist[index].replace('audio', '').replace('.mp3', '') : index + 1}`;
-        }
-
-        function playSong() {
-            backgroundMusic.play();
-            playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3249/3249396.png";
-        }
-
-        function pauseSong() {
-            backgroundMusic.pause();
-            playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/12659/12659790.png";
-        }
-
-        function prevSong() {
-            currentSongIndex = (currentSongIndex - 1 + (isShuffled ? shuffledPlaylist.length : songs.length)) % (isShuffled ? shuffledPlaylist.length : songs.length);
-            loadSong(currentSongIndex);
-            playSong();
-        }
-
-        function nextSong() {
-            currentSongIndex = (currentSongIndex + 1) % (isShuffled ? shuffledPlaylist.length : songs.length);
-            loadSong(currentSongIndex);
-            playSong();
-        }
-
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        playPauseBtn.addEventListener('click', () => {
-            if (backgroundMusic.paused) {
-                playSong();
-            } else {
-                pauseSong();
-            }
-        });
-
-        prevBtn.addEventListener('click', prevSong);
-        nextBtn.addEventListener('click', nextSong);
-
-        shuffleBtn.addEventListener('click', () => {
-            isShuffled = !isShuffled;
-            if (isShuffled) {
-                shuffledPlaylist = [...songs];
-                shuffleArray(shuffledPlaylist);
-                shuffleBtn.querySelector('img').style.filter = 'brightness(0) invert(1)';
-            } else {
-                shuffleBtn.querySelector('img').style.filter = 'none';
-            }
-            currentSongIndex = 0;
-            loadSong(currentSongIndex);
-            playSong();
-        });
-
-        backgroundMusic.addEventListener('timeupdate', () => {
-            const progress = (backgroundMusic.currentTime / backgroundMusic.duration) * 100;
-            progressBar.style.width = `${progress}%`;
-        });
-
-progressContainer.addEventListener('click', (e) => {
-            const clickPosition = e.offsetX / progressContainer.offsetWidth;
-            backgroundMusic.currentTime = clickPosition * backgroundMusic.duration;
-        });
-
-        backgroundMusic.addEventListener('ended', nextSong);
-
-        loadSong(currentSongIndex);
-
-        // Add this function to update the play/pause button state
-        function updatePlayPauseButton() {
-            if (backgroundMusic.paused) {
-                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/12659/12659790.png";
-            } else {
-                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3249/3249396.png";
-            }
-        }
-
-        // Add event listeners to update the play/pause button
-        backgroundMusic.addEventListener('play', updatePlayPauseButton);
-        backgroundMusic.addEventListener('pause', updatePlayPauseButton);
     </script>
 </body>
 </html>
