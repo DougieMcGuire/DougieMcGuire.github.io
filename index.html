@@ -8,7 +8,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const isMobile = window.matchMedia("only screen and (max-width: 767px)").matches;
         if (isMobile) {
-        window.location.href = "https://dougie.wtf/mobile";
+            window.location.href = "https://dougie.wtf/mobile";
         }
     });
     </script>
@@ -210,7 +210,7 @@
             <div id="musicPlayer">
                 <div class="controls">
                     <button id="prevBtn"><img src="https://cdn-icons-png.flaticon.com/128/3318/3318703.png" alt="Previous"></button>
-                    <button id="playPauseBtn"><img src="https://cdn-icons-png.flaticon.com/128/12659/12659790.png" alt="Play/Pause"></button>
+                    <button id="playPauseBtn"><img src="https://cdn-icons-png.flaticon.com/128/3249/3249396.png" alt="Play/Pause"></button>
                     <button id="nextBtn"><img src="https://cdn-icons-png.flaticon.com/128/3318/3318722.png" alt="Next"></button>
                     <button id="shuffleBtn"><img src="https://cdn-icons-png.flaticon.com/128/3031/3031711.png" alt="Shuffle"></button>
                 </div>
@@ -219,193 +219,106 @@
                 </div>
                 <div id="currentSong">Track 1</div>
             </div>
-            <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSN?is_from_webapp=1&sender_device=pc" class="social-btn" target="_blank">TikTok</a>
-            <a href="https://instagram.com/d8ugie" class="social-btn" target="_blank">Instagram</a>
-            <a href="https://youtube.com/@dcug" class="social-btn" target="_blank">YouTube</a>
-            <a href="https://snapchat.com/add/dovgie" class="social-btn" target="_blank">Snapchat</a>
-            <a href="https://dougie.wtf/explore" class="social-btn">Explore</a>
+            <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSJ" class="social-btn">TikTok</a>
+            <a href="https://www.instagram.com/dougieonallplatforms/" class="social-btn">Instagram</a>
+            <a href="https://www.snapchat.com/add/Dougie_150" class="social-btn">Snapchat</a>
             <div id="bible-verse">
-                <h3>Random Bible Verse</h3>
-                <p id="verse-text"></p>
+                <div id="verse-text">“I can do all this through him who gives me strength.”<br>—Philippians 4:13 (NIV)</div>
             </div>
         </div>
     </div>
-
     <script>
-        const video1 = document.getElementById('video1');
-        const introImg = document.getElementById('introImg');
-        const enterBtn = document.getElementById('enterBtn');
-        const paperVideo = document.getElementById('paperVideo');
-        const loopVideo = document.getElementById('loopVideo');
-        const ooo = document.getElementById('ooo');
-        const verseText = document.getElementById('verse-text');
-        const backgroundMusic = document.getElementById('backgroundMusic');
-
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const shuffleBtn = document.getElementById('shuffleBtn');
-        const progressBar = document.querySelector('.progress-bar');
-        const progressContainer = document.querySelector('.progress');
-        const currentSongDisplay = document.getElementById('currentSong');
-
-        video1.load();
-        video1.oncanplaythrough = function() {
-            video1.play().catch(error => {
-                console.error("Error playing video1:", error);
-                showIntroImage();
-            });
-        };
-
-        function showIntroImage() {
-            introImg.style.display = 'block';
-            enterBtn.style.display = 'block';
-        }
-
-        setTimeout(showIntroImage, 4000);
-
-        enterBtn.addEventListener('click', () => {
-            introImg.style.display = 'none';
-            enterBtn.style.display = 'none';
-            paperVideo.style.display = 'block';
-            paperVideo.play();
+        document.addEventListener('DOMContentLoaded', function() {
+            const video1 = document.getElementById('video1');
+            const paperVideo = document.getElementById('paperVideo');
+            const loopVideo = document.getElementById('loopVideo');
+            const introImg = document.getElementById('introImg');
+            const enterBtn = document.getElementById('enterBtn');
+            const ooo = document.getElementById('ooo');
+            const snapcode = document.getElementById('snapcode');
+            const backgroundMusic = document.getElementById('backgroundMusic');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const progressBar = document.querySelector('.progress-bar');
+            const currentSong = document.getElementById('currentSong');
+            const songList = ['audio1.mp3', 'audio2.mp3', 'audio3.mp3']; 
+            let currentSongIndex = 0;
+            let isPlaying = false;
+            let isPaused = false;
+            let musicTimer;
             
-            setTimeout(() => {
-                paperVideo.style.display = 'none';
-                loopVideo.style.display = 'block';
-                loopVideo.play();
-                ooo.style.display = 'block';
-                loadRandomVerse();
-                setTimeout(() => {
-                    playSong();
-                }, 1000);
-            }, 800);
-        });
+            function playSong(index) {
+                backgroundMusic.src = songList[index];
+                currentSong.textContent = `Track ${index + 1}`;
+                backgroundMusic.play();
+                isPlaying = true;
+                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3249/3249399.png";
+                musicTimer = setInterval(updateProgress, 500);
+            }
 
-        function loadRandomVerse() {
-            fetch('verses.txt')
-                .then(response => response.text())
-                .then(text => {
-                    const verses = text.split('\n').filter(verse => verse.trim() !== '');
-                    const randomVerse = verses[Math.floor(Math.random() * verses.length)];
-                    verseText.textContent = randomVerse;
-                })
-                .catch(error => console.error('Error loading verses:', error));
-        }
+            function pauseSong() {
+                backgroundMusic.pause();
+                isPaused = true;
+                isPlaying = false;
+                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3249/3249396.png";
+                clearInterval(musicTimer);
+            }
 
-        const songs = [
-            { file: 'audio1.mp3', name: 'Track 1' },
-            { file: 'audio2.mp3', name: 'Track 2' },
-            { file: 'audio3.mp3', name: 'Track 3' },
-            { file: 'audio4.mp3', name: 'Track 4' },
-            { file: 'audio5.mp3', name: 'Track 5' },
-            { file: 'audio6.mp3', name: 'Track 6' },
-            { file: 'audio7.mp3', name: 'Track 7' },
-            { file: 'audio8.mp3', name: 'Track 8' },
-            { file: 'audio9.mp3', name: 'Track 9' },
-            { file: 'audio10.mp3', name: 'Track 10' }
-        ];
-        let currentSongIndex = 0;
-        let isShuffled = false;
-        let shuffledPlaylist = [...songs];
+            function resumeSong() {
+                backgroundMusic.play();
+                isPaused = false;
+                isPlaying = true;
+                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3249/3249399.png";
+                musicTimer = setInterval(updateProgress, 500);
+            }
 
-        function loadSong(index) {
-            const song = isShuffled ? shuffledPlaylist[index] : songs[index];
-            backgroundMusic.src = song.file;
-            currentSongDisplay.textContent = song.name;
-        }
-
-        function playSong() {
-            backgroundMusic.play().then(() => {
-                updatePlayPauseButton();
-            }).catch(error => {
-                console.error("Error playing audio:", error);
+            playPauseBtn.addEventListener('click', function() {
+                if (isPlaying) {
+                    pauseSong();
+                } else if (isPaused) {
+                    resumeSong();
+                } else {
+                    playSong(currentSongIndex);
+                }
             });
-        }
 
-        function pauseSong() {
-            backgroundMusic.pause();
-            updatePlayPauseButton();
-        }
-
-        function prevSong() {
-            currentSongIndex = (currentSongIndex - 1 + (isShuffled ? shuffledPlaylist.length : songs.length)) % (isShuffled ? shuffledPlaylist.length : songs.length);
-            loadSong(currentSongIndex);
-            playSong();
-        }
-
-        function nextSong() {
-            currentSongIndex = (currentSongIndex + 1) % (isShuffled ? shuffledPlaylist.length : songs.length);
-            loadSong(currentSongIndex);
-            playSong();
-        }
-
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+            function updateProgress() {
+                const progressPercentage = (backgroundMusic.currentTime / backgroundMusic.duration) * 100;
+                progressBar.style.width = `${progressPercentage}%`;
             }
-        }
 
-        function updatePlayPauseButton() {
-            if (backgroundMusic.paused) {
-                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/12659/12659790.png";
-            } else {
+            backgroundMusic.addEventListener('ended', function() {
+                clearInterval(musicTimer);
+                progressBar.style.width = '0';
+                isPlaying = false;
                 playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3249/3249396.png";
-            }
-        }
+            });
 
-        playPauseBtn.addEventListener('click', () => {
-            if (backgroundMusic.paused) {
-                playSong();
-            } else {
-                pauseSong();
-            }
+            backgroundMusic.volume = 0.2;
+            playSong(currentSongIndex); // Auto-start music unpaused
+
+            video1.addEventListener('ended', function() {
+                video1.style.display = 'none';
+                paperVideo.style.display = 'block';
+                paperVideo.play();
+                enterBtn.style.display = 'block';
+            });
+
+            enterBtn.addEventListener('click', function() {
+                enterBtn.style.display = 'none';
+                introImg.style.display = 'block';
+                paperVideo.style.display = 'none';
+                setTimeout(function() {
+                    introImg.style.display = 'none';
+                    loopVideo.style.display = 'block';
+                    loopVideo.play();
+                    ooo.style.display = 'block';
+                }, 3000);
+            });
+
+            snapcode.addEventListener('click', function() {
+                loopVideo.play();
+            });
         });
-
-        prevBtn.addEventListener('click', prevSong);
-        nextBtn.addEventListener('click', nextSong);
-
-        shuffleBtn.addEventListener('click', () => {
-            isShuffled = !isShuffled;
-            if (isShuffled) {
-                shuffledPlaylist = [...songs];
-                shuffleArray(shuffledPlaylist);
-                shuffleBtn.querySelector('img').style.filter = 'brightness(0) invert(1)';
-            } else {
-                shuffleBtn.querySelector('img').style.filter = 'none';
-            }
-            currentSongIndex = 0;
-            loadSong(currentSongIndex);
-            playSong();
-        });
-
-        backgroundMusic.addEventListener('timeupdate', () => {
-            const progress = (backgroundMusic.currentTime / backgroundMusic.duration) * 100;
-            progressBar.style.width = `${progress}%`;
-        });
-
-progressContainer.addEventListener('click', (e) => {
-            const clickPosition = e.offsetX / progressContainer.offsetWidth;
-            backgroundMusic.currentTime = clickPosition * backgroundMusic.duration;
-        });
-
-        backgroundMusic.addEventListener('ended', nextSong);
-
-        loadSong(currentSongIndex);
-
-        // Add this function to update the play/pause button state
-        function updatePlayPauseButton() {
-            if (backgroundMusic.paused) {
-                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/12659/12659790.png";
-            } else {
-                playPauseBtn.querySelector('img').src = "https://cdn-icons-png.flaticon.com/128/3249/3249396.png";
-            }
-        }
-
-        // Add event listeners to update the play/pause button
-        backgroundMusic.addEventListener('play', updatePlayPauseButton);
-        backgroundMusic.addEventListener('pause', updatePlayPauseButton);
     </script>
 </body>
 </html>
