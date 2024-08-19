@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Preview Generator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        input, select, button {
+            margin: 10px;
+            padding: 12px 18px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        select, input {
+            background-color: #fff;
+        }
+
+        select:hover, input:hover {
+            border-color: #888;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .preview-images {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .preview-container {
+            display: inline-block;
+            margin: 15px;
+            text-align: center;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .preview-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .preview-container img {
+            max-width: 100px;
+            max-height: 100px;
+            display: block;
+            margin: 0 auto;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            transition: transform 0.3s ease;
+        }
+
+        .preview-container img:hover {
+            transform: scale(1.1);
+        }
+
+        .preview-container .id-label {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Image Preview Generator</h1>
+
+    <label for="section">Choose a section:</label>
+    <select id="section">
+        <option value="outfit">Outfit</option>
+        <option value="hat">Hat</option>
+        <option value="glasses">Glasses</option>
+        <option value="top">Top</option>
+        <option value="bottom">Bottom</option>
+        <option value="outerwear">Outerwear</option>
+        <option value="footwear">Footwear</option>
+    </select>
+
+    <br>
+
+    <label for="start">Starting ID:</label>
+    <input type="number" id="start" min="1" value="1">
+
+    <label for="end">Ending ID:</label>
+    <input type="number" id="end" min="1" value="6">
+
+    <br>
+
+    <button onclick="generateImages()">Generate Images</button>
+
+    <div class="preview-images" id="previewImages"></div>
+
+    <script>
+        const previewMap = {
+            "outfit": "https://preview.bitmoji.com/bm-preview/v3/avatar/body?scale=1&gender=1&style=5&outfit=",
+            "hat": "https://preview.bitmoji.com/bm-preview/v3/avatar/head?scale=1&gender=1&style=5&hat=",
+            "glasses": "https://preview.bitmoji.com/bm-preview/v3/avatar/head?scale=1&gender=1&style=5&glasses=",
+            "top": "https://preview.bitmoji.com/bm-preview/v3/avatar/top?scale=0.5&gender=1&style=5&top=",
+            "bottom": "https://preview.bitmoji.com/bm-preview/v3/avatar/bottom?scale=0.5&gender=1&style=5&bottom=",
+            "outerwear": "https://preview.bitmoji.com/bm-preview/v3/avatar/outerwear?scale=0.5&gender=1&style=5&outerwear=",
+            "footwear": "https://preview.bitmoji.com/bm-preview/v3/avatar/footwear?scale=0.5&gender=1&style=5&footwear=",
+        };
+
+        function generateImages() {
+            const section = document.getElementById('section').value;
+            const start = parseInt(document.getElementById('start').value);
+            const end = parseInt(document.getElementById('end').value);
+            const previewContainer = document.getElementById('previewImages');
+            
+            // Clear previous images
+            previewContainer.innerHTML = "";
+
+            // Loop through the range and create image elements
+            for (let i = start; i <= end; i++) {
+                const img = document.createElement('img');
+                img.src = previewMap[section] + i;
+
+                // Only show the image if it loads successfully
+                img.onload = function() {
+                    const container = document.createElement('div');
+                    container.classList.add('preview-container');
+                    
+                    const idLabel = document.createElement('div');
+                    idLabel.classList.add('id-label');
+                    idLabel.textContent = "ID: " + i;
+
+                    container.appendChild(img);
+                    container.appendChild(idLabel);
+                    previewContainer.appendChild(container);
+                };
+            }
+        }
+    </script>
+
+</body>
+</html>
