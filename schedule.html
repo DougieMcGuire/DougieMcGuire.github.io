@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule - Dougie.Wtf</title>
+    <style>
+        /* General reset and styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-color, #f5f5f5);
+            color: var(--text-color, #333);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --header-bg-color: #4CAF50;
+            --header-text-color: white;
+            --button-bg-color: #4CAF50;
+            --button-text-color: white;
+            --secondary-bg-color: white;
+            --secondary-text-color: #333;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #333;
+            --text-color: #f5f5f5;
+            --header-bg-color: #222;
+            --header-text-color: #f5f5f5;
+            --button-bg-color: #222;
+            --button-text-color: #f5f5f5;
+            --secondary-bg-color: #555;
+            --secondary-text-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        header {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--header-bg-color);
+            color: var(--header-text-color);
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .clock {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .clock .time {
+            font-size: 3rem;
+        }
+
+        .clock .current-occasion {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .settings, .login-form, .signup-form {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--secondary-bg-color);
+            color: var(--secondary-text-color);
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        button, input {
+            margin: 5px 0;
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background-color: var(--button-bg-color);
+            color: var(--button-text-color);
+            cursor: pointer;
+        }
+
+        button:hover {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .schedule-list, .occasion-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .schedule-list li, .occasion-list li {
+            margin: 5px 0;
+            padding: 10px;
+            background-color: var(--secondary-bg-color);
+            color: var(--secondary-text-color);
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .schedule-list li:hover, .occasion-list li:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .add-btn {
+            margin-top: 10px;
+            width: 100%;
+            background-color: #2196F3;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Schedule</h1>
+        <h2>Dougie.Wtf</h2>
+    </header>
+
+    <div class="container">
+        <!-- Clock Section -->
+        <div class="clock">
+            <div class="time" id="current-time">00:00</div>
+            <div class="current-occasion" id="current-occasion">No current occasion</div>
+        </div>
+
+        <!-- Login Section -->
+        <div id="login-section">
+            <div class="login-form" id="login-form">
+                <h3>Login</h3>
+                <input type="text" id="login-username" placeholder="Username" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button onclick="login()">Login</button>
+                <p>Don't have an account? <a href="#" onclick="toggleSignup()">Sign Up</a></p>
+            </div>
+
+            <div class="signup-form" id="signup-form" style="display: none;">
+                <h3>Sign Up</h3>
+                <input type="text" id="signup-username" placeholder="Username" required>
+                <input type="password" id="signup-password" placeholder="Password" required>
+                <button onclick="signup()">Sign Up</button>
+                <p>Already have an account? <a href="#" onclick="toggleSignup()">Login</a></p>
+            </div>
+        </div>
+
+        <!-- Schedule Management Section -->
+        <div id="schedule-section" style="display: none;">
+            <h3>Your Schedules</h3>
+            <ul class="schedule-list" id="schedule-list"></ul>
+            <button class="add-btn" onclick="addSchedule()">Add New Schedule</button>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="settings" id="settings-section" style="display: none;">
+            <h3>Settings</h3>
+            <label>
+                Theme:
+                <select id="theme-selector" onchange="changeTheme()">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
+            </label>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        // Initial Data and Constants
+        const DEFAULT_SCHEDULES = [
+            { name: "My Schedule", occasions: generateDefaultOccasions() }
+        ];
+
+        const users = JSON.parse(localStorage.getItem('users')) || {};
+
+        // Utility Functions
+        function formatTime(date) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function generateDefaultOccasions() {
+            return [
+                { name: "Occasion 1", start: "09:00", end: "10:00", note: "" },
+                { name: "Occasion 2", start: "10:30", end: "11:30", note: "" },
+                { name: "Occasion 3", start: "12:00", end: "13:00", note: "" },
+                { name: "Occasion 4", start: "14:00", end: "15:00", note: "" },
+                { name: "Occasion 5", start: "15:30", end: "16:30", note: "" },
+                { name: "Occasion 6", start: "17:00", end: "18:00", note: "" },
+                { name: "Occasion 7", start: "18:30", end: "19:30", note: "" },
+                { name: "Occasion 8", start: "20:00", end: "21:00", note: "" }
+            ];
+        }
+
+        // Authentication Functions
+        function login() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            if (users[username] && users[username].password === password) {
+                localStorage.setItem('loggedInUser', username);
+                showMainContent();
+            } else {
+                alert('Invalid username or password');
+            }
+        }
+
+        function signup() {
+            const username = document.getElementById('signup-username').value;
+            const password = document.getElementById('signup-password').value;
+
+            if (users[username]) {
+                alert('Username already exists');
+                return;
+            }
+
+            users[username] = { password: password, schedules: DEFAULT_SCHEDULES };
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('loggedInUser', username);
+            showMainContent();
+        }
+
+        function logout() {
+            localStorage.removeItem('loggedInUser');
+            location.reload();
+        }
+
+        function toggleSignup() {
+            document.getElementById('login-form').style.display =
+                document.getElementById('login-form').style.display === 'none' ? 'block' : 'none';
+            document.getElementById('signup-form').style.display =
+                document.getElementById('signup-form').style.display === 'none' ? 'block' : 'none';
+        }
+
+        function showMainContent() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('schedule-section').style.display = 'block';
+            document.getElementById('settings-section').style.display = 'block';
+            loadSchedules();
+            updateClock();
+        }
+
+        // Schedule Management Functions
+        function loadSchedules() {
+            const username = localStorage.getItem('loggedInUser');
+            const schedules = users[username].schedules || DEFAULT_SCHEDULES;
+            const scheduleList = document.getElementById('schedule-list');
+            scheduleList.innerHTML = '';
+
+            schedules.forEach((schedule, i) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${schedule.name}</span>
+                    <button onclick="editSchedule(${i})">Edit</button>
+                    <button onclick="deleteSchedule(${i})">Delete</button>
+                `;
+                scheduleList.appendChild(li);
+            });
+        }
+
+        function addSchedule() {
+            const username = localStorage.getItem('loggedInUser');
+            const newSchedule = { name: "New Schedule", occasions: [] };
+            users[username].schedules.push(newSchedule);
+            localStorage.setItem('users', JSON.stringify(users));
+            loadSchedules();
+        }
+
+        function editSchedule(index) {
+            // Functionality to edit schedule can be implemented here
+            alert('Edit schedule functionality not implemented');
+        }
+
+        function deleteSchedule(index) {
+            const username = localStorage.getItem('loggedInUser');
+            users[username].schedules.splice(index, 1);
+            localStorage.setItem('users', JSON.stringify(users));
+            loadSchedules();
+        }
+
+        // Theme Change Function
+        function changeTheme() {
+            const theme = document.getElementById('theme-selector').value;
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+
+        // Clock and Current Occasion Display
+        function updateClock() {
+            const now = new Date();
+            const currentTime = formatTime(now);
+            const username = localStorage.getItem('loggedInUser');
+            const schedules = users[username].schedules || DEFAULT_SCHEDULES;
+            let currentOccasionText = "No current occasion";
+
+            schedules.forEach(schedule => {
+                schedule.occasions.forEach(occasion => {
+                    const start = parseTime(occasion.start);
+                    const end = parseTime(occasion.end);
+
+                    if (now >= start && now <= end) {
+                        const timeLeft = Math.floor((end - now) / 60000);
+                        currentOccasionText = `Currently: ${occasion.name} ${occasion.start} - ${occasion.end} (${timeLeft} minutes left)`;
+                    }
+                });
+            });
+
+            document.getElementById('current-time').textContent = currentTime;
+            document.getElementById('current-occasion').textContent = currentOccasionText;
+
+            setTimeout(updateClock, 1000);
+        }
+
+        function parseTime(time) {
+            const [hours, minutes] = time.split(':');
+            const now = new Date();
+            now.setHours(hours, minutes, 0, 0);
+            return now;
+        }
+
+        // Initial Setup
+        function initialize() {
+            const loggedInUser = localStorage.getItem('loggedInUser');
+
+            if (loggedInUser) {
+                showMainContent();
+            }
+        }
+
+        // Initialize the site
+        initialize();
+    </script>
+</body>
+</html>
