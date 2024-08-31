@@ -3,100 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Preview Generator</title>
+    <title>Dougie's 3D Checker</title>
     <style>
+        /* General Styles */
         body {
             font-family: 'Arial', sans-serif;
             text-align: center;
-            background-color: #f4f4f4;
+            background-color: #1e1e1e;
             padding: 20px;
-            color: #333;
+            color: #f0f0f0;
+            margin: 0;
         }
 
         h1 {
-            font-size: 2.5em;
-            color: #555;
+            font-size: 3em;
+            color: #e0e0e0;
             margin-bottom: 20px;
+            text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.7);
+            animation: fadeIn 1s ease-out;
         }
 
         input, select, button {
             margin: 10px;
-            padding: 12px 18px;
-            font-size: 16px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
+            padding: 14px 20px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            border: 1px solid #444;
             outline: none;
+            background-color: #2b2b2b;
+            color: #f0f0f0;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
         }
 
-        select, input {
-            background-color: #fff;
-        }
-
-        select:hover, input:hover {
-            border-color: #888;
+        input:hover, select:hover, button:hover {
+            border-color: #5a9bd4;
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.5);
         }
 
         button {
-            background-color: #007bff;
-            color: #fff;
-            cursor: pointer;
+            background-color: #5a9bd4;
             font-weight: bold;
+            cursor: pointer;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #4682b4;
         }
 
         .preview-images {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            justify-items: center;
+            margin-top: 30px;
+            animation: fadeInUp 1s ease-out;
         }
 
         .preview-container {
-            display: inline-block;
             margin: 15px;
             text-align: center;
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #2b2b2b;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s forwards;
         }
 
         .preview-container:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.9);
         }
 
         .preview-container img {
-            max-width: 100px;
-            max-height: 100px;
+            max-width: 120px;
+            max-height: 120px;
             display: block;
             margin: 0 auto;
             border-radius: 8px;
-            border: 1px solid #ddd;
-            transition: transform 0.3s ease;
+            border: 1px solid #444;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
         }
 
         .preview-container img:hover {
             transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.5);
         }
 
-        .preview-container .id-label {
+        .id-label {
             margin-top: 10px;
-            font-size: 14px;
-            color: #666;
+            font-size: 1em;
+            color: #aaa;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 <body>
+    <h1>Dougie's 3D Checker</h1>
 
-    <h1>Image Preview Generator</h1>
-
-    <label for="section">Choose a section:</label>
     <select id="section">
         <option value="outfit">Outfit</option>
         <option value="hat">Hat</option>
@@ -107,46 +133,29 @@
         <option value="footwear">Footwear</option>
     </select>
 
-    <br>
-
-    <label for="start">Starting ID:</label>
-    <input type="number" id="start" min="1" value="1">
-
-    <label for="end">Ending ID:</label>
-    <input type="number" id="end" min="1" value="6">
-
-    <br>
+    <input type="number" id="start" min="1" value="1" placeholder="Starting ID">
+    <input type="number" id="end" min="1" value="6" placeholder="Ending ID">
 
     <button onclick="generateImages()">Generate Images</button>
 
     <div class="preview-images" id="previewImages"></div>
 
     <script>
-        const previewMap = {
-            "outfit": "https://preview.bitmoji.com/bm-preview/v3/avatar/body?scale=1&gender=1&style=5&outfit=",
-            "hat": "https://preview.bitmoji.com/bm-preview/v3/avatar/head?scale=1&gender=1&style=5&hat=",
-            "glasses": "https://preview.bitmoji.com/bm-preview/v3/avatar/head?scale=1&gender=1&style=5&glasses=",
-            "top": "https://preview.bitmoji.com/bm-preview/v3/avatar/top?scale=0.5&gender=1&style=5&top=",
-            "bottom": "https://preview.bitmoji.com/bm-preview/v3/avatar/bottom?scale=0.5&gender=1&style=5&bottom=",
-            "outerwear": "https://preview.bitmoji.com/bm-preview/v3/avatar/outerwear?scale=0.5&gender=1&style=5&outerwear=",
-            "footwear": "https://preview.bitmoji.com/bm-preview/v3/avatar/footwear?scale=0.5&gender=1&style=5&footwear=",
-        };
-
         function generateImages() {
             const section = document.getElementById('section').value;
             const start = parseInt(document.getElementById('start').value);
             const end = parseInt(document.getElementById('end').value);
             const previewContainer = document.getElementById('previewImages');
             
-            // Clear previous images
             previewContainer.innerHTML = "";
 
-            // Loop through the range and create image elements
-            for (let i = start; i <= end; i++) {
-                const img = document.createElement('img');
-                img.src = previewMap[section] + i;
+            const sectionPath = section === 'outfit' ? 'body' : section;
 
-                // Only show the image if it loads successfully
+            for (let i = start; i <= end; i++) {
+                const imgUrl = `https://preview.bitmoji.com/bm-preview/v3/avatar/${sectionPath}?scale=0.5&gender=1&style=5&${section}=${i}&ua=2`;
+                const img = document.createElement('img');
+                img.src = imgUrl;
+
                 img.onload = function() {
                     const container = document.createElement('div');
                     container.classList.add('preview-container');
@@ -162,6 +171,5 @@
             }
         }
     </script>
-
 </body>
 </html>
