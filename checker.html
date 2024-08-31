@@ -152,7 +152,7 @@
             const sectionPath = section === 'outfit' ? 'body' : section;
 
             for (let i = start; i <= end; i++) {
-                const imgUrl = `https://preview.bitmoji.com/bm-preview/v3/avatar/${sectionPath}?scale=0.5&gender=1&style=5&${section}=${i}&ua=2`;
+                const imgUrl = `https://preview.bitmoji.com/bm-preview/v3/avatar/${sectionPath}?scale=0.5&gender=1&style=5&${section}=${i}&ua=2&clothing-type=1`;
                 const img = document.createElement('img');
                 img.src = imgUrl;
 
