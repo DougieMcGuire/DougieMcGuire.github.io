@@ -2,10 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;url=https://www.snapchat.com/invite/YTIxMmMyODgtY2UxNS00Zjc3LTg5MmYtMzBiYzlkMDZiN2Yx/Zjk1ZWUxMDYtMDUzNi00ZWNlLWIyYzEtYzRkYWQ3MDRmOGM0?share_id=ifE_lDMQQYOYemNPdd02Ww&locale=en_US">
-    <title>Redirecting...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirect and Fetch</title>
 </head>
 <body>
-    <p>If you are not redirected automatically, <a href="https://www.snapchat.com/invite/YTIxMmMyODgtY2UxNS00Zjc3LTg5MmYtMzBiYzlkMDZiN2Yx/Zjk1ZWUxMDYtMDUzNi00ZWNlLWIyYzEtYzRkYWQ3MDRmOGM0?share_id=ifE_lDMQQYOYemNPdd02Ww&locale=en_US">click here</a> to go to the link.</p>
+
+<script>
+    // URL to redirect to
+    const url = "https://snapchat.com/t/ghrzkfAc";
+
+    // Send a fetch request to get the embed data
+    fetch(url)
+        .then(response => response.text())
+        .then(data => {
+            // Create a temporary DOM to parse the HTML response
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data, 'text/html');
+
+            // Extract embed data
+            const embed = doc.querySelector('meta[property="og:description"]');
+            if (embed) {
+                console.log("Embed Data: ", embed.getAttribute('content'));
+            }
+
+            // Redirect to the Snapchat link
+            window.location.href = url;
+        })
+        .catch(error => console.error('Error:', error));
+</script>
+
 </body>
 </html>
