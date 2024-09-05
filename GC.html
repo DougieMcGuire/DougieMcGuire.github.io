@@ -3,11 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirect and Fetch</title>
+    <title>Request Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        pre {
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+    </style>
 </head>
 <body>
+    <h1>Request Example</h1>
+    <button onclick="makeRequest()">Send Request</button>
+    <pre id="response"></pre>
 
-<script>
+    <script>
+        function makeRequest() {
+            fetch('https://tiny.cc/wsykzz', {
+                method: 'GET',
+                headers: {
+                    'Upgrade-Insecure-Requests': '1',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.100 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                    'Sec-Fetch-Site': 'none',
+                    'Sec-Fetch-Mode': 'navigate',
+                    'Sec-Fetch-User': '?1',
+                    'Sec-Fetch-Dest': 'document',
+                    'Sec-Ch-Ua': '"Chromium";v="127", "Not)A;Brand";v="99"',
+                    'Sec-Ch-Ua-Mobile': '?0',
+                    'Sec-Ch-Ua-Platform': '"Windows"',
+                    'Accept-Language': 'en-US',
+                    'Accept-Encoding': 'gzip, deflate, br',
+                    'Priority': 'u=0, i'
+                }
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('response').textContent = data;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('response').textContent = 'Failed to fetch data.';
+            });
+        }
+    </script>
+    <script>
     // URL to redirect to
     const url = "https://snapchat.com/t/ghrzkfAc";
 
@@ -30,6 +78,5 @@
         })
         .catch(error => console.error('Error:', error));
 </script>
-
 </body>
 </html>
