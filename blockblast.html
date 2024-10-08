@@ -7,25 +7,25 @@
     <link rel="icon" href="https://www.gstatic.com/classroom/logo_square_rounded.svg" type="image/x-icon">
     <style>
         :root {
-            --primary-color: #4a90e2;
-            --secondary-color: #f39c12;
-            --background-color: #2c3e50;
+            --primary-color: #6c5ce7;
+            --secondary-color: #00cec9;
+            --background-color: #dfe6e9;
             --text-color: #ecf0f1;
-            --board-color: #34495e;
-            --cell-color: #2c3e50;
+            --board-color: #ffffff;
+            --cell-color: #b2bec3;
             --highlight-color: rgba(255, 255, 255, 0.2);
             --menu-background: rgba(0, 0, 0, 0.85);
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: var(--background-color);
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
             color: var(--text-color);
         }
 
@@ -45,8 +45,9 @@
             gap: 2px;
             background-color: var(--board-color);
             padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+            overflow: hidden;
         }
 
         .cell {
@@ -54,7 +55,7 @@
             height: 40px;
             border-radius: 3px;
             background-color: var(--cell-color);
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         .cell.highlight {
@@ -88,11 +89,11 @@
             padding: 5px;
             border-radius: 5px;
             cursor: move;
-            transition: transform 0.3s ease;
+            transition: transform 0.2s ease-in-out;
         }
 
         .preview-piece:hover {
-            transform: scale(1.05);
+            transform: scale(1.1);
         }
 
         .preview-cell {
@@ -412,29 +413,39 @@
             const row = parseInt(cell.dataset.row);
             const col = parseInt(cell.dataset.col);
 
-            clearHighlight();
-
             if (canPlacePiece(draggedPiece.piece.shape, row, col)) {
+                const glowingCells = document.querySelectorAll('.highlight-clear');
+                const hasGlowingCells = glowingCells.length > 0;
+
                 placePiece(draggedPiece.piece, row, col);
                 placeSoundEffect.play();
                 currentPieces.splice(draggedPiece.index, 1);
+                
+                if (hasGlowingCells) {
+                    clearGlowingCells(glowingCells);
+                } else {
+                    checkLines();
+                }
+
                 updatePiecePreview();
-                checkLines();
                 
                 if (currentPieces.length === 0) {
                     currentPieces = [generatePiece(), generatePiece(), generatePiece()];
                     updatePiecePreview();
                 }
+
+                setTimeout(() => {
+                    if (!canPlaceAnyPiece()) {
+                        endGame();
+                    }
+                }, 2000);
             } else {
                 wrongSoundEffect.play();
             }
 
             draggedPiece = null;
+            clearHighlight();
             document.querySelector('.dragging')?.classList.remove('dragging');
-
-            if (!canPlaceAnyPiece()) {
-                endGame();
-            }
         }
 
         function highlightPlacement(shape, startRow, startCol) {
@@ -543,52 +554,51 @@
         }
 
         function checkLines() {
-            let linesCleared = 0;
-            const clearedCells = new Set();
+            const clearedRows = new Set();
+            const clearedCols = new Set();
 
             // Check rows
             for (let i = 0; i < GRID_SIZE; i++) {
                 if (board[i].every(cell => cell.style.backgroundColor !== '')) {
-                    linesCleared++;
-                    board[i].forEach(cell => clearedCells.add(cell));
+                    clearedRows.add(i);
                 }
             }
 
             // Check columns
             for (let j = 0; j < GRID_SIZE; j++) {
                 if (board.every(row => row[j].style.backgroundColor !== '')) {
-                    linesCleared++;
-                    board.forEach(row => clearedCells.add(row[j]));
+                    clearedCols.add(j);
                 }
             }
 
+            const linesCleared = clearedRows.size + clearedCols.size;
+            console.log(`checkLines: Cleared rows: ${clearedRows.size}, Cleared columns: ${clearedCols.size}`);
+
             if (linesCleared > 0) {
                 clearSoundEffect.play();
+                const clearedCells = new Set();
+                clearedRows.forEach(row => board[row].forEach(cell => clearedCells.add(cell)));
+                clearedCols.forEach(col => board.forEach(row => clearedCells.add(row[col])));
+
                 animateClearedCells(Array.from(clearedCells)).then(() => {
-                    clearLines();
+                    clearLines(clearedRows, clearedCols);
                     updateScore(linesCleared);
                 });
             }
         }
 
-        function clearLines() {
-            // Clear rows
-            for (let i = 0; i < GRID_SIZE; i++) {
-                if (board[i].every(cell => cell.style.backgroundColor !== '')) {
-                    for (let j = 0; j < GRID_SIZE; j++) {
-                        board[i][j].style.backgroundColor = '';
-                    }
+        function clearLines(clearedRows, clearedCols) {
+            clearedRows.forEach(row => {
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    board[row][j].style.backgroundColor = '';
                 }
-            }
+            });
 
-            // Clear columns
-            for (let j = 0; j < GRID_SIZE; j++) {
-                if (board.every(row => row[j].style.backgroundColor !== '')) {
-                    for (let i = 0; i < GRID_SIZE; i++) {
-                        board[i][j].style.backgroundColor = '';
-                    }
+            clearedCols.forEach(col => {
+                for (let i = 0; i < GRID_SIZE; i++) {
+                    board[i][col].style.backgroundColor = '';
                 }
-            }
+            });
         }
 
         function animateClearedCells(cells) {
@@ -602,9 +612,14 @@
         }
 
         function updateScore(linesCleared) {
+            console.log(`Lines cleared: ${linesCleared}`);
+
             const basePoints = 100;
-            const bonus = linesCleared > 1 ? Math.pow(2, linesCleared - 1) : 1; // Exponential bonus for multiple lines
-            score += basePoints * linesCleared * bonus;
+            let pointsEarned = basePoints * linesCleared;
+
+            console.log(`Points earned: ${pointsEarned}`);
+
+            score += pointsEarned;
             scoreElement.textContent = `Score: ${score}`;
 
             if (score > highScore) {
@@ -612,6 +627,33 @@
                 highScoreElement.textContent = `High Score: ${highScore}`;
                 localStorage.setItem('blockBlastHighScore', highScore);
             }
+
+            showPointsEarned(pointsEarned);
+        }
+
+        function showPointsEarned(points) {
+            const pointsDisplay = document.createElement('div');
+            pointsDisplay.textContent = `+${points}`;
+            pointsDisplay.style.position = 'absolute';
+            pointsDisplay.style.fontSize = '24px';
+            pointsDisplay.style.color = '#4CAF50';
+            pointsDisplay.style.fontWeight = 'bold';
+            pointsDisplay.style.top = '50%';
+            pointsDisplay.style.left = '50%';
+            pointsDisplay.style.transform = 'translate(-50%, -50%)';
+            pointsDisplay.style.opacity = '1';
+            pointsDisplay.style.transition = 'all 1s ease-out';
+            
+            document.body.appendChild(pointsDisplay);
+
+            setTimeout(() => {
+                pointsDisplay.style.opacity = '0';
+                pointsDisplay.style.transform = 'translate(-50%, -100%)';
+            }, 50);
+
+            setTimeout(() => {
+                document.body.removeChild(pointsDisplay);
+            }, 1050);
         }
 
         function startGame() {
@@ -630,7 +672,7 @@
             gameOverSoundEffect.play();
             gameOverScreen.style.display = 'flex';
             document.getElementById('final-score').textContent = `Final Score: ${score}`;
-            if (score === highScore) {
+            if (score > highScore) {
                 document.getElementById('new-high-score').style.display = 'block';
             } else {
                 document.getElementById('new-high-score').style.display = 'none';
@@ -687,6 +729,32 @@
 
         // Initialize the game
         showMainMenu();
+
+        function clearGlowingCells(glowingCells) {
+            clearSoundEffect.play();
+
+            // Count unique rows and columns
+            const clearedRows = new Set();
+            const clearedCols = new Set();
+
+            glowingCells.forEach(cell => {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                clearedRows.add(row);
+                clearedCols.add(col);
+            });
+
+            const linesCleared = clearedRows.size + clearedCols.size;
+            console.log(`Cleared rows: ${clearedRows.size}, Cleared columns: ${clearedCols.size}`);
+
+            animateClearedCells(Array.from(glowingCells)).then(() => {
+                glowingCells.forEach(cell => {
+                    cell.style.backgroundColor = '';
+                    cell.classList.remove('highlight-clear');
+                });
+                updateScore(linesCleared);
+            });
+        }
     </script>
 </body>
 </html>
