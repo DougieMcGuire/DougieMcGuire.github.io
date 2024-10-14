@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Follower Counter</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #fafafa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 20px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #E1306C;
+            margin-bottom: 20px;
+        }
+
+        .input-section, .counter-section {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .input-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        input[type="text"] {
+            padding: 12px;
+            width: 80%;
+            font-size: 1em;
+            border: 2px solid #E1306C;
+            border-radius: 25px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #C13584;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1em;
+            margin-top: 20px;
+            background-color: #E1306C;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #C13584;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .profile-info img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #E1306C;
+            margin-bottom: 15px;
+        }
+
+        .stats {
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        .stats span {
+            color: #E1306C;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 500px) {
+            .input-section, .counter-section {
+                padding: 20px 25px;
+            }
+
+            input[type="text"] {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Instagram Follower Counter</h1>
+
+    <!-- Username Input Section -->
+    <div class="input-section" id="input-section">
+        <h2>Enter your Instagram handle</h2>
+        <input type="text" id="username" placeholder="@username">
+        <button id="fetch-stats">Get Stats</button>
+        <p class="error" id="error-message"></p>
+    </div>
+
+    <!-- Counter Section -->
+    <div class="counter-section" id="counter-section" style="display: none;">
+        <div class="profile-info">
+            <img id="profile-pic" src="" alt="Profile Picture">
+            <p id="username-display"></p>
+            <div class="stats">
+                Followers: <span id="follower-count">Loading...</span>
+            </div>
+            <button id="refresh-stats">Refresh</button>
+            <button id="back-button" style="margin-top: 15px; background-color: #555;">Back</button>
+        </div>
+    </div>
+
+    <script>
+        const fetchButton = document.getElementById('fetch-stats');
+        const refreshButton = document.getElementById('refresh-stats');
+        const backButton = document.getElementById('back-button');
+        const inputSection = document.getElementById('input-section');
+        const counterSection = document.getElementById('counter-section');
+        const errorMessage = document.getElementById('error-message');
+
+        let updateInterval;
+
+        fetchButton.addEventListener('click', () => {
+            const usernameInput = document.getElementById('username').value.trim();
+            const username = usernameInput.startsWith('@') ? usernameInput.substring(1) : usernameInput;
+
+            if (username === '') {
+                errorMessage.textContent = 'Please enter a valid Instagram handle.';
+                return;
+            }
+
+            errorMessage.textContent = '';
+            fetchStats(username);
+            inputSection.style.display = 'none';
+            counterSection.style.display = 'block';
+
+            // Clear any existing intervals
+            if (updateInterval) clearInterval(updateInterval);
+
+            // Set interval to update stats every 60 seconds
+            updateInterval = setInterval(() => fetchStats(username), 60000);
+        });
+
+        refreshButton.addEventListener('click', () => {
+            const usernameInput = document.getElementById('username').value.trim();
+            const username = usernameInput.startsWith('@') ? usernameInput.substring(1) : usernameInput;
+            fetchStats(username);
+        });
+
+        backButton.addEventListener('click', () => {
+            counterSection.style.display = 'none';
+            inputSection.style.display = 'block';
+            clearInterval(updateInterval);
+            document.getElementById('username').value = '';
+            document.getElementById('follower-count').textContent = 'Loading...';
+            document.getElementById('profile-pic').src = '';
+            document.getElementById('username-display').textContent = '';
+            errorMessage.textContent = '';
+        });
+
+        function fetchStats(username) {
+            const apiURL = `https://backend.mixerno.space/instagram/test/${username}`;
+
+            fetch(apiURL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('User not found');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('follower-count').textContent = data.followerCount.toLocaleString();
+                    document.getElementById('username-display').textContent = `@${username}`;
+                    document.getElementById('profile-pic').src = data.profilePicture;
+                })
+                .catch(err => {
+                    console.error('Error fetching Instagram data:', err);
+                    errorMessage.textContent = 'Unable to fetch data. Please check the username and try again.';
+                    document.getElementById('follower-count').textContent = 'N/A';
+                    document.getElementById('profile-pic').src = '';
+                    document.getElementById('username-display').textContent = '';
+                });
+        }
+    </script>
+    
+</body>
+</html>
