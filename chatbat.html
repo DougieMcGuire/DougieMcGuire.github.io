@@ -1,253 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitmoji Auth Tester</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        .log-entry {
-            margin: 5px 0;
-            padding: 5px;
-        }
-        .log-success { color: green; }
-        .log-error { color: red; }
-        .timestamp { font-weight: bold; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Run 3 Requests Example</title>
 </head>
 <body>
-    <div class="card">
-        <h2>Bitmoji Authentication Tester</h2>
-        <form id="authForm">
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" required>
-            </div>
-            <div class="form-group">
-                <label for="birthday">Birthday:</label>
-                <input type="date" id="birthday" required>
-            </div>
-            <button type="submit" id="submitBtn">Sign Up</button>
-        </form>
-    </div>
+  <h1>Run Bitmoji API Requests</h1>
 
-    <div class="card">
-        <h2>Request Logs</h2>
-        <div id="logs"></div>
-    </div>
+  <label for="email">Email:</label>
+  <input type="email" id="email" placeholder="Enter email" required />
+  <br><br>
 
-    <script>
-        let isLoading = false;
+  <label for="password">Password:</label>
+  <input type="password" id="password" placeholder="Enter password" required />
+  <br><br>
 
-        const defaultHeaders = {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization, Bitmoji-Token',
-            'Origin': 'https://cdpn.io'
-        };
+  <button id="runButton">Run All Requests</button>
 
-        function addLog(message, type = 'info', details = null) {
-            const logsDiv = document.getElementById('logs');
-            const timestamp = new Date().toLocaleTimeString();
-            const logEntry = document.createElement('div');
-            logEntry.className = `log-entry log-${type}`;
-            logEntry.innerHTML = `<span class="timestamp">${timestamp}</span>: ${message}` +
-                (details ? `<div class="request-details">${details}</div>` : '');
-            logsDiv.insertBefore(logEntry, logsDiv.firstChild);
-        }
+  <script>
+    async function runAllRequests() {
+      const email = document.getElementById('email').value;
+      const passworde = document.getElementById('password').value;
 
-        function encodeEmail(email) {
-            return email.replace('@', '9c6o').replace('.', 'o9c3') + '@dougie.wtf';
-        }
+      if (!email || !password) {
+        console.error('Please enter both email and password.');
+        alert('Email and password are required!');
+        return;
+      }
 
-        async function extractToken(response) {
-            try {
-                const data = await response.json();
-                if (data && data.access_token) {
-                    addLog('Token successfully extracted', 'success');
-                    return data.access_token;
-                }
-                const responseStr = JSON.stringify(data);
-                const tokenMatch = responseStr.match(/"access_token":"([^"]+)"/);
-                if (tokenMatch) {
-                    addLog('Token found in response', 'success');
-                    return tokenMatch[1];
-                }
-            } catch (e) {
-                addLog('Failed to parse response, trying text', 'info');
-                try {
-                    const text = await response.text();
-                    const tokenMatch = text.match(/"access_token":"([^"]+)"/);
-                    if (tokenMatch) {
-                        return tokenMatch[1];
-                    }
-                } catch (textError) {
-                    addLog('Failed to extract token from text', 'error');
-                }
-            }
-            return null;
-        }
+      try {
+        // Request 1: Create User
+        console.log('Running Request 1: Create User...');
+        const createUserResponse = await fetch('https://us-east-1-bitmoji.api.snapchat.com/api/user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundaryKaXwokt7oVMzOn1j',
+            'Sec-Ch-Ua-Platform': '"Windows"',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.6668.71 Safari/537.36'
+          },
+          body: `
+------WebKitFormBoundaryKaXwokt7oVMzOn1j
+Content-Disposition: form-data; name="email"
 
-        async function handleSignup(encodedEmail, password, birthday) {
-            const formData = new FormData();
-            formData.append('email', encodedEmail);
-            formData.append('password', password);
-            formData.append('birthday', birthday);
+${email}
+------WebKitFormBoundaryKaXwokt7oVMzOn1j
+Content-Disposition: form-data; name="password"
 
-            addLog('Attempting signup...', 'info');
+${password}
+------WebKitFormBoundaryKaXwokt7oVMzOn1j
+Content-Disposition: form-data; name="birthday"
 
-            try {
-                const response = await fetch('https://us-east-1-bitmoji.api.snapchat.com/api/user', {
-                    method: 'POST',
-                    headers: {
-                        ...defaultHeaders
-                    },
-                    body: formData,
-                    mode: 'cors',
-                    credentials: 'include'
-                });
-                const token = await extractToken(response);
-                if (token) return token;
-            } catch (error) {
-                addLog('Signup attempt completed, moving to login', 'info');
-            }
-            return null;
-        }
-
-        async function handleLogin(encodedEmail, password) {
-            const loginFormData = new FormData();
-            loginFormData.append('username', encodedEmail);
-            loginFormData.append('password', password);
-            loginFormData.append('client_id', 'imoji');
-            loginFormData.append('grant_type', 'password');
-            loginFormData.append('client_secret', 'ignore-me');
-
-            addLog('Attempting login...', 'info');
-
-            try {
-                const response = await fetch('https://us-east-1-bitmoji.api.snapchat.com/api/user/login', {
-                    method: 'POST',
-                    headers: {
-                        ...defaultHeaders
-                    },
-                    body: loginFormData,
-                    mode: 'cors',
-                    credentials: 'include'
-                });
-                const token = await extractToken(response);
-                if (token) return token;
-            } catch (error) {
-                addLog('Login attempt completed', 'info');
-            }
-            return null;
-        }
-
-        async function handleAvatarCreation(token) {
-            addLog('Attempting avatar creation...', 'info');
-            
-            if (token) {
-                addLog(`Using token: ${token}`, 'info');
-            } else {
-                addLog('No token available, trying anyway', 'info');
-            }
-
-            try {
-                const headers = {
-                    ...defaultHeaders,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                };
-                
-                if (token) {
-                    headers['Bitmoji-Token'] = token;
-                }
-
-                const response = await fetch('https://us-east-1-bitmoji.api.snapchat.com/api/avatar-builder-v3/avatar', {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify({
-                        gender: 1,
-                        style: 5,
-                        mode: "create",
-                        option_ids: { skin_tone: 12434877, hair_tone: 2566954 }
-                    }),
-                    mode: 'cors',
-                    credentials: 'include'
-                });
-
-                const data = await response.json();
-                addLog('Avatar creation attempt completed', 'info', JSON.stringify(data));
-            } catch (error) {
-                addLog('Avatar creation attempt completed', 'info');
-            }
-        }
-
-        async function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        document.getElementById('authForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            if (isLoading) return;
-            isLoading = true;
-
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Processing...';
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const birthday = document.getElementById('birthday').value;
-            const encodedEmail = encodeEmail(email);
-
-            addLog(`Starting process with encoded email: ${encodedEmail}`);
-
-            try {
-                // Try signup first
-                let token = await handleSignup(encodedEmail, password, birthday);
-                await sleep(500);
-                
-                // Always try login regardless of signup result
-                if (!token) {
-                    token = await handleLogin(encodedEmail, password);
-                    await sleep(500);
-                }
-                
-                // Make multiple attempts to get token if needed
-                for (let i = 0; i < 3 && !token; i++) {
-                    addLog(`Additional login attempt ${i + 1}`, 'info');
-                    token = await handleLogin(encodedEmail, password);
-                    await sleep(500);
-                }
-                
-                // Always try avatar creation, with or without token
-                await handleAvatarCreation(token);
-                
-            } catch (error) {
-                addLog(`Error caught but continuing: ${error.message}`, 'info');
-            } finally {
-                isLoading = false;
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Sign Up';
-            }
+2000-2-2
+------WebKitFormBoundaryKaXwokt7oVMzOn1j--`
         });
-    </script>
+        const userData = await createUserResponse.json();
+        console.log('Request 1 Response:', userData);
+
+        // Request 2: Login User
+        console.log('Running Request 2: Login User...');
+        const loginResponse = await fetch('https://us-east-1-bitmoji.api.snapchat.com/api/user/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundaryHU62jYgIAdPPpA0J',
+            'Sec-Ch-Ua-Platform': '"Windows"',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.6668.71 Safari/537.36'
+          },
+          body: `
+------WebKitFormBoundaryHU62jYgIAdPPpA0J
+Content-Disposition: form-data; name="username"
+
+${email}
+------WebKitFormBoundaryHU62jYgIAdPPpA0J
+Content-Disposition: form-data; name="password"
+
+${passworde}
+------WebKitFormBoundaryHU62jYgIAdPPpA0J
+Content-Disposition: form-data; name="client_id"
+
+imoji
+------WebKitFormBoundaryHU62jYgIAdPPpA0J
+Content-Disposition: form-data; name="grant_type"
+
+password
+------WebKitFormBoundaryHU62jYgIAdPPpA0J
+Content-Disposition: form-data; name="client_secret"
+
+ignore-me
+------WebKitFormBoundaryHU62jYgIAdPPpA0J--`
+        });
+        const loginData = await loginResponse.json();
+        console.log('Request 2 Response:', loginData);
+
+        const accessToken = loginData.access_token; // Extract token from login response
+
+        // Request 3: Create Avatar
+        console.log('Running Request 3: Create Avatar...');
+        const avatarResponse = await fetch('https://us-east-1-bitmoji.api.snapchat.com/api/avatar-builder-v3/avatar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Bitmoji-Token': accessToken,
+            'Sec-Ch-Ua-Platform': '"Windows"',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.6668.71 Safari/537.36'
+          },
+          body: JSON.stringify({
+            gender: 1,
+            style: 5,
+            mode: "create",
+            option_ids: {
+              skin_tone: 12434877,
+              hair_tone: 2566954,
+              hair: 1303,
+              jaw: 1389,
+              brow: 1538,
+              eye: 1610,
+              pupil: 2152,
+              pupil_tone: 8026746,
+              nose: 1436,
+              mouth: 2337,
+              ear: 1424,
+              face_proportion: 1,
+              top: 54,
+              top_tone1: 16448250,
+              bottom: 137,
+              bottom_tone1: 16448250,
+              footwear: 0,
+              clothing_type: 1,
+              is_tucked: 0
+            }
+          })
+        });
+        const avatarData = await avatarResponse.json();
+        console.log('Request 3 Response:', avatarData);
+
+      } catch (error) {
+        console.error('Error running requests:', error);
+      }
+    }
+
+    document.getElementById('runButton').addEventListener('click', runAllRequests);
+  </script>
 </body>
 </html>
