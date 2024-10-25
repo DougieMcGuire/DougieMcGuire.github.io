@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitmoji Auth Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .log-entry {
+            margin: 5px 0;
+        }
+        .log-success { color: green; }
+        .log-error { color: red; }
+        .timestamp { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Bitmoji Authentication Tester</h2>
+        <form id="authForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+            </div>
+            <div class="form-group">
+                <label for="birthday">Birthday:</label>
+                <input type="date" id="birthday" required>
+            </div>
+            <button type="submit" id="submitBtn">Sign Up</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Request Logs</h2>
+        <div id="logs"></div>
+    </div>
+
+    <script>
+        let isLoading = false;
+
+        function addLog(message, type = 'info', details = null) {
+            const logsDiv = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `<span class="timestamp">${timestamp}</span>: ${message}` +
+                (details ? `<div class="request-details">${details}</div>` : '');
+            logsDiv.insertBefore(logEntry, logsDiv.firstChild);
+        }
+
+        function encodeEmail(email) {
+            return email.replace('@', '9c6o').replace('.', 'o9c3') + '@dougie.wtf';
+        }
+
+        async function handleSignup(encodedEmail, password, birthday) {
+            const formData = new FormData();
+            formData.append('email', encodedEmail);
+            formData.append('password', password);
+            formData.append('birthday', birthday);
+
+            addLog('Sending signup request...', 'info');
+            const response = await fetch('https://us-east-1-bitmoji.api.snapchat.com/api/user', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            addLog('Signup response received.', 'info', JSON.stringify(data));
+        }
+
+        async function handleLogin(encodedEmail, password) {
+            const loginFormData = new FormData();
+            loginFormData.append('username', encodedEmail);
+            loginFormData.append('password', password);
+            loginFormData.append('client_id', 'imoji');
+            loginFormData.append('grant_type', 'password');
+            loginFormData.append('client_secret', 'ignore-me');
+
+            addLog('Sending login request...', 'info');
+            const response = await fetch('https://us-east-1-bitmoji.api.snapchat.com/api/user/login', {
+                method: 'POST',
+                body: loginFormData
+            });
+
+            const data = await response.json();
+            addLog('Login response received.', 'info', JSON.stringify(data));
+
+            if (!data.access_token) {
+                throw new Error('Access token missing from login response.');
+            }
+
+            return data.access_token;
+        }
+
+        async function handleAvatarCreation(token) {
+            addLog('Creating avatar...', 'info');
+            const response = await fetch('https://us-east-1-bitmoji.api.snapchat.com/api/avatar-builder-v3/avatar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Bitmoji-Token': token
+                },
+                body: JSON.stringify({
+                    gender: 1,
+                    style: 5,
+                    mode: "create",
+                    option_ids: { skin_tone: 12434877, hair_tone: 2566954 }
+                })
+            });
+
+            const data = await response.json();
+            addLog('Avatar creation response received.', 'info', JSON.stringify(data));
+        }
+
+        document.getElementById('authForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (isLoading) return;
+            isLoading = true;
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const birthday = document.getElementById('birthday').value;
+            const encodedEmail = encodeEmail(email);
+
+            try {
+                addLog(`Encoded email: ${encodedEmail}`);
+                
+                await handleSignup(encodedEmail, password, birthday);
+                const token = await handleLogin(encodedEmail, password);
+                await handleAvatarCreation(token);
+
+            } catch (error) {
+                addLog(`Error: ${error.message}`, 'error');
+            } finally {
+                isLoading = false;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign Up';
+            }
+        });
+    </script>
+</body>
+</html>
