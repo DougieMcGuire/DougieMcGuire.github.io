@@ -62,6 +62,7 @@ Content-Disposition: form-data; name="birthday"
         const loginResponse = await fetch('https://us-east-1-bitmoji.api.snapchat.com/api/user/login', {
           method: 'POST',
           headers: {
+            'Access-Control-Allow-Origin'
             'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundaryHU62jYgIAdPPpA0J',
             'Sec-Ch-Ua-Platform': '"Windows"',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.6668.71 Safari/537.36'
@@ -142,4 +143,4 @@ ignore-me
     document.getElementById('runButton').addEventListener('click', runAllRequests);
   </script>
 </body>
-</html>
+</html>   y
