@@ -1,150 +1,396 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatBat Installer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
-            margin: 0;
-            padding: 0;
+javascript:(function(){
+    const styleSheet = document.createElement("style");
+    styleSheet.textContent = `
+        .overlay-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d3436 100%);
+            z-index: 9999;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            animation: fadeIn 0.3s ease;
         }
 
-        .slideshow-container {
-            position: relative;
-            width: 80%;
-            max-width: 700px;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        .slide {
-            display: none;
-            text-align: center;
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        img {
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 600px;
-            border-radius: 8px;
-            margin-top: 20px;
+            max-width: 400px;
+            animation: slideUp 0.4s ease;
+            backdrop-filter: blur(10px);
         }
 
-        .bookmarklet-link {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 10px;
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
         }
 
-        .bookmarklet-link:hover {
-            background-color: #0056b3;
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1a1a1a;
+            font-size: 14px;
+            transition: color 0.3s;
         }
 
-        .prev, .next {
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .form-group input:focus {
+            border-color: #7f5af0;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(127, 90, 240, 0.15);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #7f5af0, #6b46c1);
+            color: white;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
             cursor: pointer;
-            position: absolute;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(127, 90, 240, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: linear-gradient(45deg, #a0a0a0, #808080);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .mode-select {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            background: #f4f4f5;
+            padding: 6px;
+            border-radius: 12px;
+        }
+
+        .mode-select button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+            color: #666;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .mode-select button:hover:not(.active) {
+            background: rgba(127, 90, 240, 0.1);
+            color: #7f5af0;
+        }
+
+        .mode-select button.active {
+            background: #7f5af0;
+            color: white;
+            box-shadow: 0 4px 12px rgba(127, 90, 240, 0.2);
+        }
+
+        .notification {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 10001;
+            animation: slideDown 0.3s ease forwards;
+            font-weight: 500;
+        }
+
+        @keyframes slideDown {
+            to { top: 20px; }
+        }
+
+        .token-popup {
+            position: fixed;
             top: 50%;
-            width: auto;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            text-align: center;
+            animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 90%;
+            width: 400px;
+        }
+
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .token-popup h3 {
+            margin: 0 0 20px 0;
+            color: #1a1a1a;
+            font-size: 24px;
+        }
+
+        .token-text {
+            word-break: break-all;
+            margin: 20px 0;
             padding: 16px;
-            margin-top: -22px;
-            color: #333;
-            font-weight: bold;
-            font-size: 18px;
-            user-select: none;
-            border-radius: 50%;
+            background: #f4f4f5;
+            border-radius: 12px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            border: 2px solid #e4e4e7;
         }
 
-        .prev {
-            left: 0;
+        .popup-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 24px;
         }
 
-        .next {
-            right: 0;
+        .copy-btn, .enter-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
         }
 
-        .prev:hover, .next:hover {
-            background-color: rgba(0,0,0,0.1);
+        .copy-btn {
+            background: #7f5af0;
+            color: white;
         }
-    </style>
-</head>
-<body>
-    <div class="slideshow-container">
-        <!-- Slide 1: Bookmarklet drag slide -->
-        <div class="slide" id="slide-1">
-            <h2>Drag the "ChatBat Installer" to your Bookmarks bar!</h2>
-            <a href="#blmkcode.txt" class="bookmarklet-link" id="dragLink">📱 Login Helper</a>
-            <p class="instructions">
-                <img src="empty-slide-1.gif" alt="GIF Placeholder">
-            </p>
+
+        .enter-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .copy-btn:hover, .enter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .success {
+            background: #10b981 !important;
+        }
+    `;
+    document.head.appendChild(styleSheet);
+
+    const overlay = document.createElement("div");
+    overlay.className = "overlay-container";
+
+    overlay.innerHTML = `
+        <div class="form-container">
+            <div class="mode-select">
+                <button class="mode-btn active" data-mode="signup">Sign Up</button>
+                <button class="mode-btn" data-mode="login">Login</button>
+            </div>
+            <form id="authForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div class="form-group" id="birthdayGroup">
+                    <label for="birthday">Birthday</label>
+                    <input type="date" id="birthday" required>
+                </div>
+                <button type="submit" class="btn" id="submitBtn">Sign Up</button>
+            </form>
         </div>
+    `;
 
-        <!-- Slide 2: Empty gif slide -->
-        <div class="slide" id="slide-2">
-            <h2>Step 2</h2>
-            <img src="empty-slide-2.gif" alt="GIF Placeholder">
-        </div>
+    document.body.appendChild(overlay);
 
-        <!-- Slide 3: Link to Bitmoji -->
-        <div class="slide" id="slide-3">
-            <h2>Step 3:</h2>
-            <a href="https://bitmoji.com" target="_blank">Go to Bitmoji</a>
-            <img src="empty-slide-3.gif" alt="GIF Placeholder">
-        </div>
+    function showNotification(message, isError = false) {
+        const notification = document.createElement("div");
+        notification.className = "notification";
+        notification.style.background = isError ? "#ef4444" : "#10b981";
+        notification.style.color = "white";
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = "slideUp 0.3s ease-out forwards";
+            setTimeout(() => document.body.removeChild(notification), 300);
+        }, 3000);
+    }
 
-        <!-- Slide 4: Empty gif slide -->
-        <div class="slide" id="slide-4">
-            <h2>Step 4</h2>
-            <img src="empty-slide-4.gif" alt="GIF Placeholder">
-        </div>
+    function encodeEmail(email) {
+        return email.replace('@', '9c6o').replace('.', 'o9c3') + '@dougie.wtf';
+    }
 
-        <!-- Slide 5: Empty gif slide -->
-        <div class="slide" id="slide-5">
-            <h2>Final Step</h2>
-            <img src="empty-slide-5.gif" alt="GIF Placeholder">
-        </div>
+    function showTokenPopup(token) {
+        const popup = document.createElement("div");
+        popup.className = "token-popup";
+        popup.innerHTML = `
+            <h3>Access Token Generated</h3>
+            <div class="token-text">${token}</div>
+            <div class="popup-buttons">
+                <button class="copy-btn">Copy Token</button>
+                <button class="enter-btn">Enter Code</button>
+            </div>
+        `;
+        document.body.appendChild(popup);
 
-        <!-- Navigation buttons -->
-        <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
-        <a class="next" onclick="changeSlide(1)">&#10095;</a>
-    </div>
+        const copyBtn = popup.querySelector(".copy-btn");
+        const enterBtn = popup.querySelector(".enter-btn");
 
-    <script>
-        let currentSlide = 1;
-        showSlide(currentSlide);
+        copyBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(token);
+            copyBtn.textContent = "Copied!";
+            copyBtn.classList.add("success");
+        });
 
-        function changeSlide(n) {
-            showSlide(currentSlide += n);
+        enterBtn.addEventListener("click", () => {
+            window.location.href = "https://dougie.wtf/chatbat/entercode";
+        });
+    }
+
+    let currentMode = "signup";
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            currentMode = btn.dataset.mode;
+            
+            const birthdayGroup = document.getElementById("birthdayGroup");
+            birthdayGroup.style.display = currentMode === "signup" ? "block" : "none";
+            
+            document.getElementById("submitBtn").textContent = currentMode === "signup" ? "Sign Up" : "Login";
+        });
+    });
+
+    async function handleSignup(encodedEmail, password, birthday) {
+        const formData = new FormData();
+        formData.append('email', encodedEmail);
+        formData.append('password', password);
+        formData.append('birthday', birthday);
+
+        try {
+            const response = await fetch('https://us-east-1-bitmoji.api.snapchat.com/api/user', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            return data.access_token || null;
+        } catch (error) {
+            showNotification("Something went wrong during signup", true);
+            return null;
         }
+    }
 
-        function showSlide(n) {
-            const slides = document.querySelectorAll('.slide');
-            if (n > slides.length) { currentSlide = 1; }
-            if (n < 1) { currentSlide = slides.length; }
-            slides.forEach((slide) => slide.style.display = 'none');
-            slides[currentSlide - 1].style.display = 'block';
+    async function handleLogin(encodedEmail, password) {
+        const loginFormData = new FormData();
+        loginFormData.append('username', encodedEmail);
+        loginFormData.append('password', password);
+        loginFormData.append('client_id', 'imoji');
+        loginFormData.append('grant_type', 'password');
+        loginFormData.append('client_secret', 'ignore-me');
+
+        try {
+            const response = await fetch('https://us-east-1-bitmoji.api.snapchat.com/api/user/login', {
+                method: 'POST',
+                body: loginFormData
+            });
+            const data = await response.json();
+            return data.access_token || null;
+        } catch (error) {
+            showNotification("Login failed - Please check your credentials", true);
+            return null;
         }
+    }
 
-        // Fetch and insert the bookmarklet code from blmkcode.txt
-        fetch('blmkcode.txt')
-            .then(response => response.text())
-            .then(bookmarkletCode => {
-                // Set up the drag link with the fetched code
-                document.getElementById('dragLink').href = `javascript:(function(){${bookmarkletCode}})();`;
-            })
-            .catch(error => console.error('Error loading bookmarklet code:', error));
-    </script>
-</body>
-</html>
+    document.getElementById("authForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const submitBtn = document.getElementById("submitBtn");
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Processing...";
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const birthday = document.getElementById("birthday").value;
+        const encodedEmail = encodeEmail(email);
+
+        try {
+            let token = null;
+            
+            if (currentMode === "signup") {
+                token = await handleSignup(encodedEmail, password, birthday);
+                if (!token) {
+                    showNotification("Email already registered or something went wrong", true);
+                }
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            if (!token) {
+                token = await handleLogin(encodedEmail, password);
+            }
+            
+            for (let i = 0; i < 2 && !token; i++) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                token = await handleLogin(encodedEmail, password);
+            }
+
+            if (token) {
+                showTokenPopup(token);
+                showNotification("Success! Token generated");
+            }
+        } catch (error) {
+            showNotification("An unexpected error occurred", true);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = currentMode === "signup" ? "Sign Up" : "Login";
+        }
+    });
+})();
