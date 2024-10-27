@@ -3,86 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flick Chat</title>
+    <title>Simple Messaging App</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f5f5f5; text-align: center; }
-        #chat { max-width: 500px; margin: 20px auto; padding: 10px; background: #fff; border: 1px solid #ddd; border-radius: 8px; }
-        #messages { height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
-        #messageForm { display: flex; gap: 5px; }
-        #messageForm input[type="text"] { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        #messageForm button { padding: 8px 12px; border: none; background-color: #007bff; color: white; border-radius: 4px; cursor: pointer; }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        #messages {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            height: 400px;
+            overflow-y: auto;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
-
-<div id="chat">
-    <h2>Flick Chat</h2>
     <div id="messages"></div>
-    <form id="messageForm">
-        <input type="text" id="messageInput" placeholder="Type your message..." required>
-        <button type="submit">Send</button>
-    </form>
-</div>
+    <div>
+        <input type="text" id="messageInput" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 
-<!-- Firebase SDK -->
-<script type="module">
-    // Import the necessary Firebase libraries
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // Your Firebase config
-    const firebaseConfig = {
-        apiKey: "AIzaSyAmMogv9JvqRN7wSWwCyPVr1XGlyV9o_nI",
-        authDomain: "flick-281e9.firebaseapp.com",
-        projectId: "flick-281e9",
-        storageBucket: "flick-281e9.appspot.com",
-        messagingSenderId: "75977343359",
-        appId: "1:75977343359:web:64b433e5a6e28d13c61a4a",
-        measurementId: "G-5D0KSXG57J"
-    };
+        // Your web app's Firebase configuration
+          const firebaseConfig = {
+    apiKey: "AIzaSyCa026-T60VjqfvYAtDrh_uUfgLkVa80WU",
+    authDomain: "flickapi.firebaseapp.com",
+    databaseURL: "https://flickapi-default-rtdb.firebaseio.com",
+    projectId: "flickapi",
+    storageBucket: "flickapi.appspot.com",
+    messagingSenderId: "605379013848",
+    appId: "1:605379013848:web:0e58360df6726849d87bad",
+    measurementId: "G-X4NDYQBFF0"
+  };
 
-    // Initialize Firebase and Firestore
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
 
-    // References to Firestore collection
-    const messagesRef = collection(db, "messages");
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const messagesRef = ref(database, 'messages');
 
-    // Send message to Firestore
-    async function sendMessage(text) {
-        await addDoc(messagesRef, {
-            text,
-            timestamp: serverTimestamp()
-        });
-    }
+        // Send message function
+        window.sendMessage = function() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (message !== '') {
+                push(messagesRef, {
+                    text: message,
+                    timestamp: Date.now()
+                });
+                messageInput.value = '';
+            }
+        };
 
-    // Real-time listener for messages
-    const messagesDiv = document.getElementById("messages");
-    const q = query(messagesRef, orderBy("timestamp"));
-    onSnapshot(q, (snapshot) => {
-        messagesDiv.innerHTML = "";  // Clear current messages
-        snapshot.forEach((doc) => {
-            const message = doc.data();
-            const messageElement = document.createElement("p");
+        // Listen for messages
+        onChildAdded(messagesRef, (snapshot) => {
+            const message = snapshot.val();
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message';
             messageElement.textContent = message.text;
             messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
-        // Scroll to the bottom of the messages
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    });
 
-    // Handle form submission
-    const messageForm = document.getElementById("messageForm");
-    const messageInput = document.getElementById("messageInput");
-    messageForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const messageText = messageInput.value;
-        if (messageText.trim()) {
-            await sendMessage(messageText);  // Send message
-            messageInput.value = "";  // Clear input field
-        }
-    });
-</script>
-
+        // Allow sending message with Enter key
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
 </body>
 </html>
