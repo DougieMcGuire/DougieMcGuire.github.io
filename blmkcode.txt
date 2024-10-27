@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBat Installer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .slideshow-container {
+            position: relative;
+            width: 80%;
+            max-width: 700px;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .slide {
+            display: none;
+            text-align: center;
+        }
+
+        img {
+            width: 100%;
+            max-width: 600px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .bookmarklet-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .bookmarklet-link:hover {
+            background-color: #0056b3;
+        }
+
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 16px;
+            margin-top: -22px;
+            color: #333;
+            font-weight: bold;
+            font-size: 18px;
+            user-select: none;
+            border-radius: 50%;
+        }
+
+        .prev {
+            left: 0;
+        }
+
+        .next {
+            right: 0;
+        }
+
+        .prev:hover, .next:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1: Bookmarklet drag slide -->
+        <div class="slide" id="slide-1">
+            <h2>Drag the "ChatBat Installer" to your Bookmarks bar!</h2>
+            <a href="#blmkcode.txt" class="bookmarklet-link" id="dragLink">📱 Login Helper</a>
+            <p class="instructions">
+                <img src="empty-slide-1.gif" alt="GIF Placeholder">
+            </p>
+        </div>
+
+        <!-- Slide 2: Empty gif slide -->
+        <div class="slide" id="slide-2">
+            <h2>Step 2</h2>
+            <img src="empty-slide-2.gif" alt="GIF Placeholder">
+        </div>
+
+        <!-- Slide 3: Link to Bitmoji -->
+        <div class="slide" id="slide-3">
+            <h2>Step 3:</h2>
+            <a href="https://bitmoji.com" target="_blank">Go to Bitmoji</a>
+            <img src="empty-slide-3.gif" alt="GIF Placeholder">
+        </div>
+
+        <!-- Slide 4: Empty gif slide -->
+        <div class="slide" id="slide-4">
+            <h2>Step 4</h2>
+            <img src="empty-slide-4.gif" alt="GIF Placeholder">
+        </div>
+
+        <!-- Slide 5: Empty gif slide -->
+        <div class="slide" id="slide-5">
+            <h2>Final Step</h2>
+            <img src="empty-slide-5.gif" alt="GIF Placeholder">
+        </div>
+
+        <!-- Navigation buttons -->
+        <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
+        <a class="next" onclick="changeSlide(1)">&#10095;</a>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        showSlide(currentSlide);
+
+        function changeSlide(n) {
+            showSlide(currentSlide += n);
+        }
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            if (n > slides.length) { currentSlide = 1; }
+            if (n < 1) { currentSlide = slides.length; }
+            slides.forEach((slide) => slide.style.display = 'none');
+            slides[currentSlide - 1].style.display = 'block';
+        }
+
+        // Fetch and insert the bookmarklet code from blmkcode.txt
+        fetch('blmkcode.txt')
+            .then(response => response.text())
+            .then(bookmarkletCode => {
+                // Set up the drag link with the fetched code
+                document.getElementById('dragLink').href = `javascript:(function(){${bookmarkletCode}})();`;
+            })
+            .catch(error => console.error('Error loading bookmarklet code:', error));
+    </script>
+</body>
+</html>
