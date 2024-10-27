@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flick</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <h1>Flick</h1>
+            <div>
+                <span id="loginStatus">Not logged in</span>
+                <button id="loginBtn">Login with Google</button>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="messages" id="messages"></div>
+            <div class="input-area">
+                <button id="cameraBtn">📸</button>
+                <input type="text" id="messageInput" placeholder="Type a message...">
+                <button id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cameraModal" class="modal">
+        <div class="modal-content">
+            <video id="video" width="640" height="480" autoplay playsinline></video>
+            <div class="edit-canvas-container" id="editContainer">
+                <canvas id="photoCanvas" width="640" height="480"></canvas>
+                <div id="fabricContainer"></div>
+            </div>
+
+            <div id="captureTools">
+                <button id="snapBtn">Take Photo</button>
+                <button id="switchCameraBtn">Switch Camera</button>
+                <button id="closeCamera">Close</button>
+            </div>
+
+            <div id="editTools" class="edit-tools">
+                <button id="addTextBtn">Add Text</button>
+                <button id="drawBtn">Draw</button>
+                <input type="color" id="colorPicker" class="color-picker" value="#ffffff">
+                <button id="undoBtn">Undo</button>
+                <button id="sendPhotoBtn">Send</button>
+                <button id="retakeBtn">Retake</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
