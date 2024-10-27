@@ -153,7 +153,6 @@
             <h1>Flick</h1>
             <div>
                 <button id="loginBtn">Login</button>
-                <button id="addFriendBtn">Add Friend</button>
             </div>
         </div>
 
@@ -166,7 +165,6 @@
                     <!-- Messages will appear here -->
                 </div>
                 <div class="input-area">
-                    <button id="cameraBtn">📸</button>
                     <input type="text" id="messageInput" placeholder="Type a message...">
                     <button onclick="sendMessage()">Send</button>
                 </div>
@@ -174,29 +172,9 @@
         </div>
     </div>
 
-    <!-- Camera Modal -->
-    <div id="cameraModal" class="modal">
-        <div class="modal-content">
-            <div class="camera-container">
-                <video id="video" width="640" height="480" autoplay></video>
-                <div id="canvas-container">
-                    <canvas id="photoCanvas" width="640" height="480"></canvas>
-                    <canvas id="drawing-canvas" width="640" height="480"></canvas>
-                </div>
-            </div>
-            <div class="toolbar">
-                <button id="captureBtn">Take Photo</button>
-                <button id="drawBtn">Draw</button>
-                <button id="textBtn">Add Text</button>
-                <button id="sendPhotoBtn">Send</button>
-                <button id="closeCamera">Close</button>
-            </div>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded, remove, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, onChildAdded, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // Firebase configuration
@@ -216,139 +194,56 @@
         const database = getDatabase(app);
         const auth = getAuth(app);
 
-        // Local storage for messages
-        let localMessages = JSON.parse(localStorage.getItem('messages') || '[]');
-
-        // Camera variables
-        let stream;
-        let canvas;
-        let drawingCanvas;
-        let fabricCanvas;
-        let video = document.getElementById('video');
-
-        // Initialize camera functionality
-        document.getElementById('cameraBtn').addEventListener('click', initCamera);
-        document.getElementById('closeCamera').addEventListener('click', closeCamera);
-        document.getElementById('captureBtn').addEventListener('click', capturePhoto);
-        document.getElementById('drawBtn').addEventListener('click', toggleDrawing);
-        document.getElementById('textBtn').addEventListener('click', addText);
-        document.getElementById('sendPhotoBtn').addEventListener('click', sendPhoto);
-
-        async function initCamera() {
-            document.getElementById('cameraModal').style.display = 'block';
-            stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-
-            // Initialize canvas
-            canvas = document.getElementById('photoCanvas');
-            drawingCanvas = document.getElementById('drawing-canvas');
-            fabricCanvas = new fabric.Canvas('drawing-canvas');
-        }
-
-        function closeCamera() {
-            document.getElementById('cameraModal').style.display = 'none';
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-        }
-
-        function capturePhoto() {
-            const context = canvas.getContext('2d');
-            context.drawImage(video, 0, 0, 640, 480);
-            document.getElementById('video').style.display = 'none';
-            document.getElementById('canvas-container').style.display = 'block';
-        }
-
-        function toggleDrawing() {
-            fabricCanvas.isDrawingMode = !fabricCanvas.isDrawingMode;
-            fabricCanvas.freeDrawingBrush.width = 5;
-            fabricCanvas.freeDrawingBrush.color = '#ff0000';
-        }
-
-        function addText() {
-            const text = new fabric.IText('Type here...', {
-                left: 50,
-                top: 50,
-                fontFamily: 'Arial',
-                fill: '#ffffff',
-                fontSize: 20
-            });
-            fabricCanvas.add(text);
-        }
-
-        async function sendPhoto() {
-            // Merge canvas layers
-            const finalCanvas = document.createElement('canvas');
-            finalCanvas.width = 640;
-            finalCanvas.height = 480;
-            const ctx = finalCanvas.getContext('2d');
-
-            // Draw photo
-            ctx.drawImage(canvas, 0, 0);
-
-            // Draw drawing layer
-            fabricCanvas.discardActiveObject();
-            fabricCanvas.renderAll();
-            ctx.drawImage(drawingCanvas, 0, 0);
-
-            const dataUrl = finalCanvas.toDataURL();
-
-            // Send to Firebase
-            const message = {
-                type: 'photo',
-                content: dataUrl,
-                timestamp: new Date().toISOString(),
-                sender: auth.currentUser.displayName || "Anonymous"
-            };
-            push(ref(database, 'messages'), message);
-
-            closeCamera();
-        }
-
-        // Handle authentication
+        // Handle Google Authentication
         const provider = new GoogleAuthProvider();
         document.getElementById('loginBtn').addEventListener('click', async () => {
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 console.log('Logged in as:', user.displayName);
-                loadFriends(); // Load the user's friends after logging in
+                loadFriends(); // Load friends list
             } catch (error) {
                 console.error('Login failed:', error);
             }
         });
 
-        // Handle sending messages
+        // Handle message sending
         async function sendMessage() {
             const messageInput = document.getElementById('messageInput');
-            const message = messageInput.value.trim();
-            if (message === '') return;
+            const messageText = messageInput.value.trim();
+
+            if (messageText === '') return; // Don't send empty messages
 
             const newMessage = {
                 type: 'text',
-                content: message,
+                content: messageText,
                 timestamp: new Date().toISOString(),
-                sender: auth.currentUser.displayName || "Anonymous"
+                sender: auth.currentUser?.displayName || "Anonymous"
             };
 
-            // Save to Firebase
-            push(ref(database, 'messages'), newMessage);
-            messageInput.value = '';
+            try {
+                await push(ref(database, 'messages'), newMessage);
+                console.log('Message sent:', newMessage);
+                messageInput.value = ''; // Clear input
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
         }
 
         // Listen for new messages
         const messagesRef = query(ref(database, 'messages'), limitToLast(20));
         onChildAdded(messagesRef, (snapshot) => {
             const message = snapshot.val();
+            console.log('New message:', message); // Log for debugging
             displayMessage(message);
         });
 
-        // Display messages
+        // Display message in the chat
         function displayMessage(message) {
             const messagesDiv = document.getElementById('messages');
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
-            messageDiv.classList.add(message.sender === auth.currentUser.displayName ? 'sent' : 'received');
+            messageDiv.classList.add(message.sender === auth.currentUser?.displayName ? 'sent' : 'received');
 
             if (message.type === 'text') {
                 messageDiv.innerText = `${message.sender}: ${message.content}`;
@@ -360,14 +255,14 @@
             }
 
             messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the latest message
         }
 
-        // Load friends
+        // Load friends (Placeholder function for now)
         function loadFriends() {
             const friendsList = document.getElementById('friendsList');
             friendsList.innerHTML = ''; // Clear existing list
-            const friends = ['Friend 1', 'Friend 2', 'Friend 3']; // Replace with dynamic data later
+            const friends = ['Friend 1', 'Friend 2', 'Friend 3']; // Dummy friends list for now
             friends.forEach(friend => {
                 const friendDiv = document.createElement('div');
                 friendDiv.innerText = friend;
