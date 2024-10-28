@@ -108,7 +108,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, push, onChildAdded, query, limitToLast, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -144,7 +144,7 @@
         // Auth State
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                loginStatus.textContent = `Logged in as ${user.displayName}`;
+                loginStatus.textContent = `Logged in as ${user.displayName || user.email}`;
                 loginBtn.textContent = 'Logout';
                 loadMessages();
             } else {
@@ -477,9 +477,21 @@
             const password = document.getElementById('passwordInput').value;
 
             try {
-                await signInWithEmailAndPassword(auth, email, password);
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // If user doesn't have a display name, set it
+                if (!user.displayName) {
+                    await updateProfile(user, {
+                        displayName: email.split('@')[0]
+                    });
+                }
+                
                 emailLoginModal.style.display = 'none';
+                document.getElementById('emailInput').value = '';
+                document.getElementById('passwordInput').value = '';
             } catch (error) {
+                console.error('Login error:', error);
                 alert('Login failed: ' + error.message);
             }
         });
@@ -491,12 +503,18 @@
 
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                // Set display name as email username
-                await userCredential.user.updateProfile({
+                const user = userCredential.user;
+                
+                // Set display name after creating account
+                await updateProfile(user, {
                     displayName: email.split('@')[0]
                 });
+                
                 emailLoginModal.style.display = 'none';
+                document.getElementById('emailInput').value = '';
+                document.getElementById('passwordInput').value = '';
             } catch (error) {
+                console.error('Sign up error:', error);
                 alert('Sign up failed: ' + error.message);
             }
         });
