@@ -78,12 +78,6 @@
         #pmMessages .received {
             background: #e9ecef;
         }
-        /* Example CSS */
-@media only screen and (max-width: 600px) {
-    .chat-container { width: 100%; }
-    .message-input { width: 90%; }
-    /* Adjust other styles for mobile */
-}
     </style>
 </head>
 <body>
@@ -220,13 +214,7 @@
                 }
             }
         });
-// Add button event listener to add friend
-document.getElementById('addFriendBtn').addEventListener('click', () => {
-    const friendId = prompt("Enter friend's ID:");
-    if (friendId) {
-        addFriend(friendId, friendName); // friendName could be fetched separately
-    }
-});
+
         // Camera initialization
         async function initCamera() {
             try {
@@ -257,56 +245,7 @@ document.getElementById('addFriendBtn').addEventListener('click', () => {
             currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
             initCamera();
         });
-// Load friends list on page load or login
-async function loadFriendsList() {
-    const friendsRef = ref(database, `users/${auth.currentUser.uid}/friends`);
-    onChildAdded(friendsRef, (snapshot) => {
-        const friendId = snapshot.key;
-        const friendName = snapshot.val();
-        displayFriend(friendId, friendName);  // Implement this function to display each friend in the UI
-    });
-}
 
-// Add a friend
-async function addFriend(friendId, friendName) {
-    const userRef = ref(database, `users/${auth.currentUser.uid}/friends/${friendId}`);
-    await set(userRef, friendName);
-    loadFriendsList();
-}
-     // Create new group chat
-async function createGroupChat(groupName) {
-    const groupId = push(ref(database, 'group-chats')).key;
-    await set(ref(database, `group-chats/${groupId}`), {
-        name: groupName,
-        members: { [auth.currentUser.uid]: true }
-    });
-    joinGroupChat(groupId); // Implement this to load the group chat messages
-}
-
-// Send message to group chat
-async function sendGroupMessage(groupId, messageContent) {
-    const groupRef = ref(database, `group-chats/${groupId}/messages`);
-    await push(groupRef, {
-        uid: auth.currentUser.uid,
-        content: messageContent,
-        timestamp: Date.now()
-    });
-}
-   // Upload story
-async function uploadStory(imageBlob) {
-    const storyRef = ref(database, `stories/${auth.currentUser.uid}`);
-    const storyId = push(storyRef).key;
-    await uploadBytes(ref(storage, `stories/${auth.currentUser.uid}/${storyId}`), imageBlob);
-}
-
-// Display friend’s stories
-async function loadStories() {
-    const storiesRef = ref(database, 'stories');
-    onChildAdded(storiesRef, (snapshot) => {
-        const story = snapshot.val();
-        // Implement display logic to show the story in UI
-    });
-}
         // Take photo
         document.getElementById('snapBtn').addEventListener('click', () => {
             const context = photoCanvas.getContext('2d');
@@ -729,4 +668,4 @@ async function loadStories() {
         });
     </script>
 </body>
-</html>
+
