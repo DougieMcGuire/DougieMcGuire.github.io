@@ -27,6 +27,11 @@
         .edit-canvas-container, .canvas-container { position: relative; }
         #editCanvas, #photoCanvas { position: absolute; top: 0; left: 0; }
         .canvas-container { pointer-events: none; }
+        .message img {
+            max-width: 100%; /* Ensure images fit within the message container */
+            height: auto; /* Maintain aspect ratio */
+            border-radius: 10px; /* Optional: add some rounding to the image corners */
+        }
     </style>
 </head>
 <body>
