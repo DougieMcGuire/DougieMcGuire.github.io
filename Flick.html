@@ -249,7 +249,7 @@
         // Auth State
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                loginStatus.textContent = `Logged in as ${user.displayName} ${user.photoURL}`;
+                loginStatus.textContent = `Logged in as ${user.displayName}`;
                 loginBtn.textContent = 'Logout';
                 loadMessages();
             } else {
@@ -432,7 +432,7 @@
                 return;
             }
 
-            const messageContent = content || messageInput.value.trim();
+            const messageContent = ${user.displayName} ${user.photoURL}content || messageInput.value.trim();
             if (!messageContent) return;
 
             try {
