@@ -78,90 +78,10 @@
         #pmMessages .received {
             background: #e9ecef;
         }
-        /* Friends List Styling */
-#friends-container {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #f3f3f3;
-    border-radius: 8px;
-    width: 100%;
-}
-
-#friends-list {
-    list-style: none;
-    padding: 0;
-}
-
-#friends-list li {
-    margin: 5px 0;
-}
-
-#addFriendBtn {
-    display: inline-block;
-    padding: 8px 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-/* Group Chat Styling */
-#group-chat-container {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #e3e3f3;
-    border-radius: 8px;
-    width: 100%;
-}
-
-#group-chat-list {
-    list-style: none;
-    padding: 0;
-}
-
-/* Stories Styling */
-#stories-container {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #f3f3e3;
-    border-radius: 8px;
-    width: 100%;
-}
-
-/* Camera Styling */
-#camera-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-#camera {
-    transform: scaleX(-1);
-    width: 100%;
-    max-width: 400px;
-    border-radius: 8px;
-}
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="friends-container">
-    <h2>Friends</h2>
-    <button id="addFriendBtn">Add Friend</button>
-    <ul id="friends-list"></ul>
-</div>
-     <div id="group-chat-container">
-    <h2>Group Chats</h2>
-    <button id="createGroupChatBtn">Create Group Chat</button>
-    <ul id="group-chat-list"></ul>
-</div>
-        <div id="stories-container">
-    <h2>Stories</h2>
-    <button id="uploadStoryBtn">Upload Story</button>
-    <ul id="stories-list"></ul>
-</div>
-        
         <div class="nav">
             <h1>
                 <img src="https://i.ibb.co/jzN9LhH/4b7ef022-ce3d-4a87-9921-1db667013971.gif" alt="Logo" style="height: 80px;"> <!-- Logo image -->
@@ -735,82 +655,7 @@
                 pmMessages.scrollTop = pmMessages.scrollHeight;
             });
         }
-async function loadFriendsList() {
-    const friendsRef = ref(database, `users/${auth.currentUser.uid}/friends`);
-    onChildAdded(friendsRef, (snapshot) => {
-        const friendId = snapshot.key;
-        const friendName = snapshot.val();
-        displayFriend(friendId, friendName);
-    });
-}
 
-function displayFriend(friendId, friendName) {
-    const friendItem = document.createElement('li');
-    friendItem.textContent = friendName;
-    document.getElementById('friends-list').appendChild(friendItem);
-}
-
-async function addFriend(friendId, friendName) {
-    const userRef = ref(database, `users/${auth.currentUser.uid}/friends/${friendId}`);
-    await set(userRef, friendName);
-    loadFriendsList();
-}
-
-document.getElementById('addFriendBtn').addEventListener('click', () => {
-    const friendId = prompt("Enter friend's ID:");
-    const friendName = prompt("Enter friend's Name:");
-    if (friendId && friendName) {
-        addFriend(friendId, friendName);
-    }
-});
-        async function createGroupChat(groupName) {
-    const groupId = push(ref(database, 'group-chats')).key;
-    await set(ref(database, `group-chats/${groupId}`), {
-        name: groupName,
-        members: { [auth.currentUser.uid]: true }
-    });
-    joinGroupChat(groupId);
-}
-
-document.getElementById('createGroupChatBtn').addEventListener('click', () => {
-    const groupName = prompt("Enter Group Chat Name:");
-    if (groupName) {
-        createGroupChat(groupName);
-    }
-});
-        async function uploadStory(imageBlob) {
-    const storyRef = ref(database, `stories/${auth.currentUser.uid}`);
-    const storyId = push(storyRef).key;
-    await uploadBytes(ref(storage, `stories/${auth.currentUser.uid}/${storyId}`), imageBlob);
-}
-
-async function loadStories() {
-    const storiesRef = ref(database, 'stories');
-    onChildAdded(storiesRef, (snapshot) => {
-        const story = snapshot.val();
-        displayStory(story);
-    });
-}
-
-function displayStory(story) {
-    const storyItem = document.createElement('li');
-    storyItem.textContent = story;
-    document.getElementById('stories-list').appendChild(storyItem);
-}
-
-document.getElementById('uploadStoryBtn').addEventListener('click', () => {
-    // Trigger file upload dialog and handle file selection
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.onchange = async (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            await uploadStory(file);
-            loadStories();
-        }
-    };
-    fileInput.click();
-});
         // Event listeners for private messaging
         document.getElementById('pmSend').addEventListener('click', sendPrivateMessage);
         document.getElementById('pmInput').addEventListener('keypress', (e) => {
@@ -823,4 +668,3 @@ document.getElementById('uploadStoryBtn').addEventListener('click', () => {
         });
     </script>
 </body>
-
