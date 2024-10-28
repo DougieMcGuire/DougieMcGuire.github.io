@@ -32,6 +32,22 @@
             height: auto; /* Maintain aspect ratio */
             border-radius: 10px; /* Optional: add some rounding to the image corners */
         }
+        .message .delete-btn {
+            display: none;
+            margin-left: 10px;
+            color: red;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .message:hover .delete-btn {
+            display: inline;
+        }
+        #emailLoginModal .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+        }
     </style>
 </head>
 <body>
@@ -41,7 +57,7 @@
             <div>
                 <span id="loginStatus">Not logged in</span>
                 <button id="loginBtn">Login with Google</button>
-                <!-- Removed email login button -->
+                <button id="emailLoginBtn">Login with Email</button>
             </div>
         </div>
         <div class="chat-container">
@@ -77,10 +93,25 @@
         </div>
     </div>
 
+    <div id="emailLoginModal" class="modal">
+        <div class="modal-content" style="width: 300px; padding: 20px;">
+            <h2 style="margin-bottom: 20px;">Login with Email</h2>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <input type="email" id="emailInput" placeholder="Email" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                <input type="password" id="passwordInput" placeholder="Password" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                <button id="emailLoginSubmit" style="padding: 8px;">Login</button>
+                <button id="signupBtn" style="padding: 8px;">Sign Up</button>
+                <button id="closeEmailLogin" style="padding: 8px;">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, push, onChildAdded, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, onChildAdded, query, limitToLast, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCa026-T60VjqfvYAtDrh_uUfgLkVa80WU",
@@ -345,6 +376,42 @@
                 div.textContent += `: ${message.content}`; // Append message content after sender's name
             }
 
+            // Add delete button for user's own messages
+            if (message.uid === auth.currentUser?.uid) {
+                const deleteBtn = document.createElement('span');
+                deleteBtn.textContent = '🗑️';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = async () => {
+                    if (confirm('Delete this message?')) {
+                        try {
+                            // Get the message key from the snapshot
+                            const messagesRef = ref(database, 'messages');
+                            const snapshot = await get(messagesRef);
+                            let messageKey = null;
+                            
+                            snapshot.forEach((childSnapshot) => {
+                                const data = childSnapshot.val();
+                                if (data.timestamp === message.timestamp && 
+                                    data.uid === message.uid && 
+                                    data.content === message.content) {
+                                    messageKey = childSnapshot.key;
+                                    return true; // Break the loop
+                                }
+                            });
+
+                            if (messageKey) {
+                                await remove(ref(database, `messages/${messageKey}`));
+                                div.remove();
+                            }
+                        } catch (error) {
+                            console.error('Delete error:', error);
+                            alert('Failed to delete message');
+                        }
+                    }
+                };
+                div.appendChild(deleteBtn);
+            }
+
             messages.appendChild(div);
             messages.scrollTop = messages.scrollHeight;
         }
@@ -388,6 +455,58 @@
                 canvasContainer.style.zIndex = '2';
             }
         }
+
+        // Email login modal functionality
+        const emailLoginModal = document.getElementById('emailLoginModal');
+        const emailLoginBtn = document.getElementById('emailLoginBtn');
+        const closeEmailLogin = document.getElementById('closeEmailLogin');
+        const emailLoginSubmit = document.getElementById('emailLoginSubmit');
+        const signupBtn = document.getElementById('signupBtn');
+
+        emailLoginBtn.addEventListener('click', () => {
+            emailLoginModal.style.display = 'block';
+        });
+
+        closeEmailLogin.addEventListener('click', () => {
+            emailLoginModal.style.display = 'none';
+        });
+
+        // Email login submission
+        emailLoginSubmit.addEventListener('click', async () => {
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                emailLoginModal.style.display = 'none';
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+            }
+        });
+
+        // Sign up functionality
+        signupBtn.addEventListener('click', async () => {
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                // Set display name as email username
+                await userCredential.user.updateProfile({
+                    displayName: email.split('@')[0]
+                });
+                emailLoginModal.style.display = 'none';
+            } catch (error) {
+                alert('Sign up failed: ' + error.message);
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            if (event.target === emailLoginModal) {
+                emailLoginModal.style.display = 'none';
+            }
+        };
     </script>
 </body>
 </html>
