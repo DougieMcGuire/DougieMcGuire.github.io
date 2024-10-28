@@ -603,11 +603,17 @@
         }
 
         async function sendPrivateMessage() {
-            if (!currentPmUser || !auth.currentUser) return;
+            if (!currentPmUser || !auth.currentUser) {
+                alert('You must be logged in to send a private message.');
+                return;
+            }
 
             const pmInput = document.getElementById('pmInput');
             const content = pmInput.value.trim();
-            if (!content) return;
+            if (!content) {
+                alert('Message cannot be empty.');
+                return;
+            }
 
             const chatId = [auth.currentUser.uid, currentPmUser].sort().join('-');
             const pmRef = ref(database, `private-messages/${chatId}`);
@@ -621,10 +627,10 @@
                     senderName: auth.currentUser.displayName
                 });
                 
-                pmInput.value = '';
+                pmInput.value = ''; // Clear input after sending
             } catch (error) {
-                console.error('PM send error:', error);
-                alert('Failed to send private message');
+                console.error('PM send error:', error); // Log the error for debugging
+                alert('Failed to send private message: ' + error.message); // Show the error message
             }
         }
 
