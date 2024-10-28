@@ -48,6 +48,35 @@
             border-radius: 10px;
             width: 300px;
         }
+        .pm-button {
+            display: none;
+            margin-left: 10px;
+            font-size: 12px;
+            color: #0084ff;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .message:hover .pm-button {
+            display: inline;
+        }
+
+        #pmMessages .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        #pmMessages .sent {
+            background: #0084ff;
+            color: white;
+            margin-left: auto;
+        }
+
+        #pmMessages .received {
+            background: #e9ecef;
+        }
     </style>
 </head>
 <body>
@@ -106,10 +135,25 @@
         </div>
     </div>
 
+    <!-- Add this modal for private messages -->
+    <div id="pmModal" class="modal">
+        <div class="modal-content" style="width: 80%; max-width: 600px; height: 70vh; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #0084ff; color: white; border-radius: 10px 10px 0 0;">
+                <h3 id="pmTitle">Chat with </h3>
+                <span id="closePm" style="cursor: pointer; font-size: 20px;">×</span>
+            </div>
+            <div id="pmMessages" style="flex: 1; overflow-y: auto; padding: 15px;"></div>
+            <div style="padding: 10px; border-top: 1px solid #ddd; display: flex; gap: 10px;">
+                <input type="text" id="pmInput" placeholder="Type private message..." style="flex: 1; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                <button id="pmSend">Send</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, push, onChildAdded, query, limitToLast, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, onChildAdded, query, limitToLast, get, off } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
@@ -412,6 +456,15 @@
                 div.appendChild(deleteBtn);
             }
 
+            // Add PM button for other users' messages
+            if (message.uid !== auth.currentUser?.uid) {
+                const pmButton = document.createElement('span');
+                pmButton.textContent = 'Private Message';
+                pmButton.className = 'pm-button';
+                pmButton.onclick = () => openPrivateChat(message.uid, message.name);
+                div.appendChild(pmButton);
+            }
+
             messages.appendChild(div);
             messages.scrollTop = messages.scrollHeight;
         }
@@ -525,6 +578,85 @@
                 emailLoginModal.style.display = 'none';
             }
         };
+
+        // Add new Firebase references for private messages
+        let currentPmUser = null;
+
+        // Private chat functions
+        function openPrivateChat(targetUid, targetName) {
+            if (!auth.currentUser) {
+                alert('Please login first');
+                return;
+            }
+            
+            currentPmUser = targetUid;
+            const pmModal = document.getElementById('pmModal');
+            const pmTitle = document.getElementById('pmTitle');
+            const pmMessages = document.getElementById('pmMessages');
+            
+            pmTitle.textContent = `Chat with ${targetName}`;
+            pmMessages.innerHTML = '';
+            pmModal.style.display = 'block';
+            
+            // Load private messages
+            loadPrivateMessages(targetUid);
+        }
+
+        async function sendPrivateMessage() {
+            if (!currentPmUser || !auth.currentUser) return;
+
+            const pmInput = document.getElementById('pmInput');
+            const content = pmInput.value.trim();
+            if (!content) return;
+
+            const chatId = [auth.currentUser.uid, currentPmUser].sort().join('-');
+            const pmRef = ref(database, `private-messages/${chatId}`);
+            
+            try {
+                await push(pmRef, {
+                    sender: auth.currentUser.uid,
+                    receiver: currentPmUser,
+                    content: content,
+                    timestamp: Date.now(),
+                    senderName: auth.currentUser.displayName
+                });
+                
+                pmInput.value = '';
+            } catch (error) {
+                console.error('PM send error:', error);
+                alert('Failed to send private message');
+            }
+        }
+
+        function loadPrivateMessages(targetUid) {
+            const chatId = [auth.currentUser.uid, targetUid].sort().join('-');
+            const pmRef = ref(database, `private-messages/${chatId}`);
+            const pmMessages = document.getElementById('pmMessages');
+            
+            // Clear existing messages listener if any
+            off(pmRef);
+            
+            // Listen for new messages
+            onChildAdded(pmRef, (snapshot) => {
+                const message = snapshot.val();
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${message.sender === auth.currentUser.uid ? 'sent' : 'received'}`;
+                messageDiv.textContent = `${message.senderName}: ${message.content}`;
+                pmMessages.appendChild(messageDiv);
+                pmMessages.scrollTop = pmMessages.scrollHeight;
+            });
+        }
+
+        // Event listeners for private messaging
+        document.getElementById('pmSend').addEventListener('click', sendPrivateMessage);
+        document.getElementById('pmInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendPrivateMessage();
+        });
+
+        document.getElementById('closePm').addEventListener('click', () => {
+            document.getElementById('pmModal').style.display = 'none';
+            currentPmUser = null;
+        });
     </script>
 </body>
 </html>
