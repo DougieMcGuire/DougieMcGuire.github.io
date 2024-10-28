@@ -432,7 +432,7 @@
                 return;
             }
 
-            const messageContent = ${user.displayName} ${user.photoURL}content || messageInput.value.trim();
+            const messageContent = content || ${user.displayName} messageInput.value.trim();
             if (!messageContent) return;
 
             try {
