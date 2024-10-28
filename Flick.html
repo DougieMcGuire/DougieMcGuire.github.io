@@ -432,7 +432,7 @@
                 return;
             }
 
-            const messageContent = content || ${user.displayName} messageInput.value.trim();
+            const messageContent = content || messageInput.value.trim();
             if (!messageContent) return;
 
             try {
@@ -473,7 +473,7 @@
                 img.src = message.content;
                 div.appendChild(img);
             } else {
-                div.textContent = message.content;
+                div.textContent = ${user.displayName} : message.content;
             }
 
             messages.appendChild(div);
