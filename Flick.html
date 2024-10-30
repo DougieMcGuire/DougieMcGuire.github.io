@@ -3,163 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flick</title>
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1057/1057222.png " type="image/png"> <!-- Favicon -->
+    <title>Flick Social</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1057/1057222.png" type="image/png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        .nav, .chat-container { background: #fff; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .nav { padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; }
-        .chat-container { height: 80vh; padding: 20px; } /* Increased height */
-        .messages { height: calc(100% - 80px); overflow-y: auto; padding: 10px; } /* Adjusted height */
-        .message { margin-bottom: 10px; padding: 10px; border-radius: 10px; max-width: 70%; word-wrap: break-word; }
-        .sent { background: #0084ff; color: white; margin-left: auto; }
-        .received { background: #e9ecef; }
-        .input-area { display: flex; gap: 10px; padding: 10px 0; }
-        input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; }
-        button { padding: 10px 20px; border: none; border-radius: 20px; background: #0084ff; color: white; cursor: pointer; transition: background 0.3s; }
-        button:hover { background: #0066cc; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
-        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; max-width: 90%; max-height: 90%; overflow: auto; }
-        #loginStatus { margin-right: 20px; }
-        .edit-tools { display: none; margin-top: 10px; gap: 10px; flex-wrap: wrap; }
-        .color-picker { width: 50px; height: 30px; }
-        .edit-canvas-container, .canvas-container { position: relative; }
-        #editCanvas, #photoCanvas { position: absolute; top: 0; left: 0; }
-        .canvas-container { pointer-events: none; }
-        .message img {
-            max-width: 100%; /* Ensure images fit within the message container */
-            height: auto; /* Maintain aspect ratio */
-            border-radius: 10px; /* Optional: add some rounding to the image corners */
+        body { background: #f0f2f5; }
+        
+        /* Login Page */
+        .login-page {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0084ff 0%, #00f2ff 100%);
         }
-        .message .delete-btn {
-            display: none;
-            margin-left: 10px;
-            color: red;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .message:hover .delete-btn {
-            display: inline;
-        }
-        #emailLoginModal .modal-content {
+        
+        .login-container {
             background: white;
-            padding: 20px;
+            padding: 2rem;
             border-radius: 10px;
-            width: 300px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
         }
-        .pm-button {
-            display: none;
-            margin-left: 10px;
-            font-size: 12px;
-            color: #0084ff;
+
+        /* Main App Layout */
+        .app-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Feed Section */
+        .feed-section {
+            overflow-y: auto;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
             cursor: pointer;
-            text-decoration: underline;
+            transition: background 0.2s;
         }
 
-        .message:hover .pm-button {
-            display: inline;
+        .conversation-item:hover {
+            background: #f0f2f5;
         }
 
-        #pmMessages .message {
+        /* Chat Section */
+        .chat-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .chat-header {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .message {
+            display: flex;
+            align-items: start;
+            gap: 10px;
             margin-bottom: 10px;
             padding: 8px;
             border-radius: 8px;
-            max-width: 80%;
+            max-width: 70%;
         }
 
-        #pmMessages .sent {
-            background: #0084ff;
-            color: white;
+        .message.saved {
+            border: 2px solid #0084ff;
+        }
+
+        .message .profile-pic {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .message .content {
+            background: #f0f2f5;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .message.sent {
             margin-left: auto;
         }
 
-        #pmMessages .received {
-            background: #e9ecef;
+        .message.sent .content {
+            background: #0084ff;
+            color: white;
+        }
+
+        /* Notifications */
+        .notifications-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .notification-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Profile Pictures */
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Reactions */
+        .reactions {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .reaction {
+            padding: 2px 5px;
+            border-radius: 10px;
+            background: #f0f2f5;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* Add Friend Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 300px;
+        }
+
+        /* Common */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: #0084ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0066cc;
+        }
+
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        .badge {
+            background: #ff3b30;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="nav">
-            <h1>
-                <img src="https://i.ibb.co/jzN9LhH/4b7ef022-ce3d-4a87-9921-1db667013971.gif" alt="Logo" style="height: 80px;"> <!-- Logo image -->
-            </h1>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-page">
+        <div class="login-container">
+            <h2>Welcome to Flick Social</h2>
+            <div style="margin: 20px 0;">
+                <input type="text" id="usernameInput" placeholder="Username" style="margin-bottom: 10px">
+                <input type="email" id="emailInput" placeholder="Email">
+                <input type="password" id="passwordInput" placeholder="Password" style="margin: 10px 0">
+                <button id="loginBtn" class="btn btn-primary" style="width: 100%">Login</button>
+                <p style="text-align: center; margin: 10px 0;">or</p>
+                <button id="signupBtn" class="btn btn-primary" style="width: 100%">Sign Up</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="appContainer" class="app-container" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="profile-pic">
+                    <img id="userProfilePic" src="/api/placeholder/40/40" alt="Profile">
+                </div>
+                <span id="username">Username</span>
+            </div>
+            
             <div>
-                <span id="loginStatus">Not logged in</span>
-                <button id="loginBtn">Login with Google</button>
-                <button id="emailLoginBtn">Login with Email</button>
+                <button id="createGroupBtn" class="btn btn-primary">Create Group</button>
+                <button id="addFriendBtn" class="btn btn-primary">Add Friend</button>
+                <button id="notificationsBtn" class="btn">
+                    Notifications <span id="notificationBadge" class="badge">0</span>
+                </button>
+            </div>
+
+            <!-- Feed -->
+            <div id="feed" style="flex: 1; overflow-y: auto;">
+                <h3>Recent Chats</h3>
+                <!-- Feed items will be populated here -->
             </div>
         </div>
-        <div class="chat-container">
-            <div class="messages" id="messages"></div>
-            <div class="input-area">
-                <button id="cameraBtn">📸</button>
+
+        <!-- Chat Section -->
+        <div id="chatSection" class="chat-section">
+            <div class="chat-header">
+                <div class="profile-pic">
+                    <img id="chatProfilePic" src="/api/placeholder/40/40" alt="Chat">
+                </div>
+                <span id="chatName">Select a conversation</span>
+            </div>
+            <div id="messages" class="messages"></div>
+            <div style="padding: 15px; border-top: 1px solid #ddd;">
                 <input type="text" id="messageInput" placeholder="Type a message...">
-                <button id="sendBtn">Send</button>
             </div>
         </div>
     </div>
 
-    <div id="cameraModal" class="modal">
+    <!-- Modals -->
+    <div id="addFriendModal" class="modal">
         <div class="modal-content">
-            <video id="video" width="640" height="480" autoplay playsinline></video>
-            <div class="edit-canvas-container" id="editContainer">
-                <canvas id="photoCanvas" width="640" height="480"></canvas>
-                <div id="fabricContainer"></div>
-            </div>
-            <div id="captureTools">
-                <button id="snapBtn">Take Photo</button>
-                <button id="switchCameraBtn">Switch Camera</button>
-                <button id="closeCamera">Close</button>
-            </div>
-            <div id="editTools" class="edit-tools">
-                <button id="addTextBtn">Add Text</button>
-                <button id="drawBtn">Draw</button>
-                <input type="color" id="colorPicker" class="color-picker" value="#ffffff">
-                <button id="undoBtn">Undo</button>
-                <button id="sendPhotoBtn">Send</button>
-                <button id="retakeBtn">Retake</button>
-            </div>
+            <h3>Add Friend</h3>
+            <input type="text" id="friendUsername" placeholder="Enter username">
+            <button id="sendFriendRequest" class="btn btn-primary">Send Request</button>
+            <button class="btn" onclick="document.getElementById('addFriendModal').style.display='none'">Cancel</button>
         </div>
     </div>
 
-    <div id="emailLoginModal" class="modal">
-        <div class="modal-content" style="width: 300px; padding: 20px;">
-            <h2 style="margin-bottom: 20px;">Login with Email</h2>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <input type="email" id="emailInput" placeholder="Email" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
-                <input type="password" id="passwordInput" placeholder="Password" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
-                <button id="emailLoginSubmit" style="padding: 8px;">Login</button>
-                <button id="signupBtn" style="padding: 8px;">Sign Up</button>
-                <button id="closeEmailLogin" style="padding: 8px;">Close</button>
+    <div id="createGroupModal" class="modal">
+        <div class="modal-content">
+            <h3>Create Group</h3>
+            <input type="text" id="groupName" placeholder="Group name">
+            <div id="friendsList" style="margin: 10px 0; max-height: 200px; overflow-y: auto;">
+                <!-- Friends list for group creation will be populated here -->
             </div>
+            <button id="createGroupConfirm" class="btn btn-primary">Create</button>
+            <button class="btn" onclick="document.getElementById('createGroupModal').style.display='none'">Cancel</button>
         </div>
     </div>
 
-    <!-- Add this modal for private messages -->
-    <div id="pmModal" class="modal">
-        <div class="modal-content" style="width: 80%; max-width: 600px; height: 70vh; display: flex; flex-direction: column;">
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #0084ff; color: white; border-radius: 10px 10px 0 0;">
-                <h3 id="pmTitle">Chat with </h3>
-                <span id="closePm" style="cursor: pointer; font-size: 20px;">×</span>
-            </div>
-            <div id="pmMessages" style="flex: 1; overflow-y: auto; padding: 15px;"></div>
-            <div style="padding: 10px; border-top: 1px solid #ddd; display: flex; gap: 10px;">
-                <input type="text" id="pmInput" placeholder="Type private message..." style="flex: 1; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
-                <button id="pmSend">Send</button>
-            </div>
-        </div>
+    <div id="notificationsPanel" class="notifications-panel">
+        <!-- Notifications will be populated here -->
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, push, onChildAdded, query, limitToLast, get, off } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, push, onChildAdded, query, limitToLast, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
+        // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyCa026-T60VjqfvYAtDrh_uUfgLkVa80WU",
             authDomain: "flickapi.firebaseapp.com",
@@ -174,497 +343,100 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const database = getDatabase(app);
+        const storage = getStorage(app);
 
-        // DOM Elements
-        const cameraModal = document.getElementById('cameraModal');
-        const video = document.getElementById('video');
-        const photoCanvas = document.getElementById('photoCanvas');
-        const messages = document.getElementById('messages');
-        const messageInput = document.getElementById('messageInput');
-        const loginStatus = document.getElementById('loginStatus');
+        let currentUser = null;
+        let currentChat = null;
+        let notifications = [];
 
-        // Initialize fabric.js canvas
-        let fabricCanvas;
-        let stream;
-        let currentFacingMode = 'user';
-
-        // Auth State
-        onAuthStateChanged(auth, (user) => {
+        // Auth state observer
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                loginStatus.textContent = `Logged in as ${user.displayName || user.email}`;
-                loginBtn.textContent = 'Logout';
-                loadMessages();
-            } else {
-                loginStatus.textContent = 'Not logged in';
-                loginBtn.textContent = 'Login with Google';
-            }
-        });
-
-        // Login/Logout
-        document.getElementById('loginBtn').addEventListener('click', async () => {
-            if (auth.currentUser) {
-                await auth.signOut();
-            } else {
-                const provider = new GoogleAuthProvider();
-                try {
-                    await signInWithPopup(auth, provider);
-                } catch (error) {
-                    console.error('Auth error:', error);
-                    alert('Login failed. Please try again.');
-                }
-            }
-        });
-
-        // Camera initialization
-        async function initCamera() {
-            try {
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                }
+                currentUser = user;
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'grid';
+                document.getElementById('username').textContent = user.displayName;
                 
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: currentFacingMode }
+                // Load user data
+                await loadUserData();
+                loadFeed();
+                setupNotifications();
+            } else {
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('appContainer').style.display = 'none';
+            }
+        });
+
+        // Load user data
+        async function loadUserData() {
+            const userRef = ref(database, `users/${currentUser.uid}`);
+            const snapshot = await get(userRef);
+            if (!snapshot.exists()) {
+                // Create user profile if it doesn't exist
+                await set(userRef, {
+                    username: currentUser.displayName,
+                    email: currentUser.email,
+                    friends: {},
+                    groups: {}
                 });
-                video.srcObject = stream;
-                cameraModal.style.display = 'block';
-                
-                // Reset UI
-                video.style.display = 'block';
-                photoCanvas.style.display = 'none';
-                document.getElementById('editContainer').style.display = 'none';
-                document.getElementById('captureTools').style.display = 'block';
-                document.getElementById('editTools').style.display = 'none';
-            } catch (err) {
-                console.error('Camera error:', err);
-                alert('Could not access camera. Please check permissions.');
             }
         }
 
-        // Switch camera
-        document.getElementById('switchCameraBtn').addEventListener('click', () => {
-            currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
-            initCamera();
-        });
-
-        // Take photo
-        document.getElementById('snapBtn').addEventListener('click', () => {
-            const context = photoCanvas.getContext('2d');
-            context.drawImage(video, 0, 0, 640, 480);
-            
-            video.style.display = 'none';
-            document.getElementById('editContainer').style.display = 'block';
-            document.getElementById('captureTools').style.display = 'none';
-            document.getElementById('editTools').style.display = 'flex';
-            
-            initFabricCanvas();
-        });
-
-        // Drawing mode
-        document.getElementById('drawBtn').addEventListener('click', () => {
-            fabricCanvas.isDrawingMode = !fabricCanvas.isDrawingMode;
-            if (fabricCanvas.isDrawingMode) {
-                fabricCanvas.freeDrawingBrush.width = 5;
-                fabricCanvas.freeDrawingBrush.color = document.getElementById('colorPicker').value;
-            }
-            document.getElementById('drawBtn').style.background = 
-                fabricCanvas.isDrawingMode ? '#00ff00' : '#0084ff';
-        });
-
-        // Add text
-        document.getElementById('addTextBtn').addEventListener('click', () => {
-            const text = new fabric.IText('Tap to edit', {
-                left: 50,
-                top: 50,
-                fontFamily: 'Arial',
-                fill: document.getElementById('colorPicker').value,
-                fontSize: 30
+        // Load feed
+        function loadFeed() {
+            const feedRef = ref(database, `users/${currentUser.uid}/conversations`);
+            onChildAdded(feedRef, (snapshot) => {
+                const conversation = snapshot.val();
+                addFeedItem(conversation);
             });
-            fabricCanvas.add(text);
-            fabricCanvas.setActiveObject(text);
-        });
-
-        // Color picker
-        document.getElementById('colorPicker').addEventListener('change', (e) => {
-            fabricCanvas.freeDrawingBrush.color = e.target.value;
-        });
-
-        // Undo
-        document.getElementById('undoBtn').addEventListener('click', () => {
-            const objects = fabricCanvas.getObjects();
-            if (objects.length > 0) {
-                fabricCanvas.remove(objects[objects.length - 1]);
-            }
-        });
-
-        // Send photo
-        document.getElementById('sendPhotoBtn').addEventListener('click', async () => {
-            const finalCanvas = document.createElement('canvas');
-            finalCanvas.width = 640;
-            finalCanvas.height = 480;
-            const ctx = finalCanvas.getContext('2d');
-            
-            // Draw original photo
-            ctx.drawImage(photoCanvas, 0, 0);
-            
-            // Draw fabric canvas content
-            fabricCanvas.getElement().toBlob(async (blob) => {
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    const img = new Image();
-                    img.onload = async function() {
-                        ctx.drawImage(img, 0, 0);
-                        
-                        // Convert to base64 and compress
-                        const imageData = finalCanvas.toDataURL('image/jpeg', 0.7);
-                        
-                        // Upload to imgBB
-                        const formData = new FormData();
-                        formData.append('image', imageData.split(',')[1]);
-                        formData.append('key', 'ab17b5b7f3f546e0abe62da5fe20ed69'); // Replace with your ImgBB API key
-
-                        try {
-                            const response = await fetch('https://api.imgbb.com/1/upload', {
-                                method: 'POST',
-                                body: formData
-                            });
-                            const data = await response.json();
-                            
-                            if (data.success) {
-                                await sendMessage(data.data.url, 'image');
-                                closeCamera();
-                            } else {
-                                throw new Error('Upload failed');
-                            }
-                        } catch (error) {
-                            console.error('Upload error:', error);
-                            alert('Failed to upload image. Please try again.');
-                        }
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(blob);
-            });
-        });
-
-        // Retake photo
-        document.getElementById('retakeBtn').addEventListener('click', () => {
-            if (fabricCanvas) {
-                fabricCanvas.dispose();
-            }
-            initCamera();
-        });
-
-        // Close camera
-        function closeCamera() {
-            cameraModal.style.display = 'none';
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-            if (fabricCanvas) {
-                fabricCanvas.dispose();
-            }
         }
 
-        document.getElementById('closeCamera').addEventListener('click', closeCamera);
+        // Add feed item
+        function addFeedItem(conversation) {
+            const feedItem = document.createElement('div');
+            feedItem.className = 'conversation-item';
+            feedItem.innerHTML = `
+                <div class="profile-pic">
+                    <img src="${conversation.profilePic || '/api/placeholder/40/40'}" alt="${conversation.name}">
+                </div>
+                <div>
+                    <div>${conversation.name}</div>
+                    <div style="font-size: 12px; color: #65676B;">${conversation.lastMessage || 'No messages yet'}</div>
+                </div>
+            `;
+            feedItem.onclick = () => openChat(conversation);
+            document.getElementById('feed').appendChild(feedItem);
+        }
 
-        // Send message
-        async function sendMessage(content = null, type = 'text') {
-            if (!auth.currentUser) {
-                alert('Please login first');
-                return;
-            }
-
-            const messageContent = content || messageInput.value.trim();
-            if (!messageContent) return;
-
-            try {
-                const messageRef = ref(database, 'messages');
-                await push(messageRef, {
-                    uid: auth.currentUser.uid,
-                    name: auth.currentUser.displayName,
-                    content: messageContent,
-                    type: type,
-                    timestamp: Date.now()
-                });
-
-                if (type === 'text') {
-                    messageInput.value = '';
-                }
-            } catch (error) {
-                console.error('Send error:', error);
-                alert(`Failed to send message: ${error.message}`);
-            }
+        // Open chat
+        function openChat(conversation) {
+            currentChat = conversation;
+            document.getElementById('chatName').textContent = conversation.name;
+            document.getElementById('chatProfilePic').src = conversation.profilePic || '/api/placeholder/40/40';
+            loadMessages(conversation.id);
         }
 
         // Load messages
-        function loadMessages() {
-            const messagesQuery = query(ref(database, 'messages'), limitToLast(50));
-            onChildAdded(messagesQuery, (snapshot) => {
-                const message = snapshot.val();
-                displayMessage(message);
-            });
-        }
-
-        // Display message
-        function displayMessage(message) {
-            const div = document.createElement('div');
-            div.className = `message ${message.uid === auth.currentUser?.uid ? 'sent' : 'received'}`;
-
-            const senderName = document.createElement('span'); // New element for sender's name
-            senderName.textContent = message.name; // Display sender's name
-            senderName.style.fontWeight = 'bold'; // Optional: make the name bold
-            div.appendChild(senderName); // Append sender's name to the message div
-
-            if (message.type === 'image') {
-                const img = document.createElement('img');
-                img.src = message.content;
-                div.appendChild(img);
-            } else {
-                div.textContent += `: ${message.content}`; // Append message content after sender's name
-            }
-
-            // Add delete button for user's own messages
-            if (message.uid === auth.currentUser?.uid) {
-                const deleteBtn = document.createElement('span');
-                deleteBtn.textContent = '🗑️';
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.onclick = async () => {
-                    if (confirm('Delete this message?')) {
-                        try {
-                            // Get the message key from the snapshot
-                            const messagesRef = ref(database, 'messages');
-                            const snapshot = await get(messagesRef);
-                            let messageKey = null;
-                            
-                            snapshot.forEach((childSnapshot) => {
-                                const data = childSnapshot.val();
-                                if (data.timestamp === message.timestamp && 
-                                    data.uid === message.uid && 
-                                    data.content === message.content) {
-                                    messageKey = childSnapshot.key;
-                                    return true; // Break the loop
-                                }
-                            });
-
-                            if (messageKey) {
-                                await remove(ref(database, `messages/${messageKey}`));
-                                div.remove();
-                            }
-                        } catch (error) {
-                            console.error('Delete error:', error);
-                            alert('Failed to delete message');
-                        }
-                    }
-                };
-                div.appendChild(deleteBtn);
-            }
-
-            // Add PM button for other users' messages
-            if (message.uid !== auth.currentUser?.uid) {
-                const pmButton = document.createElement('span');
-                pmButton.textContent = 'Private Message';
-                pmButton.className = 'pm-button';
-                pmButton.onclick = () => openPrivateChat(message.uid, message.name);
-                div.appendChild(pmButton);
-            }
-
-            messages.appendChild(div);
-            messages.scrollTop = messages.scrollHeight;
-        }
-
-        // Event listeners
-        document.getElementById('cameraBtn').addEventListener('click', initCamera);
-        document.getElementById('sendBtn').addEventListener('click', () => sendMessage());
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
-
-        // Cleanup messages periodically (every 20 minutes)
-        setInterval(() => {
-            const messages = document.getElementById('messages');
-            const localMessages = Array.from(messages.children);
-            if (localMessages.length > 100) {
-                localMessages.slice(0, localMessages.length - 100).forEach(msg => msg.remove());
-            }
-        }, 20 * 60 * 1000);
-
-        // Initialize fabric canvas
-        function initFabricCanvas() {
-            if (fabricCanvas) {
-                fabricCanvas.dispose();
-            }
-
-            const container = document.getElementById('fabricContainer');
-            container.innerHTML = '<canvas id="editCanvas" width="640" height="480"></canvas>';
+        function loadMessages(chatId) {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '';
             
-            fabricCanvas = new fabric.Canvas('editCanvas', {
-                isDrawingMode: false,
-                backgroundColor: 'transparent'
-            });
-
-            // Make fabric canvas container position absolute
-            const canvasContainer = document.querySelector('.canvas-container');
-            if (canvasContainer) {
-                canvasContainer.style.position = 'absolute';
-                canvasContainer.style.top = '0';
-                canvasContainer.style.left = '0';
-                canvasContainer.style.zIndex = '2';
-            }
-        }
-
-        // Email login modal functionality
-        const emailLoginModal = document.getElementById('emailLoginModal');
-        const emailLoginBtn = document.getElementById('emailLoginBtn');
-        const closeEmailLogin = document.getElementById('closeEmailLogin');
-        const emailLoginSubmit = document.getElementById('emailLoginSubmit');
-        const signupBtn = document.getElementById('signupBtn');
-
-        emailLoginBtn.addEventListener('click', () => {
-            emailLoginModal.style.display = 'block';
-        });
-
-        closeEmailLogin.addEventListener('click', () => {
-            emailLoginModal.style.display = 'none';
-        });
-
-        // Email login submission
-        emailLoginSubmit.addEventListener('click', async () => {
-            const email = document.getElementById('emailInput').value;
-            const password = document.getElementById('passwordInput').value;
-
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                
-                // If user doesn't have a display name, set it
-                if (!user.displayName) {
-                    await updateProfile(user, {
-                        displayName: email.split('@')[0]
-                    });
+            const messagesRef = ref(database, `chats/${chatId}/messages`);
+            onChildAdded(messagesRef, (snapshot) => {
+                const message = snapshot.val();
+                if (isMessageValid(message)) {
+                    displayMessage(message);
                 }
-                
-                emailLoginModal.style.display = 'none';
-                document.getElementById('emailInput').value = '';
-                document.getElementById('passwordInput').value = '';
-            } catch (error) {
-                console.error('Login error:', error);
-                alert('Login failed: ' + error.message);
-            }
-        });
-
-        // Sign up functionality
-        signupBtn.addEventListener('click', async () => {
-            const email = document.getElementById('emailInput').value;
-            const password = document.getElementById('passwordInput').value;
-
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                
-                // Set display name after creating account
-                await updateProfile(user, {
-                    displayName: email.split('@')[0]
-                });
-                
-                emailLoginModal.style.display = 'none';
-                document.getElementById('emailInput').value = '';
-                document.getElementById('passwordInput').value = '';
-            } catch (error) {
-                console.error('Sign up error:', error);
-                alert('Sign up failed: ' + error.message);
-            }
-        });
-
-        // Close modal when clicking outside
-        window.onclick = (event) => {
-            if (event.target === emailLoginModal) {
-                emailLoginModal.style.display = 'none';
-            }
-        };
-
-        // Add new Firebase references for private messages
-        let currentPmUser = null;
-
-        // Private chat functions
-        function openPrivateChat(targetUid, targetName) {
-            if (!auth.currentUser) {
-                alert('Please login first');
-                return;
-            }
-            
-            currentPmUser = targetUid;
-            const pmModal = document.getElementById('pmModal');
-            const pmTitle = document.getElementById('pmTitle');
-            const pmMessages = document.getElementById('pmMessages');
-            
-            pmTitle.textContent = `Chat with ${targetName}`;
-            pmMessages.innerHTML = '';
-            pmModal.style.display = 'block';
-            
-            // Load private messages
-            loadPrivateMessages(targetUid);
-        }
-
-        async function sendPrivateMessage() {
-            if (!currentPmUser || !auth.currentUser) {
-                alert('You must be logged in to send a private message.');
-                return;
-            }
-
-            const pmInput = document.getElementById('pmInput');
-            const content = pmInput.value.trim();
-            if (!content) {
-                alert('Message cannot be empty.');
-                return;
-            }
-
-            const chatId = [auth.currentUser.uid, currentPmUser].sort().join('-');
-            const pmRef = ref(database, `private-messages/${chatId}`);
-            
-            try {
-                await push(pmRef, {
-                    sender: auth.currentUser.uid,
-                    receiver: currentPmUser,
-                    content: content,
-                    timestamp: Date.now(),
-                    senderName: auth.currentUser.displayName
-                });
-                
-                pmInput.value = ''; // Clear input after sending
-            } catch (error) {
-                console.error('PM send error:', error); // Log the error for debugging
-                alert('Failed to send private message: ' + error.message); // Show the error message
-            }
-        }
-
-        function loadPrivateMessages(targetUid) {
-            const chatId = [auth.currentUser.uid, targetUid].sort().join('-');
-            const pmRef = ref(database, `private-messages/${chatId}`);
-            const pmMessages = document.getElementById('pmMessages');
-            
-            // Clear existing messages listener if any
-            off(pmRef);
-            
-            // Listen for new messages
-            onChildAdded(pmRef, (snapshot) => {
-                const message = snapshot.val();
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${message.sender === auth.currentUser.uid ? 'sent' : 'received'}`;
-                messageDiv.textContent = `${message.senderName}: ${message.content}`;
-                pmMessages.appendChild(messageDiv);
-                pmMessages.scrollTop = pmMessages.scrollHeight;
             });
         }
 
-        // Event listeners for private messaging
-        document.getElementById('pmSend').addEventListener('click', sendPrivateMessage);
-        document.getElementById('pmInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendPrivateMessage();
-        });
-
-        document.getElementById('closePm').addEventListener('click', () => {
-            document.getElementById('pmModal').style.display = 'none';
-            currentPmUser = null;
-        });
+        // Check if message is within 24 hours
+        function isMessageValid(message) {
+            const messageTime = new Date(message.timestamp);
+            const currentTime = new Date();
+            const timeDifference = currentTime - messageTime;
+            const hoursDifference = timeDifference / (1000 * 60 * 60);
+            return hoursDifference <= 24;
+        }
     </script>
 </body>
