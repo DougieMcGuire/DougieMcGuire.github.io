@@ -300,7 +300,7 @@
     <div id="addFriendModal" class="modal">
         <div class="modal-content">
             <h3>Add Friend</h3>
-            <input type="text" id="friendUsername" placeholder="Enter username">
+            <input type="text" id="friendUsername" placeholder="Enter friend's username">
             <button id="sendFriendRequest" class="btn btn-primary">Send Request</button>
             <button class="btn" onclick="document.getElementById('addFriendModal').style.display='none'">Cancel</button>
         </div>
@@ -437,6 +437,45 @@
             const timeDifference = currentTime - messageTime;
             const hoursDifference = timeDifference / (1000 * 60 * 60);
             return hoursDifference <= 24;
+        }
+
+        // Display message
+        function displayMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.sender === currentUser.uid ? 'sent' : 'received'}`;
+            messageDiv.innerHTML = `
+                <div class="profile-pic">
+                    <img src="${message.profilePic || '/api/placeholder/40/40'}" alt="${message.senderName}">
+                </div>
+                <div class="content">${message.content}</div>
+            `;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the bottom
+        }
+
+        // Send message
+        document.getElementById('messageInput').addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                const messageInput = document.getElementById('messageInput');
+                const messageContent = messageInput.value.trim();
+                if (messageContent) {
+                    const messagesRef = ref(database, `chats/${currentChat.id}/messages`);
+                    await push(messagesRef, {
+                        sender: currentUser.uid,
+                        content: messageContent,
+                        timestamp: Date.now(),
+                        senderName: currentUser.displayName,
+                        profilePic: currentUser.photoURL || '/api/placeholder/40/40'
+                    });
+                    messageInput.value = ''; // Clear input after sending
+                }
+            }
+        });
+
+        // Setup notifications (placeholder function)
+        function setupNotifications() {
+            // Implement notification setup if needed
         }
     </script>
 </body>
