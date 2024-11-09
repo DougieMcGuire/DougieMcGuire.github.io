@@ -52,14 +52,28 @@
     };
     let currentStep = 0;
 
-    // Step 1: Start Quiz Setup
+    async function query(data) {
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/google/gemma-2-2b-it",
+        {
+          headers: {
+            "Authorization": "Bearer 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",  // Replace with your actual key
+            "Content-Type": "application/json"
+          },
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+      const result = await response.json();
+      return result;
+    }
+
     function startQuizSetup() {
       currentStep = 0;
       quizData = { topic: '', demographic: '', tone: '', numQuestions: 5, questionTypes: [] };
       renderQuestion();
     }
 
-    // Step 2: Render questions one by one
     function renderQuestion() {
       const questions = [
         "What should this quiz be about?",
@@ -108,7 +122,6 @@
       }
     }
 
-    // Step 3: Question type selection
     function renderQuestionTypeSelection() {
       app.innerHTML = `
         <h2>Select Question Types</h2>
@@ -128,42 +141,39 @@
       }
     }
 
-    // Step 4: Generate Quiz using API
     async function generateQuiz() {
       app.innerHTML = `<p>Generating your quiz, please wait...</p>`;
       try {
-        const response = await fetch('https://api-inference.huggingface.co/models/google/gemma-2-2b-it', {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer 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' },
-          body: JSON.stringify({
-            inputs: `Generate a quiz about ${quizData.topic} for ${quizData.demographic} with ${quizData.numQuestions} questions, a ${quizData.tone} tone, and question types: ${quizData.questionTypes.join(', ')}. Additional notes: ${quizData.additionalComments || "none"}.`
-          })
+        const response = await query({
+          inputs: `Generate a quiz about ${quizData.topic} for ${quizData.demographic} with ${quizData.numQuestions} questions, a ${quizData.tone} tone, and question types: ${quizData.questionTypes.join(', ')}. Additional notes: ${quizData.additionalComments || "none"}.`
         });
-        const result = await response.json();
-        displayQuiz(result);
+        
+        if (response && response.generated_text) {
+          displayQuiz(response.generated_text);
+        } else {
+          app.innerHTML = `<p>Failed to generate quiz. Please try again.</p>`;
+        }
       } catch (error) {
         app.innerHTML = `<p>Failed to generate quiz. Please try again.</p>`;
         console.error(error);
       }
     }
 
-    // Step 5: Display Quiz Page
     function displayQuiz(quizContent) {
       const quizId = Date.now();
-      const url = `https://dougie.wtf/ai/testing/${quizId}`;
+      const url = `${window.location.origin}/quiz/${quizId}`;
       app.innerHTML = `
         <h2>Your Quiz is Ready!</h2>
         <p>Share this link to access the quiz: <a href="${url}" target="_blank">${url}</a></p>
-        <div id="quiz-content">${JSON.stringify(quizContent)}</div>
+        <div id="quiz-content">${quizContent}</div>
         <button onclick="submitQuiz()">Submit Quiz</button>
       `;
 
       localStorage.setItem(`quiz_${quizId}`, JSON.stringify(quizContent));
     }
 
-    // Step 6: Submit Quiz and Generate Certificate
     function submitQuiz() {
-      const score = Math.floor(Math.random() * 100); // Mock score
+      const score = Math.floor(Math.random() * 100);
       app.innerHTML = `
         <h2>Quiz Completed!</h2>
         <p>Your Score: ${score}</p>
