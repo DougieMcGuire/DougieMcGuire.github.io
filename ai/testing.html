@@ -26,21 +26,28 @@
 
         async function sendMessage() {
             const userInput = document.getElementById('userInput').value;
+            if (!userInput) return;  // Prevent sending empty messages
             addMessage(userInput, 'user');
 
-            const response = await fetch(`https://api-inference.huggingface.co/models/${MODEL_ID}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${API_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ message: userInput })
-            });
-            const data = await response.json();
-            const botResponse = data?.generated_text || "No response";
+            try {
+                const response = await fetch(`https://api-inference.huggingface.co/models/${MODEL_ID}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ inputs: userInput })
+                });
+                const data = await response.json();
+                const botResponse = data?.generated_text || "No response"; // Modify if needed based on model's response
 
-            addMessage(botResponse, 'bot');
-            document.getElementById('userInput').value = '';
+                addMessage(botResponse, 'bot');
+            } catch (error) {
+                console.error('Error fetching the model response:', error);
+                addMessage("Error: Unable to get response.", 'bot');
+            }
+
+            document.getElementById('userInput').value = ''; // Clear input field after sending
         }
 
         function addMessage(text, sender) {
