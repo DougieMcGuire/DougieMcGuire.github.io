@@ -1,134 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background-color: #f7f7f7;
-        }
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 20px;
-            flex: 1;
-            overflow-y: auto;
-        }
-        .chat-box {
-            margin-bottom: 10px;
-        }
-        .chat-box span {
-            padding: 8px 12px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-bottom: 5px;
-        }
-        .user-msg {
-            background-color: #87ceeb;
-            align-self: flex-end;
-        }
-        .ai-msg {
-            background-color: #90ee90;
-            align-self: flex-start;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 20px;
-            margin-top: 10px;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 10px 15px;
-            margin-top: 10px;
-            border: none;
-            background-color: #008CBA;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Chatbox with Hugging Face</title>
+  <style>
+    body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+    #chatbox { width: 100%; max-width: 600px; }
+    .message { border-radius: 10px; padding: 10px; margin: 5px; }
+    .user { background-color: #d1e7ff; text-align: right; }
+    .ai { background-color: #f1f1f1; text-align: left; }
+    #input { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-top: 10px; }
+    #sendButton { padding: 10px; border-radius: 5px; border: none; background-color: #007bff; color: white; cursor: pointer; }
+  </style>
 </head>
 <body>
+  <h1>AI Chatbox</h1>
+  <div id="chatbox"></div>
+  <input type="text" id="input" placeholder="Ask a question..." />
+  <button id="sendButton">Send</button>
 
-<div class="chat-container" id="chat-container">
-    <!-- Chat messages will appear here -->
-</div>
+  <script>
+    const chatbox = document.getElementById('chatbox');
+    const input = document.getElementById('input');
+    const sendButton = document.getElementById('sendButton');
 
-<input type="text" id="user-input" placeholder="Type your message..." autofocus>
-<button id="send-btn">Send</button>
+    // Simulated "context" from a sample dataset entry
+    const context = "This is a sample context from the SlimOrca dataset. It contains text similar to the dataset content you wanted to use.";
 
-<script>
-    const sendButton = document.getElementById('send-btn');
-    const userInput = document.getElementById('user-input');
-    const chatContainer = document.getElementById('chat-container');
+    // Hugging Face API query function
+    async function query(data) {
+      const response = await fetch("https://api-inference.huggingface.co/models/distilbert/distilbert-base-cased-distilled-squad", {
+        headers: {
+          Authorization: "Bearer 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",
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      return await response.json();
+    }
 
-    // Hugging Face API details
-    const API_KEY = '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';  // Replace with your Hugging Face API Key
-    const MODEL_URL = 'https://api-inference.huggingface.co/models/01-ai/Yi-1.5-34B';
+    // Function to add message to chatbox
+    function addMessage(text, sender) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message', sender === 'user' ? 'user' : 'ai');
+      messageDiv.innerText = text;
+      chatbox.appendChild(messageDiv);
+      chatbox.scrollTop = chatbox.scrollHeight;  // Auto scroll to the bottom
+    }
 
-    // Send message to AI model and display response
-    const sendMessage = async () => {
-        const userMessage = userInput.value;
-        if (!userMessage.trim()) return;
+    // Function to handle sending user message
+    async function sendMessage() {
+      const question = input.value.trim();
+      if (!question) return;
 
-        // Display user message
-        const userMsgDiv = document.createElement('div');
-        userMsgDiv.className = 'chat-box user-msg';
-        userMsgDiv.innerHTML = `<span>${userMessage}</span>`;
-        chatContainer.appendChild(userMsgDiv);
-        
-        // Scroll to bottom of chat
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+      addMessage(question, 'user');
+      input.value = '';
 
-        userInput.value = '';  // Clear input field
+      // Query the AI model
+      const response = await query({
+        inputs: {
+          question: question,
+          context: context
+        }
+      });
 
-        // Get AI response
-        const response = await getAIResponse(userMessage);
-        
-        // Display AI message
-        const aiMsgDiv = document.createElement('div');
-        aiMsgDiv.className = 'chat-box ai-msg';
-        aiMsgDiv.innerHTML = `<span>${response}</span>`;
-        chatContainer.appendChild(aiMsgDiv);
-        
-        // Scroll to bottom of chat
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    };
-
-    // Fetch AI response from Hugging Face API
-    const getAIResponse = async (message) => {
-        const response = await fetch(MODEL_URL, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ inputs: message })
-        });
-        const data = await response.json();
-        return data[0]?.generated_text || "Sorry, I didn't understand that.";
-    };
+      // Extract and display the AI's response
+      const aiResponse = response && response.answers && response.answers[0] ? response.answers[0].text : "I couldn't find an answer.";
+      addMessage(aiResponse, 'ai');
+    }
 
     // Event listener for send button
     sendButton.addEventListener('click', sendMessage);
 
-    // Allow pressing Enter to send message
-    userInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            sendMessage();
-        }
+    // Event listener for "Enter" key
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
     });
-</script>
-
+  </script>
 </body>
 </html>
