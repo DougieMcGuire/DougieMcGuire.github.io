@@ -161,6 +161,13 @@
         pre code {
             border-radius: 5px;
         }
+
+        .user-message .message-content pre {
+            background: rgba(0,0,0,0.1);
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -170,7 +177,10 @@
                 <h1>Chat with Yi-1.5-34B</h1>
             </div>
             <div class="chat-messages" id="chatMessages">
-                <!-- Messages will be inserted here -->
+                <div class="message">
+                    <div class="avatar ai-avatar">AI</div>
+                    <div class="message-content">Hello! How can I assist you today?</div>
+                </div>
             </div>
             <div class="input-container">
                 <textarea 
@@ -184,24 +194,8 @@
     </div>
 
     <script>
-        let HF_TOKEN = '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';
-        let client = null;
-
-        // Initialize the chat
-        async function initChat() {
-            HF_TOKEN = prompt("Please enter your Hugging Face API token:");
-            if (!HF_TOKEN) {
-                alert("API token is required to use the chat.");
-                return;
-            }
-            try {
-                client = new HfInference(HF_TOKEN);
-                document.getElementById('sendButton').disabled = false;
-            } catch (error) {
-                console.error("Error initializing client:", error);
-                alert("Error initializing chat. Please check your API token and try again.");
-            }
-        }
+        // Initialize with your token
+        const client = new HfInference("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");
 
         // Add a message to the chat
         function addMessage(content, isUser = false) {
@@ -215,17 +209,28 @@
             
             const messageContent = document.createElement('div');
             messageContent.className = 'message-content';
-            messageContent.innerHTML = marked.parse(content);
+            
+            // Parse markdown, but handle code blocks specially for user messages
+            if (isUser) {
+                messageContent.textContent = content;
+            } else {
+                messageContent.innerHTML = marked.parse(content);
+                // Apply syntax highlighting to code blocks
+                messageContent.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightBlock(block);
+                });
+            }
             
             messageDiv.appendChild(avatar);
             messageDiv.appendChild(messageContent);
+            
+            // Remove previous message if it was a streaming update
+            if (!isUser && messagesDiv.lastElementChild && !messagesDiv.lastElementChild.classList.contains('user-message')) {
+                messagesDiv.removeChild(messagesDiv.lastElementChild);
+            }
+            
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-            // Apply syntax highlighting to code blocks
-            messageDiv.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightBlock(block);
-            });
         }
 
         // Add typing indicator
@@ -252,7 +257,7 @@
             const sendButton = document.getElementById('sendButton');
             const message = input.value.trim();
             
-            if (!message || !client) return;
+            if (!message) return;
             
             // Disable input and button while processing
             input.disabled = true;
@@ -266,7 +271,7 @@
             const typingIndicator = addTypingIndicator();
             
             try {
-                let response = '';
+                let currentResponse = '';
                 const stream = await client.chatCompletionStream({
                     model: "01-ai/Yi-1.5-34B-Chat",
                     messages: [
@@ -281,15 +286,13 @@
                 // Remove typing indicator
                 typingIndicator.remove();
                 
-                // Create a new message element for the AI response
-                let currentResponse = '';
-                
                 for await (const chunk of stream) {
                     if (chunk.choices && chunk.choices.length > 0) {
                         const newContent = chunk.choices[0].delta.content;
-                        currentResponse += newContent;
-                        // Update the message in place
-                        addMessage(currentResponse);
+                        if (newContent) {
+                            currentResponse += newContent;
+                            addMessage(currentResponse);
+                        }
                     }
                 }
             } catch (error) {
@@ -303,9 +306,6 @@
             sendButton.disabled = false;
             input.focus();
         }
-
-        // Initialize chat when page loads
-        window.onload = initChat;
     </script>
 </body>
 </html>
