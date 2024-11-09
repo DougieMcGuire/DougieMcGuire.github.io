@@ -1,160 +1,398 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Quiz Creator</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4; }
-    button { margin-top: 10px; padding: 10px 20px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
-    #certificate { border: 1px solid #000; padding: 20px; display: inline-block; margin-top: 20px; background: #f9f9f9; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Quiz Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
+    <div id="root"></div>
+    <script type="text/javascript">
+        const { useState, useEffect } = React;
 
-  <div id="app">
-    <button onclick="startQuizSetup()">Create New Quiz</button>
-  </div>
+        // HuggingFace API Integration
+        const generateQuiz = async (params) => {
+            const API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
+            const API_KEY = "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"; // Replace with your API key
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+            const prompt = `Generate a quiz with the following parameters:
+                Topic: ${params.topic}
+                Age demographic: ${params.demographic}
+                Tone: ${params.tone}
+                Number of questions: ${params.questionCount}
+                Question types: ${Object.entries(params.questionTypes)
+                    .filter(([_, enabled]) => enabled)
+                    .map(([type]) => type)
+                    .join(', ')}
+                Additional requirements: ${params.additional}
 
-  <script>
-    const app = document.getElementById('app');
-    let quizData = {
-      topic: '', demographic: '', tone: '', numQuestions: 5, questionTypes: []
-    };
-    let currentStep = 0;
+                Format the response as a JSON array of questions, where each question has:
+                - question: the question text
+                - type: the question type
+                - options: array of possible answers (for multiple choice)
+                - correctAnswer: the correct answer
+                
+                Example format: [{"question": "What is 2+2?", "type": "multiple_choice", "options": ["3", "4", "5", "6"], "correctAnswer": "4"}]`;
 
-    async function query(data) {
-      const response = await fetch("https://api-inference.huggingface.co/models/abhitopia/question-answer-generation", {
-        headers: {
-          "Authorization": "Bearer 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",
-          "Content-Type": "application/json"
-        },
-        method: "POST",
-        body: JSON.stringify(data),
-      });
-      return await response.json();
-    }
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ inputs: prompt }),
+                });
 
-    function startQuizSetup() {
-      currentStep = 0;
-      quizData = { topic: '', demographic: '', tone: '', numQuestions: 5, questionTypes: [] };
-      renderQuestion();
-    }
+                const result = await response.json();
+                // Parse the generated text as JSON
+                return JSON.parse(result[0].generated_text);
+            } catch (error) {
+                console.error('Error generating quiz:', error);
+                return null;
+            }
+        };
 
-    function renderQuestion() {
-      const questions = [
-        "What should this quiz be about?",
-        "What is the age demographic?",
-        "What should the tone be?",
-        "How many questions would you like there to be?",
-        "Any additional comments?"
-      ];
+        // Certificate Generation Component
+        const Certificate = ({ name, score, topic, date }) => {
+            const certificateRef = React.useRef();
 
-      app.innerHTML = `
-        <h1>Quiz Setup</h1>
-        <div class="question">
-          <p>${questions[currentStep]}</p>
-          <input type="text" id="answer" placeholder="Your answer">
-          <button onclick="saveAnswer()">Next</button>
-          <button onclick="skipQuestion()">Skip</button>
-        </div>
-      `;
-    }
+            const downloadCertificate = async () => {
+                const canvas = await html2canvas(certificateRef.current);
+                const link = document.createElement('a');
+                link.download = 'quiz-certificate.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            };
 
-    function saveAnswer() {
-      const input = document.getElementById('answer').value;
-      if (input) {
-        switch(currentStep) {
-          case 0: quizData.topic = input; break;
-          case 1: quizData.demographic = input; break;
-          case 2: quizData.tone = input; break;
-          case 3: quizData.numQuestions = parseInt(input) || 5; break;
-          case 4: quizData.additionalComments = input; break;
-        }
-      }
-      nextQuestion();
-    }
+            return (
+                <div ref={certificateRef} className="p-8 bg-white border-8 border-blue-200 m-4">
+                    <div className="text-center">
+                        <h1 className="text-4xl font-bold mb-4">Certificate of Completion</h1>
+                        <p className="text-xl mb-2">This certifies that</p>
+                        <p className="text-3xl font-bold mb-2">{name}</p>
+                        <p className="text-xl mb-4">has completed the quiz on</p>
+                        <p className="text-2xl font-bold mb-4">{topic}</p>
+                        <p className="text-xl mb-2">with a score of</p>
+                        <p className="text-3xl font-bold mb-4">{score}%</p>
+                        <p className="text-lg">{date}</p>
+                    </div>
+                    <button
+                        onClick={downloadCertificate}
+                        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    >
+                        Download Certificate
+                    </button>
+                </div>
+            );
+        };
 
-    function skipQuestion() { nextQuestion(); }
+        // Quiz Taking Component
+        const QuizTaker = ({ quiz, onComplete }) => {
+            const [currentQuestion, setCurrentQuestion] = useState(0);
+            const [answers, setAnswers] = useState([]);
+            const [showResults, setShowResults] = useState(false);
+            const [name, setName] = useState('');
 
-    function nextQuestion() {
-      currentStep++;
-      if (currentStep < 5) {
-        renderQuestion();
-      } else {
-        renderQuestionTypeSelection();
-      }
-    }
+            const handleAnswer = (answer) => {
+                const newAnswers = [...answers];
+                newAnswers[currentQuestion] = answer;
+                setAnswers(newAnswers);
 
-    function renderQuestionTypeSelection() {
-      app.innerHTML = `
-        <h2>Select Question Types</h2>
-        <label><input type="checkbox" value="Multiple Choice" onchange="toggleQuestionType(event)"> Multiple Choice</label><br>
-        <label><input type="checkbox" value="True/False" onchange="toggleQuestionType(event)"> True/False</label><br>
-        <button onclick="generateQuiz()">Generate Quiz</button>
-      `;
-    }
+                if (currentQuestion < quiz.questions.length - 1) {
+                    setCurrentQuestion(currentQuestion + 1);
+                }
+            };
 
-    function toggleQuestionType(event) {
-      const type = event.target.value;
-      if (event.target.checked) {
-        quizData.questionTypes.push(type);
-      } else {
-        quizData.questionTypes = quizData.questionTypes.filter(t => t !== type);
-      }
-    }
+            const calculateScore = () => {
+                const correct = answers.filter((answer, index) => 
+                    answer === quiz.questions[index].correctAnswer
+                ).length;
+                return Math.round((correct / quiz.questions.length) * 100);
+            };
 
-    async function generateQuiz() {
-      app.innerHTML = `<p>Generating your quiz, please wait...</p>`;
-      try {
-        const response = await query({
-          inputs: `Generate a quiz on the topic of ${quizData.topic} for ${quizData.demographic} in ${quizData.tone} tone with ${quizData.numQuestions} questions. The format should include: ${quizData.questionTypes.join(', ')}.`,
-        });
-        
-        if (response && response.generated_text) {
-          displayQuiz(response.generated_text);
-        } else {
-          app.innerHTML = `<p>Failed to generate quiz. Please try again.</p>`;
-        }
-      } catch (error) {
-        app.innerHTML = `<p>Failed to generate quiz. Please try again.</p>`;
-        console.error(error);
-      }
-    }
+            const submitQuiz = () => {
+                const score = calculateScore();
+                setShowResults(true);
+                onComplete && onComplete(score);
+            };
 
-    function displayQuiz(quizContent) {
-      const quizId = Date.now();
-      app.innerHTML = `
-        <h2>Your Quiz is Ready!</h2>
-        <div id="quiz-content">${quizContent}</div>
-        <button onclick="submitQuiz()">Submit Quiz</button>
-      `;
-    }
+            if (showResults) {
+                return (
+                    <div className="p-6 max-w-2xl mx-auto">
+                        <h2 className="text-2xl font-bold mb-4">Quiz Results</h2>
+                        <p className="text-xl mb-4">Your Score: {calculateScore()}%</p>
+                        <div className="mb-4">
+                            <label className="block mb-2">Enter your name for the certificate:</label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
+                        {name && (
+                            <Certificate
+                                name={name}
+                                score={calculateScore()}
+                                topic={quiz.topic}
+                                date={new Date().toLocaleDateString()}
+                            />
+                        )}
+                    </div>
+                );
+            }
 
-    function submitQuiz() {
-      const score = Math.floor(Math.random() * 100);
-      app.innerHTML = `
-        <h2>Quiz Completed!</h2>
-        <p>Your Score: ${score}</p>
-        <div id="certificate">
-          <h3>Certificate of Completion</h3>
-          <p>Congratulations on completing the quiz!</p>
-        </div>
-        <button onclick="downloadCertificate()">Download Certificate</button>
-      `;
-    }
+            const question = quiz.questions[currentQuestion];
 
-    function downloadCertificate() {
-      const certificate = document.getElementById('certificate');
-      html2canvas(certificate).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'certificate.png';
-        link.href = canvas.toDataURL();
-        link.click();
-      });
-    }
-  </script>
+            return (
+                <div className="p-6 max-w-2xl mx-auto">
+                    <div className="mb-4">
+                        <h2 className="text-2xl font-bold mb-2">Question {currentQuestion + 1}/{quiz.questions.length}</h2>
+                        <p className="text-xl mb-4">{question.question}</p>
+                        
+                        {question.type === 'multiple_choice' && (
+                            <div className="space-y-2">
+                                {question.options.map((option, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => handleAnswer(option)}
+                                        className="w-full p-2 text-left border rounded hover:bg-gray-100"
+                                    >
+                                        {option}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {question.type === 'true_false' && (
+                            <div className="space-x-4">
+                                <button
+                                    onClick={() => handleAnswer(true)}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                >
+                                    True
+                                </button>
+                                <button
+                                    onClick={() => handleAnswer(false)}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                >
+                                    False
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {currentQuestion === quiz.questions.length - 1 && (
+                        <button
+                            onClick={submitQuiz}
+                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                        >
+                            Submit Quiz
+                        </button>
+                    )}
+                </div>
+            );
+        };
+
+        // Quiz Creator Component (from previous version)
+        const QuizCreator = () => {
+            const [step, setStep] = useState(0);
+            const [quizData, setQuizData] = useState({
+                topic: '',
+                demographic: '',
+                tone: '',
+                questionCount: 0,
+                additional: '',
+                questionTypes: {
+                    multiple_choice: false,
+                    true_false: false,
+                    story: false
+                }
+            });
+            const [generatedQuiz, setGeneratedQuiz] = useState(null);
+
+            const questions = [
+                {
+                    question: 'What should this quiz be about?',
+                    field: 'topic'
+                },
+                {
+                    question: 'What is the age demographic?',
+                    field: 'demographic'
+                },
+                {
+                    question: 'What should the tone be?',
+                    field: 'tone'
+                },
+                {
+                    question: 'How many questions would you like there to be?',
+                    field: 'questionCount',
+                    type: 'number'
+                },
+                {
+                    question: 'Anything else you would like to add?',
+                    field: 'additional'
+                }
+            ];
+
+            const handleInputChange = (field, value) => {
+                setQuizData(prev => ({
+                    ...prev,
+                    [field]: value
+                }));
+            };
+
+            const handleNext = () => {
+                if (step < questions.length) {
+                    setStep(prev => prev + 1);
+                }
+            };
+
+            const handleSkip = () => {
+                handleNext();
+            };
+
+            const handleTypeToggle = (type) => {
+                setQuizData(prev => ({
+                    ...prev,
+                    questionTypes: {
+                        ...prev.questionTypes,
+                        [type]: !prev.questionTypes[type]
+                    }
+                }));
+            };
+
+            const handleSubmit = async () => {
+                const quiz = await generateQuiz(quizData);
+                if (quiz) {
+                    quiz.topic = quizData.topic; // Store topic for certificate
+                    setGeneratedQuiz(quiz);
+                    const quizId = uuid.v4();
+                    localStorage.setItem(quizId, JSON.stringify(quiz));
+                    // Create shareable link
+                    const shareableLink = `${window.location.origin}${window.location.pathname}?quiz=${quizId}`;
+                    alert(`Share this link: ${shareableLink}`);
+                }
+            };
+
+            if (generatedQuiz) {
+                return <QuizTaker quiz={generatedQuiz} />;
+            }
+
+            if (step === questions.length) {
+                return (
+                    <div className="p-6 max-w-lg mx-auto">
+                        <h2 className="text-2xl font-bold mb-4">Select Question Types</h2>
+                        <div className="space-y-4">
+                            <label className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    checked={quizData.questionTypes.multiple_choice}
+                                    onChange={() => handleTypeToggle('multiple_choice')}
+                                />
+                                <span>Multiple Choice</span>
+                            </label>
+                            <label className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    checked={quizData.questionTypes.true_false}
+                                    onChange={() => handleTypeToggle('true_false')}
+                                />
+                                <span>True/False</span>
+                            </label>
+                            <label className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    checked={quizData.questionTypes.story}
+                                    onChange={() => handleTypeToggle('story')}
+                                />
+                                <span>Story Questions</span>
+                            </label>
+                            <button
+                                onClick={handleSubmit}
+                                className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+                            >
+                                Generate Quiz
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const currentQuestion = questions[step];
+
+            return (
+                <div className="p-6 max-w-lg mx-auto">
+                    <div className="mb-4">
+                        <h2 className="text-2xl font-bold">{currentQuestion.question}</h2>
+                        <input
+                            type={currentQuestion.type || 'text'}
+                            value={quizData[currentQuestion.field]}
+                            onChange={(e) => handleInputChange(currentQuestion.field, e.target.value)}
+                            className="w-full p-2 border rounded mt-2"
+                        />
+                    </div>
+                    <div className="flex space-x-4">
+                        <button
+                            onClick={handleNext}
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        >
+                            Next
+                        </button>
+                        <button
+                            onClick={handleSkip}
+                            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                        >
+                            Skip
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            const [existingQuiz, setExistingQuiz] = useState(null);
+
+            useEffect(() => {
+                // Check for quiz ID in URL
+                const params = new URLSearchParams(window.location.search);
+                const quizId = params.get('quiz');
+                if (quizId) {
+                    const quiz = localStorage.getItem(quizId);
+                    if (quiz) {
+                        setExistingQuiz(JSON.parse(quiz));
+                    }
+                }
+            }, []);
+
+            return (
+                <div className="min-h-screen bg-gray-100">
+                    <header className="bg-white shadow">
+                        <div className="max-w-7xl mx-auto py-6 px-4">
+                            <h1 className="text-3xl font-bold text-gray-900">
+                                AI Quiz Generator
+                            </h1>
+                        </div>
+                    </header>
+                    <main>
+                        {existingQuiz ? (
+                            <QuizTaker quiz={existingQuiz} />
+                        ) : (
+                            <QuizCreator />
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
