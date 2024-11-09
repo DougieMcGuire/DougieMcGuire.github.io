@@ -25,7 +25,7 @@
     const input = document.getElementById('input');
     const sendButton = document.getElementById('sendButton');
 
-    // Simulated "context" from a sample dataset entry
+    // Example "context" - this can be replaced or expanded
     const context = "This is a sample context from the SlimOrca dataset. It contains text similar to the dataset content you wanted to use.";
 
     // Hugging Face API query function
@@ -58,7 +58,7 @@
       addMessage(question, 'user');
       input.value = '';
 
-      // Query the AI model
+      // Query the AI model with both question and context
       const response = await query({
         inputs: {
           question: question,
@@ -67,7 +67,7 @@
       });
 
       // Extract and display the AI's response
-      const aiResponse = response && response.answers && response.answers[0] ? response.answers[0].text : "I couldn't find an answer.";
+      const aiResponse = response && response.answer ? response.answer : "I couldn't find an answer.";
       addMessage(aiResponse, 'ai');
     }
 
