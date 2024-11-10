@@ -85,6 +85,9 @@
 
       const body = JSON.stringify({
         inputs: prompt,
+        role: user,
+        content: prompt,
+        message: prompt
       });
 
       try {
