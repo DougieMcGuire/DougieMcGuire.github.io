@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App</title>
     <style>
+        /* Previous styles remain the same */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -115,12 +116,21 @@
             background-color: #e4e6eb;
             margin-right: auto;
         }
+
+        .username-error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div id="auth-container">
         <h2>Welcome to Chat App</h2>
         <div id="login-form">
+            <input type="text" id="username" placeholder="Username">
+            <div id="username-error" class="username-error">Username already taken</div>
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Password">
             <button onclick="login()">Login</button>
@@ -132,12 +142,12 @@
     <div id="chat-container">
         <div id="sidebar">
             <div id="user-info">
-                <span id="username"></span>
+                <span id="current-username"></span>
                 <button onclick="logout()">Logout</button>
             </div>
             <div id="friends-list">
                 <h3>Friends</h3>
-                <input type="text" id="friend-email" placeholder="Add friend by email">
+                <input type="text" id="friend-username" placeholder="Add friend by username">
                 <button onclick="addFriend()">Add Friend</button>
                 <div id="friends"></div>
             </div>
@@ -177,39 +187,88 @@
         let currentUser = null;
         let currentChat = null;
 
+        // Check if username is available
+        async function isUsernameAvailable(username) {
+            const snapshot = await db.collection('usernames')
+                .where('username', '==', username.toLowerCase())
+                .get();
+            return snapshot.empty;
+        }
+
         // Authentication functions
-        function signup() {
+        async function signup() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const username = document.getElementById('username').value.toLowerCase();
+
+            if (!username) {
+                alert('Username is required');
+                return;
+            }
+
+            try {
+                // Check if username is available
+                const available = await isUsernameAvailable(username);
+                if (!available) {
+                    document.getElementById('username-error').style.display = 'block';
+                    return;
+                }
+
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                
+                // Create user document
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    email: email,
+                    username: username,
+                    friends: []
+                });
+
+                // Create username document for uniqueness check
+                await db.collection('usernames').add({
+                    username: username,
+                    userId: userCredential.user.uid
+                });
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        async function login() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    db.collection('users').doc(userCredential.user.uid).set({
-                        email: email,
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        async function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const userDoc = await db.collection('users').doc(result.user.uid).get();
+                
+                if (!userDoc.exists) {
+                    // Generate a random username for Google users
+                    const randomUsername = 'user' + Math.random().toString(36).substr(2, 9);
+                    
+                    await db.collection('users').doc(result.user.uid).set({
+                        email: result.user.email,
+                        username: randomUsername,
                         friends: []
                     });
-                })
-                .catch((error) => alert(error.message));
-        }
 
-        function login() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            auth.signInWithEmailAndPassword(email, password)
-                .catch((error) => alert(error.message));
-        }
-
-        function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .then((result) => {
-                    db.collection('users').doc(result.user.uid).set({
-                        email: result.user.email,
-                        friends: []
-                    }, { merge: true });
-                })
-                .catch((error) => alert(error.message));
+                    await db.collection('usernames').add({
+                        username: randomUsername,
+                        userId: result.user.uid
+                    });
+                }
+            } catch (error) {
+                alert(error.message);
+            }
         }
 
         function logout() {
@@ -217,26 +276,28 @@
         }
 
         async function addFriend() {
-            const friendEmail = document.getElementById('friend-email').value;
-            if (!friendEmail) return;
+            const friendUsername = document.getElementById('friend-username').value.toLowerCase();
+            if (!friendUsername) return;
 
             try {
-                const userSnapshot = await db.collection('users')
-                    .where('email', '==', friendEmail)
+                // Find user by username
+                const usernameDoc = await db.collection('usernames')
+                    .where('username', '==', friendUsername)
                     .get();
 
-                if (userSnapshot.empty) {
+                if (usernameDoc.empty) {
                     alert('User not found');
                     return;
                 }
 
-                const friendId = userSnapshot.docs[0].id;
+                const friendId = usernameDoc.docs[0].data().userId;
                 
+                // Add to friends array
                 await db.collection('users').doc(currentUser.uid).update({
                     friends: firebase.firestore.FieldValue.arrayUnion(friendId)
                 });
 
-                document.getElementById('friend-email').value = '';
+                document.getElementById('friend-username').value = '';
                 loadFriends();
             } catch (error) {
                 alert(error.message);
@@ -256,7 +317,7 @@
                 
                 const friendElement = document.createElement('div');
                 friendElement.className = 'friend';
-                friendElement.textContent = friendData.email;
+                friendElement.textContent = friendData.username;
                 friendElement.onclick = () => startChat(friendId);
                 
                 friendsDiv.appendChild(friendElement);
@@ -282,26 +343,33 @@
             const messageText = document.getElementById('message-text').value;
             if (!messageText) return;
 
-            const chatId = [currentUser.uid, currentChat].sort().join('_');
-            
-            await db.collection('messages').add({
-                chatId: chatId,
-                sender: currentUser.uid,
-                text: messageText,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            try {
+                // Create a chat ID by sorting UIDs to ensure consistency
+                const chatId = [currentUser.uid, currentChat].sort().join('_');
+                
+                // Add message to Firestore
+                await db.collection('messages').add({
+                    chatId: chatId,
+                    sender: currentUser.uid,
+                    text: messageText,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
 
-            document.getElementById('message-text').value = '';
+                // Clear input field
+                document.getElementById('message-text').value = '';
+            } catch (error) {
+                console.error("Error sending message:", error);
+                alert('Error sending message');
+            }
         }
 
         function loadMessages(friendId) {
             const chatId = [currentUser.uid, friendId].sort().join('_');
             const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = ''; // Clear existing messages
             
-            // Clear previous messages
-            messagesDiv.innerHTML = '';
-            
-            db.collection('messages')
+            // Set up real-time listener for messages
+            const unsubscribe = db.collection('messages')
                 .where('chatId', '==', chatId)
                 .orderBy('timestamp')
                 .onSnapshot((snapshot) => {
@@ -314,22 +382,29 @@
                             messagesDiv.appendChild(messageElement);
                         }
                     });
+                    // Scroll to bottom
                     messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }, (error) => {
+                    console.error("Error loading messages:", error);
                 });
         }
 
         // Auth state observer
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                const userData = userDoc.data();
+                
                 document.getElementById('auth-container').style.display = 'none';
                 document.getElementById('chat-container').style.display = 'flex';
-                document.getElementById('username').textContent = user.email;
+                document.getElementById('current-username').textContent = userData.username;
                 loadFriends();
             } else {
                 currentUser = null;
                 document.getElementById('auth-container').style.display = 'block';
                 document.getElementById('chat-container').style.display = 'none';
+                document.getElementById('username-error').style.display = 'none';
             }
         });
     </script>
