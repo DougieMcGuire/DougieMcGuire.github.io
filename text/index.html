@@ -5,35 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App</title>
     <style>
-        /* Previous styles remain the same */
+        /* General Styles */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
             height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f4f4f9;
         }
 
-        #auth-container {
+        #auth-container, #chat-container {
+            width: 100%;
             max-width: 400px;
-            margin: 50px auto;
-            padding: 20px;
+            margin: auto;
+        }
+
+        /* Authentication Container */
+        #auth-container {
             text-align: center;
         }
 
         #login-form input {
             display: block;
-            width: 100%;
-            margin: 10px 0;
-            padding: 8px;
+            width: calc(100% - 20px);
+            margin: 10px auto;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
         #login-form button {
-            margin: 10px;
-            padding: 8px 16px;
+            display: block;
+            width: calc(100% - 20px);
+            margin: 10px auto;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
             cursor: pointer;
         }
 
-        #chat-container {
+        #login-form button:hover {
+            background-color: #0056b3;
+        }
+
+        .username-error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
             display: none;
+        }
+
+        /* Chat Container */
+        #chat-container {
+            display: flex;
+            flex-direction: row;
             height: 100vh;
         }
 
@@ -56,9 +85,11 @@
         }
 
         #friends-list input {
-            width: 100%;
-            padding: 8px;
+            width: calc(100% - 20px);
+            padding: 10px;
             margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
         .friend {
@@ -96,6 +127,8 @@
             flex-grow: 1;
             padding: 8px;
             margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
         .message {
@@ -116,13 +149,6 @@
             background-color: #e4e6eb;
             margin-right: auto;
         }
-
-        .username-error {
-            color: red;
-            font-size: 14px;
-            margin-top: 5px;
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -133,13 +159,13 @@
             <div id="username-error" class="username-error">Username already taken</div>
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Password">
-            <button onclick="login()">Login</button>
             <button onclick="signup()">Sign Up</button>
+            <button onclick="login()">Login</button>
             <button onclick="loginWithGoogle()">Login with Google</button>
         </div>
     </div>
 
-    <div id="chat-container">
+    <div id="chat-container" style="display:none;">
         <div id="sidebar">
             <div id="user-info">
                 <span id="current-username"></span>
@@ -161,13 +187,10 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
     <script>
-        // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCS08ARvKhKc-fgK2WInmLrVpkbUJ-DBYg",
             authDomain: "chat-apii.firebaseapp.com",
@@ -179,7 +202,6 @@
             measurementId: "G-NKV4WVYK68"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -187,7 +209,8 @@
         let currentUser = null;
         let currentChat = null;
 
-        // Check if username is available
+        // Function definitions: isUsernameAvailable, signup, login, loginWithGoogle, logout, addFriend, loadFriends, startChat, sendMessage, loadMessages
+ // Check if username is available
         async function isUsernameAvailable(username) {
             const snapshot = await db.collection('usernames')
                 .where('username', '==', username.toLowerCase())
@@ -377,7 +400,7 @@
                         if (change.type === 'added') {
                             const message = change.doc.data();
                             const messageElement = document.createElement('div');
-                            messageElement.className = `message ${message.sender === currentUser.uid ? 'sent' : 'received'}`;
+                            messageElement.className = message ${message.sender === currentUser.uid ? 'sent' : 'received'};
                             messageElement.textContent = message.text;
                             messagesDiv.appendChild(messageElement);
                         }
@@ -407,6 +430,7 @@
                 document.getElementById('username-error').style.display = 'none';
             }
         });
+        // Add your JavaScript functions here (already shared in your earlier code)
     </script>
 </body>
 </html>
