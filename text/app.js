@@ -1,24 +1,3 @@
-// Firebase configurations
-const authConfig = {
-  apiKey: "AIzaSyAg0n2RMCxZjBMGjPOXJarolggd7CtTbAw",
-  authDomain: "auth-5d180.firebaseapp.com",
-  projectId: "auth-5d180",
-  storageBucket: "auth-5d180.firebasestorage.app",
-  messagingSenderId: "189598882429",
-  appId: "1:189598882429:web:ffc83a4d0c9d6d9e636f14",
-  measurementId: "G-M2LH2Z0PTB"
-};
-
-  const chatConfig = {
-    apiKey: "AIzaSyAg0n2RMCxZjBMGjPOXJarolggd7CtTbAw",
-    authDomain: "auth-5d180.firebaseapp.com",
-    projectId: "auth-5d180",
-    storageBucket: "auth-5d180.firebasestorage.app",
-    messagingSenderId: "189598882429",
-    appId: "1:189598882429:web:ffc83a4d0c9d6d9e636f14",
-    measurementId: "G-M2LH2Z0PTB"
-  };
-
 // Initialize Firebase apps
 const authApp = firebase.initializeApp(authConfig);
 const chatApp = firebase.initializeApp(chatConfig, 'chat');
@@ -30,57 +9,96 @@ const chatDb = chatApp.firestore();
 let currentUser = null;
 let currentChatId = null;
 
+// DOM Elements
+const loginScreen = document.getElementById('loginScreen');
+const appScreen = document.getElementById('appScreen');
+const googleSignInBtn = document.getElementById('googleSignIn');
+const emailSignInBtn = document.getElementById('emailSignIn');
+const emailRegisterBtn = document.getElementById('emailRegister');
+const signOutBtn = document.getElementById('signOutBtn');
+const addFriendBtn = document.getElementById('addFriendBtn');
+const sendMessageBtn = document.getElementById('sendMessageBtn');
+const messageInput = document.getElementById('messageInput');
+
+// Event Listeners
+googleSignInBtn.addEventListener('click', signInWithGoogle);
+emailSignInBtn.addEventListener('click', signInWithEmail);
+emailRegisterBtn.addEventListener('click', registerWithEmail);
+signOutBtn.addEventListener('click', signOut);
+addFriendBtn.addEventListener('click', addFriend);
+sendMessageBtn.addEventListener('click', sendMessage);
+messageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});
+
 // Auth functions
 function signInWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     authApp.auth().signInWithPopup(provider)
         .then(handleSignInSuccess)
-        .catch(error => console.error('Error signing in with Google:', error));
+        .catch(error => alert('Error signing in with Google: ' + error.message));
 }
 
 function signInWithEmail() {
     const email = document.getElementById('emailInput').value;
     const password = document.getElementById('passwordInput').value;
     
+    if (!email || !password) {
+        alert('Please enter both email and password');
+        return;
+    }
+    
     authApp.auth().signInWithEmailAndPassword(email, password)
         .then(handleSignInSuccess)
-        .catch(error => console.error('Error signing in with email:', error));
+        .catch(error => alert('Error signing in: ' + error.message));
 }
 
 function registerWithEmail() {
     const email = document.getElementById('emailInput').value;
     const password = document.getElementById('passwordInput').value;
     
+    if (!email || !password) {
+        alert('Please enter both email and password');
+        return;
+    }
+    
     authApp.auth().createUserWithEmailAndPassword(email, password)
         .then(async (userCredential) => {
-            // Create user profile
             const username = email.split('@')[0]; // Default username
-            await authDb.collection('users').doc(userCredential.user.uid).set({
-                email: email,
-                username: username,
-                friends: []
-            });
-            handleSignInSuccess(userCredential);
+            try {
+                await authDb.collection('users').doc(userCredential.user.uid).set({
+                    email: email,
+                    username: username,
+                    friends: []
+                });
+                handleSignInSuccess(userCredential);
+            } catch (error) {
+                alert('Error creating profile: ' + error.message);
+            }
         })
-        .catch(error => console.error('Error registering:', error));
+        .catch(error => alert('Error registering: ' + error.message));
 }
 
 async function handleSignInSuccess(userCredential) {
     currentUser = userCredential.user;
-    const userDoc = await authDb.collection('users').doc(currentUser.uid).get();
-    
-    if (!userDoc.exists) {
-        // Create profile if it doesn't exist (for Google sign-in)
-        const username = currentUser.email.split('@')[0];
-        await authDb.collection('users').doc(currentUser.uid).set({
-            email: currentUser.email,
-            username: username,
-            friends: []
-        });
+    try {
+        const userDoc = await authDb.collection('users').doc(currentUser.uid).get();
+        
+        if (!userDoc.exists) {
+            // Create profile if it doesn't exist (for Google sign-in)
+            const username = currentUser.email.split('@')[0];
+            await authDb.collection('users').doc(currentUser.uid).set({
+                email: currentUser.email,
+                username: username,
+                friends: []
+            });
+        }
+        
+        showAppScreen();
+        loadFriends();
+    } catch (error) {
+        alert('Error loading user profile: ' + error.message);
     }
-    
-    showAppScreen();
-    loadFriends();
 }
 
 function signOut() {
@@ -89,31 +107,38 @@ function signOut() {
             currentUser = null;
             showLoginScreen();
         })
-        .catch(error => console.error('Error signing out:', error));
+        .catch(error => alert('Error signing out: ' + error.message));
 }
 
 // UI functions
 function showLoginScreen() {
-    document.getElementById('loginScreen').classList.remove('hidden');
-    document.getElementById('appScreen').classList.add('hidden');
+    loginScreen.classList.remove('hidden');
+    appScreen.classList.add('hidden');
 }
 
 function showAppScreen() {
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('appScreen').classList.remove('hidden');
+    loginScreen.classList.add('hidden');
+    appScreen.classList.remove('hidden');
     loadUserInfo();
 }
 
 async function loadUserInfo() {
-    const userDoc = await authDb.collection('users').doc(currentUser.uid).get();
-    const userData = userDoc.data();
-    document.getElementById('username').textContent = userData.username;
+    try {
+        const userDoc = await authDb.collection('users').doc(currentUser.uid).get();
+        const userData = userDoc.data();
+        document.getElementById('username').textContent = userData.username;
+    } catch (error) {
+        alert('Error loading user info: ' + error.message);
+    }
 }
 
 // Friends management
 async function addFriend() {
     const friendUsername = document.getElementById('friendUsername').value;
-    if (!friendUsername) return;
+    if (!friendUsername) {
+        alert('Please enter a username');
+        return;
+    }
 
     try {
         // Find user by username
@@ -127,6 +152,13 @@ async function addFriend() {
         }
 
         const friendData = usersSnapshot.docs[0];
+        
+        // Don't add yourself
+        if (friendData.id === currentUser.uid) {
+            alert('You cannot add yourself as a friend');
+            return;
+        }
+
         const currentUserDoc = authDb.collection('users').doc(currentUser.uid);
         
         // Add to friends list
@@ -136,26 +168,31 @@ async function addFriend() {
 
         loadFriends();
         document.getElementById('friendUsername').value = '';
+        alert('Friend added successfully!');
     } catch (error) {
-        console.error('Error adding friend:', error);
+        alert('Error adding friend: ' + error.message);
     }
 }
 
 async function loadFriends() {
-    const userDoc = await authDb.collection('users').doc(currentUser.uid).get();
-    const userData = userDoc.data();
-    const friendsList = document.getElementById('friendsList');
-    friendsList.innerHTML = '';
+    try {
+        const userDoc = await authDb.collection('users').doc(currentUser.uid).get();
+        const userData = userDoc.data();
+        const friendsList = document.getElementById('friendsList');
+        friendsList.innerHTML = '';
 
-    for (const friendId of userData.friends) {
-        const friendDoc = await authDb.collection('users').doc(friendId).get();
-        const friendData = friendDoc.data();
-        
-        const friendElement = document.createElement('div');
-        friendElement.className = 'friend-item';
-        friendElement.textContent = friendData.username;
-        friendElement.onclick = () => openChat(friendId);
-        friendsList.appendChild(friendElement);
+        for (const friendId of userData.friends) {
+            const friendDoc = await authDb.collection('users').doc(friendId).get();
+            const friendData = friendDoc.data();
+            
+            const friendElement = document.createElement('div');
+            friendElement.className = 'friend-item';
+            friendElement.textContent = friendData.username;
+            friendElement.onclick = () => openChat(friendId);
+            friendsList.appendChild(friendElement);
+        }
+    } catch (error) {
+        alert('Error loading friends: ' + error.message);
     }
 }
 
@@ -164,32 +201,38 @@ async function openChat(friendId) {
     const chatId = [currentUser.uid, friendId].sort().join('_');
     currentChatId = chatId;
     
-    // Clear previous messages
-    document.getElementById('messages').innerHTML = '';
-    
-    // Show friend's username in chat header
-    const friendDoc = await authDb.collection('users').doc(friendId).get();
-    const friendData = friendDoc.data();
-    document.getElementById('chatHeader').textContent = friendData.username;
-    
-    // Listen for messages
-    chatDb.collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .orderBy('timestamp')
-        .onSnapshot(snapshot => {
-            snapshot.docChanges().forEach(change => {
-                if (change.type === 'added') {
-                    displayMessage(change.doc.data());
-                }
+    try {
+        // Clear previous messages
+        document.getElementById('messages').innerHTML = '';
+        
+        // Show friend's username in chat header
+        const friendDoc = await authDb.collection('users').doc(friendId).get();
+        const friendData = friendDoc.data();
+        document.getElementById('chatHeader').textContent = `Chat with ${friendData.username}`;
+        
+        // Listen for messages
+        chatDb.collection('chats')
+            .doc(chatId)
+            .collection('messages')
+            .orderBy('timestamp')
+            .onSnapshot(snapshot => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === 'added') {
+                        displayMessage(change.doc.data());
+                    }
+                });
             });
-        });
+    } catch (error) {
+        alert('Error opening chat: ' + error.message);
+    }
 }
 
 async function sendMessage() {
-    if (!currentChatId) return;
+    if (!currentChatId) {
+        alert('Please select a friend to chat with first');
+        return;
+    }
     
-    const messageInput = document.getElementById('messageInput');
     const message = messageInput.value.trim();
     if (!message) return;
     
@@ -208,18 +251,22 @@ async function sendMessage() {
         
         // Schedule message deletion after 24 hours
         setTimeout(async () => {
-            const messagesRef = chatDb.collection('chats')
-                .doc(currentChatId)
-                .collection('messages');
-            
-            const oldMessages = await messagesRef
-                .where('timestamp', '<=', new Date(Date.now() - 24 * 60 * 60 * 1000))
-                .get();
-            
-            oldMessages.forEach(doc => doc.ref.delete());
+            try {
+                const messagesRef = chatDb.collection('chats')
+                    .doc(currentChatId)
+                    .collection('messages');
+                
+                const oldMessages = await messagesRef
+                    .where('timestamp', '<=', new Date(Date.now() - 24 * 60 * 60 * 1000))
+                    .get();
+                
+                oldMessages.forEach(doc => doc.ref.delete());
+            } catch (error) {
+                console.error('Error deleting old messages:', error);
+            }
         }, 24 * 60 * 60 * 1000);
     } catch (error) {
-        console.error('Error sending message:', error);
+        alert('Error sending message: ' + error.message);
     }
 }
 
