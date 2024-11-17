@@ -1,9 +1,8 @@
-// Import and configure Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
-import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getDatabase, ref, push, onChildAdded, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// Your Firebase configuration
+// Replace with your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCS08ARvKhKc-fgK2WInmLrVpkbUJ-DBYg",
   authDomain: "chat-apii.firebaseapp.com",
@@ -17,111 +16,212 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth();
+const auth = getAuth(app);
 const database = getDatabase(app);
 
-// DOM elements
-const authContainer = document.getElementById("auth-container");
-const appContainer = document.getElementById("app-container");
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const signupBtn = document.getElementById("signup");
-const loginBtn = document.getElementById("login");
-const googleSigninBtn = document.getElementById("google-signin");
-const logoutBtn = document.getElementById("logout");
-const usernameDisplay = document.getElementById("username");
-const addFriendBtn = document.getElementById("add-friend");
-const friendUsernameInput = document.getElementById("friend-username");
-const friendList = document.getElementById("friend-list");
-const chatWith = document.getElementById("chat-with");
-const messages = document.getElementById("messages");
-const messageInput = document.getElementById("message-input");
-const sendMessageBtn = document.getElementById("send-message");
+// DOM Elements
+const cameraModal = document.getElementById("cameraModal");
+const video = document.getElementById("video");
+const photoCanvas = document.getElementById("photoCanvas");
+const messagesContainer = document.getElementById("messages");
+const messageInput = document.getElementById("messageInput");
+const loginStatus = document.getElementById("loginStatus");
+const loginBtn = document.getElementById("loginBtn");
 
-let currentChatFriend = null;
+// Camera variables
+let stream = null;
+let currentFacingMode = "user";
 
-// Authentication state listener
+// Fabric.js canvas
+let fabricCanvas = null;
+
+// Firebase Auth state listener
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        authContainer.style.display = "none";
-        appContainer.style.display = "block";
-        usernameDisplay.textContent = `Welcome, ${user.email}`;
-        loadFriends();
-    } else {
-        authContainer.style.display = "block";
-        appContainer.style.display = "none";
-    }
+  if (user) {
+    loginStatus.textContent = `Logged in as ${user.displayName}`;
+    loginBtn.textContent = "Logout";
+    loadMessages();
+  } else {
+    loginStatus.textContent = "Not logged in";
+    loginBtn.textContent = "Login with Google";
+  }
 });
 
-// Signup
-signupBtn.addEventListener("click", () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    createUserWithEmailAndPassword(auth, email, password)
-        .then(() => alert("Signup successful!"))
-        .catch((err) => alert(err.message));
-});
-
-// Login
-loginBtn.addEventListener("click", () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    signInWithEmailAndPassword(auth, email, password)
-        .then(() => alert("Login successful!"))
-        .catch((err) => alert(err.message));
-});
-
-// Google Sign-In
-googleSigninBtn.addEventListener("click", () => {
+// Login/Logout functionality
+loginBtn.addEventListener("click", async () => {
+  if (auth.currentUser) {
+    await auth.signOut();
+  } else {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider).catch((err) => alert(err.message));
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Auth error:", error);
+      alert("Login failed. Please try again.");
+    }
+  }
 });
 
-// Logout
-logoutBtn.addEventListener("click", () => {
-    signOut(auth).catch((err) => alert(err.message));
-});
+// Initialize camera
+async function initCamera() {
+  try {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
 
-// Add Friend
-addFriendBtn.addEventListener("click", () => {
-    const friendUsername = friendUsernameInput.value;
-    const userRef = ref(database, `users/${auth.currentUser.uid}/friends`);
-    push(userRef, friendUsername).then(() => {
-        friendUsernameInput.value = "";
-        loadFriends();
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: currentFacingMode },
     });
-});
 
-// Load Friends
-function loadFriends() {
-    const userRef = ref(database, `users/${auth.currentUser.uid}/friends`);
-    onValue(userRef, (snapshot) => {
-        friendList.innerHTML = "";
-        snapshot.forEach((childSnapshot) => {
-            const li = document.createElement("li");
-            li.textContent = childSnapshot.val();
-            li.addEventListener("click", () => {
-                currentChatFriend = childSnapshot.val();
-                chatWith.textContent = `Chat with: ${currentChatFriend}`;
-                loadMessages();
-            });
-            friendList.appendChild(li);
-        });
-    });
+    video.srcObject = stream;
+    cameraModal.style.display = "block";
+    resetCameraUI();
+  } catch (err) {
+    console.error("Camera error:", err);
+    alert("Could not access camera. Please check permissions.");
+  }
 }
 
-// Send Message
-sendMessageBtn.addEventListener("click", () => {
-    if (currentChatFriend) {
-        const chatRef = ref(database, `chats/${auth.currentUser.uid}_${currentChatFriend}`);
-        push(chatRef, {
-            sender: auth.currentUser.email,
-            text: messageInput.value,
-        });
-        messageInput.value = "";
-    }
+// Reset camera UI
+function resetCameraUI() {
+  video.style.display = "block";
+  photoCanvas.style.display = "none";
+  document.getElementById("editContainer").style.display = "none";
+  document.getElementById("captureTools").style.display = "block";
+  document.getElementById("editTools").style.display = "none";
+}
+
+// Switch camera
+document.getElementById("switchCameraBtn").addEventListener("click", () => {
+  currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
+  initCamera();
 });
 
-// Load Messages
+// Capture photo
+document.getElementById("snapBtn").addEventListener("click", () => {
+  const context = photoCanvas.getContext("2d");
+  context.drawImage(video, 0, 0, 640, 480);
+
+  video.style.display = "none";
+  document.getElementById("editContainer").style.display = "block";
+  document.getElementById("captureTools").style.display = "none";
+  document.getElementById("editTools").style.display = "flex";
+
+  initFabricCanvas();
+});
+
+// Fabric.js canvas setup
+function initFabricCanvas() {
+  if (fabricCanvas) {
+    fabricCanvas.dispose();
+  }
+
+  const container = document.getElementById("fabricContainer");
+  container.innerHTML = '<canvas id="editCanvas" width="640" height="480"></canvas>';
+
+  fabricCanvas = new fabric.Canvas("editCanvas", {
+    isDrawingMode: false,
+    backgroundColor: "transparent",
+  });
+}
+
+// Drawing mode toggle
+document.getElementById("drawBtn").addEventListener("click", () => {
+  fabricCanvas.isDrawingMode = !fabricCanvas.isDrawingMode;
+  document.getElementById("drawBtn").style.background = fabricCanvas.isDrawingMode
+    ? "#00ff00"
+    : "#0084ff";
+});
+
+// Add text
+document.getElementById("addTextBtn").addEventListener("click", () => {
+  const text = new fabric.IText("Tap to edit", {
+    left: 50,
+    top: 50,
+    fontFamily: "Arial",
+    fill: document.getElementById("colorPicker").value,
+    fontSize: 30,
+  });
+  fabricCanvas.add(text);
+});
+
+// Undo functionality
+document.getElementById("undoBtn").addEventListener("click", () => {
+  const objects = fabricCanvas.getObjects();
+  if (objects.length > 0) {
+    fabricCanvas.remove(objects[objects.length - 1]);
+  }
+});
+
+// Send photo to Firebase
+async function sendPhoto() {
+  const finalCanvas = document.createElement("canvas");
+  finalCanvas.width = 640;
+  finalCanvas.height = 480;
+
+  const ctx = finalCanvas.getContext("2d");
+  ctx.drawImage(photoCanvas, 0, 0);
+
+  // Add fabric.js edits
+  const fabricBlob = await new Promise((resolve) =>
+    fabricCanvas.toBlob((blob) => resolve(blob))
+  );
+  const fabricURL = URL.createObjectURL(fabricBlob);
+
+  const img = new Image();
+  img.onload = async () => {
+    ctx.drawImage(img, 0, 0);
+
+    const finalImage = finalCanvas.toDataURL("image/jpeg", 0.7);
+    await sendMessage(finalImage, "image");
+  };
+  img.src = fabricURL;
+}
+
+// Message sending
+async function sendMessage(content, type) {
+  if (!auth.currentUser) {
+    alert("Please login first.");
+    return;
+  }
+
+  const messageRef = ref(database, "messages");
+  await push(messageRef, {
+    uid: auth.currentUser.uid,
+    name: auth.currentUser.displayName,
+    content,
+    type,
+    timestamp: Date.now(),
+  });
+}
+
+// Load messages from Firebase
 function loadMessages() {
-    const chatRef =
+  const messagesQuery = query(ref(database, "messages"), limitToLast(50));
+  onChildAdded(messagesQuery, (snapshot) => {
+    const message = snapshot.val();
+    displayMessage(message);
+  });
+}
+
+// Display message
+function displayMessage(message) {
+  const div = document.createElement("div");
+  div.className = message.uid === auth.currentUser?.uid ? "sent" : "received";
+
+  if (message.type === "image") {
+    const img = document.createElement("img");
+    img.src = message.content;
+    div.appendChild(img);
+  } else {
+    div.textContent = message.content;
+  }
+
+  messagesContainer.appendChild(div);
+}
+
+// Close camera
+document.getElementById("closeCamera").addEventListener("click", () => {
+  cameraModal.style.display = "none";
+  if (stream) stream.getTracks().forEach((track) => track.stop());
+});
