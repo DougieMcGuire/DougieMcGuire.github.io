@@ -1,291 +1,138 @@
-// Initialize Firebase apps
-const authApp = firebase.initializeApp(authConfig);
-const chatApp = firebase.initializeApp(chatConfig, 'chat');
+// Import Firebase modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
+import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-database.js";
 
-// Get Firestore instances
-const authDb = authApp.firestore();
-const chatDb = chatApp.firestore();
+// Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCS08ARvKhKc-fgK2WInmLrVpkbUJ-DBYg",
+    authDomain: "chat-apii.firebaseapp.com",
+    databaseURL: "https://chat-apii-default-rtdb.firebaseio.com",
+    projectId: "chat-apii",
+    storageBucket: "chat-apii.firebasestorage.app",
+    messagingSenderId: "1030242819289",
+    appId: "1:1030242819289:web:8adbd8916c9d06aea332c8",
+    measurementId: "G-NKV4WVYK68"
+  };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
+
+// Elements
+const authContainer = document.getElementById("auth-container");
+const appContainer = document.getElementById("app-container");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const signupBtn = document.getElementById("signup");
+const loginBtn = document.getElementById("login");
+const googleSigninBtn = document.getElementById("google-signin");
+const logoutBtn = document.getElementById("logout");
+const usernameDisplay = document.getElementById("username");
+const addFriendBtn = document.getElementById("add-friend");
+const friendUsernameInput = document.getElementById("friend-username");
+const friendList = document.getElementById("friend-list");
+const chatWith = document.getElementById("chat-with");
+const messages = document.getElementById("messages");
+const messageInput = document.getElementById("message-input");
+const sendMessageBtn = document.getElementById("send-message");
 
 let currentUser = null;
-let currentChatId = null;
+let currentChatFriend = null;
 
-// DOM Elements
-const loginScreen = document.getElementById('loginScreen');
-const appScreen = document.getElementById('appScreen');
-const googleSignInBtn = document.getElementById('googleSignIn');
-const emailSignInBtn = document.getElementById('emailSignIn');
-const emailRegisterBtn = document.getElementById('emailRegister');
-const signOutBtn = document.getElementById('signOutBtn');
-const addFriendBtn = document.getElementById('addFriendBtn');
-const sendMessageBtn = document.getElementById('sendMessageBtn');
-const messageInput = document.getElementById('messageInput');
+// Helper to switch UI
+function showApp() {
+    authContainer.style.display = "none";
+    appContainer.style.display = "block";
+}
 
-// Event Listeners
-googleSignInBtn.addEventListener('click', signInWithGoogle);
-emailSignInBtn.addEventListener('click', signInWithEmail);
-emailRegisterBtn.addEventListener('click', registerWithEmail);
-signOutBtn.addEventListener('click', signOut);
-addFriendBtn.addEventListener('click', addFriend);
-sendMessageBtn.addEventListener('click', sendMessage);
-messageInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendMessage();
+// Signup
+signupBtn.addEventListener("click", () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+
+    createUserWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+            currentUser = userCredential.user;
+            showApp();
+        })
+        .catch(console.error);
 });
 
-// Auth functions
-function signInWithGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    authApp.auth().signInWithPopup(provider)
-        .then(handleSignInSuccess)
-        .catch(error => alert('Error signing in with Google: ' + error.message));
-}
+// Login
+loginBtn.addEventListener("click", () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
 
-function signInWithEmail() {
-    const email = document.getElementById('emailInput').value;
-    const password = document.getElementById('passwordInput').value;
-    
-    if (!email || !password) {
-        alert('Please enter both email and password');
-        return;
-    }
-    
-    authApp.auth().signInWithEmailAndPassword(email, password)
-        .then(handleSignInSuccess)
-        .catch(error => alert('Error signing in: ' + error.message));
-}
-
-function registerWithEmail() {
-    const email = document.getElementById('emailInput').value;
-    const password = document.getElementById('passwordInput').value;
-    
-    if (!email || !password) {
-        alert('Please enter both email and password');
-        return;
-    }
-    
-    authApp.auth().createUserWithEmailAndPassword(email, password)
-        .then(async (userCredential) => {
-            const username = email.split('@')[0]; // Default username
-            try {
-                await authDb.collection('users').doc(userCredential.user.uid).set({
-                    email: email,
-                    username: username,
-                    friends: []
-                });
-                handleSignInSuccess(userCredential);
-            } catch (error) {
-                alert('Error creating profile: ' + error.message);
-            }
+    signInWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+            currentUser = userCredential.user;
+            showApp();
         })
-        .catch(error => alert('Error registering: ' + error.message));
-}
+        .catch(console.error);
+});
 
-async function handleSignInSuccess(userCredential) {
-    currentUser = userCredential.user;
-    try {
-        const userDoc = await authDb.collection('users').doc(currentUser.uid).get();
-        
-        if (!userDoc.exists) {
-            // Create profile if it doesn't exist (for Google sign-in)
-            const username = currentUser.email.split('@')[0];
-            await authDb.collection('users').doc(currentUser.uid).set({
-                email: currentUser.email,
-                username: username,
-                friends: []
-            });
-        }
-        
-        showAppScreen();
-        loadFriends();
-    } catch (error) {
-        alert('Error loading user profile: ' + error.message);
-    }
-}
+// Google Sign-In
+googleSigninBtn.addEventListener("click", () => {
+    const provider = new GoogleAuthProvider();
 
-function signOut() {
-    authApp.auth().signOut()
-        .then(() => {
-            currentUser = null;
-            showLoginScreen();
+    signInWithPopup(auth, provider)
+        .then(result => {
+            currentUser = result.user;
+            showApp();
         })
-        .catch(error => alert('Error signing out: ' + error.message));
-}
+        .catch(console.error);
+});
 
-// UI functions
-function showLoginScreen() {
-    loginScreen.classList.remove('hidden');
-    appScreen.classList.add('hidden');
-}
+// Logout
+logoutBtn.addEventListener("click", () => {
+    signOut(auth).then(() => {
+        currentUser = null;
+        authContainer.style.display = "block";
+        appContainer.style.display = "none";
+    });
+});
 
-function showAppScreen() {
-    loginScreen.classList.add('hidden');
-    appScreen.classList.remove('hidden');
-    loadUserInfo();
-}
+// Add Friend
+addFriendBtn.addEventListener("click", () => {
+    const friendUsername = friendUsernameInput.value;
+    const friendsRef = ref(database, `users/${currentUser.uid}/friends`);
+    push(friendsRef, friendUsername);
+    friendUsernameInput.value = "";
+});
 
-async function loadUserInfo() {
-    try {
-        const userDoc = await authDb.collection('users').doc(currentUser.uid).get();
-        const userData = userDoc.data();
-        document.getElementById('username').textContent = userData.username;
-    } catch (error) {
-        alert('Error loading user info: ' + error.message);
-    }
-}
+// Load Friends
+onValue(ref(database, `users/${currentUser?.uid}/friends`), snapshot => {
+    friendList.innerHTML = "";
+    snapshot.forEach(childSnapshot => {
+        const li = document.createElement("li");
+        li.textContent = childSnapshot.val();
+        friendList.appendChild(li);
 
-// Friends management
-async function addFriend() {
-    const friendUsername = document.getElementById('friendUsername').value;
-    if (!friendUsername) {
-        alert('Please enter a username');
-        return;
-    }
-
-    try {
-        // Find user by username
-        const usersSnapshot = await authDb.collection('users')
-            .where('username', '==', friendUsername)
-            .get();
-
-        if (usersSnapshot.empty) {
-            alert('User not found');
-            return;
-        }
-
-        const friendData = usersSnapshot.docs[0];
-        
-        // Don't add yourself
-        if (friendData.id === currentUser.uid) {
-            alert('You cannot add yourself as a friend');
-            return;
-        }
-
-        const currentUserDoc = authDb.collection('users').doc(currentUser.uid);
-        
-        // Add to friends list
-        await currentUserDoc.update({
-            friends: firebase.firestore.FieldValue.arrayUnion(friendData.id)
+        li.addEventListener("click", () => {
+            currentChatFriend = childSnapshot.val();
+            chatWith.textContent = `Chat with: ${currentChatFriend}`;
         });
+    });
+});
 
-        loadFriends();
-        document.getElementById('friendUsername').value = '';
-        alert('Friend added successfully!');
-    } catch (error) {
-        alert('Error adding friend: ' + error.message);
+// Send Message
+sendMessageBtn.addEventListener("click", () => {
+    const text = messageInput.value;
+    if (currentChatFriend) {
+        const chatRef = ref(database, `chats/${currentUser.uid}_${currentChatFriend}`);
+        push(chatRef, { sender: currentUser.uid, text });
+        messageInput.value = "";
     }
-}
+});
 
-async function loadFriends() {
-    try {
-        const userDoc = await authDb.collection('users').doc(currentUser.uid).get();
-        const userData = userDoc.data();
-        const friendsList = document.getElementById('friendsList');
-        friendsList.innerHTML = '';
-
-        for (const friendId of userData.friends) {
-            const friendDoc = await authDb.collection('users').doc(friendId).get();
-            const friendData = friendDoc.data();
-            
-            const friendElement = document.createElement('div');
-            friendElement.className = 'friend-item';
-            friendElement.textContent = friendData.username;
-            friendElement.onclick = () => openChat(friendId);
-            friendsList.appendChild(friendElement);
-        }
-    } catch (error) {
-        alert('Error loading friends: ' + error.message);
-    }
-}
-
-// Chat functions
-async function openChat(friendId) {
-    const chatId = [currentUser.uid, friendId].sort().join('_');
-    currentChatId = chatId;
-    
-    try {
-        // Clear previous messages
-        document.getElementById('messages').innerHTML = '';
-        
-        // Show friend's username in chat header
-        const friendDoc = await authDb.collection('users').doc(friendId).get();
-        const friendData = friendDoc.data();
-        document.getElementById('chatHeader').textContent = `Chat with ${friendData.username}`;
-        
-        // Listen for messages
-        chatDb.collection('chats')
-            .doc(chatId)
-            .collection('messages')
-            .orderBy('timestamp')
-            .onSnapshot(snapshot => {
-                snapshot.docChanges().forEach(change => {
-                    if (change.type === 'added') {
-                        displayMessage(change.doc.data());
-                    }
-                });
-            });
-    } catch (error) {
-        alert('Error opening chat: ' + error.message);
-    }
-}
-
-async function sendMessage() {
-    if (!currentChatId) {
-        alert('Please select a friend to chat with first');
-        return;
-    }
-    
-    const message = messageInput.value.trim();
-    if (!message) return;
-    
-    try {
-        const timestamp = firebase.firestore.FieldValue.serverTimestamp();
-        await chatDb.collection('chats')
-            .doc(currentChatId)
-            .collection('messages')
-            .add({
-                sender: currentUser.uid,
-                text: message,
-                timestamp: timestamp
-            });
-        
-        messageInput.value = '';
-        
-        // Schedule message deletion after 24 hours
-        setTimeout(async () => {
-            try {
-                const messagesRef = chatDb.collection('chats')
-                    .doc(currentChatId)
-                    .collection('messages');
-                
-                const oldMessages = await messagesRef
-                    .where('timestamp', '<=', new Date(Date.now() - 24 * 60 * 60 * 1000))
-                    .get();
-                
-                oldMessages.forEach(doc => doc.ref.delete());
-            } catch (error) {
-                console.error('Error deleting old messages:', error);
-            }
-        }, 24 * 60 * 60 * 1000);
-    } catch (error) {
-        alert('Error sending message: ' + error.message);
-    }
-}
-
-function displayMessage(messageData) {
-    const messagesDiv = document.getElementById('messages');
-    const messageElement = document.createElement('div');
-    messageElement.className = `message ${messageData.sender === currentUser.uid ? 'sent' : 'received'}`;
-    messageElement.textContent = messageData.text;
-    messagesDiv.appendChild(messageElement);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
-// Initialize auth state observer
-authApp.auth().onAuthStateChanged(user => {
-    if (user) {
-        currentUser = user;
-        showAppScreen();
-        loadFriends();
-    } else {
-        showLoginScreen();
-    }
+// Load Messages
+onValue(ref(database, `chats/${currentUser.uid}_${currentChatFriend}`), snapshot => {
+    messages.innerHTML = "";
+    snapshot.forEach(childSnapshot => {
+        const li = document.createElement("li");
+        li.textContent = childSnapshot.val().text;
+        messages.appendChild(li);
+    });
 });
