@@ -1,19 +1,23 @@
 // Firebase configurations
 const authConfig = {
-    // Your authentication Firebase config
-    apiKey: "AIzaSyAg0n2RMCxZjBMGjPOXJarolggd7CtTbAw",
-    authDomain: "auth-5d180",
-    projectId: "189598882429",
-    // ... other config properties
+  apiKey: "AIzaSyAg0n2RMCxZjBMGjPOXJarolggd7CtTbAw",
+  authDomain: "auth-5d180.firebaseapp.com",
+  projectId: "auth-5d180",
+  storageBucket: "auth-5d180.firebasestorage.app",
+  messagingSenderId: "189598882429",
+  appId: "1:189598882429:web:ffc83a4d0c9d6d9e636f14",
+  measurementId: "G-M2LH2Z0PTB"
 };
 
-const chatConfig = {
-    // Your chat Firebase config
-    apiKey: "YOUR_CHAT_API_KEY",
-    authDomain: "your-chat-domain.firebaseapp.com",
-    projectId: "your-chat-project-id",
-    // ... other config properties
-};
+  const chatConfig = {
+    apiKey: "AIzaSyAg0n2RMCxZjBMGjPOXJarolggd7CtTbAw",
+    authDomain: "auth-5d180.firebaseapp.com",
+    projectId: "auth-5d180",
+    storageBucket: "auth-5d180.firebasestorage.app",
+    messagingSenderId: "189598882429",
+    appId: "1:189598882429:web:ffc83a4d0c9d6d9e636f14",
+    measurementId: "G-M2LH2Z0PTB"
+  };
 
 // Initialize Firebase apps
 const authApp = firebase.initializeApp(authConfig);
