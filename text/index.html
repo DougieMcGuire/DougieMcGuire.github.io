@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapChat-like Messenger</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen">
+        <h1>Welcome</h1>
+        <button onclick="signInWithGoogle()">Sign in with Google</button>
+        <div class="email-signin">
+            <input type="email" id="emailInput" placeholder="Email">
+            <input type="password" id="passwordInput" placeholder="Password">
+            <button onclick="signInWithEmail()">Sign in</button>
+            <button onclick="registerWithEmail()">Register</button>
+        </div>
+    </div>
+
+    <!-- Main App Screen -->
+    <div id="appScreen" class="screen hidden">
+        <div class="sidebar">
+            <div class="user-info">
+                <span id="username"></span>
+                <button onclick="signOut()">Sign Out</button>
+            </div>
+            <div class="friends-section">
+                <h2>Friends</h2>
+                <input type="text" id="friendUsername" placeholder="Add friend by username">
+                <button onclick="addFriend()">Add Friend</button>
+                <div id="friendsList"></div>
+            </div>
+        </div>
+        <div class="chat-section">
+            <div id="currentChat">
+                <div id="chatHeader"></div>
+                <div id="messages"></div>
+                <div class="message-input">
+                    <input type="text" id="messageInput" placeholder="Type a message...">
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
