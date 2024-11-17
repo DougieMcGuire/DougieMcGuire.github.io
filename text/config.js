@@ -1,21 +1,20 @@
-// Replace these with your Firebase configs from the Firebase Console
-
-// Auth Firebase config (from your first project)
+// Firebase configurations
 const authConfig = {
-    apiKey: "YOUR_AUTH_API_KEY",
-    authDomain: "your-auth-project.firebaseapp.com",
-    projectId: "your-auth-project",
-    storageBucket: "your-auth-project.appspot.com",
-    messagingSenderId: "your-auth-sender-id",
-    appId: "your-auth-app-id"
+  apiKey: "AIzaSyAg0n2RMCxZjBMGjPOXJarolggd7CtTbAw",
+  authDomain: "auth-5d180.firebaseapp.com",
+  projectId: "auth-5d180",
+  storageBucket: "auth-5d180.firebasestorage.app",
+  messagingSenderId: "189598882429",
+  appId: "1:189598882429:web:ffc83a4d0c9d6d9e636f14",
+  measurementId: "G-M2LH2Z0PTB"
 };
 
-// Chat Firebase config (from your second project)
-const chatConfig = {
-    apiKey: "YOUR_CHAT_API_KEY",
-    authDomain: "your-chat-project.firebaseapp.com",
-    projectId: "your-chat-project",
-    storageBucket: "your-chat-project.appspot.com",
-    messagingSenderId: "your-chat-sender-id",
-    appId: "your-chat-app-id"
-};
+  const chatConfig = {
+    apiKey: "AIzaSyAg0n2RMCxZjBMGjPOXJarolggd7CtTbAw",
+    authDomain: "auth-5d180.firebaseapp.com",
+    projectId: "auth-5d180",
+    storageBucket: "auth-5d180.firebasestorage.app",
+    messagingSenderId: "189598882429",
+    appId: "1:189598882429:web:ffc83a4d0c9d6d9e636f14",
+    measurementId: "G-M2LH2Z0PTB"
+  };
