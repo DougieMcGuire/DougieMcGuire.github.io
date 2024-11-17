@@ -1,0 +1,51 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+h1, h3 {
+    text-align: center;
+}
+
+input, button {
+    display: block;
+    width: 90%;
+    margin: 10px auto;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+button {
+    background: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #218838;
+}
+
+#friend-list, #messages {
+    list-style-type: none;
+    padding: 0;
+    margin: 10px auto;
+    width: 90%;
+    background: #fff;
+    border: 1px solid #ddd;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+#friend-list li, #messages li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+#friend-list li:hover, #messages li:hover {
+    background: #f1f1f1;
+    cursor: pointer;
+}
