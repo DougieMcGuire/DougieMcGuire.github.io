@@ -1,9 +1,9 @@
 // Firebase configurations
 const authConfig = {
     // Your authentication Firebase config
-    apiKey: "YOUR_AUTH_API_KEY",
-    authDomain: "your-auth-domain.firebaseapp.com",
-    projectId: "your-auth-project-id",
+    apiKey: "AIzaSyAg0n2RMCxZjBMGjPOXJarolggd7CtTbAw",
+    authDomain: "auth-5d180",
+    projectId: "189598882429",
     // ... other config properties
 };
 
