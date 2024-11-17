@@ -179,14 +179,16 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script>
-        const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+const firebaseConfig = {
+  apiKey: "AIzaSyCS08ARvKhKc-fgK2WInmLrVpkbUJ-DBYg",
+  authDomain: "chat-apii.firebaseapp.com",
+  databaseURL: "https://chat-apii-default-rtdb.firebaseio.com",
+  projectId: "chat-apii",
+  storageBucket: "chat-apii.firebasestorage.app",
+  messagingSenderId: "1030242819289",
+  appId: "1:1030242819289:web:8adbd8916c9d06aea332c8",
+  measurementId: "G-NKV4WVYK68"
+};
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
