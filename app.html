@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Proof of Concept App</title>
+  <title>Globally</title>
+  <link rel="icon" href="https://img.freepik.com/free-vector/planet-earth_1308-82523.jpg?t=st=1731962628~exp=1731966228~hmac=deb3a09f6b0670c32211f8ae49237eb0128cb4abd4d6cb1da82b4976be36aded&w=1380" type="image/jpg">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,20 +16,21 @@
       justify-content: center;
       height: 100vh;
       background-color: #f5f5f5;
-    }
-    .container {
       text-align: center;
     }
     #add-to-homescreen {
       display: none;
       background-color: #ffeb3b;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      margin: 20px;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     #app-content {
       display: none;
+    }
+    img {
+      max-width: 100px;
+      margin-bottom: 20px;
     }
     button {
       padding: 10px 20px;
@@ -37,51 +39,58 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 16px;
     }
     button:hover {
       background-color: #45a049;
     }
+    h1, p {
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div id="add-to-homescreen">
-      <h2>Add This App to Your Home Screen</h2>
-      <p>1. Tap the <strong>Share</strong> button.</p>
-      <p>2. Select <strong>Add to Home Screen</strong>.</p>
-    </div>
-    <div id="app-content">
-      <h1>Welcome to the App!</h1>
-      <p>This app is now running as if it were a standalone application.</p>
-    </div>
-    <button id="test-button" style="display: none;">Test Button</button>
+  <div id="add-to-homescreen">
+    <img src="LINK_TO_YOUR_IMAGE" alt="App Icon">
+    <h1>Globally</h1>
+    <p>To add this app to your home screen:</p>
+    <ol>
+      <li>Tap the <strong>Share</strong> button.</li>
+      <li>Select <strong>Add to Home Screen</strong>.</li>
+    </ol>
   </div>
+  <div id="app-content">
+    <h1>Welcome to Globally!</h1>
+    <p>The app is now running as a standalone application.</p>
+    <button>Click Me</button>
+  </div>
+
   <script>
-    // Detect standalone mode
+    // Function to detect standalone mode
     function isStandalone() {
       return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     }
 
-    // Detect if on mobile
+    // Function to detect mobile browsers
     function isMobile() {
       return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      const addToHomeScreenDiv = document.getElementById('add-to-homescreen');
-      const appContentDiv = document.getElementById('app-content');
-      const testButton = document.getElementById('test-button');
+      const addToHomeScreen = document.getElementById('add-to-homescreen');
+      const appContent = document.getElementById('app-content');
 
       if (isStandalone()) {
         // Show the app content if running in standalone mode
-        appContentDiv.style.display = 'block';
-        testButton.style.display = 'inline-block';
+        appContent.style.display = 'block';
       } else if (isMobile()) {
         // Show the add-to-home-screen instructions if on mobile browser
-        addToHomeScreenDiv.style.display = 'block';
+        addToHomeScreen.style.display = 'block';
       } else {
-        // Default: Not mobile or standalone
-        document.body.innerHTML = '<h2>Please access this app on a mobile device for a better experience.</h2>';
+        // Fallback message for non-mobile devices
+        document.body.innerHTML = `
+          <h2>Please access this app on a mobile device for the full experience.</h2>
+        `;
       }
     });
   </script>
