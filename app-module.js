@@ -5,13 +5,13 @@ export function initApp(config) {
   const manifest = {
     name: appName || "Globally",
     short_name: "Globally",
-    start_url: "./index.html",
+    start_url: "./app.html",
     display: "standalone",
     background_color: "#4caf50",
     theme_color: "#4caf50",
     icons: [
       {
-        src: "path-to-your-icon-192x192.png", // Replace with your actual path
+        src: "https://ibb.co/2j700FW", // Replace with your actual path
         sizes: "192x192",
         type: "image/png",
       },
