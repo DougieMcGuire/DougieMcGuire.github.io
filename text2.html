@@ -3,181 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Globally</title>
+    <title>Globally - Connect Worldwide</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            background: #f0f2f5;
-            color: #1c1e21;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
             padding: 20px;
+            background: #f5f5f5;
         }
-
         .container {
-            max-width: 500px;
-            margin: 20px auto;
+            max-width: 600px;
+            margin: 0 auto;
             background: white;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        h1 {
-            text-align: center;
-            color: #1877f2;
-            margin-bottom: 20px;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        input, button {
+        input, button, select {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             margin: 5px 0;
-            border: 1px solid #dddfe2;
-            border-radius: 6px;
-            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
-
-        input:focus {
-            outline: none;
-            border-color: #1877f2;
-        }
-
         button {
-            background: #1877f2;
+            background: #4285f4;
             color: white;
             border: none;
-            font-weight: bold;
             cursor: pointer;
-            transition: background 0.2s;
         }
-
-        button:hover {
-            background: #166fe5;
-        }
-
-        .error {
-            color: #ff4444;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        .success {
-            color: #00c851;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
         .chat {
-            height: 400px;
-            border: 1px solid #dddfe2;
-            border-radius: 6px;
-            padding: 15px;
+            height: 300px;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 10px;
             overflow-y: auto;
-            margin-bottom: 15px;
-            background: #fff;
+            border-radius: 5px;
         }
-
         .message {
-            padding: 10px;
+            padding: 8px;
             margin: 5px 0;
-            border-radius: 18px;
-            max-width: 70%;
-            word-wrap: break-word;
-        }
-
-        .sent {
-            background: #0084ff;
-            color: white;
-            margin-left: auto;
-        }
-
-        .received {
+            border-radius: 5px;
             background: #e9ecef;
-            margin-right: auto;
         }
-
-        .timestamp {
-            font-size: 12px;
-            color: #65676b;
-            margin-top: 4px;
-        }
-
-        .friend-list {
-            margin: 10px 0;
-            padding: 10px;
-            background: #f0f2f5;
-            border-radius: 6px;
-        }
-
-        .section {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #dddfe2;
-        }
-
-        .status {
-            text-align: center;
-            margin: 10px 0;
-            font-size: 14px;
-        }
+        .sent { background: #4285f4; color: white; margin-left: 20%; }
+        .received { background: #e9ecef; margin-right: 20%; }
     </style>
 </head>
 <body>
-    <!-- Auth Container -->
     <div id="auth-container" class="container">
-        <h1>Globally</h1>
-        <div class="input-group">
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button id="login">Log In</button>
-            <button id="signup" style="background: #42b72a;">Create New Account</button>
-        </div>
-        <button id="google-login" style="background: white; color: #1877f2; border: 1px solid #dddfe2;">
-            Continue with Google
-        </button>
+        <h2>Welcome to Globally</h2>
+        <input id="email" type="email" placeholder="Email">
+        <input id="password" type="password" placeholder="Password">
+        <button id="signup">Sign Up</button>
+        <button id="login">Login</button>
+        <button id="google-login">Sign in with Google</button>
     </div>
 
-    <!-- Username Setup Container -->
-    <div id="username-container" class="container" style="display: none;">
-        <h1>Set Username</h1>
-        <div class="input-group">
-            <input type="text" id="username" placeholder="Choose a username" required>
-            <button id="save-username">Save Username</button>
-        </div>
-    </div>
-
-    <!-- Chat Container -->
     <div id="chat-container" class="container" style="display: none;">
-        <h1>Chat</h1>
-        <div class="section">
-            <input type="text" id="friend-username" placeholder="Enter friend's username">
-            <button id="add-friend">Add Friend</button>
-            <div id="friend-status" class="status"></div>
-        </div>
-        
-        <div class="section">
-            <select id="friend-select" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-                <option value="">Select a friend</option>
-            </select>
-            <div id="chat" class="chat"></div>
-            <input type="text" id="message" placeholder="Type a message...">
-            <button id="send">Send</button>
-        </div>
-        
-        <button id="logout" style="background: #ff4444;">Logout</button>
+        <h2>Chat</h2>
+        <div class="chat" id="messages"></div>
+        <input id="friend-email" type="email" placeholder="Friend's Email">
+        <button id="add-friend">Add Friend</button>
+        <select id="friend-select">
+            <option value="">Select friend</option>
+        </select>
+        <input id="msg-input" type="text" placeholder="Type a message">
+        <button id="send-msg">Send</button>
+        <button id="logout">Logout</button>
     </div>
 
     <script>
-        // Initialize Firebase
+        // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyCB1DU7DtkswEU_9vs0tFxKlX1nN7ovkQc",
             authDomain: "globallyapi-c3088.firebaseapp.com",
@@ -187,23 +87,31 @@
             appId: "1:489666785193:web:a3027c53685758e9a99eb8"
         };
 
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // DOM Elements
+        let currentUser;
+
+        // Auth elements
         const authContainer = document.getElementById('auth-container');
-        const usernameContainer = document.getElementById('username-container');
         const chatContainer = document.getElementById('chat-container');
 
-        let currentUser = null;
-        let unsubscribe = null;
+        // Google Sign In
+        document.getElementById('google-login').onclick = async () => {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                alert(error.message);
+            }
+        };
 
-        // Authentication Events
+        // Email Sign Up
         document.getElementById('signup').onclick = async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            
             try {
                 await auth.createUserWithEmailAndPassword(email, password);
             } catch (error) {
@@ -211,10 +119,10 @@
             }
         };
 
+        // Email Login
         document.getElementById('login').onclick = async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            
             try {
                 await auth.signInWithEmailAndPassword(email, password);
             } catch (error) {
@@ -222,108 +130,41 @@
             }
         };
 
-        document.getElementById('google-login').onclick = async () => {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            try {
-                await auth.signInWithPopup(provider);
-            } catch (error) {
-                alert(error.message);
-            }
-        };
-
-        // Username Setup
-        document.getElementById('save-username').onclick = async () => {
-            const username = document.getElementById('username').value.trim();
-            if (!username) return alert('Please enter a username');
-
-            try {
-                // Check if username is taken
-                const usernameQuery = await db.collection('usernames')
-                    .where('username', '==', username)
-                    .get();
-                
-                if (!usernameQuery.empty) {
-                    alert('Username already taken');
-                    return;
-                }
-
-                // Save username
-                await db.collection('usernames').doc(currentUser.uid).set({
-                    username: username,
-                    email: currentUser.email,
-                    uid: currentUser.uid
-                });
-
-                usernameContainer.style.display = 'none';
-                chatContainer.style.display = 'block';
-            } catch (error) {
-                alert(error.message);
-            }
-        };
-
         // Add Friend
         document.getElementById('add-friend').onclick = async () => {
-            const friendUsername = document.getElementById('friend-username').value.trim();
-            const status = document.getElementById('friend-status');
-            
-            if (!friendUsername) {
-                status.textContent = 'Please enter a username';
-                status.className = 'status error';
-                return;
-            }
+            const friendEmail = document.getElementById('friend-email').value;
+            if (!friendEmail) return alert('Enter friend\'s email');
 
             try {
-                // Find friend by username
-                const friendQuery = await db.collection('usernames')
-                    .where('username', '==', friendUsername)
-                    .get();
-
-                if (friendQuery.empty) {
-                    status.textContent = 'User not found';
-                    status.className = 'status error';
-                    return;
-                }
-
-                const friendData = friendQuery.docs[0].data();
+                const userRef = db.collection('users').doc(currentUser.uid);
+                await userRef.set({
+                    email: currentUser.email,
+                    friends: firebase.firestore.FieldValue.arrayUnion(friendEmail)
+                }, { merge: true });
                 
-                // Add to friends collection
-                await db.collection('friends').add({
-                    user1: currentUser.uid,
-                    user2: friendData.uid,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                status.textContent = 'Friend added successfully!';
-                status.className = 'status success';
-                document.getElementById('friend-username').value = '';
-                
-                // Reload friend list
                 loadFriends();
+                alert('Friend added!');
+                document.getElementById('friend-email').value = '';
             } catch (error) {
-                status.textContent = error.message;
-                status.className = 'status error';
+                alert(error.message);
             }
         };
 
         // Send Message
-        document.getElementById('send').onclick = async () => {
-            const message = document.getElementById('message').value.trim();
-            const friendSelect = document.getElementById('friend-select');
+        document.getElementById('send-msg').onclick = async () => {
+            const message = document.getElementById('msg-input').value;
+            const toEmail = document.getElementById('friend-select').value;
             
-            if (!message || !friendSelect.value) {
-                alert('Please select a friend and type a message');
-                return;
-            }
+            if (!message || !toEmail) return alert('Select a friend and type a message');
 
             try {
                 await db.collection('messages').add({
-                    from: currentUser.uid,
-                    to: friendSelect.value,
+                    from: currentUser.email,
+                    to: toEmail,
                     text: message,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
-                document.getElementById('message').value = '';
+                document.getElementById('msg-input').value = '';
             } catch (error) {
                 alert(error.message);
             }
@@ -331,97 +172,71 @@
 
         // Load Friends
         async function loadFriends() {
-            try {
-                const friendsQuery = await db.collection('friends')
-                    .where('user1', '==', currentUser.uid)
-                    .get();
-
-                const select = document.getElementById('friend-select');
-                select.innerHTML = '<option value="">Select a friend</option>';
-
-                for (const doc of friendsQuery.docs) {
-                    const friendData = doc.data();
-                    const friendDoc = await db.collection('usernames')
-                        .doc(friendData.user2)
-                        .get();
-                    
-                    if (friendDoc.exists) {
-                        const friend = friendDoc.data();
-                        const option = document.createElement('option');
-                        option.value = friend.uid;
-                        option.textContent = friend.username;
-                        select.appendChild(option);
-                    }
-                }
-            } catch (error) {
-                alert('Error loading friends: ' + error.message);
-            }
+            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            const userData = userDoc.data() || { friends: [] };
+            const select = document.getElementById('friend-select');
+            
+            select.innerHTML = '<option value="">Select friend</option>';
+            userData.friends.forEach(friendEmail => {
+                const option = document.createElement('option');
+                option.value = friendEmail;
+                option.textContent = friendEmail;
+                select.appendChild(option);
+            });
         }
 
         // Listen to Messages
         function listenToMessages() {
-            if (unsubscribe) unsubscribe();
-
-            const chat = document.getElementById('chat');
+            const messagesDiv = document.getElementById('messages');
             
-            unsubscribe = db.collection('messages')
-                .where('to', '==', currentUser.uid)
+            db.collection('messages')
+                .where('to', '==', currentUser.email)
                 .orderBy('timestamp', 'desc')
                 .onSnapshot(snapshot => {
-                    snapshot.docChanges().forEach(async change => {
+                    snapshot.docChanges().forEach(change => {
                         if (change.type === 'added') {
                             const msg = change.doc.data();
-                            const fromUser = await db.collection('usernames')
-                                .doc(msg.from)
-                                .get();
-                            
                             const div = document.createElement('div');
-                            div.className = 'message ' + (msg.from === currentUser.uid ? 'sent' : 'received');
-                            div.textContent = `${fromUser.data().username}: ${msg.text}`;
-                            
-                            const timestamp = document.createElement('div');
-                            timestamp.className = 'timestamp';
-                            timestamp.textContent = msg.timestamp ? msg.timestamp.toDate().toLocaleString() : 'now';
-                            
-                            div.appendChild(timestamp);
-                            chat.prepend(div);
+                            div.className = `message ${msg.from === currentUser.email ? 'sent' : 'received'}`;
+                            div.textContent = `${msg.from}: ${msg.text}`;
+                            messagesDiv.prepend(div);
+                        }
+                    });
+                });
+
+            // Also listen for sent messages
+            db.collection('messages')
+                .where('from', '==', currentUser.email)
+                .orderBy('timestamp', 'desc')
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const msg = change.doc.data();
+                            const div = document.createElement('div');
+                            div.className = 'message sent';
+                            div.textContent = `${msg.from}: ${msg.text}`;
+                            messagesDiv.prepend(div);
                         }
                     });
                 });
         }
 
+        // Logout
+        document.getElementById('logout').onclick = () => auth.signOut();
+
         // Auth State Observer
-        auth.onAuthStateChanged(async user => {
+        auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
-                
-                // Check if username is set
-                const usernameDoc = await db.collection('usernames')
-                    .doc(user.uid)
-                    .get();
-
-                if (!usernameDoc.exists) {
-                    authContainer.style.display = 'none';
-                    usernameContainer.style.display = 'block';
-                    chatContainer.style.display = 'none';
-                } else {
-                    authContainer.style.display = 'none';
-                    usernameContainer.style.display = 'none';
-                    chatContainer.style.display = 'block';
-                    loadFriends();
-                    listenToMessages();
-                }
+                authContainer.style.display = 'none';
+                chatContainer.style.display = 'block';
+                loadFriends();
+                listenToMessages();
             } else {
-                currentUser = null;
-                if (unsubscribe) unsubscribe();
                 authContainer.style.display = 'block';
-                usernameContainer.style.display = 'none';
                 chatContainer.style.display = 'none';
             }
         });
-
-        // Logout
-        document.getElementById('logout').onclick = () => auth.signOut();
     </script>
 </body>
 </html>
