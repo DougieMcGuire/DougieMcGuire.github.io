@@ -16,7 +16,7 @@ export function initApp(config) {
         type: "image/png",
       },
       {
-        src: "path-to-your-icon-512x512.png", // Replace with your actual path
+        src: "https://ibb.co/2j700FW", // Replace with your actual path
         sizes: "512x512",
         type: "image/png",
       },
