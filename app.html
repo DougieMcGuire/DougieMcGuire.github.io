@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Globally</title>
-  <link rel="icon" href="https://img.freepik.com/free-vector/planet-earth_1308-82523.jpg?t=st=1731962628~exp=1731966228~hmac=deb3a09f6b0670c32211f8ae49237eb0128cb4abd4d6cb1da82b4976be36aded&w=1380" type="image/jpg">
+  <link rel="icon" href="https://ibb.co/2j700FW" type="image/png">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -18,31 +18,35 @@
       background-color: #f5f5f5;
       text-align: center;
     }
-    #add-to-homescreen {
+    #popup, #main-app {
       display: none;
-      background-color: #ffeb3b;
+    }
+    #popup {
+      background-color: white;
       padding: 20px;
-      border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
     }
-    #app-content {
-      display: none;
-    }
-    img {
-      max-width: 100px;
-      margin-bottom: 20px;
-    }
-    button {
+    #popup button, #popup input[type="checkbox"] {
+      margin-top: 10px;
       padding: 10px 20px;
-      background-color: #4caf50;
-      color: white;
+      font-size: 16px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 16px;
     }
-    button:hover {
+    #popup button {
+      background-color: #4caf50;
+      color: white;
+    }
+    #popup button:hover {
       background-color: #45a049;
+    }
+    #main-app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     h1, p {
       margin: 10px 0;
@@ -50,48 +54,69 @@
   </style>
 </head>
 <body>
-  <div id="add-to-homescreen">
-    <img src="LINK_TO_YOUR_IMAGE" alt="App Icon">
-    <h1>Globally</h1>
-    <p>To add this app to your home screen:</p>
-    <ol>
-      <li>Tap the <strong>Share</strong> button.</li>
-      <li>Select <strong>Add to Home Screen</strong>.</li>
-    </ol>
+  <div id="popup">
+    <h1>Have you added this app to your home screen?</h1>
+    <p>To add this app:</p>
+    <ul>
+      <li>iOS: Tap the <strong>Share</strong> button and then <strong>Add to Home Screen</strong>.</li>
+      <li>Android: Tap the <strong>three dots</strong> and then <strong>Add to Home Screen</strong>.</li>
+    </ul>
+    <div>
+      <button id="yes-button">Yes, I’ve added it</button>
+      <br />
+      <label>
+        <input type="checkbox" id="dont-show-checkbox"> Don’t show this again
+      </label>
+    </div>
   </div>
-  <div id="app-content">
-    <h1>Welcome to Globally!</h1>
-    <p>The app is now running as a standalone application.</p>
+  <div id="main-app">
+    <h1>Welcome to Globally</h1>
+    <p>You are now running this app in full-screen mode!</p>
     <button>Click Me</button>
   </div>
 
   <script>
-    // Function to detect standalone mode
-    function isStandalone() {
-      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-    }
+    // Mobile detection logic
+    const isMobile = {
+      Android: () => navigator.userAgent.match(/Android/i),
+      iOS: () => navigator.userAgent.match(/iPhone|iPad|iPod/i),
+      any: () => isMobile.Android() || isMobile.iOS()
+    };
 
-    // Function to detect mobile browsers
-    function isMobile() {
-      return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    }
+    // Detect standalone mode
+    const isStandalone = () =>
+      window.matchMedia("(display-mode: standalone)").matches || 
+      window.navigator.standalone || 
+      document.referrer.startsWith("android-app://");
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const addToHomeScreen = document.getElementById('add-to-homescreen');
-      const appContent = document.getElementById('app-content');
+    // Display the popup
+    const showPopup = () => {
+      document.getElementById("popup").style.display = "block";
+    };
 
-      if (isStandalone()) {
-        // Show the app content if running in standalone mode
-        appContent.style.display = 'block';
-      } else if (isMobile()) {
-        // Show the add-to-home-screen instructions if on mobile browser
-        addToHomeScreen.style.display = 'block';
+    // Hide the popup and show the app
+    const showApp = () => {
+      document.getElementById("popup").style.display = "none";
+      document.getElementById("main-app").style.display = "flex";
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const hasSeenPopup = localStorage.getItem("hasSeenInstallPopup");
+
+      // If not in standalone mode and mobile, show the install prompt
+      if (!isStandalone() && isMobile.any() && !hasSeenPopup) {
+        showPopup();
       } else {
-        // Fallback message for non-mobile devices
-        document.body.innerHTML = `
-          <h2>Please access this app on a mobile device for the full experience.</h2>
-        `;
+        showApp();
       }
+
+      // Handle "Yes, I've added it" button
+      document.getElementById("yes-button").addEventListener("click", () => {
+        if (document.getElementById("dont-show-checkbox").checked) {
+          localStorage.setItem("hasSeenInstallPopup", "true");
+        }
+        showApp();
+      });
     });
   </script>
 </body>
