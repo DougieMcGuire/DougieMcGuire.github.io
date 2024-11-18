@@ -2,122 +2,137 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Globally</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Download Globally!</title>
   <link rel="icon" href="https://ibb.co/2j700FW" type="image/png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Globally">
+  <meta name="theme-color" content="transparent">
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       height: 100vh;
-      background-color: #f5f5f5;
+      overflow: hidden;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 60px;
+      background: #4caf50;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+    }
+    #instructions, #main-app {
+      display: none;
+      margin-top: 70px;
+      padding: 20px;
       text-align: center;
     }
-    #popup, #main-app {
-      display: none;
+    #instructions ul {
+      list-style: none;
+      padding: 0;
     }
-    #popup {
-      background-color: white;
-      padding: 20px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      border-radius: 10px;
+    #instructions li {
+      margin: 10px 0;
     }
-    #popup button, #popup input[type="checkbox"] {
-      margin-top: 10px;
+    button {
       padding: 10px 20px;
       font-size: 16px;
       border: none;
       border-radius: 5px;
+      background: #4caf50;
+      color: white;
       cursor: pointer;
     }
-    #popup button {
-      background-color: #4caf50;
-      color: white;
-    }
-    #popup button:hover {
-      background-color: #45a049;
-    }
-    #main-app {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    h1, p {
-      margin: 10px 0;
+    button:hover {
+      background: #45a049;
     }
   </style>
 </head>
 <body>
-  <div id="popup">
-    <h1>Have you added this app to your home screen?</h1>
-    <p>To add this app:</p>
+  <header>
+    <h1>Globally</h1>
+  </header>
+  <div id="instructions">
+    <h2>Install Globally</h2>
+    <p>Follow these steps to add this app to your home screen:</p>
     <ul>
-      <li>iOS: Tap the <strong>Share</strong> button and then <strong>Add to Home Screen</strong>.</li>
-      <li>Android: Tap the <strong>three dots</strong> and then <strong>Add to Home Screen</strong>.</li>
+      <li>iOS: Tap the <strong>Share</strong> button and select <strong>Add to Home Screen</strong>.</li>
+      <li>Android: Tap the <strong>three dots</strong> and select <strong>Add to Home Screen</strong>.</li>
     </ul>
-    <div>
-      <button id="yes-button">Yes, I’ve added it</button>
-      <br />
-      <label>
-        <input type="checkbox" id="dont-show-checkbox"> Don’t show this again
-      </label>
-    </div>
+    <button id="reset-app">Done, Take Me Back</button>
   </div>
   <div id="main-app">
-    <h1>Welcome to Globally</h1>
+    <h2>Welcome to Globally</h2>
     <p>You are now running this app in full-screen mode!</p>
-    <button>Click Me</button>
+    <button id="open-settings">Settings</button>
   </div>
 
   <script>
-    // Mobile detection logic
-    const isMobile = {
-      Android: () => navigator.userAgent.match(/Android/i),
-      iOS: () => navigator.userAgent.match(/iPhone|iPad|iPod/i),
-      any: () => isMobile.Android() || isMobile.iOS()
-    };
-
-    // Detect standalone mode
     const isStandalone = () =>
-      window.matchMedia("(display-mode: standalone)").matches || 
-      window.navigator.standalone || 
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone ||
       document.referrer.startsWith("android-app://");
 
-    // Display the popup
-    const showPopup = () => {
-      document.getElementById("popup").style.display = "block";
-    };
+    const instructions = document.getElementById("instructions");
+    const mainApp = document.getElementById("main-app");
+    const resetButton = document.getElementById("reset-app");
+    const openSettingsButton = document.getElementById("open-settings");
 
-    // Hide the popup and show the app
-    const showApp = () => {
-      document.getElementById("popup").style.display = "none";
-      document.getElementById("main-app").style.display = "flex";
-    };
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const hasSeenPopup = localStorage.getItem("hasSeenInstallPopup");
-
-      // If not in standalone mode and mobile, show the install prompt
-      if (!isStandalone() && isMobile.any() && !hasSeenPopup) {
-        showPopup();
+    // Check if the app is in standalone mode
+    function checkAppState() {
+      if (isStandalone()) {
+        showMainApp();
       } else {
-        showApp();
+        showInstructions();
       }
+    }
 
-      // Handle "Yes, I've added it" button
-      document.getElementById("yes-button").addEventListener("click", () => {
-        if (document.getElementById("dont-show-checkbox").checked) {
-          localStorage.setItem("hasSeenInstallPopup", "true");
-        }
-        showApp();
-      });
+    // Show installation instructions
+    function showInstructions() {
+      instructions.style.display = "block";
+      mainApp.style.display = "none";
+    }
+
+    // Show the main app
+    function showMainApp() {
+      instructions.style.display = "none";
+      mainApp.style.display = "flex";
+    }
+
+    // Reset to installation instructions
+    resetButton.addEventListener("click", () => {
+      localStorage.removeItem("standaloneSeen");
+      showInstructions();
     });
+
+    // Open settings
+    openSettingsButton.addEventListener("click", () => {
+      alert("Settings page will be added here.");
+    });
+
+    // Run the check on load
+    checkAppState();
   </script>
 </body>
 </html>
