@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            text-align: center;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .chat {
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="auth-container" class="container">
+        <h1>Welcome to Chat App</h1>
+        <input id="email" type="email" placeholder="Email">
+        <input id="password" type="password" placeholder="Password">
+        <button id="signup">Sign Up</button>
+        <button id="login">Login</button>
+    </div>
+
+    <div id="setup-container" class="container" style="display: none;">
+        <h2>Set Up Your Profile</h2>
+        <input id="username" type="text" placeholder="Username">
+        <button id="save-username">Save Username</button>
+    </div>
+
+    <div id="chat-container" class="container" style="display: none;">
+        <h2>Chat</h2>
+        <div class="chat" id="chat"></div>
+        <input id="friend-username" type="text" placeholder="Add Friend by Username">
+        <button id="add-friend">Add Friend</button>
+        <select id="friend-list"></select>
+        <input id="message" type="text" placeholder="Type a message">
+        <button id="send-message">Send</button>
+        <button id="logout">Logout</button>
+    </div>
+
+    <script>
+        // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCB1DU7DtkswEU_9vs0tFxKlX1nN7ovkQc",
+    authDomain: "globallyapi-c3088.firebaseapp.com",
+    projectId: "globallyapi-c3088",
+    storageBucket: "globallyapi-c3088.firebasestorage.app",
+    messagingSenderId: "489666785193",
+    appId: "1:489666785193:web:a3027c53685758e9a99eb8",
+    measurementId: "G-636R3YJQ6B"
+  };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.getAuth(app);
+        const db = firebase.getFirestore(app);
+
+        const authContainer = document.getElementById("auth-container");
+        const setupContainer = document.getElementById("setup-container");
+        const chatContainer = document.getElementById("chat-container");
+
+        let currentUser;
+
+        document.getElementById("signup").addEventListener("click", async () => {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            try {
+                const userCredential = await firebase.createUserWithEmailAndPassword(auth, email, password);
+                currentUser = userCredential.user;
+                authContainer.style.display = "none";
+                setupContainer.style.display = "block";
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        document.getElementById("login").addEventListener("click", async () => {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            try {
+                const userCredential = await firebase.signInWithEmailAndPassword(auth, email, password);
+                currentUser = userCredential.user;
+                loadChat();
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        document.getElementById("save-username").addEventListener("click", async () => {
+            const username = document.getElementById("username").value;
+            if (!username) return alert("Username cannot be empty!");
+            try {
+                await firebase.setDoc(firebase.doc(db, "users", currentUser.uid), { username, friends: [] });
+                loadChat();
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        document.getElementById("add-friend").addEventListener("click", async () => {
+            const friendUsername = document.getElementById("friend-username").value;
+            if (!friendUsername) return alert("Enter a username to add a friend.");
+            try {
+                const querySnapshot = await firebase.getDocs(
+                    firebase.query(firebase.collection(db, "users"), firebase.where("username", "==", friendUsername))
+                );
+                if (querySnapshot.empty) return alert("User not found.");
+                const friend = querySnapshot.docs[0];
+                await firebase.updateDoc(firebase.doc(db, "users", currentUser.uid), {
+                    friends: firebase.arrayUnion(friend.id)
+                });
+                alert("Friend added!");
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        document.getElementById("send-message").addEventListener("click", async () => {
+            const message = document.getElementById("message").value;
+            const friendId = document.getElementById("friend-list").value;
+            if (!message || !friendId) return;
+            try {
+                await firebase.addDoc(firebase.collection(db, "messages"), {
+                    from: currentUser.uid,
+                    to: friendId,
+                    message,
+                    timestamp: firebase.serverTimestamp()
+                });
+                document.getElementById("message").value = "";
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        document.getElementById("logout").addEventListener("click", () => {
+            firebase.signOut(auth);
+            authContainer.style.display = "block";
+            chatContainer.style.display = "none";
+        });
+
+        async function loadChat() {
+            const userDoc = await firebase.getDoc(firebase.doc(db, "users", currentUser.uid));
+            const userData = userDoc.data();
+            const friendList = document.getElementById("friend-list");
+            friendList.innerHTML = "";
+            userData.friends.forEach(friendId => {
+                const option = document.createElement("option");
+                option.value = friendId;
+                option.textContent = friendId; // Simplified; you could fetch usernames here.
+                friendList.appendChild(option);
+            });
+
+            chatContainer.style.display = "block";
+            setupContainer.style.display = "none";
+            authContainer.style.display = "none";
+
+            firebase.onSnapshot(
+                firebase.query(
+                    firebase.collection(db, "messages"),
+                    firebase.where("to", "in", [currentUser.uid])
+                ),
+                (snapshot) => {
+                    const chat = document.getElementById("chat");
+                    chat.innerHTML = "";
+                    snapshot.forEach(doc => {
+                        const message = doc.data();
+                        const div = document.createElement("div");
+                        div.className = "message";
+                        div.textContent = message.message;
+                        chat.appendChild(div);
+                    });
+                }
+            );
+        }
+    </script>
+</body>
+</html>
