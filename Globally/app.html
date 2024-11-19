@@ -4,62 +4,109 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Globally</title>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script src="auth-module.js"></script>
-  <script src="friends-module.js"></script>
-  <script src="chat-module.js"></script>
+  <script src="app-module.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f5f5f5;
+      background-color: #f3f4f6;
       color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
+
     header {
       background-color: #4CAF50;
       color: white;
-      padding: 15px;
+      width: 100%;
       text-align: center;
+      padding: 15px 0;
+      font-size: 1.5rem;
+      font-weight: bold;
     }
+
     .container {
+      width: 100%;
+      max-width: 400px;
+      margin: 20px auto;
       padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-    .hidden {
-      display: none;
-    }
+
     .button {
+      display: block;
+      width: 100%;
+      text-align: center;
       background-color: #4CAF50;
       color: white;
       border: none;
       padding: 10px 20px;
-      margin: 10px;
+      margin: 10px 0;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 5px;
       cursor: pointer;
-      display: inline-block;
+      transition: background-color 0.3s ease;
     }
+
     .button:hover {
       background-color: #45a049;
     }
-    #install-instructions {
-      margin: 20px 0;
-      background-color: #fff;
-      padding: 15px;
+
+    .hidden {
+      display: none;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .form-group input {
+      width: calc(100% - 20px);
+      padding: 10px;
+      font-size: 1rem;
       border: 1px solid #ccc;
       border-radius: 5px;
     }
-    .auth-section {
+
+    .instructions {
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #eef6ee;
+      border: 1px solid #4CAF50;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      color: #2f6f2f;
+    }
+
+    .instructions h2 {
+      margin-top: 0;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 10px;
       text-align: center;
+      color: #aaa;
+      font-size: 0.8rem;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Globally</h1>
-  </header>
+  <header>Globally</header>
+
   <div class="container">
-    <div id="install-instructions" class="hidden">
+    <div id="install-instructions" class="hidden instructions">
       <h2>Install Globally</h2>
       <p>Follow these steps to add this app to your home screen:</p>
       <ul>
@@ -67,10 +114,12 @@
         <li><strong>Android:</strong> Tap the <strong>three dots</strong> and select <strong>Add to Home Screen</strong>.</li>
       </ul>
     </div>
-    <div id="auth-section" class="auth-section">
+
+    <div id="auth-section">
       <button class="button" id="login-button">Login</button>
       <button class="button" id="signup-button">Sign Up</button>
     </div>
+
     <div id="login-page" class="hidden">
       <h2>Login</h2>
       <div class="form-group">
@@ -83,6 +132,7 @@
       </div>
       <button class="button" id="signin-submit">Sign In</button>
     </div>
+
     <div id="signup-page" class="hidden">
       <h2>Sign Up</h2>
       <div class="form-group">
@@ -101,36 +151,43 @@
     </div>
   </div>
 
+  <footer>&copy; 2024 Globally</footer>
+
   <script>
+    // Check if app is standalone
     const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+    const installInstructions = document.getElementById('install-instructions');
 
     if (!isStandalone) {
-      document.getElementById('install-instructions').classList.remove('hidden');
+      installInstructions.classList.remove('hidden');
     }
 
+    // Handle navigation
+    const authSection = document.getElementById('auth-section');
+    const loginPage = document.getElementById('login-page');
+    const signupPage = document.getElementById('signup-page');
+
     document.getElementById('login-button').addEventListener('click', () => {
-      document.getElementById('auth-section').classList.add('hidden');
-      document.getElementById('login-page').classList.remove('hidden');
+      authSection.classList.add('hidden');
+      loginPage.classList.remove('hidden');
     });
 
     document.getElementById('signup-button').addEventListener('click', () => {
-      document.getElementById('auth-section').classList.add('hidden');
-      document.getElementById('signup-page').classList.remove('hidden');
+      authSection.classList.add('hidden');
+      signupPage.classList.remove('hidden');
     });
 
     document.getElementById('signin-submit').addEventListener('click', async () => {
       const email = document.getElementById('signin-email').value;
       const password = document.getElementById('signin-password').value;
-      await AuthModule.signIn(email, password);
-      // Proceed to app
+      await AppModule.signIn(email, password);
     });
 
     document.getElementById('signup-submit').addEventListener('click', async () => {
       const username = document.getElementById('signup-username').value;
       const email = document.getElementById('signup-email').value;
       const password = document.getElementById('signup-password').value;
-      await AuthModule.signUp(email, password, username);
-      // Proceed to app
+      await AppModule.signUp(email, password, username);
     });
   </script>
 </body>
