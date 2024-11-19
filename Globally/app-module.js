@@ -5,7 +5,7 @@ export function initApp(config) {
   const manifest = {
     name: appName,
     short_name: appName,
-    start_url: "./testing.html",
+    start_url: "./app.html",
     display: "standalone",
     background_color: "#4caf50",
     theme_color: "#4caf50",
@@ -36,7 +36,7 @@ export function initApp(config) {
 
   const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
 
-  if (!isStandalone && /Mobi|Android/i.test(navigator.userAgent)) {
+  if (!isStandalone && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
     // Show the install prompt for mobile users not in standalone mode
     showInstallScreen(installPromptText, installInstructions || generateDefaultInstructions());
   } else if (isStandalone) {
@@ -70,11 +70,6 @@ function showInstallScreen(promptText, instructionsHTML) {
     ${instructionsHTML}
   `;
 
-  // Disable text box interaction
-  installScreen.querySelectorAll("input, textarea").forEach(input => {
-    input.setAttribute("disabled", "true");
-  });
-
   document.body.appendChild(installScreen);
 }
 
@@ -87,13 +82,19 @@ function generateDefaultInstructions() {
 }
 
 function initAppMode() {
-  // Prevent zoom
+  // Disable zoom functionality completely
   document.addEventListener("gesturestart", e => e.preventDefault());
   document.addEventListener("touchstart", e => {
     if (e.touches.length > 1) e.preventDefault();
   });
 
-  // Fixed header and unscrollable footer
+  // Reset zoom if it somehow happens
+  document.body.style.zoom = "1";
+  document.addEventListener("resize", () => {
+    document.body.style.zoom = "1";
+  });
+
+  // Fixed header and footer
   const header = document.querySelector("header");
   const footer = document.querySelector("footer");
 
@@ -105,8 +106,14 @@ function initAppMode() {
   }
 
   if (footer) {
-    footer.style.overflow = "hidden";
+    footer.style.position = "fixed";
+    footer.style.bottom = "0";
+    footer.style.width = "100%";
+    footer.style.zIndex = "1000";
   }
+
+  // Tap highlight color
+  document.body.style.webkitTapHighlightColor = "transparent";
 
   // Splash screen
   const splashScreen = document.createElement("div");
@@ -135,9 +142,6 @@ function initAppMode() {
   document.body.appendChild(splashScreen);
 
   setTimeout(() => splashScreen.remove(), 2000);
-
-  // Tap highlight color
-  document.body.style.webkitTapHighlightColor = "transparent";
 
   console.log("App is running in standalone mode.");
 }
