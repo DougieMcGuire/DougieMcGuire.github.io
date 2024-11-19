@@ -1,123 +1,193 @@
-const FriendsModule = {
-  // Initialize the Firebase Database
-  init: function () {
-    this.db = firebase.database();
-    this.currentUser = AuthModule.getCurrentUser();
-    if (!this.currentUser) {
-      console.error("User not authenticated.");
-    }
-  },
+// Firebase initialization (ensure this part is already in your code)
 
-  // Send a Friend Request by Username
-  sendFriendRequest: async function (friendUsername) {
-    try {
-      const currentUserId = this.currentUser.uid;
-      const usersRef = this.db.ref("users");
+const db = firebase.database();
+const auth = firebase.auth();
 
-      // Find the user by their username
-      const snapshot = await usersRef
-        .orderByChild("username")
-        .equalTo(friendUsername)
-        .once("value");
+// --- Send Friend Request ---
+function sendFriendRequest(friendUsername) {
+    const currentUserId = auth.currentUser.uid;
+    const friendRef = db.ref(`users/${friendUsername}/friendRequests/${currentUserId}`);
+    const currentUserRef = db.ref(`users/${currentUserId}/friendRequests/${friendUsername}`);
 
-      if (!snapshot.exists()) {
-        alert("User not found!");
-        return;
-      }
+    // Check if user exists and send friend request
+    friendRef.set({
+        fromUsername: auth.currentUser.displayName,
+        status: "pending"
+    }).then(() => {
+        // Update current user
+        currentUserRef.set({
+            toUsername: friendUsername,
+            status: "pending"
+        });
+        
+        alert('Friend request sent!');
+    }).catch(error => {
+        console.error("Error sending friend request:", error);
+    });
+}
 
-      const friendUserId = Object.keys(snapshot.val())[0];
+// --- Accept Friend Request ---
+function acceptFriendRequest(friendUsername) {
+    const currentUserId = auth.currentUser.uid;
+    
+    // Add to both users' friends list
+    db.ref(`users/${currentUserId}/friends/${friendUsername}`).set(true);
+    db.ref(`users/${friendUsername}/friends/${currentUserId}`).set(true);
 
-      // Check if already friends
-      const alreadyFriends = await this.db
-        .ref(`users/${currentUserId}/friends/${friendUserId}`)
-        .once("value");
-      if (alreadyFriends.exists()) {
-        alert("You are already friends with this user!");
-        return;
-      }
+    // Remove the pending friend request
+    db.ref(`users/${friendUsername}/friendRequests/${currentUserId}`).remove();
+    db.ref(`users/${currentUserId}/friendRequests/${friendUsername}`).remove();
 
-      // Send a friend request
-      await this.db.ref(`users/${friendUserId}/friendRequests/${currentUserId}`).set({
-        fromUsername: this.currentUser.displayName,
-        status: "pending",
-      });
+    alert('Friend request accepted!');
+    updateFriendsList();
+}
 
-      alert("Friend request sent!");
-    } catch (error) {
-      console.error("Error sending friend request:", error);
-      alert("Could not send friend request. Please try again.");
-    }
-  },
+// --- Deny Friend Request ---
+function denyFriendRequest(friendUsername) {
+    const currentUserId = auth.currentUser.uid;
+    
+    // Remove the pending friend request
+    db.ref(`users/${friendUsername}/friendRequests/${currentUserId}`).remove();
+    db.ref(`users/${currentUserId}/friendRequests/${friendUsername}`).remove();
 
-  // Handle Friend Request (Accept/Deny)
-  handleFriendRequest: async function (requestId, accept) {
-    try {
-      const currentUserId = this.currentUser.uid;
+    alert('Friend request denied!');
+    updateFriendsList();
+}
 
-      // Get the friend's user ID from the request
-      const friendRequestRef = this.db.ref(`users/${currentUserId}/friendRequests/${requestId}`);
-      const requestSnapshot = await friendRequestRef.once("value");
+// --- Update Friend List UI ---
+function updateFriendsList() {
+    const currentUserId = auth.currentUser.uid;
+    const friendsListContainer = document.getElementById('friends-list');
+    
+    // Clear current list
+    friendsListContainer.innerHTML = '';
 
-      if (!requestSnapshot.exists()) {
-        alert("Friend request not found!");
-        return;
-      }
+    db.ref(`users/${currentUserId}/friends`).once('value').then(snapshot => {
+        const friends = snapshot.val();
 
-      const friendUserId = requestId;
+        if (friends) {
+            Object.keys(friends).forEach(friendId => {
+                const friendListItem = document.createElement('div');
+                friendListItem.textContent = friendId;  // Display friend's username
 
-      if (accept) {
-        // Add each other as friends
-        await this.db.ref(`users/${currentUserId}/friends/${friendUserId}`).set(true);
-        await this.db.ref(`users/${friendUserId}/friends/${currentUserId}`).set(true);
-      }
+                // Click to switch to chat with this friend
+                friendListItem.addEventListener('click', () => {
+                    setCurrentChat(friendId);
+                });
 
-      // Remove the friend request
-      await friendRequestRef.remove();
-
-      alert(accept ? "Friend request accepted!" : "Friend request denied.");
-    } catch (error) {
-      console.error("Error handling friend request:", error);
-      alert("Could not process the friend request. Please try again.");
-    }
-  },
-
-  // Load Friend Requests
-  loadFriendRequests: async function (callback) {
-    try {
-      const currentUserId = this.currentUser.uid;
-
-      const friendRequestsRef = this.db.ref(`users/${currentUserId}/friendRequests`);
-      friendRequestsRef.on("value", (snapshot) => {
-        if (snapshot.exists()) {
-          const requests = snapshot.val();
-          callback(requests);
+                friendsListContainer.appendChild(friendListItem);
+            });
         } else {
-          callback({});
+            friendsListContainer.innerHTML = 'No friends yet!';
         }
-      });
-    } catch (error) {
-      console.error("Error loading friend requests:", error);
-    }
-  },
+    }).catch(error => {
+        console.error("Error fetching friend list:", error);
+    });
+}
 
-  // Load Friends
-  loadFriends: async function (callback) {
-    try {
-      const currentUserId = this.currentUser.uid;
+// --- Set Current Chat ---
+function setCurrentChat(friendUsername) {
+    const currentUserId = auth.currentUser.uid;
 
-      const friendsRef = this.db.ref(`users/${currentUserId}/friends`);
-      friendsRef.on("value", (snapshot) => {
-        if (snapshot.exists()) {
-          const friends = snapshot.val();
-          callback(friends);
+    // Set current chat room
+    const currentChatRef = db.ref(`users/${currentUserId}/currentChat`);
+    currentChatRef.set(friendUsername);
+
+    // Update UI
+    document.getElementById('current-chat').textContent = `Currently chatting with: ${friendUsername}`;
+    loadMessages(friendUsername);
+}
+
+// --- Send Message ---
+function sendMessage() {
+    const currentUserId = auth.currentUser.uid;
+    const currentChatRef = db.ref(`users/${currentUserId}/currentChat`);
+    
+    currentChatRef.once('value').then(snapshot => {
+        const currentChatUsername = snapshot.val();
+        if (currentChatUsername) {
+            const message = document.getElementById('message-input').value;
+            const messageData = {
+                from: auth.currentUser.displayName,
+                text: message,
+                timestamp: Date.now()
+            };
+
+            // Send message to both users' chat history
+            db.ref(`messages/${currentUserId}/${currentChatUsername}`).push(messageData);
+            db.ref(`messages/${currentChatUsername}/${currentUserId}`).push(messageData);
+
+            document.getElementById('message-input').value = '';  // Clear input
+            loadMessages(currentChatUsername);
         } else {
-          callback({});
+            alert('Please select a chat first!');
         }
-      });
-    } catch (error) {
-      console.error("Error loading friends:", error);
-    }
-  },
+    });
+}
+
+// --- Load Messages ---
+function loadMessages(friendUsername) {
+    const currentUserId = auth.currentUser.uid;
+    const messageContainer = document.getElementById('message-container');
+    
+    db.ref(`messages/${currentUserId}/${friendUsername}`).once('value').then(snapshot => {
+        const messages = snapshot.val();
+
+        messageContainer.innerHTML = ''; // Clear message area
+
+        if (messages) {
+            Object.keys(messages).forEach(key => {
+                const message = messages[key];
+                const messageElement = document.createElement('div');
+                messageElement.textContent = `${message.from}: ${message.text}`;
+                messageContainer.appendChild(messageElement);
+            });
+        } else {
+            messageContainer.innerHTML = 'No messages yet!';
+        }
+    }).catch(error => {
+        console.error("Error loading messages:", error);
+    });
+}
+
+// --- Listen for Friend Requests ---
+function listenForFriendRequests() {
+    const currentUserId = auth.currentUser.uid;
+    const requestsContainer = document.getElementById('friend-requests');
+    
+    db.ref(`users/${currentUserId}/friendRequests`).on('value', snapshot => {
+        requestsContainer.innerHTML = ''; // Clear current requests
+
+        const requests = snapshot.val();
+        if (requests) {
+            Object.keys(requests).forEach(requesterId => {
+                const request = requests[requesterId];
+                
+                const requestElement = document.createElement('div');
+                requestElement.textContent = `Friend request from: ${request.fromUsername}`;
+
+                // Accept and deny buttons
+                const acceptButton = document.createElement('button');
+                acceptButton.textContent = 'Accept';
+                acceptButton.addEventListener('click', () => acceptFriendRequest(requesterId));
+
+                const denyButton = document.createElement('button');
+                denyButton.textContent = 'Deny';
+                denyButton.addEventListener('click', () => denyFriendRequest(requesterId));
+
+                requestElement.appendChild(acceptButton);
+                requestElement.appendChild(denyButton);
+
+                requestsContainer.appendChild(requestElement);
+            });
+        } else {
+            requestsContainer.innerHTML = 'No pending friend requests.';
+        }
+    });
+}
+
+// --- Initialize the Friend Request Listener on Page Load ---
+window.onload = function() {
+    listenForFriendRequests();
+    updateFriendsList();
 };
-
-export default FriendsModule;
