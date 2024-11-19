@@ -16,37 +16,21 @@ const AuthModule = (() => {
     auth = firebase.auth();
     database = firebase.database();
     
-    // Check for persisted user on initialization
-    const persistedUser = localStorage.getItem('currentUser');
+    // Set persistent authentication
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .catch((error) => {
+        console.error("Error setting persistence:", error);
+      });
     
     auth.onAuthStateChanged((user) => {
       if (user) {
         currentUser = user;
-        // Save user info to local storage
-        localStorage.setItem('currentUser', JSON.stringify({
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email
-        }));
         console.log("Logged in as:", user.displayName || user.email);
       } else {
         currentUser = null;
-        localStorage.removeItem('currentUser');
         console.log("No user signed in.");
       }
     });
-    
-    // Attempt to restore user from local storage if exists
-    if (persistedUser) {
-      try {
-        const savedUser = JSON.parse(persistedUser);
-        // You might want to add additional verification here
-        currentUser = savedUser;
-      } catch (error) {
-        console.error("Error parsing saved user:", error);
-        localStorage.removeItem('currentUser');
-      }
-    }
   };
   
   const signUp = async (email, password, username) => {
@@ -69,19 +53,10 @@ const AuthModule = (() => {
   
   const signOut = () => {
     auth.signOut();
-    localStorage.removeItem('currentUser');
     console.log("User signed out.");
   };
   
-  const getCurrentUser = () => {
-    // Try to get current user from Firebase auth first
-    const firebaseUser = auth.currentUser;
-    if (firebaseUser) return firebaseUser;
-    
-    // If not, try to get from local storage
-    const persistedUser = localStorage.getItem('currentUser');
-    return persistedUser ? JSON.parse(persistedUser) : null;
-  };
+  const getCurrentUser = () => currentUser;
   
   return { initialize, signUp, signIn, signOut, getCurrentUser };
 })();
