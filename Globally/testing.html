@@ -17,6 +17,7 @@
     <h2>Sign Up</h2>
     <input type="email" id="signUpEmail" placeholder="Email">
     <input type="password" id="signUpPassword" placeholder="Password">
+    <input type="text" id="signUpDisplayName" placeholder="Display Name (Optional)">
     <button onclick="signUp()">Sign Up</button>
   </div>
 
@@ -43,26 +44,27 @@
     const chatRoom = "general"; // Static chat room for simplicity
 
     // Functions to interact with the ChatModule
-    function signUp() {
+    async function signUp() {
       const email = document.getElementById("signUpEmail").value;
       const password = document.getElementById("signUpPassword").value;
-      ChatModule.signUp(email, password);
+      const displayName = document.getElementById("signUpDisplayName").value;
+      await ChatModule.signUp(email, password, displayName);
     }
 
-    function signIn() {
+    async function signIn() {
       const email = document.getElementById("signInEmail").value;
       const password = document.getElementById("signInPassword").value;
-      ChatModule.signIn(email, password);
+      await ChatModule.signIn(email, password);
     }
 
-    function sendMessage() {
+    async function sendMessage() {
       const message = document.getElementById("messageInput").value;
-      ChatModule.sendMessage(chatRoom, message);
+      await ChatModule.sendMessage(chatRoom, message);
       document.getElementById("messageInput").value = ""; // Clear input
     }
 
-    function signOut() {
-      ChatModule.signOut();
+    async function signOut() {
+      await ChatModule.signOut();
     }
 
     // Listen for new messages
