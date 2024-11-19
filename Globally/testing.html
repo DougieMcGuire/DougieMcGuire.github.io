@@ -10,7 +10,26 @@
   <script src="auth-module.js"></script>
   <script src="friends-module.js"></script>
   <script src="chat-module.js"></script>
+    <script type="module">
+    import { initApp } from './app-module.js';
+
+    initApp({
+      appName: "Globally",
+      installPromptText: "Install Globally.",
+      installInstructions: `
+        <p>Follow these steps to add this app to your home screen:</p>
+        <ul>
+          <li>iOS: Tap the <strong>Share</strong> button and select <strong>Add to Home Screen</strong>.</li>
+          <li>Android: Tap the <strong>three dots</strong> and select <strong>Add to Home Screen</strong>.</li>
+        </ul>
+      `,
+    });
+  </script>
   <style>
+          overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+    }
     body {
       font-family: Arial, sans-serif;
       margin: 0;
