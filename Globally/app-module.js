@@ -43,105 +43,76 @@ export function initApp(config) {
     // Apply app-like behavior
     initAppMode();
   }
+
+  // Prevent double-tap zoom
+  disableDoubleTapZoom();
 }
 
 function showInstallScreen(promptText, instructionsHTML) {
   const installScreen = document.createElement("div");
-  installScreen.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #f9f9f9;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 20px;
-    box-sizing: border-box;
-    overflow: hidden;
-  `;
+  installScreen.style.position = "fixed";
+  installScreen.style.top = "0";
+  installScreen.style.left = "0";
+  installScreen.style.width = "100%";
+  installScreen.style.height = "100%";
+  installScreen.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+  installScreen.style.color = "white";
+  installScreen.style.display = "flex";
+  installScreen.style.flexDirection = "column";
+  installScreen.style.justifyContent = "center";
+  installScreen.style.alignItems = "center";
+  installScreen.style.zIndex = "1000";
 
-  installScreen.innerHTML = `
-    <h1>${promptText}</h1>
-    ${instructionsHTML}
-  `;
+  const promptTextElement = document.createElement("h1");
+  promptTextElement.innerText = promptText;
+  installScreen.appendChild(promptTextElement);
+
+  const instructionsElement = document.createElement("div");
+  instructionsElement.innerHTML = instructionsHTML;
+  installScreen.appendChild(instructionsElement);
 
   document.body.appendChild(installScreen);
+
+  installScreen.addEventListener("click", () => {
+    installScreen.remove();
+  });
 }
 
 function generateDefaultInstructions() {
   return `
-    <p>1. Tap the <strong>Share</strong> button on your browser.</p>
-    <p>2. Select <strong>Add to Home Screen</strong>.</p>
-    <p>3. Follow the prompts to install the app!</p>
+    <p>Follow these steps to add this app to your home screen:</p>
+    <ul>
+      <li>iOS: Tap the <strong>Share</strong> button and select <strong>Add to Home Screen</strong>.</li>
+      <li>Android: Tap the <strong>three dots</strong> and select <strong>Add to Home Screen</strong>.</li>
+    </ul>
   `;
 }
 
 function initAppMode() {
-  // Disable zoom functionality completely
-  document.addEventListener("gesturestart", e => e.preventDefault());
-  document.addEventListener("touchstart", e => {
-    if (e.touches.length > 1) e.preventDefault();
+  document.body.style.height = "100vh";
+  document.body.style.overflow = "hidden";
+  document.body.style.display = "flex";
+  document.body.style.flexDirection = "column";
+}
+
+function disableDoubleTapZoom() {
+  let lastTouchEnd = 0;
+
+  document.addEventListener("touchstart", (event) => {
+    if (event.touches.length > 1) {
+      event.preventDefault(); // Prevent pinch zoom
+    }
   });
 
-  // Reset zoom if it somehow happens
-  document.body.style.zoom = "1";
-  document.addEventListener("resize", () => {
-    document.body.style.zoom = "1";
+  document.addEventListener("touchend", (event) => {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+      event.preventDefault(); // Prevent double-tap zoom
+    }
+    lastTouchEnd = now;
   });
 
-  // Fixed header and footer
-  const header = document.querySelector("header");
-  const footer = document.querySelector("footer");
-
-  if (header) {
-    header.style.position = "fixed";
-    header.style.top = "0";
-    header.style.width = "100%";
-    header.style.zIndex = "1000";
-  }
-
-  if (footer) {
-    footer.style.position = "fixed";
-    footer.style.bottom = "0";
-    footer.style.width = "100%";
-    footer.style.zIndex = "1000";
-  }
-
-  // Tap highlight color
-  document.body.style.webkitTapHighlightColor = "transparent";
-
-  // Splash screen
-  const splashScreen = document.createElement("div");
-  splashScreen.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #4caf50;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    color: white;
-    font-size: 24px;
-    font-family: Arial, sans-serif;
-    text-align: center;
-  `;
-  splashScreen.innerHTML = `
-    <div>Globally</div>
-    <div style="margin-top: 10px;">Loading...</div>
-  `;
-
-  document.body.appendChild(splashScreen);
-
-  setTimeout(() => splashScreen.remove(), 2000);
-
-  console.log("App is running in standalone mode.");
+  document.addEventListener("gesturestart", (event) => {
+    event.preventDefault(); // Prevent pinch-to-zoom gesture
+  });
 }
