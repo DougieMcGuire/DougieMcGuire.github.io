@@ -1,70 +1,59 @@
-// Initialize Firebase Auth
-const auth = firebase.auth();
+const AuthModule = (() => {
+  let auth, database, currentUser;
 
-// Set persistence to LOCAL to ensure user stays logged in after page refresh
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-  .then(() => {
-    // Authentication state change listener
-    auth.onAuthStateChanged(user => {
+  const initialize = () => {
+    const firebaseConfig = {
+      apiKey: "AIzaSyCB1DU7DtkswEU_9vs0tFxKlX1nN7ovkQc",
+      authDomain: "globallyapi-c3088.firebaseapp.com",
+      projectId: "globallyapi-c3088",
+      storageBucket: "globallyapi-c3088.appspot.com",
+      messagingSenderId: "489666785193",
+      appId: "1:489666785193:web:a3027c53685758e9a99eb8",
+      measurementId: "G-636R3YJQ6B",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    database = firebase.database();
+
+    auth.onAuthStateChanged((user) => {
       if (user) {
-        // User is logged in
-        console.log('User logged in as:', user.displayName);
-        document.getElementById('user-status').textContent = `Logged in as: ${user.displayName}`;
-        // Optionally, show the logged-in user's details or redirect
+        currentUser = user;
+        console.log("Logged in as:", user.displayName || user.email);
       } else {
-        // User is not logged in
-        console.log('No user is logged in');
-        document.getElementById('user-status').textContent = 'Not logged in';
-        // Optionally, show the login form or redirect to login page
+        currentUser = null;
+        console.log("No user signed in.");
       }
     });
-  })
-  .catch((error) => {
-    console.error("Error setting persistence:", error);
-  });
+  };
 
-// --- Register User Function ---
-function registerUser(email, password, username) {
-    auth.createUserWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-        const user = userCredential.user;
-        // Save additional user details (e.g., username)
-        db.ref('users/' + user.uid).set({
-            username: username,
-            email: user.email
-        }).then(() => {
-            console.log('User Registered Successfully!');
-            document.getElementById('user-status').textContent = `Logged in as: ${username}`;
-        });
-    })
-    .catch((error) => {
-        console.error('Registration Error:', error.message);
-    });
-}
+  const signUp = async (email, password, username) => {
+    await auth.createUserWithEmailAndPassword(email, password);
+    const user = auth.currentUser;
 
-// --- Login User Function ---
-function loginUser(email, password) {
-    auth.signInWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-        const user = userCredential.user;
-        console.log('Logged in as:', user.displayName);
-        document.getElementById('user-status').textContent = `Logged in as: ${user.displayName}`;
-        // Optionally load user data or update the UI after login
-    })
-    .catch((error) => {
-        console.error('Login Error:', error.message);
-    });
-}
+    await user.updateProfile({ displayName: username });
 
-// --- Logout User Function ---
-function logoutUser() {
-    auth.signOut()
-    .then(() => {
-        console.log('User logged out');
-        document.getElementById('user-status').textContent = 'Not logged in';
-        // Optionally, redirect to login page or show login form
-    })
-    .catch((error) => {
-        console.error('Logout Error:', error.message);
+    await database.ref(`users/${user.uid}`).set({
+      username: username,
+      email: email,
     });
-}
+
+    console.log("User signed up:", username);
+    return user;
+  };
+
+  const signIn = async (email, password) => {
+    const user = await auth.signInWithEmailAndPassword(email, password);
+    console.log("User signed in:", user.displayName || user.email);
+    return user;
+  };
+
+  const signOut = () => {
+    auth.signOut();
+    console.log("User signed out.");
+  };
+
+  const getCurrentUser = () => currentUser;
+
+  return { initialize, signUp, signIn, signOut, getCurrentUser };
+})();
