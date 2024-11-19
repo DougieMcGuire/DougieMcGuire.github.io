@@ -58,8 +58,8 @@ function showInstallScreen(promptText, instructionsHTML) {
   installScreen.style.left = "0";
   installScreen.style.width = "100%";
   installScreen.style.height = "100%";
-  installScreen.style.backgroundColor = "#4ceb34";
-  installScreen.style.color = "#4ceb34";
+  installScreen.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+  installScreen.style.color = "white";
   installScreen.style.display = "flex";
   installScreen.style.flexDirection = "column";
   installScreen.style.justifyContent = "center";
