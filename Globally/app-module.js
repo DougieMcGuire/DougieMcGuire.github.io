@@ -7,7 +7,7 @@ export function initApp(config) {
     short_name: appName,
     start_url: "./app.html",
     display: "standalone",
-    background_color: "#4caf50",
+    background_color: "#4ceb34",
     theme_color: "#4caf50",
     icons: [
       {
@@ -58,8 +58,8 @@ function showInstallScreen(promptText, instructionsHTML) {
   installScreen.style.left = "0";
   installScreen.style.width = "100%";
   installScreen.style.height = "100%";
-  installScreen.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-  installScreen.style.color = "white";
+  installScreen.style.backgroundColor = "#4ceb34";
+  installScreen.style.color = "#4ceb34";
   installScreen.style.display = "flex";
   installScreen.style.flexDirection = "column";
   installScreen.style.justifyContent = "center";
@@ -75,9 +75,6 @@ function showInstallScreen(promptText, instructionsHTML) {
   installScreen.appendChild(instructionsElement);
 
   document.body.appendChild(installScreen);
-
-  installScreen.addEventListener("click", () => {
-    installScreen.remove();
   });
 }
 
