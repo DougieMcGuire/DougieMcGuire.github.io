@@ -1,5 +1,5 @@
 export function initApp(config) {
-  const { appName = "Globally", installPromptImage, installInstructions } = config;
+  const { appName = "Globally", installInstructions } = config;
 
   // Inject manifest.json
   const manifest = {
@@ -38,7 +38,7 @@ export function initApp(config) {
 
   if (!isStandalone && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
     // Show the install prompt for mobile users not in standalone mode
-    showInstallScreen(installPromptImage, installInstructions || generateDefaultInstructions());
+    showInstallScreen(installInstructions || generateDefaultInstructions());
   } else if (isStandalone) {
     // Apply app-like behavior
     initAppMode();
@@ -51,7 +51,7 @@ export function initApp(config) {
   preventAutofill();
 }
 
-function showInstallScreen(imageURL, instructionsHTML) {
+function showInstallScreen(instructionsHTML) {
   const installScreen = document.createElement("div");
   installScreen.style.position = "fixed";
   installScreen.style.top = "0";
@@ -59,7 +59,7 @@ function showInstallScreen(imageURL, instructionsHTML) {
   installScreen.style.width = "100%";
   installScreen.style.height = "100%";
   installScreen.style.backgroundColor = "#4caf50"; // Green background
-  installScreen.style.color = "green";
+  installScreen.style.color = "white";
   installScreen.style.display = "flex";
   installScreen.style.flexDirection = "column";
   installScreen.style.justifyContent = "center";
@@ -67,8 +67,8 @@ function showInstallScreen(imageURL, instructionsHTML) {
   installScreen.style.zIndex = "1000";
 
   const imageElement = document.createElement("img");
-  imageElement.src = imageURL; // Use the provided image URL
-  imageElement.alt = "Install Prompt Image";
+  imageElement.src = "https://i.ibb.co/6WR2wXb/Globally.png"; // Title image
+  imageElement.alt = "Install Prompt Title Image";
   imageElement.style.maxWidth = "80%";
   imageElement.style.marginBottom = "20px";
   installScreen.appendChild(imageElement);
