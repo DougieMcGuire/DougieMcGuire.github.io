@@ -5,7 +5,7 @@ export function initApp(config) {
   const manifest = {
     name: appName,
     short_name: appName,
-    start_url: "./testing.html",
+    start_url: "./app.html",
     display: "standalone",
     background_color: "#4caf50",
     theme_color: "#4caf50",
