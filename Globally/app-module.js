@@ -74,10 +74,7 @@ function showInstallScreen(promptText, instructionsHTML) {
   instructionsElement.innerHTML = instructionsHTML;
   installScreen.appendChild(instructionsElement);
 
-  document.body.appendChild(installScreen);
 
-  installScreen.addEventListener("click", () => {
-    installScreen.remove();
   });
 }
 
