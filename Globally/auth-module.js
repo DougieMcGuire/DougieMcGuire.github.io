@@ -1,6 +1,5 @@
 // Initialize Firebase Auth
 const auth = firebase.auth();
-const db = firebase.database();
 
 // Set persistence to LOCAL to ensure user stays logged in after page refresh
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
@@ -29,15 +28,13 @@ function registerUser(email, password, username) {
     auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
         const user = userCredential.user;
-        // Save additional user details (e.g., username) in the Realtime Database
+        // Save additional user details (e.g., username)
         db.ref('users/' + user.uid).set({
             username: username,
             email: user.email
         }).then(() => {
             console.log('User Registered Successfully!');
             document.getElementById('user-status').textContent = `Logged in as: ${username}`;
-        }).catch((error) => {
-            console.error('Error saving user data:', error.message);
         });
     })
     .catch((error) => {
@@ -70,33 +67,4 @@ function logoutUser() {
     .catch((error) => {
         console.error('Logout Error:', error.message);
     });
-}
-
-// --- Get Current User Function ---
-function getCurrentUser() {
-    const user = auth.currentUser;
-    if (user) {
-        console.log('Current logged-in user:', user.displayName);
-        return user;
-    } else {
-        console.log('No user is logged in.');
-        return null;
-    }
-}
-
-// --- Update User Info Function ---
-function updateUserInfo(username) {
-    const user = auth.currentUser;
-    if (user) {
-        db.ref('users/' + user.uid).update({
-            username: username
-        }).then(() => {
-            console.log('User information updated.');
-            document.getElementById('user-status').textContent = `Logged in as: ${username}`;
-        }).catch((error) => {
-            console.error('Error updating user information:', error.message);
-        });
-    } else {
-        console.error('No user is logged in.');
-    }
 }
