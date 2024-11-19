@@ -6,7 +6,7 @@ const firebaseConfig = {
   storageBucket: "globallyapi-c3088.firebasestorage.app",
   messagingSenderId: "489666785193",
   appId: "1:489666785193:web:a3027c53685758e9a99eb8",
-  measurementId: "G-636R3YJQ6B"
+  measurementId: "G-636R3YJQ6B",
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -17,12 +17,13 @@ const ChatModule = (() => {
   let currentChat = null;
 
   // Helper to save user profile data
-  const saveUserProfile = async (user, displayName) => {
+  const saveUserProfile = async (user, username) => {
     try {
       const profileData = {
         email: user.email,
-        displayName: displayName || user.email.split("@")[0],
+        username: username || user.email.split("@")[0],
         friends: {}, // Initialize empty friends list
+        friendRequests: {}, // Pending requests
       };
       await db.ref(`users/${user.uid}`).set(profileData);
       console.log("User profile saved:", profileData);
@@ -32,16 +33,16 @@ const ChatModule = (() => {
   };
 
   // Sign up a new user
-  const signUp = async (email, password, displayName) => {
+  const signUp = async (email, password, username) => {
     try {
       const userCredential = await auth.createUserWithEmailAndPassword(email, password);
       const user = userCredential.user;
 
-      if (displayName) {
-        await user.updateProfile({ displayName });
+      if (username) {
+        await user.updateProfile({ displayName: username });
       }
 
-      await saveUserProfile(user, displayName);
+      await saveUserProfile(user, username);
       console.log("User signed up:", user);
       return user;
     } catch (error) {
@@ -62,25 +63,21 @@ const ChatModule = (() => {
     }
   };
 
-  // Send a private message
-  const sendMessage = async (recipientId, message) => {
+  // Send a message to the current chat
+  const sendMessage = async (message) => {
     try {
       const currentUser = auth.currentUser;
       if (!currentUser) throw new Error("User not signed in.");
-
       if (!currentChat) throw new Error("No active chat selected.");
 
       const timestamp = Date.now();
       const messageData = {
-        from: currentUser.uid,
-        to: recipientId,
+        from: currentUser.displayName,
         message,
         timestamp,
       };
 
-      await db.ref(`users/${currentUser.uid}/chats/${currentChat}`).push(messageData);
-      await db.ref(`users/${recipientId}/chats/${currentChat}`).push(messageData);
-
+      await db.ref(`chatrooms/${currentChat}`).push(messageData);
       console.log("Message sent:", messageData);
     } catch (error) {
       console.error("Error sending message:", error);
@@ -88,85 +85,99 @@ const ChatModule = (() => {
     }
   };
 
-  // Listen for new messages in the current chat
+  // Listen for messages in the current chat
   const listenForMessages = (callback) => {
     if (!currentChat) {
       console.error("No active chat selected.");
       return;
     }
 
-    db.ref(`users/${auth.currentUser.uid}/chats/${currentChat}`).on("child_added", (snapshot) => {
+    db.ref(`chatrooms/${currentChat}`).on("child_added", (snapshot) => {
       callback(snapshot.val());
     });
   };
 
-  // Add a friend
-  const addFriend = async (friendEmail) => {
+  // Send a friend request
+  const sendFriendRequest = async (username) => {
     try {
       const currentUser = auth.currentUser;
       if (!currentUser) throw new Error("User not signed in.");
 
-      const snapshot = await db.ref("users").orderByChild("email").equalTo(friendEmail).once("value");
+      const snapshot = await db.ref("users").orderByChild("username").equalTo(username).once("value");
       if (!snapshot.exists()) throw new Error("User not found.");
 
-      const friendId = Object.keys(snapshot.val())[0];
-      await db.ref(`users/${currentUser.uid}/friends/${friendId}`).set(true);
-      await db.ref(`users/${friendId}/friends/${currentUser.uid}`).set(true);
+      const recipientId = Object.keys(snapshot.val())[0];
+      await db.ref(`users/${recipientId}/friendRequests/${currentUser.uid}`).set({
+        from: currentUser.displayName,
+      });
 
-      console.log(`Friend added: ${friendEmail}`);
+      console.log(`Friend request sent to: ${username}`);
     } catch (error) {
-      console.error("Error adding friend:", error);
+      console.error("Error sending friend request:", error);
       alert(error.message);
     }
   };
 
-  // Select a chat with a friend
+  // Handle friend requests (accept or deny)
+  const handleFriendRequest = async (requesterId, accept) => {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) throw new Error("User not signed in.");
+
+      const userRef = db.ref(`users/${currentUser.uid}`);
+
+      if (accept) {
+        // Add to both users' friend lists
+        await userRef.child(`friends/${requesterId}`).set(true);
+        await db.ref(`users/${requesterId}/friends/${currentUser.uid}`).set(true);
+        console.log("Friend request accepted.");
+      } else {
+        console.log("Friend request denied.");
+      }
+
+      // Remove the friend request
+      await userRef.child(`friendRequests/${requesterId}`).remove();
+    } catch (error) {
+      console.error("Error handling friend request:", error);
+      alert(error.message);
+    }
+  };
+
+  // Select a chatroom
   const selectChat = (friendId) => {
     currentChat = friendId;
     console.log("Chat selected:", currentChat);
   };
 
-  // Automatically delete chats every hour
-  const setupChatCleanup = () => {
-    setInterval(async () => {
-      try {
-        const usersRef = db.ref("users");
-        const snapshot = await usersRef.once("value");
-        snapshot.forEach((userSnap) => {
-          const chatsRef = userSnap.child("chats").ref;
-          chatsRef.remove();
-        });
-        console.log("Chats cleaned up.");
-      } catch (error) {
-        console.error("Error cleaning chats:", error);
-      }
-    }, 3600000); // Every hour
-  };
-
-  // Sign out the current user
-  const signOut = async () => {
-    try {
-      await auth.signOut();
-      console.log("User signed out.");
-    } catch (error) {
-      console.error("Error signing out:", error);
-      alert(error.message);
+  // Display logged-in user
+  const displayCurrentUser = () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      console.error("No user logged in.");
+      return;
     }
+
+    console.log(`Currently logged in as: ${currentUser.displayName}`);
+    document.getElementById("currentUserDisplay").innerText = `Logged in as: ${currentUser.displayName}`;
   };
 
   // Initialize the chat module
   const initialize = () => {
-    setupChatCleanup();
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        displayCurrentUser();
+      }
+    });
   };
 
   return {
     initialize,
     signUp,
     signIn,
-    signOut,
     sendMessage,
     listenForMessages,
-    addFriend,
+    sendFriendRequest,
+    handleFriendRequest,
     selectChat,
   };
 })();
