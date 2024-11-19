@@ -51,49 +51,53 @@ export function initApp(config) {
   preventAutofill();
 }
 
-function showInstallScreen(promptText, instructionsHTML) {
+function showInstallScreen(promptText) {
   const installScreen = document.createElement("div");
   installScreen.style.position = "fixed";
   installScreen.style.top = "0";
   installScreen.style.left = "0";
   installScreen.style.width = "100%";
   installScreen.style.height = "100%";
-  installScreen.style.backgroundColor = "#4caf50";
+  installScreen.style.backgroundColor = "#4caf50"; // Solid green background
   installScreen.style.color = "white";
   installScreen.style.display = "flex";
   installScreen.style.flexDirection = "column";
   installScreen.style.justifyContent = "center";
   installScreen.style.alignItems = "center";
   installScreen.style.zIndex = "1000";
-  installScreen.style.fontFamily = "'Arial', sans-serif";
+  installScreen.style.fontFamily = "'Arial', sans-serif"; // Clean, monotone font
   installScreen.style.fontWeight = "bold";
 
   const promptTextElement = document.createElement("h1");
   promptTextElement.innerText = promptText;
   promptTextElement.style.marginBottom = "20px";
+  promptTextElement.style.fontSize = "24px";
   installScreen.appendChild(promptTextElement);
 
   const instructionsElement = document.createElement("div");
-  instructionsElement.innerHTML = instructionsHTML;
   instructionsElement.style.textAlign = "center";
-  instructionsElement.style.maxWidth = "80%";
-  installScreen.appendChild(instructionsElement);
+  instructionsElement.style.fontSize = "18px";
 
-  const iconContainer = document.createElement("div");
-  iconContainer.style.marginTop = "20px";
-
+  // Add share icon and instructions
   const shareIcon = document.createElement("img");
   shareIcon.src = "https://www.svgrepo.com/show/349629/share-apple.svg";
   shareIcon.alt = "Share Icon";
-  shareIcon.style.width = "50px";
-  shareIcon.style.height = "50px";
+  shareIcon.style.width = "40px";
+  shareIcon.style.height = "40px";
+  shareIcon.style.marginBottom = "10px";
 
-  iconContainer.appendChild(shareIcon);
-  installScreen.appendChild(iconContainer);
+  instructionsElement.appendChild(shareIcon);
 
+  const instructionText = document.createElement("p");
+  instructionText.innerHTML = `Tap the <strong>(share icon)</strong> button, then hit <strong>"Add to Home Screen"</strong>.`;
+  instructionText.style.margin = "0";
+  instructionsElement.appendChild(instructionText);
+
+  installScreen.appendChild(instructionsElement);
+
+  // Add install screen to the document body
   document.body.appendChild(installScreen);
 }
-
 function generateDefaultInstructions() {
   return `
     <p style="font-size: 18px;">Follow these steps to add this app to your home screen:</p>
