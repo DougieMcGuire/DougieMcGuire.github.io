@@ -67,7 +67,7 @@ function showInstallScreen(instructionsHTML) {
   installScreen.style.zIndex = "1000";
 
   const imageElement = document.createElement("img");
-  imageElement.src = "https://i.ibb.co/6WR2wXb/"; // Title image
+  imageElement.src = "https://ibb.co/syp0vCf"; // Title image
   imageElement.alt = "Install Prompt Title Image";
   imageElement.style.maxWidth = "80%";
   imageElement.style.marginBottom = "20px";
