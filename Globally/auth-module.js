@@ -1,20 +1,21 @@
-// Initialize Firebase Auth and set the persistence
+// Initialize Firebase Auth
 const auth = firebase.auth();
 
-// Set persistence to LOCAL (stores session info even after the browser is closed/reopened)
+// Set persistence to LOCAL to ensure user stays logged in after page refresh
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
   .then(() => {
-    // You can now use auth state management here
+    // Authentication state change listener
     auth.onAuthStateChanged(user => {
       if (user) {
-        console.log('User is logged in:', user.displayName);
-        // You can display logged-in user details here or redirect them to the main page
+        // User is logged in
+        console.log('User logged in as:', user.displayName);
         document.getElementById('user-status').textContent = `Logged in as: ${user.displayName}`;
-        // Optionally, load the user data or update the UI here
+        // Optionally, show the logged-in user's details or redirect
       } else {
+        // User is not logged in
         console.log('No user is logged in');
         document.getElementById('user-status').textContent = 'Not logged in';
-        // You can redirect to login page here or show the login form
+        // Optionally, show the login form or redirect to login page
       }
     });
   })
@@ -22,51 +23,48 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
     console.error("Error setting persistence:", error);
   });
 
-// --- Register User ---
+// --- Register User Function ---
 function registerUser(email, password, username) {
     auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
         const user = userCredential.user;
-        // Save additional user details like username
+        // Save additional user details (e.g., username)
         db.ref('users/' + user.uid).set({
             username: username,
             email: user.email
         }).then(() => {
-            alert('User Registered Successfully!');
+            console.log('User Registered Successfully!');
+            document.getElementById('user-status').textContent = `Logged in as: ${username}`;
         });
     })
     .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error('Registration Error: ', errorCode, errorMessage);
+        console.error('Registration Error:', error.message);
     });
 }
 
-// --- Login User ---
+// --- Login User Function ---
 function loginUser(email, password) {
     auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
         const user = userCredential.user;
         console.log('Logged in as:', user.displayName);
         document.getElementById('user-status').textContent = `Logged in as: ${user.displayName}`;
-        // Optionally load user data or update UI after login
+        // Optionally load user data or update the UI after login
     })
     .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error('Login Error: ', errorCode, errorMessage);
+        console.error('Login Error:', error.message);
     });
 }
 
-// --- Logout User ---
+// --- Logout User Function ---
 function logoutUser() {
     auth.signOut()
     .then(() => {
         console.log('User logged out');
         document.getElementById('user-status').textContent = 'Not logged in';
-        // Optionally redirect to login page or show login form
+        // Optionally, redirect to login page or show login form
     })
     .catch((error) => {
-        console.error('Logout Error: ', error);
+        console.error('Logout Error:', error.message);
     });
 }
