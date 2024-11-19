@@ -2,237 +2,161 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat App</title>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script src="auth-module.js"></script>
-  <script src="friends-module.js"></script>
-  <script src="chat-module.js"></script>
-    <script type="module">
-    import { initApp } from './app-module.js';
-
-    initApp({
-      appName: "Globally",
-      installPromptText: "Install Globally.",
-      installInstructions: `
-        <p>Follow these steps to add this app to your home screen:</p>
-        <ul>
-          <li>iOS: Tap the <strong>Share</strong> button and select <strong>Add to Home Screen</strong>.</li>
-          <li>Android: Tap the <strong>three dots</strong> and select <strong>Add to Home Screen</strong>.</li>
-        </ul>
-      `,
-    });
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Globally</title>
   <style>
-          overflow: hidden;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-user-select: none;
-    }
-    body {
-      font-family: Arial, sans-serif;
+    * {
       margin: 0;
       padding: 0;
-      background-color: #f5f5f5;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background-color: #f0f0f0;
       color: #333;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
     }
     header {
       background-color: #4CAF50;
       color: white;
-      padding: 10px;
       text-align: center;
+      padding: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
     }
     .container {
-      padding: 20px;
+      margin-top: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: calc(100vh - 80px);
+    }
+    .button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+      margin: 10px;
+      width: 80%;
+      max-width: 300px;
+      text-align: center;
+    }
+    .button:hover {
+      background-color: #45a049;
     }
     .hidden {
       display: none;
     }
     .form-group {
       margin-bottom: 15px;
+      width: 80%;
+      max-width: 300px;
     }
     .form-group label {
       display: block;
       margin-bottom: 5px;
+      font-size: 14px;
     }
     .form-group input {
       width: 100%;
-      padding: 8px;
-      box-sizing: border-box;
-    }
-    .button {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      cursor: pointer;
-    }
-    .button:hover {
-      background-color: #45a049;
-    }
-    #friends-list button, #messages-list button {
-      margin: 5px 0;
-      padding: 8px;
-    }
-    .chat-section {
-      margin-top: 20px;
-    }
-    .chat-box {
-      margin-bottom: 10px;
-      display: flex;
-    }
-    .chat-box input {
-      flex: 1;
       padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
     }
-    .chat-box button {
-      padding: 10px 15px;
+    .footer {
+      background-color: #f0f0f0;
+      color: #333;
+      text-align: center;
+      padding: 10px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      font-size: 14px;
+      box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Chat App</h1>
-    <div id="current-user" class="hidden"></div>
-  </header>
-  <div class="container">
-    <!-- Auth Section -->
-    <div id="auth-section">
-      <div id="sign-up">
-        <h2>Sign Up</h2>
-        <div class="form-group">
-          <label for="signup-username">Username</label>
-          <input type="text" id="signup-username" placeholder="Enter username">
-        </div>
-        <div class="form-group">
-          <label for="signup-email">Email</label>
-          <input type="email" id="signup-email" placeholder="Enter email">
-        </div>
-        <div class="form-group">
-          <label for="signup-password">Password</label>
-          <input type="password" id="signup-password" placeholder="Enter password">
-        </div>
-        <button class="button" id="signup-button">Sign Up</button>
-      </div>
-      <div id="sign-in">
-        <h2>Sign In</h2>
-        <div class="form-group">
-          <label for="signin-email">Email</label>
-          <input type="email" id="signin-email" placeholder="Enter email">
-        </div>
-        <div class="form-group">
-          <label for="signin-password">Password</label>
-          <input type="password" id="signin-password" placeholder="Enter password">
-        </div>
-        <button class="button" id="signin-button">Sign In</button>
-      </div>
-    </div>
-    <!-- Friends Section -->
-    <div id="friends-section" class="hidden">
-      <h2>Friends</h2>
-      <div class="form-group">
-        <input type="text" id="friend-username" placeholder="Enter friend's username">
-        <button class="button" id="send-friend-request">Send Friend Request</button>
-      </div>
-      <h3>Friend Requests</h3>
-      <div id="friend-requests"></div>
-      <h3>Friends List</h3>
-      <div id="friends-list"></div>
-    </div>
-    <!-- Chat Section -->
-    <div id="chat-section" class="hidden">
-      <h2>Chat</h2>
-      <h3>Messages with <span id="current-chat-name"></span></h3>
-      <div id="messages-list"></div>
-      <div class="chat-box">
-        <input type="text" id="message-input" placeholder="Type a message">
-        <button class="button" id="send-message">Send</button>
-      </div>
-    </div>
+  <header>Globally</header>
+  <div class="container" id="main-container">
+    <button class="button" id="login-btn">Login</button>
+    <button class="button" id="signup-btn">Sign Up</button>
   </div>
+  <div class="container hidden" id="login-container">
+    <h2>Login</h2>
+    <div class="form-group">
+      <label for="signin-email">Email</label>
+      <input type="email" id="signin-email" placeholder="Enter email">
+    </div>
+    <div class="form-group">
+      <label for="signin-password">Password</label>
+      <input type="password" id="signin-password" placeholder="Enter password">
+    </div>
+    <button class="button" id="signin-button">Login</button>
+  </div>
+  <div class="container hidden" id="signup-container">
+    <h2>Sign Up</h2>
+    <div class="form-group">
+      <label for="signup-username">Username</label>
+      <input type="text" id="signup-username" placeholder="Enter username">
+    </div>
+    <div class="form-group">
+      <label for="signup-email">Email</label>
+      <input type="email" id="signup-email" placeholder="Enter email">
+    </div>
+    <div class="form-group">
+      <label for="signup-password">Password</label>
+      <input type="password" id="signup-password" placeholder="Enter password">
+    </div>
+    <button class="button" id="signup-button">Sign Up</button>
+  </div>
+  <footer class="footer">Powered by Globally</footer>
 
   <script>
-    // Initialize modules
-    AuthModule.initialize();
+    const mainContainer = document.getElementById('main-container');
+    const loginContainer = document.getElementById('login-container');
+    const signupContainer = document.getElementById('signup-container');
 
-    document.getElementById('signup-button').addEventListener('click', async () => {
+    document.getElementById('login-btn').addEventListener('click', () => {
+      mainContainer.classList.add('hidden');
+      signupContainer.classList.add('hidden');
+      loginContainer.classList.remove('hidden');
+    });
+
+    document.getElementById('signup-btn').addEventListener('click', () => {
+      mainContainer.classList.add('hidden');
+      loginContainer.classList.add('hidden');
+      signupContainer.classList.remove('hidden');
+    });
+
+    document.getElementById('signin-button').addEventListener('click', () => {
+      const email = document.getElementById('signin-email').value;
+      const password = document.getElementById('signin-password').value;
+      console.log('Login attempt with', email, password);
+      // Call your login function here
+    });
+
+    document.getElementById('signup-button').addEventListener('click', () => {
       const username = document.getElementById('signup-username').value;
       const email = document.getElementById('signup-email').value;
       const password = document.getElementById('signup-password').value;
-      await AuthModule.signUp(email, password, username);
+      console.log('Signup attempt with', username, email, password);
+      // Call your signup function here
     });
 
-    document.getElementById('signin-button').addEventListener('click', async () => {
-      const email = document.getElementById('signin-email').value;
-      const password = document.getElementById('signin-password').value;
-      await AuthModule.signIn(email, password);
-      loadApp();
-    });
-
-    const loadApp = () => {
-      const user = AuthModule.getCurrentUser();
-      if (user) {
-        document.getElementById('auth-section').classList.add('hidden');
-        document.getElementById('friends-section').classList.remove('hidden');
-        document.getElementById('chat-section').classList.remove('hidden');
-        document.getElementById('current-user').classList.remove('hidden');
-        document.getElementById('current-user').innerText = `Logged in as: ${user.displayName}`;
-        FriendsModule.initialize(AuthModule);
-        ChatModule.initialize(AuthModule);
-
-        // Friends Section
-        FriendsModule.listenForFriends((friends) => {
-          const friendsList = document.getElementById('friends-list');
-          friendsList.innerHTML = '';
-          Object.entries(friends).forEach(([friendId, friendName]) => {
-            const button = document.createElement('button');
-            button.innerText = friendName;
-            button.addEventListener('click', () => {
-              ChatModule.selectChat(friendId);
-              document.getElementById('current-chat-name').innerText = friendName;
-            });
-            friendsList.appendChild(button);
-          });
-        });
-
-        // Friend Requests
-        FriendsModule.listenForFriendRequests((requests) => {
-          const requestsDiv = document.getElementById('friend-requests');
-          requestsDiv.innerHTML = '';
-          Object.entries(requests).forEach(([requestId, request]) => {
-            const requestDiv = document.createElement('div');
-            requestDiv.innerText = `${request.fromUsername}`;
-            const acceptButton = document.createElement('button');
-            acceptButton.innerText = 'Accept';
-            acceptButton.addEventListener('click', () => {
-              FriendsModule.handleFriendRequest(requestId, true);
-            });
-            const denyButton = document.createElement('button');
-            denyButton.innerText = 'Deny';
-            denyButton.addEventListener('click', () => {
-              FriendsModule.handleFriendRequest(requestId, false);
-            });
-            requestDiv.appendChild(acceptButton);
-            requestDiv.appendChild(denyButton);
-            requestsDiv.appendChild(requestDiv);
-          });
-        });
-
-        // Chat Section
-        document.getElementById('send-message').addEventListener('click', () => {
-          const message = document.getElementById('message-input').value;
-          ChatModule.sendMessage(message);
-        });
-
-        ChatModule.listenForMessages((message) => {
-          const messagesList = document.getElementById('messages-list');
-          const messageDiv = document.createElement('div');
-          messageDiv.innerText = `${message.fromUsername}: ${message.message}`;
-          messagesList.appendChild(messageDiv);
-        });
-      }
-    };
+    // Prevent zooming
+    document.addEventListener('gesturestart', (e) => e.preventDefault());
+    document.addEventListener('gesturechange', (e) => e.preventDefault());
   </script>
 </body>
 </html>
