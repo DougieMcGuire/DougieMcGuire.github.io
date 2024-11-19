@@ -3,51 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat App</title>
+  <title>Private Messaging App</title>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="chat-modules.js"></script>
 </head>
 <body>
-  <h1>Chat App</h1>
-
-  <!-- Sign Up -->
+  <h1>Private Messaging App</h1>
   <div>
     <h2>Sign Up</h2>
-    <input type="email" id="signUpEmail" placeholder="Email">
-    <input type="password" id="signUpPassword" placeholder="Password">
-    <input type="text" id="signUpDisplayName" placeholder="Display Name (Optional)">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <input type="text" id="displayName" placeholder="Display Name">
     <button onclick="signUp()">Sign Up</button>
   </div>
-
-  <!-- Sign In -->
   <div>
     <h2>Sign In</h2>
     <input type="email" id="signInEmail" placeholder="Email">
     <input type="password" id="signInPassword" placeholder="Password">
     <button onclick="signIn()">Sign In</button>
   </div>
-
-  <!-- Chat Room -->
   <div>
-    <h2>Chat Room</h2>
-    <div id="messages" style="border: 1px solid black; height: 300px; overflow-y: scroll;"></div>
+    <h2>Friends</h2>
+    <input type="email" id="friendEmail" placeholder="Friend's Email">
+    <button onclick="addFriend()">Add Friend</button>
+  </div>
+  <div>
+    <h2>Chat</h2>
+    <div id="messages"></div>
     <input type="text" id="messageInput" placeholder="Type a message">
     <button onclick="sendMessage()">Send</button>
   </div>
-
-  <!-- Sign Out -->
   <button onclick="signOut()">Sign Out</button>
 
   <script>
-    const chatRoom = "general"; // Static chat room for simplicity
-
-    // Functions to interact with the ChatModule
     async function signUp() {
-      const email = document.getElementById("signUpEmail").value;
-      const password = document.getElementById("signUpPassword").value;
-      const displayName = document.getElementById("signUpDisplayName").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const displayName = document.getElementById("displayName").value;
       await ChatModule.signUp(email, password, displayName);
     }
 
@@ -57,24 +51,19 @@
       await ChatModule.signIn(email, password);
     }
 
+    async function addFriend() {
+      const friendEmail = document.getElementById("friendEmail").value;
+      await ChatModule.addFriend(friendEmail);
+    }
+
     async function sendMessage() {
       const message = document.getElementById("messageInput").value;
-      await ChatModule.sendMessage(chatRoom, message);
-      document.getElementById("messageInput").value = ""; // Clear input
+      await ChatModule.sendMessage(currentChat, message);
     }
 
-    async function signOut() {
-      await ChatModule.signOut();
+    function signOut() {
+      ChatModule.signOut();
     }
-
-    // Listen for new messages
-    ChatModule.listenForMessages(chatRoom, (message) => {
-      const messagesDiv = document.getElementById("messages");
-      const newMessage = document.createElement("p");
-      newMessage.textContent = `${message.user}: ${message.message}`;
-      messagesDiv.appendChild(newMessage);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll
-    });
   </script>
 </body>
 </html>
