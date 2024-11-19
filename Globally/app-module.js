@@ -1,5 +1,5 @@
 export function initApp(config) {
-  const { appName = "Globally", installPromptText = "Install Globally!", installInstructions } = config;
+  const { appName = "Globally", installPromptImage, installInstructions } = config;
 
   // Inject manifest.json
   const manifest = {
@@ -38,7 +38,7 @@ export function initApp(config) {
 
   if (!isStandalone && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
     // Show the install prompt for mobile users not in standalone mode
-    showInstallScreen(installPromptText, installInstructions || generateDefaultInstructions());
+    showInstallScreen(installPromptImage, installInstructions || generateDefaultInstructions());
   } else if (isStandalone) {
     // Apply app-like behavior
     initAppMode();
@@ -51,43 +51,40 @@ export function initApp(config) {
   preventAutofill();
 }
 
-function showInstallScreen(promptText, instructionsHTML) {
+function showInstallScreen(imageURL, instructionsHTML) {
   const installScreen = document.createElement("div");
   installScreen.style.position = "fixed";
   installScreen.style.top = "0";
   installScreen.style.left = "0";
   installScreen.style.width = "100%";
   installScreen.style.height = "100%";
-  installScreen.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-  installScreen.style.color = "white";
+  installScreen.style.backgroundColor = "#4caf50"; // Green background
+  installScreen.style.color = "green";
   installScreen.style.display = "flex";
   installScreen.style.flexDirection = "column";
   installScreen.style.justifyContent = "center";
   installScreen.style.alignItems = "center";
   installScreen.style.zIndex = "1000";
 
-  const promptTextElement = document.createElement("h1");
-  promptTextElement.innerText = promptText;
-  installScreen.appendChild(promptTextElement);
+  const imageElement = document.createElement("img");
+  imageElement.src = imageURL; // Use the provided image URL
+  imageElement.alt = "Install Prompt Image";
+  imageElement.style.maxWidth = "80%";
+  imageElement.style.marginBottom = "20px";
+  installScreen.appendChild(imageElement);
 
   const instructionsElement = document.createElement("div");
   instructionsElement.innerHTML = instructionsHTML;
+  instructionsElement.style.fontSize = "18px";
+  instructionsElement.style.textAlign = "center";
   installScreen.appendChild(instructionsElement);
 
   document.body.appendChild(installScreen);
-
-  installScreen.addEventListener("click", () => {
-    installScreen.remove();
-  });
 }
 
 function generateDefaultInstructions() {
   return `
-    <p>Follow these steps to add this app to your home screen:</p>
-    <ul>
-      <li>iOS: Tap the <strong>Share</strong> button and select <strong>Add to Home Screen</strong>.</li>
-      <li>Android: Tap the <strong>three dots</strong> and select <strong>Add to Home Screen</strong>.</li>
-    </ul>
+    <p>Tap the <img src="https://www.svgrepo.com/show/349629/share-apple.svg" alt="Share Icon" style="width: 24px; vertical-align: middle;"> Button, Then hit <strong>Add to Homescreen</strong>.</p>
   `;
 }
 
