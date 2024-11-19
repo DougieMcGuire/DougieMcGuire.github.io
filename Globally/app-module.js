@@ -1,11 +1,11 @@
 export function initApp(config) {
-  const { appName, installPromptText, installInstructions } = config;
+  const { appName = "Globally", installPromptText = "Install Globally!", installInstructions } = config;
 
   // Inject manifest.json
   const manifest = {
-    name: appName || "Globally",
-    short_name: "Globally",
-    start_url: "./app.html",
+    name: appName,
+    short_name: appName,
+    start_url: "./testing.html",
     display: "standalone",
     background_color: "#4caf50",
     theme_color: "#4caf50",
@@ -32,16 +32,15 @@ export function initApp(config) {
   document.head.appendChild(manifestLink);
 
   // General setup
-  document.title = `Download ${appName || "Globally"}!`;
+  document.title = `Download ${appName}!`;
 
-  // Detect if the app is in standalone mode
   const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
 
-  if (!isStandalone) {
-    // Display install prompt
-    showInstallScreen(installPromptText, installInstructions);
-  } else {
-    // App-like behavior
+  if (!isStandalone && /Mobi|Android/i.test(navigator.userAgent)) {
+    // Show the install prompt for mobile users not in standalone mode
+    showInstallScreen(installPromptText, installInstructions || generateDefaultInstructions());
+  } else if (isStandalone) {
+    // Apply app-like behavior
     initAppMode();
   }
 }
@@ -54,7 +53,7 @@ function showInstallScreen(promptText, instructionsHTML) {
     left: 0;
     width: 100%;
     height: 100%;
-    background: white;
+    background: #f9f9f9;
     z-index: 9999;
     display: flex;
     flex-direction: column;
@@ -63,15 +62,82 @@ function showInstallScreen(promptText, instructionsHTML) {
     text-align: center;
     padding: 20px;
     box-sizing: border-box;
+    overflow: hidden;
   `;
+
   installScreen.innerHTML = `
     <h1>${promptText}</h1>
     ${instructionsHTML}
   `;
+
+  // Disable text box interaction
+  installScreen.querySelectorAll("input, textarea").forEach(input => {
+    input.setAttribute("disabled", "true");
+  });
+
   document.body.appendChild(installScreen);
 }
 
+function generateDefaultInstructions() {
+  return `
+    <p>1. Tap the <strong>Share</strong> button on your browser.</p>
+    <p>2. Select <strong>Add to Home Screen</strong>.</p>
+    <p>3. Follow the prompts to install the app!</p>
+  `;
+}
+
 function initAppMode() {
+  // Prevent zoom
+  document.addEventListener("gesturestart", e => e.preventDefault());
+  document.addEventListener("touchstart", e => {
+    if (e.touches.length > 1) e.preventDefault();
+  });
+
+  // Fixed header and unscrollable footer
+  const header = document.querySelector("header");
+  const footer = document.querySelector("footer");
+
+  if (header) {
+    header.style.position = "fixed";
+    header.style.top = "0";
+    header.style.width = "100%";
+    header.style.zIndex = "1000";
+  }
+
+  if (footer) {
+    footer.style.overflow = "hidden";
+  }
+
+  // Splash screen
+  const splashScreen = document.createElement("div");
+  splashScreen.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #4caf50;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    color: white;
+    font-size: 24px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  `;
+  splashScreen.innerHTML = `
+    <div>Globally</div>
+    <div style="margin-top: 10px;">Loading...</div>
+  `;
+
+  document.body.appendChild(splashScreen);
+
+  setTimeout(() => splashScreen.remove(), 2000);
+
+  // Tap highlight color
+  document.body.style.webkitTapHighlightColor = "transparent";
+
   console.log("App is running in standalone mode.");
-  // Additional standalone mode behavior can go here
 }
