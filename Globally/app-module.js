@@ -1,5 +1,5 @@
 export function initApp(config) {
-  const { appName = "Globally", installPromptText = "Install Globally!", installInstructions } = config;
+  const { appName = "Globally", installPromptText = "Install Globally!" } = config;
 
   // Inject manifest.json
   const manifest = {
@@ -78,21 +78,12 @@ function showInstallScreen(promptText) {
   instructionsElement.style.textAlign = "center";
   instructionsElement.style.fontSize = "18px";
 
-  // Add share icon and instructions
-  const shareIcon = document.createElement("img");
-  shareIcon.src = "https://www.svgrepo.com/show/349629/share-apple.svg";
-  shareIcon.alt = "Share Icon";
-  shareIcon.style.width = "40px";
-  shareIcon.style.height = "40px";
-  shareIcon.style.marginBottom = "10px";
-
-  instructionsElement.appendChild(shareIcon);
-
+  // Add inline instructions with icon
   const instructionText = document.createElement("p");
-  instructionText.innerHTML = `Tap the <strong>(share icon)</strong> button, then hit <strong>"Add to Home Screen"</strong>.`;
+  instructionText.innerHTML = `Tap the <img src="https://www.svgrepo.com/show/349629/share-apple.svg" alt="Share Icon" style="width:24px; height:24px; vertical-align:middle;"> button, then hit <strong>"Add to Home Screen"</strong>.`;
   instructionText.style.margin = "0";
-  instructionsElement.appendChild(instructionText);
 
+  instructionsElement.appendChild(instructionText);
   installScreen.appendChild(instructionsElement);
 
   // Add install screen to the document body
