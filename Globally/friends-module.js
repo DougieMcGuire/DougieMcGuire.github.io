@@ -1,73 +1,123 @@
-const FriendsModule = (() => {
-  let database, currentUser;
+const FriendsModule = {
+  // Initialize the Firebase Database
+  init: function () {
+    this.db = firebase.database();
+    this.currentUser = AuthModule.getCurrentUser();
+    if (!this.currentUser) {
+      console.error("User not authenticated.");
+    }
+  },
 
-  const initialize = (authModule) => {
-    database = firebase.database();
-    currentUser = authModule.getCurrentUser();
-    if (!currentUser) throw new Error("User must be signed in to use FriendsModule.");
-  };
+  // Send a Friend Request by Username
+  sendFriendRequest: async function (friendUsername) {
+    try {
+      const currentUserId = this.currentUser.uid;
+      const usersRef = this.db.ref("users");
 
-  const sendFriendRequest = async (friendUsername) => {
-    const snapshot = await database
-      .ref("users")
-      .orderByChild("username")
-      .equalTo(friendUsername)
-      .once("value");
+      // Find the user by their username
+      const snapshot = await usersRef
+        .orderByChild("username")
+        .equalTo(friendUsername)
+        .once("value");
 
-    if (snapshot.exists()) {
-      const [friendId] = Object.keys(snapshot.val());
-
-      if (friendId === currentUser.uid) {
-        console.log("You cannot send a friend request to yourself.");
+      if (!snapshot.exists()) {
+        alert("User not found!");
         return;
       }
 
-      await database.ref(`friendRequests/${friendId}`).push({
-        from: currentUser.uid,
-        fromUsername: currentUser.displayName,
+      const friendUserId = Object.keys(snapshot.val())[0];
+
+      // Check if already friends
+      const alreadyFriends = await this.db
+        .ref(`users/${currentUserId}/friends/${friendUserId}`)
+        .once("value");
+      if (alreadyFriends.exists()) {
+        alert("You are already friends with this user!");
+        return;
+      }
+
+      // Send a friend request
+      await this.db.ref(`users/${friendUserId}/friendRequests/${currentUserId}`).set({
+        fromUsername: this.currentUser.displayName,
+        status: "pending",
       });
 
-      console.log("Friend request sent!");
-    } else {
-      console.log("User not found:", friendUsername);
+      alert("Friend request sent!");
+    } catch (error) {
+      console.error("Error sending friend request:", error);
+      alert("Could not send friend request. Please try again.");
     }
-  };
+  },
 
-  const listenForFriendRequests = (callback) => {
-    database.ref(`friendRequests/${currentUser.uid}`).on("value", (snapshot) => {
-      callback(snapshot.val() || {});
-    });
-  };
+  // Handle Friend Request (Accept/Deny)
+  handleFriendRequest: async function (requestId, accept) {
+    try {
+      const currentUserId = this.currentUser.uid;
 
-  const handleFriendRequest = async (requestId, accept) => {
-    const requestRef = database.ref(`friendRequests/${currentUser.uid}/${requestId}`);
-    const requestSnapshot = await requestRef.once("value");
-    const request = requestSnapshot.val();
+      // Get the friend's user ID from the request
+      const friendRequestRef = this.db.ref(`users/${currentUserId}/friendRequests/${requestId}`);
+      const requestSnapshot = await friendRequestRef.once("value");
 
-    if (!request) return;
+      if (!requestSnapshot.exists()) {
+        alert("Friend request not found!");
+        return;
+      }
 
-    if (accept) {
-      await database.ref(`friends/${currentUser.uid}/${request.from}`).set(request.fromUsername);
-      await database.ref(`friends/${request.from}/${currentUser.uid}`).set(currentUser.displayName);
-      console.log("Friend request accepted.");
-    } else {
-      console.log("Friend request denied.");
+      const friendUserId = requestId;
+
+      if (accept) {
+        // Add each other as friends
+        await this.db.ref(`users/${currentUserId}/friends/${friendUserId}`).set(true);
+        await this.db.ref(`users/${friendUserId}/friends/${currentUserId}`).set(true);
+      }
+
+      // Remove the friend request
+      await friendRequestRef.remove();
+
+      alert(accept ? "Friend request accepted!" : "Friend request denied.");
+    } catch (error) {
+      console.error("Error handling friend request:", error);
+      alert("Could not process the friend request. Please try again.");
     }
+  },
 
-    await requestRef.remove();
-  };
+  // Load Friend Requests
+  loadFriendRequests: async function (callback) {
+    try {
+      const currentUserId = this.currentUser.uid;
 
-  const listenForFriends = (callback) => {
-    database.ref(`friends/${currentUser.uid}`).on("value", (snapshot) => {
-      callback(snapshot.val() || {});
-    });
-  };
+      const friendRequestsRef = this.db.ref(`users/${currentUserId}/friendRequests`);
+      friendRequestsRef.on("value", (snapshot) => {
+        if (snapshot.exists()) {
+          const requests = snapshot.val();
+          callback(requests);
+        } else {
+          callback({});
+        }
+      });
+    } catch (error) {
+      console.error("Error loading friend requests:", error);
+    }
+  },
 
-  return {
-    initialize,
-    sendFriendRequest,
-    listenForFriendRequests,
-    handleFriendRequest,
-    listenForFriends,
-  };
-})();
+  // Load Friends
+  loadFriends: async function (callback) {
+    try {
+      const currentUserId = this.currentUser.uid;
+
+      const friendsRef = this.db.ref(`users/${currentUserId}/friends`);
+      friendsRef.on("value", (snapshot) => {
+        if (snapshot.exists()) {
+          const friends = snapshot.val();
+          callback(friends);
+        } else {
+          callback({});
+        }
+      });
+    } catch (error) {
+      console.error("Error loading friends:", error);
+    }
+  },
+};
+
+export default FriendsModule;
