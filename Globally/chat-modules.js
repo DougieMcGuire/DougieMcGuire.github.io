@@ -1,172 +1,144 @@
-// Initialize Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyCB1DU7DtkswEU_9vs0tFxKlX1nN7ovkQc",
-  authDomain: "globallyapi-c3088.firebaseapp.com",
-  projectId: "globallyapi-c3088",
-  storageBucket: "globallyapi-c3088.firebasestorage.app",
-  messagingSenderId: "489666785193",
-  appId: "1:489666785193:web:a3027c53685758e9a99eb8",
-  measurementId: "G-636R3YJQ6B",
-};
-
-firebase.initializeApp(firebaseConfig);
-
 const ChatModule = (() => {
-  const db = firebase.database();
-  const auth = firebase.auth();
-  let currentChat = null;
+  let firebaseApp, auth, database, currentUser, currentChat;
 
-  // Helper to save user profile data
-  const saveUserProfile = async (user, username) => {
-    try {
-      const profileData = {
-        email: user.email,
-        username: username || user.email.split("@")[0],
-        friends: {}, // Initialize empty friends list
-        friendRequests: {}, // Pending requests
-      };
-      await db.ref(`users/${user.uid}`).set(profileData);
-      console.log("User profile saved:", profileData);
-    } catch (error) {
-      console.error("Error saving user profile:", error);
-    }
-  };
+  const initialize = () => {
+    firebaseApp = firebase.initializeApp({
+      apiKey: "AIzaSyCB1DU7DtkswEU_9vs0tFxKlX1nN7ovkQc",
+      authDomain: "globallyapi-c3088.firebaseapp.com",
+      projectId: "globallyapi-c3088",
+      storageBucket: "globallyapi-c3088.appspot.com",
+      messagingSenderId: "489666785193",
+      appId: "1:489666785193:web:a3027c53685758e9a99eb8",
+      measurementId: "G-636R3YJQ6B",
+    });
 
-  // Sign up a new user
-  const signUp = async (email, password, username) => {
-    try {
-      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-      const user = userCredential.user;
+    auth = firebase.auth();
+    database = firebase.database();
 
-      if (username) {
-        await user.updateProfile({ displayName: username });
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        currentUser = user;
+        console.log("Logged in as:", user.displayName || user.email);
+      } else {
+        currentUser = null;
+        console.log("No user signed in.");
       }
-
-      await saveUserProfile(user, username);
-      console.log("User signed up:", user);
-      return user;
-    } catch (error) {
-      console.error("Error signing up:", error);
-      alert(error.message);
-    }
-  };
-
-  // Sign in an existing user
-  const signIn = async (email, password) => {
-    try {
-      const userCredential = await auth.signInWithEmailAndPassword(email, password);
-      console.log("User signed in:", userCredential.user);
-      return userCredential.user;
-    } catch (error) {
-      console.error("Error signing in:", error);
-      alert(error.message);
-    }
-  };
-
-  // Send a message to the current chat
-  const sendMessage = async (message) => {
-    try {
-      const currentUser = auth.currentUser;
-      if (!currentUser) throw new Error("User not signed in.");
-      if (!currentChat) throw new Error("No active chat selected.");
-
-      const timestamp = Date.now();
-      const messageData = {
-        from: currentUser.displayName,
-        message,
-        timestamp,
-      };
-
-      await db.ref(`chatrooms/${currentChat}`).push(messageData);
-      console.log("Message sent:", messageData);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      alert(error.message);
-    }
-  };
-
-  // Listen for messages in the current chat
-  const listenForMessages = (callback) => {
-    if (!currentChat) {
-      console.error("No active chat selected.");
-      return;
-    }
-
-    db.ref(`chatrooms/${currentChat}`).on("child_added", (snapshot) => {
-      callback(snapshot.val());
     });
   };
 
-  // Send a friend request
-  const sendFriendRequest = async (username) => {
-    try {
-      const currentUser = auth.currentUser;
-      if (!currentUser) throw new Error("User not signed in.");
+  const signUp = async (email, password, username) => {
+    await auth.createUserWithEmailAndPassword(email, password);
+    const user = auth.currentUser;
 
-      const snapshot = await db.ref("users").orderByChild("username").equalTo(username).once("value");
-      if (!snapshot.exists()) throw new Error("User not found.");
+    // Set user profile
+    await user.updateProfile({ displayName: username });
 
-      const recipientId = Object.keys(snapshot.val())[0];
-      await db.ref(`users/${recipientId}/friendRequests/${currentUser.uid}`).set({
-        from: currentUser.displayName,
-      });
+    // Save user data in database
+    await database.ref(`users/${user.uid}`).set({
+      username: username,
+      email: email,
+    });
 
-      console.log(`Friend request sent to: ${username}`);
-    } catch (error) {
-      console.error("Error sending friend request:", error);
-      alert(error.message);
+    console.log("User signed up and profile set:", username);
+  };
+
+  const signIn = async (email, password) => {
+    await auth.signInWithEmailAndPassword(email, password);
+    return auth.currentUser;
+  };
+
+  const signOut = () => {
+    auth.signOut();
+  };
+
+  const sendFriendRequest = async (friendUsername) => {
+    if (!currentUser) throw new Error("No user signed in.");
+
+    const snapshot = await database
+      .ref("users")
+      .orderByChild("username")
+      .equalTo(friendUsername)
+      .once("value");
+
+    if (snapshot.exists()) {
+      const [friendId] = Object.keys(snapshot.val());
+      const request = {
+        from: currentUser.uid,
+        fromUsername: currentUser.displayName,
+        to: friendId,
+      };
+
+      await database.ref(`friendRequests/${friendId}`).push(request);
+      console.log("Friend request sent to:", friendUsername);
+    } else {
+      console.log("User not found:", friendUsername);
     }
   };
 
-  // Handle friend requests (accept or deny)
-  const handleFriendRequest = async (requesterId, accept) => {
-    try {
-      const currentUser = auth.currentUser;
-      if (!currentUser) throw new Error("User not signed in.");
+  const handleFriendRequest = async (requestId, accept) => {
+    if (!currentUser) throw new Error("No user signed in.");
 
-      const userRef = db.ref(`users/${currentUser.uid}`);
+    const requestRef = database.ref(`friendRequests/${currentUser.uid}/${requestId}`);
+    const requestSnapshot = await requestRef.once("value");
+    const request = requestSnapshot.val();
 
-      if (accept) {
-        // Add to both users' friend lists
-        await userRef.child(`friends/${requesterId}`).set(true);
-        await db.ref(`users/${requesterId}/friends/${currentUser.uid}`).set(true);
-        console.log("Friend request accepted.");
-      } else {
-        console.log("Friend request denied.");
-      }
+    if (!request) return;
 
-      // Remove the friend request
-      await userRef.child(`friendRequests/${requesterId}`).remove();
-    } catch (error) {
-      console.error("Error handling friend request:", error);
-      alert(error.message);
+    if (accept) {
+      await database.ref(`friends/${currentUser.uid}/${request.from}`).set(request.fromUsername);
+      await database.ref(`friends/${request.from}/${currentUser.uid}`).set(currentUser.displayName);
+      console.log("Friend request accepted.");
+    } else {
+      console.log("Friend request denied.");
     }
+
+    await requestRef.remove();
   };
 
-  // Select a chatroom
+  const listenForFriendRequests = (callback) => {
+    if (!currentUser) throw new Error("No user signed in.");
+
+    database.ref(`friendRequests/${currentUser.uid}`).on("value", (snapshot) => {
+      callback(snapshot.val() || {});
+    });
+  };
+
+  const listenForFriends = (callback) => {
+    if (!currentUser) throw new Error("No user signed in.");
+
+    database.ref(`friends/${currentUser.uid}`).on("value", (snapshot) => {
+      callback(snapshot.val() || {});
+    });
+  };
+
   const selectChat = (friendId) => {
+    if (!currentUser) throw new Error("No user signed in.");
+
     currentChat = friendId;
-    console.log("Chat selected:", currentChat);
+    console.log("Selected chat with:", friendId);
   };
 
-  // Display logged-in user
-  const displayCurrentUser = () => {
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-      console.error("No user logged in.");
-      return;
-    }
+  const sendMessage = async (message) => {
+    if (!currentUser || !currentChat) throw new Error("No user or chat selected.");
 
-    console.log(`Currently logged in as: ${currentUser.displayName}`);
-    document.getElementById("currentUserDisplay").innerText = `Logged in as: ${currentUser.displayName}`;
+    const messageData = {
+      from: currentUser.uid,
+      fromUsername: currentUser.displayName,
+      message: message,
+      timestamp: Date.now(),
+    };
+
+    await database.ref(`chats/${currentUser.uid}/${currentChat}`).push(messageData);
+    await database.ref(`chats/${currentChat}/${currentUser.uid}`).push(messageData);
+
+    console.log("Message sent to:", currentChat);
   };
 
-  // Initialize the chat module
-  const initialize = () => {
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        displayCurrentUser();
-      }
+  const listenForMessages = (callback) => {
+    if (!currentUser || !currentChat) throw new Error("No user or chat selected.");
+
+    database.ref(`chats/${currentUser.uid}/${currentChat}`).on("child_added", (snapshot) => {
+      callback(snapshot.val());
     });
   };
 
@@ -174,13 +146,13 @@ const ChatModule = (() => {
     initialize,
     signUp,
     signIn,
-    sendMessage,
-    listenForMessages,
+    signOut,
     sendFriendRequest,
     handleFriendRequest,
+    listenForFriendRequests,
+    listenForFriends,
     selectChat,
+    sendMessage,
+    listenForMessages,
   };
 })();
-
-// Initialize chat module
-ChatModule.initialize();
