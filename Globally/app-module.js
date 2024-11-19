@@ -38,7 +38,7 @@ export function initApp(config) {
 
   if (!isStandalone && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
     // Show the install prompt for mobile users not in standalone mode
-    showInstallScreen(installPromptText, installInstructions || generateDefaultInstructions());
+    showInstallScreen(installPromptText);
   } else if (isStandalone) {
     // Apply app-like behavior
     initAppMode();
@@ -97,15 +97,6 @@ function showInstallScreen(promptText) {
 
   // Add install screen to the document body
   document.body.appendChild(installScreen);
-}
-function generateDefaultInstructions() {
-  return `
-    <p style="font-size: 18px;">Follow these steps to add this app to your home screen:</p>
-    <ul style="list-style: none; padding: 0; text-align: left; font-size: 16px;">
-      <li>iOS: Tap the <img src="https://www.svgrepo.com/show/349629/share-apple.svg" style="width: 20px; height: 20px; vertical-align: middle;"> <strong>Share</strong> button and select <strong>Add to Home Screen</strong>.</li>
-      <li>Android: Tap the <strong>three dots</strong> and select <strong>Add to Home Screen</strong>.</li>
-    </ul>
-  `;
 }
 
 function initAppMode() {
