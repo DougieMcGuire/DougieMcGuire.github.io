@@ -58,34 +58,47 @@ function showInstallScreen(promptText, instructionsHTML) {
   installScreen.style.left = "0";
   installScreen.style.width = "100%";
   installScreen.style.height = "100%";
-  installScreen.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+  installScreen.style.backgroundColor = "#4caf50";
   installScreen.style.color = "white";
   installScreen.style.display = "flex";
   installScreen.style.flexDirection = "column";
   installScreen.style.justifyContent = "center";
   installScreen.style.alignItems = "center";
   installScreen.style.zIndex = "1000";
+  installScreen.style.fontFamily = "'Arial', sans-serif";
+  installScreen.style.fontWeight = "bold";
 
   const promptTextElement = document.createElement("h1");
   promptTextElement.innerText = promptText;
+  promptTextElement.style.marginBottom = "20px";
   installScreen.appendChild(promptTextElement);
 
   const instructionsElement = document.createElement("div");
   instructionsElement.innerHTML = instructionsHTML;
+  instructionsElement.style.textAlign = "center";
+  instructionsElement.style.maxWidth = "80%";
   installScreen.appendChild(instructionsElement);
 
-  document.body.appendChild(installScreen);
+  const iconContainer = document.createElement("div");
+  iconContainer.style.marginTop = "20px";
 
-  installScreen.addEventListener("click", () => {
-    installScreen.remove();
-  });
+  const shareIcon = document.createElement("img");
+  shareIcon.src = "https://www.svgrepo.com/show/349629/share-apple.svg";
+  shareIcon.alt = "Share Icon";
+  shareIcon.style.width = "50px";
+  shareIcon.style.height = "50px";
+
+  iconContainer.appendChild(shareIcon);
+  installScreen.appendChild(iconContainer);
+
+  document.body.appendChild(installScreen);
 }
 
 function generateDefaultInstructions() {
   return `
-    <p>Follow these steps to add this app to your home screen:</p>
-    <ul>
-      <li>iOS: Tap the <strong>Share</strong> button and select <strong>Add to Home Screen</strong>.</li>
+    <p style="font-size: 18px;">Follow these steps to add this app to your home screen:</p>
+    <ul style="list-style: none; padding: 0; text-align: left; font-size: 16px;">
+      <li>iOS: Tap the <img src="https://www.svgrepo.com/show/349629/share-apple.svg" style="width: 20px; height: 20px; vertical-align: middle;"> <strong>Share</strong> button and select <strong>Add to Home Screen</strong>.</li>
       <li>Android: Tap the <strong>three dots</strong> and select <strong>Add to Home Screen</strong>.</li>
     </ul>
   `;
