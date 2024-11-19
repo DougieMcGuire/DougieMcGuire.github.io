@@ -15,12 +15,33 @@ const ChatModule = (() => {
   const db = firebase.database();
   const auth = firebase.auth();
 
+  // Helper to save user profile data
+  const saveUserProfile = async (user) => {
+    try {
+      const profileData = {
+        email: user.email,
+        displayName: user.displayName || user.email.split("@")[0]
+      };
+      await db.ref(`users/${user.uid}`).set(profileData);
+      console.log("User profile saved:", profileData);
+    } catch (error) {
+      console.error("Error saving user profile:", error);
+    }
+  };
+
   // Sign up a new user
-  const signUp = async (email, password) => {
+  const signUp = async (email, password, displayName = null) => {
     try {
       const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-      console.log("User signed up:", userCredential.user);
-      return userCredential.user;
+      const user = userCredential.user;
+
+      if (displayName) {
+        await user.updateProfile({ displayName });
+      }
+
+      await saveUserProfile(user);
+      console.log("User signed up:", user);
+      return user;
     } catch (error) {
       console.error("Error signing up:", error);
       alert(error.message);
@@ -39,23 +60,28 @@ const ChatModule = (() => {
     }
   };
 
-  // Send a message
+  // Send a message to a chat room
   const sendMessage = async (chatRoom, message) => {
     try {
       const currentUser = auth.currentUser;
       if (!currentUser) throw new Error("User not signed in.");
+
       const timestamp = Date.now();
-      await db.ref(`chats/${chatRoom}`).push({
+      const messageData = {
         user: currentUser.email,
         message,
         timestamp
-      });
+      };
+
+      await db.ref(`chats/${chatRoom}`).push(messageData);
+      console.log("Message sent:", messageData);
     } catch (error) {
       console.error("Error sending message:", error);
+      alert(error.message);
     }
   };
 
-  // Listen for new messages
+  // Listen for new messages in a chat room
   const listenForMessages = (chatRoom, callback) => {
     db.ref(`chats/${chatRoom}`).on("child_added", (snapshot) => {
       callback(snapshot.val());
@@ -66,9 +92,10 @@ const ChatModule = (() => {
   const signOut = async () => {
     try {
       await auth.signOut();
-      console.log("User signed out");
+      console.log("User signed out.");
     } catch (error) {
       console.error("Error signing out:", error);
+      alert(error.message);
     }
   };
 
