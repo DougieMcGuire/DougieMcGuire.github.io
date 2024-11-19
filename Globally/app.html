@@ -2,161 +2,136 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Globally</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="auth-module.js"></script>
+  <script src="friends-module.js"></script>
+  <script src="chat-module.js"></script>
   <style>
-    * {
+    body {
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-    body {
-      background-color: #f0f0f0;
+      background-color: #f5f5f5;
       color: #333;
-      overflow: hidden;
-      -webkit-tap-highlight-color: transparent;
     }
     header {
       background-color: #4CAF50;
       color: white;
+      padding: 15px;
       text-align: center;
-      padding: 20px;
-      font-size: 24px;
-      font-weight: bold;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 1000;
     }
     .container {
-      margin-top: 80px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: calc(100vh - 80px);
-    }
-    .button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 15px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 18px;
-      margin: 10px;
-      width: 80%;
-      max-width: 300px;
-      text-align: center;
-    }
-    .button:hover {
-      background-color: #45a049;
+      padding: 20px;
     }
     .hidden {
       display: none;
     }
-    .form-group {
-      margin-bottom: 15px;
-      width: 80%;
-      max-width: 300px;
+    .button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      cursor: pointer;
+      display: inline-block;
     }
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-size: 14px;
+    .button:hover {
+      background-color: #45a049;
     }
-    .form-group input {
-      width: 100%;
-      padding: 10px;
+    #install-instructions {
+      margin: 20px 0;
+      background-color: #fff;
+      padding: 15px;
       border: 1px solid #ccc;
       border-radius: 5px;
-      font-size: 16px;
     }
-    .footer {
-      background-color: #f0f0f0;
-      color: #333;
+    .auth-section {
       text-align: center;
-      padding: 10px;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      font-size: 14px;
-      box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
 <body>
-  <header>Globally</header>
-  <div class="container" id="main-container">
-    <button class="button" id="login-btn">Login</button>
-    <button class="button" id="signup-btn">Sign Up</button>
+  <header>
+    <h1>Globally</h1>
+  </header>
+  <div class="container">
+    <div id="install-instructions" class="hidden">
+      <h2>Install Globally</h2>
+      <p>Follow these steps to add this app to your home screen:</p>
+      <ul>
+        <li><strong>iOS:</strong> Tap the <strong>Share</strong> button and select <strong>Add to Home Screen</strong>.</li>
+        <li><strong>Android:</strong> Tap the <strong>three dots</strong> and select <strong>Add to Home Screen</strong>.</li>
+      </ul>
+    </div>
+    <div id="auth-section" class="auth-section">
+      <button class="button" id="login-button">Login</button>
+      <button class="button" id="signup-button">Sign Up</button>
+    </div>
+    <div id="login-page" class="hidden">
+      <h2>Login</h2>
+      <div class="form-group">
+        <label for="signin-email">Email</label>
+        <input type="email" id="signin-email" placeholder="Enter email">
+      </div>
+      <div class="form-group">
+        <label for="signin-password">Password</label>
+        <input type="password" id="signin-password" placeholder="Enter password">
+      </div>
+      <button class="button" id="signin-submit">Sign In</button>
+    </div>
+    <div id="signup-page" class="hidden">
+      <h2>Sign Up</h2>
+      <div class="form-group">
+        <label for="signup-username">Username</label>
+        <input type="text" id="signup-username" placeholder="Enter username">
+      </div>
+      <div class="form-group">
+        <label for="signup-email">Email</label>
+        <input type="email" id="signup-email" placeholder="Enter email">
+      </div>
+      <div class="form-group">
+        <label for="signup-password">Password</label>
+        <input type="password" id="signup-password" placeholder="Enter password">
+      </div>
+      <button class="button" id="signup-submit">Sign Up</button>
+    </div>
   </div>
-  <div class="container hidden" id="login-container">
-    <h2>Login</h2>
-    <div class="form-group">
-      <label for="signin-email">Email</label>
-      <input type="email" id="signin-email" placeholder="Enter email">
-    </div>
-    <div class="form-group">
-      <label for="signin-password">Password</label>
-      <input type="password" id="signin-password" placeholder="Enter password">
-    </div>
-    <button class="button" id="signin-button">Login</button>
-  </div>
-  <div class="container hidden" id="signup-container">
-    <h2>Sign Up</h2>
-    <div class="form-group">
-      <label for="signup-username">Username</label>
-      <input type="text" id="signup-username" placeholder="Enter username">
-    </div>
-    <div class="form-group">
-      <label for="signup-email">Email</label>
-      <input type="email" id="signup-email" placeholder="Enter email">
-    </div>
-    <div class="form-group">
-      <label for="signup-password">Password</label>
-      <input type="password" id="signup-password" placeholder="Enter password">
-    </div>
-    <button class="button" id="signup-button">Sign Up</button>
-  </div>
-  <footer class="footer">Powered by Globally</footer>
 
   <script>
-    const mainContainer = document.getElementById('main-container');
-    const loginContainer = document.getElementById('login-container');
-    const signupContainer = document.getElementById('signup-container');
+    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
 
-    document.getElementById('login-btn').addEventListener('click', () => {
-      mainContainer.classList.add('hidden');
-      signupContainer.classList.add('hidden');
-      loginContainer.classList.remove('hidden');
-    });
+    if (!isStandalone) {
+      document.getElementById('install-instructions').classList.remove('hidden');
+    }
 
-    document.getElementById('signup-btn').addEventListener('click', () => {
-      mainContainer.classList.add('hidden');
-      loginContainer.classList.add('hidden');
-      signupContainer.classList.remove('hidden');
-    });
-
-    document.getElementById('signin-button').addEventListener('click', () => {
-      const email = document.getElementById('signin-email').value;
-      const password = document.getElementById('signin-password').value;
-      console.log('Login attempt with', email, password);
-      // Call your login function here
+    document.getElementById('login-button').addEventListener('click', () => {
+      document.getElementById('auth-section').classList.add('hidden');
+      document.getElementById('login-page').classList.remove('hidden');
     });
 
     document.getElementById('signup-button').addEventListener('click', () => {
+      document.getElementById('auth-section').classList.add('hidden');
+      document.getElementById('signup-page').classList.remove('hidden');
+    });
+
+    document.getElementById('signin-submit').addEventListener('click', async () => {
+      const email = document.getElementById('signin-email').value;
+      const password = document.getElementById('signin-password').value;
+      await AuthModule.signIn(email, password);
+      // Proceed to app
+    });
+
+    document.getElementById('signup-submit').addEventListener('click', async () => {
       const username = document.getElementById('signup-username').value;
       const email = document.getElementById('signup-email').value;
       const password = document.getElementById('signup-password').value;
-      console.log('Signup attempt with', username, email, password);
-      // Call your signup function here
+      await AuthModule.signUp(email, password, username);
+      // Proceed to app
     });
-
-    // Prevent zooming
-    document.addEventListener('gesturestart', (e) => e.preventDefault());
-    document.addEventListener('gesturechange', (e) => e.preventDefault());
   </script>
 </body>
 </html>
