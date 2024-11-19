@@ -44,8 +44,11 @@ export function initApp(config) {
     initAppMode();
   }
 
-  // Prevent double-tap zoom
-  disableDoubleTapZoom();
+  // Disable all zooming and scrolling
+  disableZoomAndScroll();
+
+  // Prevent autofill and "fill password" prompt
+  preventAutofill();
 }
 
 function showInstallScreen(promptText, instructionsHTML) {
@@ -95,24 +98,29 @@ function initAppMode() {
   document.body.style.flexDirection = "column";
 }
 
-function disableDoubleTapZoom() {
-  let lastTouchEnd = 0;
+function disableZoomAndScroll() {
+  // Prevent zooming with meta tag
+  const metaTag = document.createElement("meta");
+  metaTag.name = "viewport";
+  metaTag.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+  document.head.appendChild(metaTag);
 
-  document.addEventListener("touchstart", (event) => {
-    if (event.touches.length > 1) {
-      event.preventDefault(); // Prevent pinch zoom
-    }
-  });
+  // Prevent touch gestures
+  document.addEventListener("gesturestart", (e) => e.preventDefault());
+  document.addEventListener("gesturechange", (e) => e.preventDefault());
+  document.addEventListener("gestureend", (e) => e.preventDefault());
 
-  document.addEventListener("touchend", (event) => {
-    const now = Date.now();
-    if (now - lastTouchEnd <= 300) {
-      event.preventDefault(); // Prevent double-tap zoom
-    }
-    lastTouchEnd = now;
-  });
+  // Disable scrolling
+  document.body.style.overflow = "hidden";
+  document.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+}
 
-  document.addEventListener("gesturestart", (event) => {
-    event.preventDefault(); // Prevent pinch-to-zoom gesture
+function preventAutofill() {
+  // Find all input fields and disable autofill
+  document.querySelectorAll("input").forEach((input) => {
+    input.setAttribute("autocomplete", "off");
+    input.setAttribute("autocorrect", "off");
+    input.setAttribute("autocapitalize", "off");
+    input.setAttribute("spellcheck", "false");
   });
 }
