@@ -1,5 +1,5 @@
 export function initApp(config) {
-  const { appName = "Globally", installInstructions } = config;
+  const { appName = "𝗚𝗹𝗼𝗯𝗮𝗹𝗹𝘆", installInstructions } = config;
 
   // Inject manifest.json
   const manifest = {
