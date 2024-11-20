@@ -11,12 +11,12 @@ export function initApp(config) {
     theme_color: "#4caf50",
     icons: [
       {
-        src: "https://ibb.co/2j700FW", // Replace with your actual path
+        src: "https://i.ibb.co/HtrJBGy/Untitled36-20241119181151.png", // Replace with your actual path
         sizes: "192x192",
         type: "image/png",
       },
       {
-        src: "https://ibb.co/2j700FW", // Replace with your actual path
+        src: "https://i.ibb.co/HtrJBGy/Untitled36-20241119181151.png", // Replace with your actual path
         sizes: "512x512",
         type: "image/png",
       },
