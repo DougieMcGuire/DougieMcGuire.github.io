@@ -11,12 +11,12 @@ export function initApp(config) {
     theme_color: "#4caf50",
     icons: [
       {
-        src: "https://i.ibb.co/HtrJBGy/Untitled36-20241119181151.png", // Replace with your actual path
+        src: "https://i.ibb.co/HtrJBGy/Untitled36-20241119181151.png",
         sizes: "192x192",
         type: "image/png",
       },
       {
-        src: "https://i.ibb.co/HtrJBGy/Untitled36-20241119181151.png", // Replace with your actual path
+        src: "https://i.ibb.co/HtrJBGy/Untitled36-20241119181151.png",
         sizes: "512x512",
         type: "image/png",
       },
@@ -31,6 +31,12 @@ export function initApp(config) {
   manifestLink.href = manifestURL;
   document.head.appendChild(manifestLink);
 
+  // Add splash screen meta tags for iOS
+  const splashScreenMeta = document.createElement("meta");
+  splashScreenMeta.name = "apple-mobile-web-app-capable";
+  splashScreenMeta.content = "yes";
+  document.head.appendChild(splashScreenMeta);
+
   // General setup
   document.title = `Download ${appName}!`;
 
@@ -40,8 +46,9 @@ export function initApp(config) {
     // Show the install prompt for mobile users not in standalone mode
     showInstallScreen(installInstructions || generateDefaultInstructions());
   } else if (isStandalone) {
-    // Apply app-like behavior
+    // Apply app-like behavior and show splash screen
     initAppMode();
+    showSplashScreen();
   }
 
   // Disable all zooming and scrolling
@@ -49,6 +56,59 @@ export function initApp(config) {
 
   // Prevent autofill and "fill password" prompt
   preventAutofill();
+}
+
+function showSplashScreen() {
+  const splashScreen = document.createElement("div");
+  splashScreen.style.position = "fixed";
+  splashScreen.style.top = "0";
+  splashScreen.style.left = "0";
+  splashScreen.style.width = "100%";
+  splashScreen.style.height = "100%";
+  splashScreen.style.backgroundColor = "#4caf50";
+  splashScreen.style.display = "flex";
+  splashScreen.style.flexDirection = "column";
+  splashScreen.style.justifyContent = "center";
+  splashScreen.style.alignItems = "center";
+  splashScreen.style.zIndex = "2000";
+
+  const titleImage = document.createElement("img");
+  titleImage.src = "https://i.ibb.co/vZC7xhF/IMG-0971.png";
+  titleImage.alt = "App Title";
+  titleImage.style.maxWidth = "80%";
+  titleImage.style.marginBottom = "20px";
+
+  const spinner = document.createElement("div");
+  spinner.style.width = "40px";
+  spinner.style.height = "40px";
+  spinner.style.border = "4px solid #ffffff";
+  spinner.style.borderTop = "4px solid transparent";
+  spinner.style.borderRadius = "50%";
+  spinner.style.animation = "spin 1s linear infinite";
+
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  splashScreen.appendChild(titleImage);
+  splashScreen.appendChild(spinner);
+  document.body.appendChild(splashScreen);
+
+  // Remove splash screen after content is loaded
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      splashScreen.style.opacity = "0";
+      splashScreen.style.transition = "opacity 0.5s ease-out";
+      setTimeout(() => {
+        splashScreen.remove();
+      }, 500);
+    }, 1000);
+  });
 }
 
 function showInstallScreen(instructionsHTML) {
