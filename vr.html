@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VR Video Viewer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #viewer {
+      width: 100vw;
+      height: 80vh;
+    }
+    #controls {
+      display: flex;
+      justify-content: center;
+      margin: 10px;
+    }
+    input[type="file"] {
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <input type="file" id="videoInput" accept="video/*">
+    <button id="vrToggle">Toggle 360° Mode</button>
+  </div>
+  <div id="viewer"></div>
+
+  <script>
+    // Create scene, camera, and renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
+    document.getElementById('viewer').appendChild(renderer.domElement);
+
+    // Controls
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableZoom = false;
+
+    // Video Texture
+    let video = document.createElement('video');
+    video.crossOrigin = 'anonymous';
+    video.loop = true;
+    const videoTexture = new THREE.VideoTexture(video);
+    videoTexture.minFilter = THREE.LinearFilter;
+    videoTexture.magFilter = THREE.LinearFilter;
+    videoTexture.format = THREE.RGBFormat;
+
+    // Sphere Geometry for VR effect
+    const geometry = new THREE.SphereGeometry(500, 60, 40);
+    geometry.scale(-1, 1, 1); // Invert the sphere for inside viewing
+    const material = new THREE.MeshBasicMaterial({ map: videoTexture });
+    const sphere = new THREE.Mesh(geometry, material);
+    scene.add(sphere);
+
+    camera.position.z = 0.1;
+
+    // VR Mode Toggle
+    let vrMode = true;
+    document.getElementById('vrToggle').addEventListener('click', () => {
+      vrMode = !vrMode;
+      controls.enableRotate = vrMode;
+    });
+
+    // Video Input Handling
+    document.getElementById('videoInput').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const url = URL.createObjectURL(file);
+        video.src = url;
+        video.play();
+      }
+    });
+
+    // Animation Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      if (!vrMode) {
+        sphere.rotation.y += 0.002; // Auto rotate in 360° mode
+      }
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>
