@@ -3,25 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VR Video Viewer</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.134/examples/js/controls/OrbitControls.js"></script>
+  <title>Stereoscopic VR Video Viewer</title>
   <style>
     body {
       margin: 0;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #000;
+      color: white;
+      font-family: Arial, sans-serif;
     }
     #viewer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       width: 100vw;
       height: 80vh;
+      background-color: black;
+      position: relative;
+    }
+    video {
+      width: 50%;
+      height: 100%;
+      object-fit: cover;
     }
     #controls {
       display: flex;
       justify-content: center;
-      margin: 10px;
+      align-items: center;
+      margin-top: 10px;
     }
     input[type="file"] {
       margin-right: 10px;
@@ -29,72 +42,74 @@
     button {
       padding: 10px 20px;
       cursor: pointer;
+      background-color: #444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin-left: 5px;
+    }
+    button:hover {
+      background-color: #666;
     }
   </style>
 </head>
 <body>
+  <div id="viewer">
+    <video id="leftEye" autoplay loop muted></video>
+    <video id="rightEye" autoplay loop muted></video>
+  </div>
   <div id="controls">
     <input type="file" id="videoInput" accept="video/*">
-    <button id="vrToggle">Toggle 360° Mode</button>
+    <button id="playPauseButton">Pause</button>
+    <button id="fullscreenButton">Fullscreen</button>
   </div>
-  <div id="viewer"></div>
 
   <script>
-    // Create scene, camera, and renderer
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
-    document.getElementById('viewer').appendChild(renderer.domElement);
+    const leftEye = document.getElementById("leftEye");
+    const rightEye = document.getElementById("rightEye");
+    const videoInput = document.getElementById("videoInput");
+    const playPauseButton = document.getElementById("playPauseButton");
+    const fullscreenButton = document.getElementById("fullscreenButton");
+    const viewer = document.getElementById("viewer");
 
-    // Controls
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableZoom = false;
+    let isPlaying = true;
 
-    // Video Texture
-    let video = document.createElement('video');
-    video.crossOrigin = 'anonymous';
-    video.loop = true;
-    const videoTexture = new THREE.VideoTexture(video);
-    videoTexture.minFilter = THREE.LinearFilter;
-    videoTexture.magFilter = THREE.LinearFilter;
-    videoTexture.format = THREE.RGBFormat;
-
-    // Sphere Geometry for VR effect
-    const geometry = new THREE.SphereGeometry(500, 60, 40);
-    geometry.scale(-1, 1, 1); // Invert the sphere for inside viewing
-    const material = new THREE.MeshBasicMaterial({ map: videoTexture });
-    const sphere = new THREE.Mesh(geometry, material);
-    scene.add(sphere);
-
-    camera.position.z = 0.1;
-
-    // VR Mode Toggle
-    let vrMode = true;
-    document.getElementById('vrToggle').addEventListener('click', () => {
-      vrMode = !vrMode;
-      controls.enableRotate = vrMode;
-    });
-
-    // Video Input Handling
-    document.getElementById('videoInput').addEventListener('change', (event) => {
+    // Handle video input
+    videoInput.addEventListener("change", (event) => {
       const file = event.target.files[0];
       if (file) {
-        const url = URL.createObjectURL(file);
-        video.src = url;
-        video.play();
+        const videoURL = URL.createObjectURL(file);
+        leftEye.src = videoURL;
+        rightEye.src = videoURL;
+        leftEye.play();
+        rightEye.play();
       }
     });
 
-    // Animation Loop
-    function animate() {
-      requestAnimationFrame(animate);
-      if (!vrMode) {
-        sphere.rotation.y += 0.002; // Auto rotate in 360° mode
+    // Play/Pause button
+    playPauseButton.addEventListener("click", () => {
+      if (isPlaying) {
+        leftEye.pause();
+        rightEye.pause();
+        playPauseButton.textContent = "Play";
+      } else {
+        leftEye.play();
+        rightEye.play();
+        playPauseButton.textContent = "Pause";
       }
-      renderer.render(scene, camera);
-    }
-    animate();
+      isPlaying = !isPlaying;
+    });
+
+    // Fullscreen button
+    fullscreenButton.addEventListener("click", () => {
+      if (viewer.requestFullscreen) {
+        viewer.requestFullscreen();
+      } else if (viewer.webkitRequestFullscreen) { // Safari
+        viewer.webkitRequestFullscreen();
+      } else if (viewer.msRequestFullscreen) { // IE/Edge
+        viewer.msRequestFullscreen();
+      }
+    });
   </script>
 </body>
 </html>
