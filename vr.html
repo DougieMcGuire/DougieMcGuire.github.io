@@ -1,161 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>VR Video Converter</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-            background-color: #f0f0f0;
-        }
-        #videoContainer {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            margin: 20px auto;
-            background-color: black;
-        }
-        #vrVideo {
-            width: 100%;
-            max-height: 500px;
-        }
-        #uploadContainer {
-            margin-bottom: 20px;
-        }
-        #fullscreenBtn, #convertBtn {
-            margin: 10px;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        #controls {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-        }
-        #loadingOverlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            text-align: center;
-            padding-top: 40vh;
-            z-index: 1000;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stereoscopic VR Video Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #000;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    #viewer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100vw;
+      height: 100vh;
+      background-color: black;
+      position: relative;
+    }
+    video {
+      width: 50%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #controls {
+      position: absolute;
+      bottom: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 10px;
+      border-radius: 5px;
+    }
+    input[type="file"] {
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin-left: 5px;
+    }
+    button:hover {
+      background-color: #666;
+    }
+  </style>
 </head>
 <body>
-    <h1>VR Video Converter</h1>
-    
-    <div id="uploadContainer">
-        <input type="file" id="videoUpload" accept="video/*">
-        <button id="convertBtn">Convert to VR</button>
+  <div id="viewer">
+    <video id="leftEye" autoplay loop muted></video>
+    <video id="rightEye" autoplay loop muted></video>
+    <div id="controls">
+      <input type="file" id="videoInput" accept="video/*">
+      <button id="playPauseButton">Pause</button>
+      <button id="fullscreenButton">Fullscreen</button>
     </div>
+  </div>
 
-    <div id="videoContainer" style="display:none;">
-        <canvas id="vrVideo"></canvas>
-    </div>
+  <script>
+    const leftEye = document.getElementById("leftEye");
+    const rightEye = document.getElementById("rightEye");
+    const videoInput = document.getElementById("videoInput");
+    const playPauseButton = document.getElementById("playPauseButton");
+    const fullscreenButton = document.getElementById("fullscreenButton");
+    const viewer = document.getElementById("viewer");
 
-    <div id="controls" style="display:none;">
-        <button id="fullscreenBtn">Fullscreen VR</button>
-    </div>
+    let isPlaying = true;
 
-    <div id="loadingOverlay">Processing video...</div>
+    // Handle video input
+    videoInput.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const videoURL = URL.createObjectURL(file);
+        leftEye.src = videoURL;
+        rightEye.src = videoURL;
+        leftEye.play();
+        rightEye.play();
+      }
+    });
 
-    <script>
-        const videoUpload = document.getElementById('videoUpload');
-        const convertBtn = document.getElementById('convertBtn');
-        const videoContainer = document.getElementById('videoContainer');
-        const vrVideoCanvas = document.getElementById('vrVideo');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const ctx = vrVideoCanvas.getContext('2d');
+    // Play/Pause button
+    playPauseButton.addEventListener("click", () => {
+      if (isPlaying) {
+        leftEye.pause();
+        rightEye.pause();
+        playPauseButton.textContent = "Play";
+      } else {
+        leftEye.play();
+        rightEye.play();
+        playPauseButton.textContent = "Pause";
+      }
+      isPlaying = !isPlaying;
+    });
 
-        let videoElement = null;
-        let isVRMode = false;
+    // Fullscreen button
+    fullscreenButton.addEventListener("click", () => {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else if (document.documentElement.webkitRequestFullscreen) { // Safari
+        document.documentElement.webkitRequestFullscreen();
+      } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+        document.documentElement.msRequestFullscreen();
+      }
+    });
 
-        videoUpload.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                videoElement = document.createElement('video');
-                videoElement.src = URL.createObjectURL(file);
-                videoElement.addEventListener('loadedmetadata', () => {
-                    convertToVR();
-                });
-            }
-        });
-
-        function convertToVR() {
-            loadingOverlay.style.display = 'block';
-            
-            videoElement.addEventListener('loadeddata', () => {
-                vrVideoCanvas.width = videoElement.videoWidth * 2;
-                vrVideoCanvas.height = videoElement.videoHeight;
-
-                videoContainer.style.display = 'block';
-                document.getElementById('controls').style.display = 'block';
-                loadingOverlay.style.display = 'none';
-
-                // Start drawing the video in side-by-side format
-                function drawVRVideo() {
-                    ctx.drawImage(
-                        videoElement, 
-                        0, 0, videoElement.videoWidth, videoElement.videoHeight, // Source
-                        0, 0, videoElement.videoWidth, videoElement.videoHeight // Left eye
-                    );
-                    ctx.drawImage(
-                        videoElement, 
-                        0, 0, videoElement.videoWidth, videoElement.videoHeight, // Source
-                        videoElement.videoWidth, 0, videoElement.videoWidth, videoElement.videoHeight // Right eye
-                    );
-
-                    if (!videoElement.paused) {
-                        requestAnimationFrame(drawVRVideo);
-                    }
-                }
-
-                videoElement.play();
-                drawVRVideo();
-            });
-        }
-
-        fullscreenBtn.addEventListener('click', () => {
-            if (vrVideoCanvas.requestFullscreen) {
-                vrVideoCanvas.requestFullscreen();
-            } else if (vrVideoCanvas.mozRequestFullScreen) { // Firefox
-                vrVideoCanvas.mozRequestFullScreen();
-            } else if (vrVideoCanvas.webkitRequestFullscreen) { // Chrome, Safari and Opera
-                vrVideoCanvas.webkitRequestFullscreen();
-            } else if (vrVideoCanvas.msRequestFullscreen) { // IE/Edge
-                vrVideoCanvas.msRequestFullscreen();
-            }
-
-            // Add device orientation controls for mobile VR
-            if (window.DeviceOrientationEvent) {
-                window.addEventListener('deviceorientation', handleOrientation);
-            }
-        });
-
-        function handleOrientation(event) {
-            // Basic device orientation handling 
-            // You could expand this for more sophisticated VR controls
-            const alpha = event.alpha;  // rotation around z-axis
-            const beta = event.beta;    // motion front to back
-            const gamma = event.gamma;  // motion left to right
-            
-            // Placeholder for more advanced VR camera controls
-            console.log('Orientation:', { alpha, beta, gamma });
-        }
-    </script>
+    // Exit fullscreen when user presses Esc
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement) {
+        playPauseButton.textContent = "Pause";
+        isPlaying = true;
+      }
+    });
+  </script>
 </body>
 </html>
