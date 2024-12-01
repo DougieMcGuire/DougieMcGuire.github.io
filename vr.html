@@ -4,17 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Stereoscopic VR Video Viewer</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="VR Viewer">
   <style>
     body {
       margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      overflow: hidden;
       background-color: #000;
-      color: white;
-      font-family: Arial, sans-serif;
     }
     #viewer {
       display: flex;
@@ -22,13 +19,19 @@
       align-items: center;
       width: 100vw;
       height: 100vh;
-      background-color: black;
+      overflow: hidden;
       position: relative;
+      background-color: black;
     }
     video {
-      width: 50%;
-      height: 100%;
-      object-fit: cover;
+      position: absolute;
+      width: 55%;
+      height: auto;
+      transform: translate(-50%, -50%);
+      top: 50%;
+      left: 50%;
+      pointer-events: none; /* Disable interaction with the video */
+      transition: transform 0.05s ease;
     }
     #controls {
       position: absolute;
@@ -39,6 +42,7 @@
       background-color: rgba(0, 0, 0, 0.6);
       padding: 10px;
       border-radius: 5px;
+      z-index: 10;
     }
     input[type="file"] {
       margin-right: 10px;
@@ -56,6 +60,28 @@
       background-color: #666;
     }
   </style>
+  <script type="application/json" id="manifest">
+  {
+    "name": "VR Viewer",
+    "short_name": "VR Viewer",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "icons": [
+      {
+        "src": "icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <div id="viewer">
@@ -115,13 +141,23 @@
       }
     });
 
-    // Exit fullscreen when user presses Esc
-    document.addEventListener("fullscreenchange", () => {
-      if (!document.fullscreenElement) {
-        playPauseButton.textContent = "Pause";
-        isPlaying = true;
-      }
-    });
+    // Device Orientation Handler
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener("deviceorientation", (event) => {
+        const { gamma, beta } = event; // gamma: left-right tilt, beta: forward-backward tilt
+
+        // Map device orientation to video position
+        const maxTilt = 30; // Maximum tilt angle to map
+        const xOffset = (gamma / maxTilt) * 50; // Horizontal shift
+        const yOffset = (beta / maxTilt) * 50; // Vertical shift
+
+        // Apply calculated position to videos
+        leftEye.style.transform = `translate(calc(-50% + ${xOffset}px), calc(-50% + ${yOffset}px))`;
+        rightEye.style.transform = `translate(calc(-50% + ${xOffset}px), calc(-50% + ${yOffset}px))`;
+      });
+    } else {
+      alert("Device orientation not supported on your device/browser.");
+    }
   </script>
 </body>
 </html>
