@@ -57,27 +57,11 @@
             <div id="loginForm" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
                 <div class="mb-4">
                     <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" 
-                           id="email" type="email" placeholder="Email" required>
+                           id="email" type="email" placeholder="Email">
                 </div>
                 <div class="mb-6">
                     <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" 
-                           id="password" type="password" placeholder="Password" required>
-                </div>
-                <div class="mb-4">
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" 
-                           id="displayName" type="text" placeholder="Display Name" required>
-                </div>
-                <div class="mb-6">
-                    <select id="languageSelect" class="w-full p-2 border rounded">
-                        <option value="eng">English</option>
-                        <option value="spa">Spanish</option>
-                        <option value="fra">French</option>
-                        <option value="deu">German</option>
-                        <option value="ita">Italian</option>
-                        <option value="jpn">Japanese</option>
-                        <option value="zho">Chinese</option>
-                        <option value="rus">Russian</option>
-                    </select>
+                           id="password" type="password" placeholder="Password">
                 </div>
                 <div class="flex items-center justify-between mb-4">
                     <button id="loginBtn" class="bg-green-accent hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
@@ -87,13 +71,36 @@
                         Sign Up
                     </button>
                 </div>
-                <div class="flex items-center justify-center">
+                <div class="flex items-center justify-center mt-4">
                     <button id="googleSignIn" class="flex items-center justify-center w-full bg-white border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50">
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6 mr-2" alt="Google logo">
                         Sign in with Google
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Language Selection Modal -->
+    <div id="languageModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-96">
+            <h2 class="text-2xl font-bold mb-4 text-center green-accent">Select Your Language</h2>
+            <div class="mb-6">
+                <label class="block mb-2">Preferred Language</label>
+                <select id="googleUserLanguage" class="w-full p-2 border rounded">
+                    <option value="eng">English</option>
+                    <option value="spa">Spanish</option>
+                    <option value="fra">French</option>
+                    <option value="deu">German</option>
+                    <option value="ita">Italian</option>
+                    <option value="jpn">Japanese</option>
+                    <option value="zho">Chinese</option>
+                    <option value="rus">Russian</option>
+                </select>
+            </div>
+            <button id="saveLanguage" class="w-full bg-green-accent text-white p-2 rounded hover:bg-green-700">
+                Continue to Chat
+            </button>
         </div>
     </div>
 
@@ -131,7 +138,7 @@
     </div>
 
     <script>
-        // Firebase Configuration (using your existing config)
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCB1DU7DtkswEU_9vs0tFxKlX1nN7ovkQc",
             authDomain: "globallyapi-c3088.firebaseapp.com",
@@ -160,6 +167,8 @@
 
         // Translation function using Reverso API
         async function translateText(text, fromLang, toLang) {
+            if (fromLang === toLang) return text; // Skip translation if languages are the same
+            
             try {
                 const response = await axios.post('https://api.reverso.net/translate/v1/translation', {
                     format: "text",
@@ -175,32 +184,103 @@
                 }, {
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Reverso-Origin': 'translation.web'
-                    }
+                        'X-Reverso-Origin': 'translation.web',
+                        'Accept': 'application/json, text/plain, */*',
+                        'Accept-Language': 'en-US,en;q=0.9',
+                    },
+                    timeout: 10000 // 10 second timeout
                 });
-                return response.data.translation[0];
+
+                if (response.data && response.data.translation && response.data.translation[0]) {
+                    return response.data.translation[0];
+                } else {
+                    console.error('Invalid translation response:', response.data);
+                    return text;
+                }
             } catch (error) {
                 console.error('Translation error:', error);
-                return text; // Return original text if translation fails
+                return `${text} (Translation failed)`;
             }
         }
+
+        // Initialize Google Auth Provider
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+        // Google Sign In Handler
+        document.getElementById('googleSignIn').addEventListener('click', async () => {
+            try {
+                showLoading();
+                const result = await auth.signInWithPopup(googleProvider);
+                const user = result.user;
+                
+                // Check if this is a new user or if they haven't set a language
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                if (!userDoc.exists || !userDoc.data().language) {
+                    // Show language selection modal
+                    document.getElementById('languageModal').classList.remove('hidden');
+                    document.getElementById('authPage').classList.add('hidden');
+                } else {
+                    // User already has language preference, proceed to chat
+                    currentUser = { ...userDoc.data(), uid: user.uid };
+                    userLanguage = userDoc.data().language;
+                    showChatPage();
+                }
+            } catch (error) {
+                console.error('Google sign in error:', error);
+                alert('Error signing in with Google: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Language Selection Handler
+        document.getElementById('saveLanguage').addEventListener('click', async () => {
+            const selectedLanguage = document.getElementById('googleUserLanguage').value;
+            const user = auth.currentUser;
+
+            if (user && selectedLanguage) {
+                try {
+                    showLoading();
+                    await db.collection('users').doc(user.uid).set({
+                        displayName: user.displayName,
+                        email: user.email,
+                        language: selectedLanguage,
+                        photoURL: user.photoURL
+                    });
+
+                    currentUser = {
+                        displayName: user.displayName,
+                        email: user.email,
+                        language: selectedLanguage,
+                        photoURL: user.photoURL,
+                        uid: user.uid
+                    };
+                    userLanguage = selectedLanguage;
+
+                    document.getElementById('languageModal').classList.add('hidden');
+                    showChatPage();
+                } catch (error) {
+                    console.error('Error saving language preference:', error);
+                    alert('Error saving language preference. Please try again.');
+                } finally {
+                    hideLoading();
+                }
+            }
+        });
 
         // Authentication Logic
         document.getElementById('loginBtn').addEventListener('click', async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const displayName = document.getElementById('displayName').value;
-            const language = document.getElementById('languageSelect').value;
 
             showLoading();
             try {
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                await db.collection('users').doc(userCredential.user.uid).set({
-                    displayName,
-                    language,
-                    email
-                }, { merge: true });
-                userLanguage = language;
+                const userDoc = await db.collection('users').doc(userCredential.user.uid).get();
+                currentUser = { ...userDoc.data(), uid: userCredential.user.uid };
+                userLanguage = userDoc.data().language;
+                showChatPage();
             } catch (error) {
                 alert(error.message);
             }
@@ -284,30 +364,39 @@
             const text = messageInput.value.trim();
             
             if (!currentRoom || !text) return;
+            
+            try {
+                showLoading(); // Show loading indicator while sending/translating
 
-            const message = {
-                displayName: currentUser.displayName,
-                text: text,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                fromLanguage: userLanguage
-            };
+                const message = {
+                    displayName: currentUser.displayName,
+                    text: text,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    fromLanguage: userLanguage,
+                    originalText: text // Store original text for reference
+                };
 
-            await rtdb.ref('rooms/' + currentRoom + '/messages').push(message);
-            messageInput.value = '';
+                await rtdb.ref('rooms/' + currentRoom + '/messages').push(message);
+                messageInput.value = '';
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Failed to send message. Please try again.');
+            } finally {
+                hideLoading();
+            }
         });
 
         // Display Message Function
-        function displayMessage(sender, text, timestamp, fromLanguage) {
+        async function displayMessage(sender, text, timestamp, fromLanguage) {
             const messagesContainer = document.getElementById('messagesContainer');
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('mb-4', 'p-3', 'rounded', 'bg-gray-100');
             
             const date = new Date(timestamp);
             const formattedTime = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-            // Get flag URL based on language code
             const flagUrl = `https://flagcdn.com/w20/${fromLanguage.substring(0, 2).toLowerCase()}.png`;
 
+            // First, display the message with original text
             messageDiv.innerHTML = `
                 <div class="flex justify-between items-center">
                     <div class="flex items-center">
@@ -316,26 +405,84 @@
                     </div>
                     <span class="text-gray-500 text-sm">${formattedTime}</span>
                 </div>
-                <div class="mt-1">${text}</div>
+                <div class="mt-1 message-text">${text}</div>
+                <div class="text-xs text-gray-500 mt-1 translation-status">Translating...</div>
             `;
             
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Then translate and update the message
+            if (fromLanguage !== userLanguage) {
+                try {
+                    const translatedText = await translateText(text, fromLanguage, userLanguage);
+                    const messageTextDiv = messageDiv.querySelector('.message-text');
+                    const statusDiv = messageDiv.querySelector('.translation-status');
+                    
+                    if (translatedText !== text) {
+                        messageTextDiv.innerHTML = translatedText;
+                        statusDiv.innerHTML = `Translated from ${getLanguageName(fromLanguage)}`;
+                    } else {
+                        statusDiv.innerHTML = 'Translation unavailable';
+                    }
+                } catch (error) {
+                    const statusDiv = messageDiv.querySelector('.translation-status');
+                    statusDiv.innerHTML = 'Translation failed';
+                }
+            } else {
+                const statusDiv = messageDiv.querySelector('.translation-status');
+                statusDiv.innerHTML = 'Original message';
+            }
+        }
+
+        // Helper function to get language names
+        function getLanguageName(langCode) {
+            const languages = {
+                eng: 'English',
+                spa: 'Spanish',
+                fra: 'French',
+                deu: 'German',
+                ita: 'Italian',
+                jpn: 'Japanese',
+                zho: 'Chinese',
+                rus: 'Russian'
+            };
+            return languages[langCode] || langCode;
         }
 
         // Auth State Changes
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const userDoc = await db.collection('users').doc(user.uid).get();
-                currentUser = { ...userDoc.data(), uid: user.uid };
-                userLanguage = currentUser.language;
-                document.getElementById('authPage').classList.add('hidden');
-                document.getElementById('chatPage').classList.remove('hidden');
+                
+                if (userDoc.exists) {
+                    currentUser = { ...userDoc.data(), uid: user.uid };
+                    userLanguage = userDoc.data().language;
+                    
+                    if (!userLanguage) {
+                        // Show language selection if not set
+                        document.getElementById('languageModal').classList.remove('hidden');
+                        document.getElementById('authPage').classList.add('hidden');
+                        document.getElementById('chatPage').classList.add('hidden');
+                    } else {
+                        // Proceed to chat
+                        document.getElementById('languageModal').classList.add('hidden');
+                        document.getElementById('authPage').classList.add('hidden');
+                        document.getElementById('chatPage').classList.remove('hidden');
+                    }
+                } else {
+                    // New user, show language selection
+                    document.getElementById('languageModal').classList.remove('hidden');
+                    document.getElementById('authPage').classList.add('hidden');
+                    document.getElementById('chatPage').classList.add('hidden');
+                }
             } else {
+                // Not signed in
+                document.getElementById('languageModal').classList.add('hidden');
                 document.getElementById('authPage').classList.remove('hidden');
                 document.getElementById('chatPage').classList.add('hidden');
                 currentUser = null;
-                currentRoom = null;
+                userLanguage = null;
             }
         });
 
