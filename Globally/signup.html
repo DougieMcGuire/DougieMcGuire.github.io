@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Globally - Sign Up / Login</title>
-  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
     body {
@@ -109,9 +109,42 @@
       font-size: 0.9rem;
       text-align: center;
     }
+
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .loading.active {
+      display: flex;
+    }
+
+    .loading::after {
+      content: "";
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #4caf50;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
+  <div class="loading" id="loading"></div>
   <div class="container">
     <div class="auth-form">
       <h1>Globally</h1>
@@ -157,10 +190,15 @@
       measurementId: "G-636R3YJQ6B"
     };
 
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
+    // Initialize Firebase with compat version
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+    const loading = document.getElementById('loading');
+
+    // Show/Hide Loading
+    const showLoading = () => loading.classList.add('active');
+    const hideLoading = () => loading.classList.remove('active');
 
     // DOM Elements
     const signupForm = document.getElementById("signup-form");
@@ -170,24 +208,32 @@
     const loginToggle = document.getElementById("login-toggle");
     const errorMessage = document.getElementById("error-message");
 
+    // Clear error message
+    const clearError = () => errorMessage.textContent = '';
+
     // Toggle between Sign Up and Login
-    signupToggle.addEventListener("click", () => {
-      signupForm.classList.remove("hidden");
-      loginForm.classList.add("hidden");
+    document.getElementById("signup-toggle").onclick = function() {
+      clearError();
+      signupForm.style.display = "flex";
+      loginForm.style.display = "none";
       signupToggle.classList.add("active");
       loginToggle.classList.remove("active");
-    });
+    };
 
-    loginToggle.addEventListener("click", () => {
-      loginForm.classList.remove("hidden");
-      signupForm.classList.add("hidden");
+    document.getElementById("login-toggle").onclick = function() {
+      clearError();
+      loginForm.style.display = "flex";
+      signupForm.style.display = "none";
       loginToggle.classList.add("active");
       signupToggle.classList.remove("active");
-    });
+    };
 
     // Sign Up
-    signupForm.addEventListener("submit", async (e) => {
+    signupForm.onsubmit = async (e) => {
       e.preventDefault();
+      showLoading();
+      clearError();
+
       const displayName = document.getElementById("signup-display-name").value;
       const email = document.getElementById("signup-email").value;
       const password = document.getElementById("signup-password").value;
@@ -197,67 +243,90 @@
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
-        // Set Display Name
         await user.updateProfile({
           displayName: displayName
         });
 
-        // Store additional user info in Firestore
         await db.collection('users').doc(user.uid).set({
           displayName: displayName,
           language: language,
-          email: email
+          email: email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        console.log(`Signed up as ${email} (${language})`);
-        window.location.href = "/main";
+        window.location.href = "chat.html";
       } catch (error) {
         errorMessage.textContent = error.message;
-        console.error("Error signing up:", error);
+      } finally {
+        hideLoading();
       }
-    });
+    };
 
     // Login
-    loginForm.addEventListener("submit", async (e) => {
+    loginForm.onsubmit = async (e) => {
       e.preventDefault();
+      showLoading();
+      clearError();
+
       const email = document.getElementById("login-email").value;
       const password = document.getElementById("login-password").value;
 
       try {
         await auth.signInWithEmailAndPassword(email, password);
-        console.log("User logged in");
-        window.location.href = "/main";
+        window.location.href = "chat.html";
       } catch (error) {
         errorMessage.textContent = error.message;
-        console.error("Error logging in:", error);
+      } finally {
+        hideLoading();
       }
-    });
+    };
 
     // Google Sign-In
-    googleSignInBtn.addEventListener("click", async () => {
+    googleSignInBtn.onclick = async () => {
+      showLoading();
+      clearError();
+
       const provider = new firebase.auth.GoogleAuthProvider();
+      
       try {
         const result = await auth.signInWithPopup(provider);
         const user = result.user;
-
-        // Check if user exists in Firestore
+        
+        // Check if user exists
         const userDoc = await db.collection('users').doc(user.uid).get();
-
+        
         if (!userDoc.exists) {
-          // New user, prompt for language selection
-          const language = prompt("Please select your language: English, Spanish, Chinese, Russian");
-          await db.collection('users').doc(user.uid).set({
-            displayName: user.displayName,
-            language: language,
-            email: user.email
-          });
+          // Show language selection modal for new Google users
+          const languages = ["English", "Spanish", "Chinese", "Russian"];
+          let language = prompt(`Welcome! Please select your language:\n${languages.join(", ")}`);
+          
+          while (!language || !languages.includes(language)) {
+            language = prompt(`Please select a valid language:\n${languages.join(", ")}`);
+            if (!language) break; // User cancelled
+          }
+          
+          if (language) {
+            await db.collection('users').doc(user.uid).set({
+              displayName: user.displayName,
+              email: user.email,
+              language: language,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }
         }
-
-        console.log("User signed in with Google:", user);
-        window.location.href = "/main";
+        
+        window.location.href = "chat.html";
       } catch (error) {
         errorMessage.textContent = error.message;
-        console.error("Error signing in with Google:", error);
+      } finally {
+        hideLoading();
+      }
+    };
+
+    // Check if user is already signed in
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = "chat.html";
       }
     });
   </script>
