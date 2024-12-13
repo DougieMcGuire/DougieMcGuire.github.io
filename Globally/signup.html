@@ -1,1 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up / Login - Globally</title>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      color: #333;
+    }
 
+    .container {
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      text-align: center;
+      color: #27ae60;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background: #27ae60;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #219150;
+    }
+
+    .google-btn {
+      margin-top: 10px;
+      background: #4285F4;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Globally</h1>
+    <div id="signup-section">
+      <h2>Sign Up</h2>
+      <div class="input-group">
+        <label for="signup-email">Email</label>
+        <input type="email" id="signup-email" placeholder="Enter your email" required>
+      </div>
+      <div class="input-group">
+        <label for="signup-password">Password</label>
+        <input type="password" id="signup-password" placeholder="Enter your password" required>
+      </div>
+      <div class="input-group">
+        <label for="signup-display-name">Display Name</label>
+        <input type="text" id="signup-display-name" placeholder="Enter your display name" required>
+      </div>
+      <div class="input-group">
+        <label for="signup-language">Language</label>
+        <input type="text" id="signup-language" placeholder="Enter your language (e.g., English)" required>
+      </div>
+      <button onclick="signUp()">Sign Up</button>
+      <button class="google-btn" onclick="signInWithGoogle()">Sign Up with Google</button>
+      <p class="error" id="signup-error"></p>
+    </div>
+
+    <div id="login-section">
+      <h2>Login</h2>
+      <div class="input-group">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="Enter your email" required>
+      </div>
+      <div class="input-group">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="Enter your password" required>
+      </div>
+      <button onclick="login()">Login</button>
+      <button class="google-btn" onclick="signInWithGoogle()">Login with Google</button>
+      <p class="error" id="login-error"></p>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Firebase App
+    const firebaseConfig = JSON.parse(atob("GloballyAPIConfig"));
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.getAuth(app);
+
+    // Redirect if user is logged in
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        if (!user.displayName || !user.language) {
+          promptForDetails(user);
+        } else {
+          window.location.href = "/main";
+        }
+      }
+    });
+
+    // Sign up with email and password
+    async function signUp() {
+      const email = document.getElementById("signup-email").value;
+      const password = document.getElementById("signup-password").value;
+      const displayName = document.getElementById("signup-display-name").value;
+      const language = document.getElementById("signup-language").value;
+
+      try {
+        const userCredential = await auth.createUserWithEmailAndPassword(auth, email, password);
+        await auth.updateProfile(userCredential.user, { displayName });
+        await auth.updateUser(userCredential.user, { language });
+        window.location.href = "/main";
+      } catch (error) {
+        document.getElementById("signup-error").textContent = error.message;
+      }
+    }
+
+    // Sign in with email and password
+    async function login() {
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+
+      try {
+        await auth.signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "/main";
+      } catch (error) {
+        document.getElementById("login-error").textContent = error.message;
+      }
+    }
+
+    // Sign in with Google
+    async function signInWithGoogle() {
+      const provider = new firebase.GoogleAuthProvider();
+
+      try {
+        const result = await auth.signInWithPopup(auth, provider);
+        if (!result.user.displayName || !result.user.language) {
+          promptForDetails(result.user);
+        } else {
+          window.location.href = "/main";
+        }
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    // Prompt for missing details
+    async function promptForDetails(user) {
+      const displayName = prompt("Enter your display name:");
+      const language = prompt("Enter your language (e.g., English):");
+
+      try {
+        await auth.updateProfile(user, { displayName });
+        await auth.updateUser(user, { language });
+        window.location.href = "/main";
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+  </script>
+</body>
+</html>
