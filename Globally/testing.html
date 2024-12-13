@@ -152,10 +152,8 @@
         const showLoading = () => document.getElementById('loadingOverlay').classList.remove('hidden');
         const hideLoading = () => document.getElementById('loadingOverlay').classList.add('hidden');
 
-        // Updated Translation function with better error handling and rate limiting
+        // Translation function using Reverso API
         async function translateText(text, fromLang, toLang) {
-            if (fromLang === toLang) return text; // Skip translation if languages are the same
-            
             try {
                 const response = await axios.post('https://api.reverso.net/translate/v1/translation', {
                     format: "text",
@@ -171,23 +169,13 @@
                 }, {
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Reverso-Origin': 'translation.web',
-                        'Accept': 'application/json, text/plain, */*',
-                        'Accept-Language': 'en-US,en;q=0.9',
-                    },
-                    timeout: 10000 // 10 second timeout
+                        'X-Reverso-Origin': 'translation.web'
+                    }
                 });
-
-                if (response.data && response.data.translation && response.data.translation[0]) {
-                    return response.data.translation[0];
-                } else {
-                    console.error('Invalid translation response:', response.data);
-                    return text;
-                }
+                return response.data.translation[0];
             } catch (error) {
                 console.error('Translation error:', error);
-                // Attempt to use backup translation service or return original text
-                return `${text} (Translation failed)`;
+                return text; // Return original text if translation fails
             }
         }
 
@@ -284,45 +272,36 @@
             });
         });
 
-        // Updated Send Message Logic with translation status
+        // Send Message Logic
         document.getElementById('sendMessage').addEventListener('click', async () => {
             const messageInput = document.getElementById('messageInput');
             const text = messageInput.value.trim();
             
             if (!currentRoom || !text) return;
-            
-            try {
-                showLoading(); // Show loading indicator while sending/translating
 
-                const message = {
-                    displayName: currentUser.displayName,
-                    text: text,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP,
-                    fromLanguage: userLanguage,
-                    originalText: text // Store original text for reference
-                };
+            const message = {
+                displayName: currentUser.displayName,
+                text: text,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                fromLanguage: userLanguage
+            };
 
-                await rtdb.ref('rooms/' + currentRoom + '/messages').push(message);
-                messageInput.value = '';
-            } catch (error) {
-                console.error('Error sending message:', error);
-                alert('Failed to send message. Please try again.');
-            } finally {
-                hideLoading();
-            }
+            await rtdb.ref('rooms/' + currentRoom + '/messages').push(message);
+            messageInput.value = '';
         });
 
-        // Updated Display Message Function with translation handling
-        async function displayMessage(sender, text, timestamp, fromLanguage) {
+        // Display Message Function
+        function displayMessage(sender, text, timestamp, fromLanguage) {
             const messagesContainer = document.getElementById('messagesContainer');
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('mb-4', 'p-3', 'rounded', 'bg-gray-100');
             
             const date = new Date(timestamp);
             const formattedTime = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            // Get flag URL based on language code
             const flagUrl = `https://flagcdn.com/w20/${fromLanguage.substring(0, 2).toLowerCase()}.png`;
 
-            // First, display the message with original text
             messageDiv.innerHTML = `
                 <div class="flex justify-between items-center">
                     <div class="flex items-center">
@@ -331,49 +310,11 @@
                     </div>
                     <span class="text-gray-500 text-sm">${formattedTime}</span>
                 </div>
-                <div class="mt-1 message-text">${text}</div>
-                <div class="text-xs text-gray-500 mt-1 translation-status">Translating...</div>
+                <div class="mt-1">${text}</div>
             `;
             
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-            // Then translate and update the message
-            if (fromLanguage !== userLanguage) {
-                try {
-                    const translatedText = await translateText(text, fromLanguage, userLanguage);
-                    const messageTextDiv = messageDiv.querySelector('.message-text');
-                    const statusDiv = messageDiv.querySelector('.translation-status');
-                    
-                    if (translatedText !== text) {
-                        messageTextDiv.innerHTML = translatedText;
-                        statusDiv.innerHTML = `Translated from ${getLanguageName(fromLanguage)}`;
-                    } else {
-                        statusDiv.innerHTML = 'Translation unavailable';
-                    }
-                } catch (error) {
-                    const statusDiv = messageDiv.querySelector('.translation-status');
-                    statusDiv.innerHTML = 'Translation failed';
-                }
-            } else {
-                const statusDiv = messageDiv.querySelector('.translation-status');
-                statusDiv.innerHTML = 'Original message';
-            }
-        }
-
-        // Helper function to get language names
-        function getLanguageName(langCode) {
-            const languages = {
-                eng: 'English',
-                spa: 'Spanish',
-                fra: 'French',
-                deu: 'German',
-                ita: 'Italian',
-                jpn: 'Japanese',
-                zho: 'Chinese',
-                rus: 'Russian'
-            };
-            return languages[langCode] || langCode;
         }
 
         // Auth State Changes
@@ -404,18 +345,6 @@
         document.getElementById('messageInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 document.getElementById('sendMessage').click();
-            }
-        });
-
-        // Add this to your existing language select options
-        const languageSelect = document.getElementById('languageSelect');
-        languageSelect.addEventListener('change', (e) => {
-            userLanguage = e.target.value;
-            // Update user's language preference in database
-            if (currentUser) {
-                db.collection('users').doc(currentUser.uid).update({
-                    language: userLanguage
-                });
             }
         });
     </script>
