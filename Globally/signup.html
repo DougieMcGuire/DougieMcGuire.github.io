@@ -13,20 +13,53 @@
       padding: 0;
       background: #f4f4f4;
       color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
 
     .container {
+      width: 100%;
       max-width: 400px;
-      margin: 50px auto;
-      padding: 20px;
       background: white;
-      border-radius: 8px;
+      border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
     }
 
-    h1 {
+    .header {
+      background: #27ae60;
+      color: white;
+      padding: 20px;
       text-align: center;
-      color: #27ae60;
+    }
+
+    .header h1 {
+      margin: 0;
+    }
+
+    .tabs {
+      display: flex;
+      background: #f4f4f4;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .tab.active {
+      background: #27ae60;
+      color: white;
+    }
+
+    .content {
+      padding: 20px;
     }
 
     .input-group {
@@ -78,64 +111,78 @@
 </head>
 <body>
   <div class="container">
-    <h1>Globally</h1>
-    <div id="signup-section">
-      <h2>Sign Up</h2>
-      <div class="input-group">
-        <label for="signup-email">Email</label>
-        <input type="email" id="signup-email" placeholder="Enter your email" required>
-      </div>
-      <div class="input-group">
-        <label for="signup-password">Password</label>
-        <input type="password" id="signup-password" placeholder="Enter your password" required>
-      </div>
-      <div class="input-group">
-        <label for="signup-display-name">Display Name</label>
-        <input type="text" id="signup-display-name" placeholder="Enter your display name" required>
-      </div>
-      <div class="input-group">
-        <label for="signup-language">Language</label>
-        <input type="text" id="signup-language" placeholder="Enter your language (e.g., English)" required>
-      </div>
-      <button onclick="signUp()">Sign Up</button>
-      <button class="google-btn" onclick="signInWithGoogle()">Sign Up with Google</button>
-      <p class="error" id="signup-error"></p>
+    <div class="header">
+      <h1>Globally</h1>
     </div>
+    <div class="tabs">
+      <div class="tab active" id="signup-tab" onclick="showSection('signup')">Sign Up</div>
+      <div class="tab" id="login-tab" onclick="showSection('login')">Login</div>
+    </div>
+    <div class="content">
+      <!-- Sign-Up Section -->
+      <div id="signup-section">
+        <div class="input-group">
+          <label for="signup-email">Email</label>
+          <input type="email" id="signup-email" placeholder="Enter your email">
+        </div>
+        <div class="input-group">
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" placeholder="Enter your password">
+        </div>
+        <div class="input-group">
+          <label for="signup-display-name">Display Name</label>
+          <input type="text" id="signup-display-name" placeholder="Enter your display name">
+        </div>
+        <div class="input-group">
+          <label for="signup-language">Language</label>
+          <input type="text" id="signup-language" placeholder="Enter your language (e.g., English)">
+        </div>
+        <button onclick="signUp()">Sign Up</button>
+        <button class="google-btn" onclick="signInWithGoogle()">Sign Up with Google</button>
+        <p class="error" id="signup-error"></p>
+      </div>
 
-    <div id="login-section">
-      <h2>Login</h2>
-      <div class="input-group">
-        <label for="login-email">Email</label>
-        <input type="email" id="login-email" placeholder="Enter your email" required>
+      <!-- Login Section -->
+      <div id="login-section" style="display: none;">
+        <div class="input-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" placeholder="Enter your email">
+        </div>
+        <div class="input-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Enter your password">
+        </div>
+        <button onclick="login()">Login</button>
+        <button class="google-btn" onclick="signInWithGoogle()">Login with Google</button>
+        <p class="error" id="login-error"></p>
       </div>
-      <div class="input-group">
-        <label for="login-password">Password</label>
-        <input type="password" id="login-password" placeholder="Enter your password" required>
-      </div>
-      <button onclick="login()">Login</button>
-      <button class="google-btn" onclick="signInWithGoogle()">Login with Google</button>
-      <p class="error" id="login-error"></p>
     </div>
   </div>
 
   <script>
-    // Initialize Firebase App
-    const firebaseConfig = JSON.parse(atob("GloballyAPIConfig"));
-    const app = firebase.initializeApp(firebaseConfig);
+    // Firebase Configuration
+    const GloballyAPIConfig = {
+      apiKey: "your-api-key",
+      authDomain: "your-auth-domain",
+      projectId: "your-project-id",
+      storageBucket: "your-storage-bucket",
+      messagingSenderId: "your-sender-id",
+      appId: "your-app-id"
+    };
+
+    const app = firebase.initializeApp(GloballyAPIConfig);
     const auth = firebase.getAuth(app);
 
-    // Redirect if user is logged in
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        if (!user.displayName || !user.language) {
-          promptForDetails(user);
-        } else {
-          window.location.href = "/main";
-        }
-      }
-    });
+    // Switch Between Sign-Up and Login Sections
+    function showSection(section) {
+      document.getElementById("signup-section").style.display = section === "signup" ? "block" : "none";
+      document.getElementById("login-section").style.display = section === "login" ? "block" : "none";
 
-    // Sign up with email and password
+      document.getElementById("signup-tab").classList.toggle("active", section === "signup");
+      document.getElementById("login-tab").classList.toggle("active", section === "login");
+    }
+
+    // Sign-Up Function
     async function signUp() {
       const email = document.getElementById("signup-email").value;
       const password = document.getElementById("signup-password").value;
@@ -143,52 +190,35 @@
       const language = document.getElementById("signup-language").value;
 
       try {
-        const userCredential = await auth.createUserWithEmailAndPassword(auth, email, password);
-        await auth.updateProfile(userCredential.user, { displayName });
-        await auth.updateUser(userCredential.user, { language });
+        const userCredential = await firebase.auth().createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        await firebase.auth().updateProfile(user, { displayName });
+        // Custom language (store in Firestore if needed)
+        alert("Account created successfully!");
         window.location.href = "/main";
       } catch (error) {
         document.getElementById("signup-error").textContent = error.message;
       }
     }
 
-    // Sign in with email and password
+    // Login Function
     async function login() {
       const email = document.getElementById("login-email").value;
       const password = document.getElementById("login-password").value;
 
       try {
-        await auth.signInWithEmailAndPassword(auth, email, password);
+        await firebase.auth().signInWithEmailAndPassword(auth, email, password);
         window.location.href = "/main";
       } catch (error) {
         document.getElementById("login-error").textContent = error.message;
       }
     }
 
-    // Sign in with Google
+    // Google Sign-In
     async function signInWithGoogle() {
       const provider = new firebase.GoogleAuthProvider();
-
       try {
-        const result = await auth.signInWithPopup(auth, provider);
-        if (!result.user.displayName || !result.user.language) {
-          promptForDetails(result.user);
-        } else {
-          window.location.href = "/main";
-        }
-      } catch (error) {
-        alert(error.message);
-      }
-    }
-
-    // Prompt for missing details
-    async function promptForDetails(user) {
-      const displayName = prompt("Enter your display name:");
-      const language = prompt("Enter your language (e.g., English):");
-
-      try {
-        await auth.updateProfile(user, { displayName });
-        await auth.updateUser(user, { language });
+        await firebase.auth().signInWithPopup(auth, provider);
         window.location.href = "/main";
       } catch (error) {
         alert(error.message);
