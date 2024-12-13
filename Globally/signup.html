@@ -92,6 +92,12 @@
     .google-btn:hover {
       background-color: #c33c2e;
     }
+
+    .error {
+      color: red;
+      font-size: 0.9rem;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -102,6 +108,7 @@
         <button id="signup-toggle" class="active">Sign Up</button>
         <button id="login-toggle">Login</button>
       </div>
+      <div id="error-message" class="error"></div>
       <form id="signup-form" class="form">
         <input type="text" id="signup-display-name" placeholder="Display Name" required>
         <input type="email" id="signup-email" placeholder="Email" required>
@@ -131,18 +138,15 @@
       authDomain: "globallyapi-c3088.firebaseapp.com",
       databaseURL: "https://globallyapi-c3088-default-rtdb.firebaseio.com",
       projectId: "globallyapi-c3088",
-      storageBucket: "globallyapi-c3088.firebasestorage.app",
+      storageBucket: "globallyapi-c3088.app",
       messagingSenderId: "489666785193",
       appId: "1:489666785193:web:a3027c53685758e9a99eb8",
       measurementId: "G-636R3YJQ6B"
     };
 
     // Initialize Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.getAuth();
 
     // DOM Elements
     const signupForm = document.getElementById("signup-form");
@@ -150,6 +154,7 @@
     const googleSignInBtn = document.getElementById("google-sign-in");
     const signupToggle = document.getElementById("signup-toggle");
     const loginToggle = document.getElementById("login-toggle");
+    const errorMessage = document.getElementById("error-message");
 
     // Toggle between Sign Up and Login
     signupToggle.addEventListener("click", () => {
@@ -175,12 +180,19 @@
       const language = document.getElementById("signup-language").value;
 
       try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(auth.currentUser, { displayName });
-        console.log(`User signed up with email: ${email}, language: ${language}`);
+        const userCredential = await firebase.createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Set Display Name
+        await firebase.updateProfile(user, {
+          displayName: displayName
+        });
+
+        console.log(`Signed up as ${email} (${language})`);
         window.location.href = "/main";
       } catch (error) {
-        console.error("Error signing up:", error.message);
+        errorMessage.textContent = error.message;
+        console.error("Error signing up:", error);
       }
     });
 
@@ -191,23 +203,25 @@
       const password = document.getElementById("login-password").value;
 
       try {
-        await signInWithEmailAndPassword(auth, email, password);
+        await firebase.signInWithEmailAndPassword(auth, email, password);
         console.log("User logged in");
         window.location.href = "/main";
       } catch (error) {
-        console.error("Error logging in:", error.message);
+        errorMessage.textContent = error.message;
+        console.error("Error logging in:", error);
       }
     });
 
     // Google Sign-In
     googleSignInBtn.addEventListener("click", async () => {
-      const provider = new GoogleAuthProvider();
+      const provider = new firebase.GoogleAuthProvider();
       try {
-        await signInWithPopup(auth, provider);
-        console.log("User signed in with Google");
+        const result = await firebase.signInWithPopup(auth, provider);
+        console.log("User signed in with Google:", result.user);
         window.location.href = "/main";
       } catch (error) {
-        console.error("Error signing in with Google:", error.message);
+        errorMessage.textContent = error.message;
+        console.error("Error signing in with Google:", error);
       }
     });
   </script>
