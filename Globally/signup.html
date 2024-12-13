@@ -3,156 +3,213 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Globally - Login/Sign Up</title>
+  <title>Globally - Sign Up / Login</title>
+  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js"></script>
   <style>
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #e8f5e9;
-      color: #333;
+      margin: 0;
+      padding: 0;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       height: 100vh;
+      background-color: #f0f8f5;
     }
+
     .container {
+      background: #ffffff;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
       width: 90%;
       max-width: 400px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      padding: 20px;
+    }
+
+    h1 {
       text-align: center;
+      color: #4caf50;
+      margin-bottom: 1rem;
     }
-    .tab {
+
+    #form-toggle {
       display: flex;
-      justify-content: space-around;
-      margin-bottom: 20px;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
     }
-    .tab button {
-      flex: 1;
-      border: none;
+
+    #form-toggle button {
       background: none;
-      padding: 10px;
-      font-size: 16px;
+      border: none;
+      padding: 0.5rem 1rem;
       cursor: pointer;
+      font-weight: bold;
+      color: #4caf50;
     }
-    .tab button.active {
-      color: white;
-      background: #4caf50;
-      border-radius: 5px;
+
+    #form-toggle button.active {
+      border-bottom: 2px solid #4caf50;
     }
-    form {
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form.hidden {
       display: none;
     }
-    form.active {
-      display: block;
-    }
-    input {
-      width: calc(100% - 20px);
-      margin: 10px 0;
-      padding: 10px;
-      font-size: 16px;
+
+    input, select, button {
+      padding: 0.75rem;
       border: 1px solid #ccc;
       border-radius: 5px;
-    }
-    button.submit {
+      font-size: 1rem;
       width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      background: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
     }
-    button.submit:hover {
-      background: #45a049;
+
+    button {
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .google-btn {
+      background-color: #db4437;
+      color: white;
+      margin-top: 1rem;
+    }
+
+    .google-btn:hover {
+      background-color: #c33c2e;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="tab">
-      <button id="login-tab" class="active" onclick="switchTab('login')">Login</button>
-      <button id="signup-tab" onclick="switchTab('signup')">Sign Up</button>
+    <div class="auth-form">
+      <h1>Globally</h1>
+      <div id="form-toggle">
+        <button id="signup-toggle" class="active">Sign Up</button>
+        <button id="login-toggle">Login</button>
+      </div>
+      <form id="signup-form" class="form">
+        <input type="text" id="signup-display-name" placeholder="Display Name" required>
+        <input type="email" id="signup-email" placeholder="Email" required>
+        <input type="password" id="signup-password" placeholder="Password" required>
+        <select id="signup-language" required>
+          <option value="">Select Language</option>
+          <option value="English">English</option>
+          <option value="Spanish">Spanish</option>
+          <option value="Chinese">Chinese</option>
+          <option value="Russian">Russian</option>
+        </select>
+        <button type="submit">Sign Up</button>
+      </form>
+      <form id="login-form" class="form hidden">
+        <input type="email" id="login-email" placeholder="Email" required>
+        <input type="password" id="login-password" placeholder="Password" required>
+        <button type="submit">Login</button>
+      </form>
+      <button id="google-sign-in" class="google-btn">Sign in with Google</button>
     </div>
-    <form id="login-form" class="active">
-      <h2>Login</h2>
-      <input type="email" id="login-email" placeholder="Email" required>
-      <input type="password" id="login-password" placeholder="Password" required>
-      <button type="button" class="submit" onclick="login()">Login</button>
-    </form>
-    <form id="signup-form">
-      <h2>Sign Up</h2>
-      <input type="text" id="signup-display-name" placeholder="Display Name" required>
-      <input type="text" id="signup-language" placeholder="Language" required>
-      <input type="email" id="signup-email" placeholder="Email" required>
-      <input type="password" id="signup-password" placeholder="Password" required>
-      <button type="button" class="submit" onclick="signUp()">Sign Up</button>
-    </form>
   </div>
-  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js"></script>
+
   <script>
-    // Your Firebase Config
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCB1DU7DtkswEU_9vs0tFxKlX1nN7ovkQc",
+      authDomain: "globallyapi-c3088.firebaseapp.com",
+      databaseURL: "https://globallyapi-c3088-default-rtdb.firebaseio.com",
+      projectId: "globallyapi-c3088",
+      storageBucket: "globallyapi-c3088.firebasestorage.app",
+      messagingSenderId: "489666785193",
+      appId: "1:489666785193:web:a3027c53685758e9a99eb8",
+      measurementId: "G-636R3YJQ6B"
+    };
 
-      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCB1DU7DtkswEU_9vs0tFxKlX1nN7ovkQc",
-  authDomain: "globallyapi-c3088.firebaseapp.com",
-  databaseURL: "https://globallyapi-c3088-default-rtdb.firebaseio.com",
-  projectId: "globallyapi-c3088",
-  storageBucket: "globallyapi-c3088.firebasestorage.app",
-  messagingSenderId: "489666785193",
-  appId: "1:489666785193:web:a3027c53685758e9a99eb8",
-  measurementId: "G-636R3YJQ6B"
-};
     // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.getAuth(app);
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
 
-    // Tab Switching
-    function switchTab(tab) {
-      document.querySelectorAll('form').forEach(form => form.classList.remove('active'));
-      document.querySelector(`#${tab}-form`).classList.add('active');
-      document.querySelectorAll('.tab button').forEach(btn => btn.classList.remove('active'));
-      document.querySelector(`#${tab}-tab`).classList.add('active');
-    }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    // Sign-Up Function
-    async function signUp() {
-      const displayName = document.getElementById('signup-display-name').value;
-      const language = document.getElementById('signup-language').value;
-      const email = document.getElementById('signup-email').value;
-      const password = document.getElementById('signup-password').value;
+    // DOM Elements
+    const signupForm = document.getElementById("signup-form");
+    const loginForm = document.getElementById("login-form");
+    const googleSignInBtn = document.getElementById("google-sign-in");
+    const signupToggle = document.getElementById("signup-toggle");
+    const loginToggle = document.getElementById("login-toggle");
+
+    // Toggle between Sign Up and Login
+    signupToggle.addEventListener("click", () => {
+      signupForm.classList.remove("hidden");
+      loginForm.classList.add("hidden");
+      signupToggle.classList.add("active");
+      loginToggle.classList.remove("active");
+    });
+
+    loginToggle.addEventListener("click", () => {
+      loginForm.classList.remove("hidden");
+      signupForm.classList.add("hidden");
+      loginToggle.classList.add("active");
+      signupToggle.classList.remove("active");
+    });
+
+    // Sign Up
+    signupForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const displayName = document.getElementById("signup-display-name").value;
+      const email = document.getElementById("signup-email").value;
+      const password = document.getElementById("signup-password").value;
+      const language = document.getElementById("signup-language").value;
 
       try {
-        const userCredential = await firebase.createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // Save Display Name and Language
-        await firebase.updateProfile(user, { displayName });
-        alert(`Sign-Up Successful! Welcome, ${displayName}!`);
-        window.location.href = '/main';
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(auth.currentUser, { displayName });
+        console.log(`User signed up with email: ${email}, language: ${language}`);
+        window.location.href = "/main";
       } catch (error) {
-        alert(error.message);
+        console.error("Error signing up:", error.message);
       }
-    }
+    });
 
-    // Login Function
-    async function login() {
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
+    // Login
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
 
       try {
-        await firebase.signInWithEmailAndPassword(auth, email, password);
-        alert('Login Successful!');
-        window.location.href = '/main';
+        await signInWithEmailAndPassword(auth, email, password);
+        console.log("User logged in");
+        window.location.href = "/main";
       } catch (error) {
-        alert(error.message);
+        console.error("Error logging in:", error.message);
       }
-    }
+    });
+
+    // Google Sign-In
+    googleSignInBtn.addEventListener("click", async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        await signInWithPopup(auth, provider);
+        console.log("User signed in with Google");
+        window.location.href = "/main";
+      } catch (error) {
+        console.error("Error signing in with Google:", error.message);
+      }
+    });
   </script>
 </body>
 </html>
