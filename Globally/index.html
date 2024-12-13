@@ -253,10 +253,10 @@
             
             if (isMobileDevice()) {
                 // Redirect to mobile app version
-                window.location.href = "/app";
+                window.location.href = "/Globally/app";
             } else {
                 // Regular desktop flow
-                window.location.href = isSignedIn ? "/main" : "/signup";
+                window.location.href = isSignedIn ? "/Globally/main" : "/Globally/signup";
             }
         }
 
@@ -265,9 +265,9 @@
             
             if (isMobileDevice()) {
                 // Automatic redirect to mobile app if on mobile device
-                window.location.href = "/app";
+                window.location.href = "/Globally/app";
             } else if (isSignedIn) {
-                window.location.href = "/main";
+                window.location.href = "/Globally/main";
             }
         });
     </script>
