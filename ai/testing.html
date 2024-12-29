@@ -3,51 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Transcript Fetcher</title>
+    <title>YouTube Transcription Tool</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        input[type="url"] {
+            width: 100%;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #357abd;
+        }
+        #response {
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            white-space: pre-wrap;
+        }
+        .loading {
+            display: none;
+            margin: 1rem 0;
+        }
+        .error {
+            color: #d32f2f;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>YouTube Transcript Fetcher</h1>
-    <input type="text" id="videoUrl" placeholder="Enter YouTube Video URL" style="width: 300px;">
-    <button id="fetchTranscript">Fetch Transcript</button>
-    <pre id="response" style="white-space: pre-wrap; background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></pre>
+    <div class="container">
+        <h1>YouTube Transcription Tool</h1>
+        <div class="input-group">
+            <label for="youtubeUrl">Enter YouTube URL:</label>
+            <input type="url" id="youtubeUrl" 
+                   placeholder="https://www.youtube.com/watch?v=..." 
+                   required>
+            <button onclick="getTranscription()">Get Transcription</button>
+        </div>
+        <div class="loading" id="loading">Processing...</div>
+        <div class="error" id="error"></div>
+        <pre id="response"></pre>
+    </div>
 
     <script>
-        document.getElementById('fetchTranscript').addEventListener('click', () => {
-            const url = "https://free-api-call.aiseo.ai/youtube-video-transcript";
-            const videoUrl = document.getElementById('videoUrl').value;
-
-            if (!videoUrl) {
-                alert("Please enter a YouTube video URL.");
+        async function getTranscription() {
+            const urlInput = document.getElementById('youtubeUrl');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const response = document.getElementById('response');
+            
+            // Reset previous state
+            error.style.display = 'none';
+            response.textContent = '';
+            
+            if (!urlInput.value) {
+                error.textContent = 'Please enter a YouTube URL';
+                error.style.display = 'block';
                 return;
             }
 
-            const data = { url: videoUrl };
+            loading.style.display = 'block';
 
-            fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                const transcript = data.transcript;
-                let output = '';
-                transcript.forEach((item, index) => {
-                    output += `${index + 1}. [Start: ${item.start}s, Duration: ${item.duration}s] ${item.text}\n`;
+            try {
+                const result = await fetch('https://free-api-call.aiseo.ai/youtube-video-transcript', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        url: urlInput.value
+                    })
                 });
-                document.getElementById('response').textContent = output;
-            })
-            .catch(error => {
-                document.getElementById('response').textContent = `Error: ${error.message}`;
-            });
-        });
+
+                const data = await result.json();
+                response.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                error.textContent = 'Error: ' + err.message;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>
