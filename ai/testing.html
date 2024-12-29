@@ -3,118 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hugging Face Tester</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .form-group button {
-            width: 100%;
-            padding: 10px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .form-group button:hover {
-            background: #0056b3;
-        }
-        .output {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            background-color: #fafafa;
-        }
-    </style>
+    <title>YouTube Transcript Fetcher</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Hugging Face Tester</h1>
-        <form id="hfTesterForm">
-            <div class="form-group">
-                <label for="type">Select Type</label>
-                <select id="type" required>
-                    <option value="">Choose...</option>
-                    <option value="model">Model</option>
-                    <option value="space">Space</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="link">Hugging Face Link</label>
-                <input type="text" id="link" placeholder="e.g., gpt2 or spaces/username/app" required>
-            </div>
-            <div class="form-group">
-                <button type="button" onclick="testHF()">Test Hugging Face</button>
-            </div>
-        </form>
-        <div id="output" class="output"></div>
-    </div>
+    <h1>YouTube Transcript Fetcher</h1>
+    <input type="text" id="videoUrl" placeholder="Enter YouTube Video URL" style="width: 300px;">
+    <button id="fetchTranscript">Fetch Transcript</button>
+    <pre id="response" style="white-space: pre-wrap; background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></pre>
 
     <script>
-        const API_KEY = "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";
+        document.getElementById('fetchTranscript').addEventListener('click', () => {
+            const url = "https://free-api-call.aiseo.ai/youtube-video-transcript";
+            const videoUrl = document.getElementById('videoUrl').value;
 
-        async function testHF() {
-            const type = document.getElementById("type").value;
-            const link = document.getElementById("link").value;
-            const outputDiv = document.getElementById("output");
-
-            if (!type || !link) {
-                outputDiv.innerHTML = "<p style='color:red;'>Please fill out all fields.</p>";
+            if (!videoUrl) {
+                alert("Please enter a YouTube video URL.");
                 return;
             }
 
-            outputDiv.innerHTML = "<p>Loading...</p>";
+            const data = { url: videoUrl };
 
-            try {
-                if (type === "model") {
-                    const response = await fetch(`https://api-inference.huggingface.co/models/${link}`, {
-                        headers: { Authorization: `Bearer ${API_KEY}` },
-                    });
-                    if (!response.ok) throw new Error("Invalid Model or API Key.");
-                    const data = await response.json();
-                    outputDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-                } else if (type === "space") {
-                    const spaceURL = `https://hf.space/embed/${link}/+`;
-                    outputDiv.innerHTML = `<iframe src="${spaceURL}" width="100%" height="500px" style="border:none;"></iframe>`;
-                } else {
-                    throw new Error("Invalid type selected.");
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-            } catch (error) {
-                outputDiv.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
-            }
-        }
+                return response.json();
+            })
+            .then(data => {
+                const transcript = data.transcript;
+                let output = '';
+                transcript.forEach((item, index) => {
+                    output += `${index + 1}. [Start: ${item.start}s, Duration: ${item.duration}s] ${item.text}\n`;
+                });
+                document.getElementById('response').textContent = output;
+            })
+            .catch(error => {
+                document.getElementById('response').textContent = `Error: ${error.message}`;
+            });
+        });
     </script>
 </body>
 </html>
