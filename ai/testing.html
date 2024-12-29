@@ -6,195 +6,115 @@
     <title>Hugging Face Tester</title>
     <style>
         body {
-            font-family: system-ui, -apple-system, sans-serif;
-            max-width: 1000px;
-            margin: 20px auto;
+            font-family: Arial, sans-serif;
+            margin: 0;
             padding: 20px;
-            background: #f5f7fa;
+            background-color: #f4f4f4;
         }
         .container {
+            max-width: 600px;
+            margin: 0 auto;
             background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        .input-group {
-            margin-bottom: 20px;
+        h1 {
+            text-align: center;
         }
-        label {
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
-        input[type="text"], input[type="password"], textarea {
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        select {
+        .form-group button {
+            width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            background: white;
-        }
-        button {
-            background: #FF4B4B;
+            background: #007bff;
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
+            border-radius: 4px;
+            font-size: 16px;
             cursor: pointer;
-            font-weight: 500;
         }
-        button:hover {
-            background: #EB4141;
+        .form-group button:hover {
+            background: #0056b3;
         }
-        #output {
+        .output {
             margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            white-space: pre-wrap;
-        }
-        .error {
-            color: #dc3545;
             padding: 10px;
-            background: #ffe6e6;
-            border-radius: 6px;
-            margin: 10px 0;
-        }
-        .loading {
-            display: none;
-            margin: 20px 0;
-            text-align: center;
-            color: #666;
+            border: 1px solid #ddd;
+            background-color: #fafafa;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Hugging Face Model/Space Tester</h1>
-        
-        <div class="input-group">
-            <label for="type">Select Type:</label>
-            <select id="type" onchange="updateInterface()">
-                <option value="model">Model</option>
-                <option value="space">Space</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label for="link">Enter Hugging Face Link or ID:</label>
-            <input type="text" id="link" placeholder="e.g., gpt2 or facebook/bart-large-cnn">
-        </div>
-
-        <div class="input-group">
-            <label for="token">API Token (optional):</label>
-            <input type="password" id="token" placeholder="Enter your Hugging Face API token">
-        </div>
-
-        <div class="input-group">
-            <label for="input">Input:</label>
-            <textarea id="input" placeholder="Enter your input text or JSON"></textarea>
-        </div>
-
-        <div class="input-group" id="taskSelect" style="display: none;">
-            <label for="task">Select Task:</label>
-            <select id="task">
-                <option value="text-generation">Text Generation</option>
-                <option value="summarization">Summarization</option>
-                <option value="translation">Translation</option>
-                <option value="question-answering">Question Answering</option>
-                <option value="image-classification">Image Classification</option>
-                <option value="text-classification">Text Classification</option>
-            </select>
-        </div>
-
-        <button onclick="sendRequest()">Run</button>
-        
-        <div class="loading" id="loading">Processing request...</div>
-        <div id="output"></div>
+        <h1>Hugging Face Tester</h1>
+        <form id="hfTesterForm">
+            <div class="form-group">
+                <label for="type">Select Type</label>
+                <select id="type" required>
+                    <option value="">Choose...</option>
+                    <option value="model">Model</option>
+                    <option value="space">Space</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="link">Hugging Face Link</label>
+                <input type="text" id="link" placeholder="e.g., gpt2 or spaces/username/app" required>
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="testHF()">Test Hugging Face</button>
+            </div>
+        </form>
+        <div id="output" class="output"></div>
     </div>
 
     <script>
-        function updateInterface() {
-            const type = document.getElementById('type').value;
-            const taskSelect = document.getElementById('taskSelect');
-            taskSelect.style.display = type === 'model' ? 'block' : 'none';
-        }
+        const API_KEY = "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";
 
-        async function sendRequest() {
-            const type = document.getElementById('type').value;
-            const link = document.getElementById('link').value.trim();
-            const token = document.getElementById('token').value.trim();
-            const input = document.getElementById('input').value.trim();
-            const task = document.getElementById('task').value;
-            
-            const loading = document.getElementById('loading');
-            const output = document.getElementById('output');
+        async function testHF() {
+            const type = document.getElementById("type").value;
+            const link = document.getElementById("link").value;
+            const outputDiv = document.getElementById("output");
 
-            if (!link || !input) {
-                output.innerHTML = '<div class="error">Please fill in all required fields</div>';
+            if (!type || !link) {
+                outputDiv.innerHTML = "<p style='color:red;'>Please fill out all fields.</p>";
                 return;
             }
 
-            loading.style.display = 'block';
-            output.innerHTML = '';
+            outputDiv.innerHTML = "<p>Loading...</p>";
 
             try {
-                let apiUrl;
-                let headers = {
-                    'Content-Type': 'application/json'
-                };
-                
-                if (token) {
-                    headers['Authorization'] = `Bearer ${token}`;
-                }
-
-                if (type === 'model') {
-                    apiUrl = `https://api-inference.huggingface.co/models/${link}`;
+                if (type === "model") {
+                    const response = await fetch(`https://api-inference.huggingface.co/models/${link}`, {
+                        headers: { Authorization: `Bearer ${API_KEY}` },
+                    });
+                    if (!response.ok) throw new Error("Invalid Model or API Key.");
+                    const data = await response.json();
+                    outputDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else if (type === "space") {
+                    const spaceURL = `https://hf.space/embed/${link}/+`;
+                    outputDiv.innerHTML = `<iframe src="${spaceURL}" width="100%" height="500px" style="border:none;"></iframe>`;
                 } else {
-                    apiUrl = `https://api-inference.huggingface.co/spaces/${link}`;
-                }
-
-                let payload;
-                try {
-                    // Try to parse input as JSON
-                    payload = JSON.parse(input);
-                } catch {
-                    // If not JSON, send as plain text
-                    payload = { inputs: input };
-                }
-
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    output.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-                } else {
-                    output.innerHTML = `<div class="error">Error: ${data.error || 'Unknown error occurred'}</div>`;
+                    throw new Error("Invalid type selected.");
                 }
             } catch (error) {
-                output.innerHTML = `<div class="error">Error: ${error.message}</div>`;
-            } finally {
-                loading.style.display = 'none';
+                outputDiv.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
             }
         }
-
-        // Initialize interface
-        updateInterface();
     </script>
 </body>
 </html>
