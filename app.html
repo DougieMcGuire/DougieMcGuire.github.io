@@ -108,7 +108,7 @@
 
                 // Format the transcript into "line:timestamp"
                 currentTranscript = transcriptData.transcript
-                    .map(item => `${item.text.replace(/[\{\}\[\]]/)}:${item.timestamp}`)
+                    .map(item => `${item.text.replace(/[\{\}\[\]]/g, '')}:${item.timestamp}`)
                     .join('\n');
                 
                 transcriptContent.textContent = currentTranscript;
