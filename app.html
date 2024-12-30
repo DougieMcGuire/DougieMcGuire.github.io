@@ -77,10 +77,9 @@
     const messagesDiv = document.getElementById('messages');
     const userInput = document.getElementById('userInput');
 
-    const API_URL = 'https://cognitivecomputations-chat.hf.space/call/chat';
-    const MODEL = 'dolphin-2.9.1-llama-3-70b.Q3_K_M.gguf';
+    const API_URL = 'https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct/v1/chat/completions';
+    const API_KEY = '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'; // Replace with your HuggingFace API key
 
-    // Function to add messages to the chat display
     function addMessage(text, isUser) {
       const messageDiv = document.createElement('div');
       messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
@@ -89,49 +88,39 @@
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
-    // Main function to send the user's message
     async function sendMessage() {
       const message = userInput.value;
       if (!message) return;
 
-      // Display user's message
       addMessage(message, true);
       userInput.value = '';
 
       try {
-        // Step 1: Send initial POST request
-        const postResponse = await fetch(API_URL, {
+        const response = await fetch(API_URL, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Authorization': `Bearer ${API_KEY}`,
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            data: [
-              message,
-              MODEL,
-              1,
-              0.1,
-              0.1,
-              0,
-              0
-            ]
+            model: "Qwen/Qwen2.5-Coder-32B-Instruct",
+            messages: [
+              {
+                role: "user",
+                content: message
+              }
+            ],
+            max_tokens: 500,
+            stream: false
           })
         });
 
-        const postData = await postResponse.json();
-
-        if (!postData || !postData.data[0]) {
-          throw new Error('Failed to get Event ID');
+        if (!response.ok) {
+          throw new Error('Failed to fetch response');
         }
 
-        const eventId = postData.data[0]; // Get the EVENT_ID
-        console.log('Event ID:', eventId);
-
-        // Step 2: Poll for the AI response using EVENT_ID
-        let aiMessage = await pollForResponse(eventId);
-
-        // Display AI's response
+        const data = await response.json();
+        const aiMessage = data.choices[0].message.content; // Extract AI response
         addMessage(aiMessage, false);
 
       } catch (error) {
@@ -140,34 +129,6 @@
       }
     }
 
-    // Polling function to fetch the AI response
-    async function pollForResponse(eventId) {
-      const POLL_URL = `${API_URL}/${eventId}`;
-      let attempts = 0;
-
-      while (attempts < 20) { // Max 20 attempts (~10 seconds)
-        const response = await fetch(POLL_URL, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json'
-          }
-        });
-
-        if (response.status === 200) {
-          const data = await response.json();
-          if (data && data.data[0]) {
-            return data.data[0]; // Return AI's response
-          }
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms
-        attempts++;
-      }
-
-      throw new Error('Timed out waiting for response');
-    }
-
-    // Allow pressing 'Enter' to send the message
     userInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') sendMessage();
     });
