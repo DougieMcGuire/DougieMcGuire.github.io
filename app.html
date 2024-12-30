@@ -100,7 +100,7 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'text/event-stream'
+            'Accept': 'application/json' // Correct header for JSON responses
           },
           body: JSON.stringify({
             data: [
@@ -116,19 +116,10 @@
         });
 
         const data = await response.json();
-        const eventId = data.data[0];
 
-        const eventSource = new EventSource(`${API_URL}/${eventId}`);
-        
-        eventSource.onmessage = function(event) {
-          addMessage(event.data, false);
-          eventSource.close();
-        };
-
-        eventSource.onerror = function() {
-          eventSource.close();
-          addMessage('Error: Connection failed', false);
-        };
+        // Extract the response and display the AI message
+        const aiMessage = data.data[0];
+        addMessage(aiMessage, false);
 
       } catch (error) {
         console.error('Error:', error);
