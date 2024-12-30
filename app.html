@@ -1,104 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qwen Chatbot</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    #chatbox {
-      width: 100%;
-      height: 400px;
-      border: 1px solid #ccc;
-      overflow-y: scroll;
-      padding: 10px;
-    }
-    #userInput {
-      width: 80%;
-      padding: 10px;
-    }
-    #sendButton {
-      padding: 10px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qwen 32B AI Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .chat-container {
+            width: 400px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .chat-body {
+            height: 300px;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            outline: none;
+        }
+        .chat-input button {
+            padding: 15px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        .chat-input button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-bottom: 10px;
+        }
+        .message.user {
+            text-align: right;
+        }
+        .message.bot {
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
-  <h1>Qwen Chatbot</h1>
-  <div id="chatbox"></div>
-  <input type="text" id="userInput" placeholder="Type a message..." />
-  <button id="sendButton">Send</button>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>Chat with Qwen 32B</h2>
+        </div>
+        <div class="chat-body" id="chat-body">
+            <!-- Messages will appear here -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type a message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
 
-  <script>
-    const chatbox = document.getElementById("chatbox");
-    const userInput = document.getElementById("userInput");
-    const sendButton = document.getElementById("sendButton");
+    <script>
+        const API_ENDPOINT = 'https://api-inference.huggingface.co/models/Qwen/QwQ-32B-preview';
+        const API_KEY = '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'; // Replace with your Hugging Face API key
 
-    // Hugging Face API details
-    const API_URL = "https://api-inference.huggingface.co/models/Qwen/QwQ-32B-Preview/";
-    const API_KEY = "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"; // Replace with your token
+        async function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            if (!userInput.trim()) return;
 
-    // Append messages to chatbox
-    function appendMessage(sender, message) {
-      const msg = document.createElement("p");
-      msg.innerHTML = `<strong>${sender}:</strong> ${message}`;
-      chatbox.appendChild(msg);
-      chatbox.scrollTop = chatbox.scrollHeight;
-    }
+            appendMessage(userInput, 'user');
+            document.getElementById('user-input').value = '';
 
-    // Send user input to API and get response
-    async function sendMessage() {
-      const message = userInput.value.trim();
-      if (!message) return;
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({ inputs: userInput })
+                });
 
-      // Show user message
-      appendMessage("You", message);
-      userInput.value = "";
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
 
-      // Show typing indicator
-      appendMessage("Bot", "Typing...");
-
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "Qwen/QwQ-32B-Preview",
-            messages: [
-              {
-                role: "user",
-                content: message,
-              },
-            ],
-            max_tokens: 500,
-          }),
-        });
-
-        const data = await response.json();
-
-        // Check response and display it
-        if (data && data.choices && data.choices.length > 0) {
-          appendMessage("Bot", data.choices[0].message.content);
-        } else if (data.error) {
-          appendMessage("Bot", `Error: ${data.error.message}`);
-        } else {
-          appendMessage("Bot", "Sorry, I didn't understand that.");
+                const data = await response.json();
+                const botReply = data[0].generated_text; // Adjust based on actual response structure
+                appendMessage(botReply, 'bot');
+            } catch (error) {
+                console.error('Error:', error);
+                appendMessage('Oops! Something went wrong.', 'bot');
+            }
         }
-      } catch (error) {
-        appendMessage("Bot", "Error: Unable to connect.");
-      }
-    }
 
-    // Event listeners
-    sendButton.addEventListener("click", sendMessage);
-    userInput.addEventListener("keypress", function (e) {
-      if (e.key === "Enter") sendMessage();
-    });
-  </script>
+        function appendMessage(message, sender) {
+            const chatBody = document.getElementById('chat-body');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender);
+            messageElement.textContent = message;
+            chatBody.appendChild(messageElement);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+    </script>
 </body>
 </html>
