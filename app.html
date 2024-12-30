@@ -1,105 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat with Dolphin AI</title>
+  <title>AI Chat Interface</title>
+  <style>
+    body {
+      font-family: system-ui;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .chat-container {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .messages {
+      height: 400px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #eee;
+      border-radius: 5px;
+    }
+    .message {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .user-message {
+      background: #e3f2fd;
+      margin-left: 20%;
+    }
+    .ai-message {
+      background: #f5f5f5;
+      margin-right: 20%;
+    }
+    .input-container {
+      display: flex;
+      gap: 10px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1565c0;
+    }
+  </style>
 </head>
 <body>
-  <h1>Chat with Dolphin AI</h1>
-  <form id="chat-form">
-    <label for="message">Message:</label><br>
-    <input type="text" id="message" required><br><br>
-
-    <label for="model">Model:</label><br>
-    <select id="model">
-      <option value="dolphin-2.9.1-llama-3-70b.Q3_K_M.gguf" selected>
-        dolphin-2.9.1-llama-3-70b.Q3_K_M.gguf
-      </option>
-      <!-- Add more models here if needed -->
-    </select><br><br>
-
-    <label for="max-tokens">Max Tokens:</label><br>
-    <input type="number" id="max-tokens" min="1" max="5000" value="1" required><br><br>
-
-    <label for="temperature">Temperature:</label><br>
-    <input type="number" id="temperature" step="0.1" min="0" max="1" value="0.1" required><br><br>
-
-    <label for="top-p">Top-p:</label><br>
-    <input type="number" id="top-p" step="0.1" min="0" max="1" value="0.1" required><br><br>
-
-    <label for="top-k">Top-k:</label><br>
-    <input type="number" id="top-k" min="0" max="100" value="0" required><br><br>
-
-    <label for="repetition-penalty">Repetition Penalty:</label><br>
-    <input type="number" id="repetition-penalty" step="0.1" min="0" value="0" required><br><br>
-
-    <button type="submit">Send</button>
-  </form>
-
-  <div id="response"></div>
+  <div class="chat-container">
+    <div class="messages" id="messages"></div>
+    <div class="input-container">
+      <input type="text" id="userInput" placeholder="Type your message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
 
   <script>
-    const apiUrl = "https://cognitivecomputations-chat.hf.space/call/chat";
+    const messagesDiv = document.getElementById('messages');
+    const userInput = document.getElementById('userInput');
 
-    async function getAIResponse(data) {
+    const API_URL = 'https://cognitivecomputations-chat.hf.space/call/chat';
+    const MODEL = 'dolphin-2.9.1-llama-3-70b.Q3_K_M.gguf';
+    
+    function addMessage(text, isUser) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+      messageDiv.textContent = text;
+      messagesDiv.appendChild(messageDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const message = userInput.value;
+      if (!message) return;
+
+      addMessage(message, true);
+      userInput.value = '';
+
       try {
-        // Step 1: Send the data to the API
-        const postResponse = await fetch(apiUrl, {
-          method: "POST",
+        // First request to get event ID
+        const response = await fetch(API_URL, {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ data }),
+          body: JSON.stringify({
+            data: [
+              message,
+              MODEL,
+              1,        // Max tokens
+              0.1,      // Temperature
+              0.1,      // Top-p
+              0,        // Top-k
+              0         // Repetition penalty
+            ]
+          })
         });
 
-        const postData = await postResponse.json();
-        const eventId = postData?.event_id;
-        if (!eventId) {
-          throw new Error("Failed to get event ID");
-        }
+        const data = await response.json();
+        const eventId = data.data[0];
 
-        // Step 2: Fetch the chat response using the event ID
-        const chatResponse = await fetch(`${apiUrl}/${eventId}`, {
-          method: "GET",
-        });
-        const chatData = await chatResponse.json();
+        // Second request to get AI response
+        const eventResponse = await fetch(`${API_URL}/${eventId}`);
+        const aiMessage = await eventResponse.text();
+        addMessage(aiMessage, false);
 
-        return chatData?.data?.[0] || "No response received.";
       } catch (error) {
-        console.error("Error communicating with the API:", error);
-        return "An error occurred while getting the response.";
+        console.error('Error:', error);
+        addMessage('Error: Failed to get response', false);
       }
     }
 
-    // Handle form submission
-    document.getElementById("chat-form").addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      // Collect values from the form
-      const message = document.getElementById("message").value;
-      const model = document.getElementById("model").value;
-      const maxTokens = parseInt(document.getElementById("max-tokens").value, 10);
-      const temperature = parseFloat(document.getElementById("temperature").value);
-      const topP = parseFloat(document.getElementById("top-p").value);
-      const topK = parseInt(document.getElementById("top-k").value, 10);
-      const repetitionPenalty = parseFloat(
-        document.getElementById("repetition-penalty").value
-      );
-
-      const responseContainer = document.getElementById("response");
-      responseContainer.textContent = "Loading...";
-
-      const aiResponse = await getAIResponse([
-        message,
-        model,
-        maxTokens,
-        temperature,
-        topP,
-        topK,
-        repetitionPenalty,
-      ]);
-      responseContainer.textContent = `AI: ${aiResponse}`;
+    // Allow sending message with Enter key
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
     });
   </script>
 </body>
