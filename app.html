@@ -108,7 +108,7 @@
 
                 // Format the transcript into "line:timestamp"
                 currentTranscript = transcriptData.transcript
-                    .map(item => `${item.text.replace(/[\{\}\[\]]/g, '')}:${item.timestamp}`)
+                    .map(item => `${item.text.replace(/[\{\}\[\]]/)}:${item.timestamp}`)
                     .join('\n');
                 
                 transcriptContent.textContent = currentTranscript;
@@ -138,7 +138,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer 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' // Replace with your API key
+                        'Authorization': 'Bearer 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' // Replace with your API key
                     },
                     body: JSON.stringify({
                         inputs: `Analyze the following transcript and extract only the lines that someone might react to, such as funny or questionable statements. Format each line as "newcontext:timestamp":\n\n${currentTranscript}`
