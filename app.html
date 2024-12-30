@@ -58,6 +58,10 @@
     button:hover {
       background: #1565c0;
     }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -75,13 +79,6 @@
 
     const API_URL = 'https://cognitivecomputations-chat.hf.space/call/chat';
     const MODEL = 'dolphin-2.9.1-llama-3-70b.Q3_K_M.gguf';
-    
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Connection': 'keep-alive',
-      'Cache-Control': 'no-cache'
-    };
 
     function addMessage(text, isUser) {
       const messageDiv = document.createElement('div');
@@ -101,7 +98,10 @@
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
-          headers: headers,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'text/event-stream'
+          },
           body: JSON.stringify({
             data: [
               message,
@@ -118,12 +118,17 @@
         const data = await response.json();
         const eventId = data.data[0];
 
-        const eventResponse = await fetch(`${API_URL}/${eventId}`, {
-          headers: headers
-        });
+        const eventSource = new EventSource(`${API_URL}/${eventId}`);
         
-        const aiMessage = await eventResponse.text();
-        addMessage(aiMessage, false);
+        eventSource.onmessage = function(event) {
+          addMessage(event.data, false);
+          eventSource.close();
+        };
+
+        eventSource.onerror = function() {
+          eventSource.close();
+          addMessage('Error: Connection failed', false);
+        };
 
       } catch (error) {
         console.error('Error:', error);
