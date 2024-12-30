@@ -3,121 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Qwen 32B AI Chat</title>
+    <title>YouTube Transcript Chat</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f4f4f9;
+            margin: 20px;
+            max-width: 800px;
         }
-        .chat-container {
-            width: 400px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+        input, button, textarea {
+            margin-bottom: 10px;
+            padding: 8px;
+            width: 100%;
         }
-        .chat-header {
-            background-color: #007bff;
+        button {
+            cursor: pointer;
+            background-color: #4CAF50;
             color: white;
-            padding: 15px;
-            text-align: center;
+            border: none;
         }
-        .chat-body {
-            height: 300px;
-            padding: 15px;
-            overflow-y: auto;
+        button:hover {
+            background-color: #45a049;
+        }
+        #loading {
+            display: none;
+            color: blue;
+        }
+        #error {
+            display: none;
+            color: red;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
         .chat-input {
-            display: flex;
-            border-top: 1px solid #ddd;
+            display: none;
+            margin-top: 20px;
         }
-        .chat-input input {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            outline: none;
-        }
-        .chat-input button {
-            padding: 15px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-        }
-        .chat-input button:hover {
-            background-color: #0056b3;
-        }
-        .message {
-            margin-bottom: 10px;
-        }
-        .message.user {
-            text-align: right;
-        }
-        .message.bot {
-            text-align: left;
+        #userPrompt {
+            height: 100px;
+            resize: vertical;
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h2>Chat with Qwen 32B</h2>
-        </div>
-        <div class="chat-body" id="chat-body">
-            <!-- Messages will appear here -->
-        </div>
-        <div class="chat-input">
-            <input type="text" id="user-input" placeholder="Type a message..." />
-            <button onclick="sendMessage()">Send</button>
-        </div>
+    <h1>YouTube Transcript Chat</h1>
+    <input type="text" id="youtubeUrl" placeholder="Enter YouTube Video URL">
+    <button onclick="getTranscript()">Get Transcript</button>
+    <p id="loading">Loading...</p>
+    <p id="error"></p>
+    
+    <div class="chat-input" id="chatSection">
+        <h2>Transcript Content</h2>
+        <pre id="transcriptContent"></pre>
+        
+        <h2>Filtered Context (Reactions)</h2>
+        <pre id="filteredContent"></pre>
     </div>
 
     <script>
-        const API_ENDPOINT = 'https://api-inference.huggingface.co/models/Qwen/QwQ-32B-preview';
-        const API_KEY = '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'; // Replace with your Hugging Face API key
+        let currentTranscript = '';
 
-        async function sendMessage() {
-            const userInput = document.getElementById('user-input').value;
-            if (!userInput.trim()) return;
-
-            appendMessage(userInput, 'user');
-            document.getElementById('user-input').value = '';
+        async function getTranscript() {
+            const urlInput = document.getElementById('youtubeUrl');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const chatSection = document.getElementById('chatSection');
+            const transcriptContent = document.getElementById('transcriptContent');
+            const filteredContent = document.getElementById('filteredContent');
+            
+            // Reset previous state
+            error.style.display = 'none';
+            loading.style.display = 'block';
+            chatSection.style.display = 'none';
+            filteredContent.textContent = '';
+            
+            if (!urlInput.value) {
+                error.textContent = 'Please enter a YouTube URL';
+                error.style.display = 'block';
+                loading.style.display = 'none';
+                return;
+            }
 
             try {
-                const response = await fetch(API_ENDPOINT, {
+                // Fetch the transcript
+                const transcriptResult = await fetch('https://free-api-call.aiseo.ai/youtube-video-transcript', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}`
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ inputs: userInput })
+                    body: JSON.stringify({
+                        url: urlInput.value
+                    })
                 });
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                const transcriptData = await transcriptResult.json();
+
+                if (!transcriptData || !transcriptData.transcript) {
+                    throw new Error('Failed to fetch transcript');
                 }
 
-                const data = await response.json();
-                const botReply = data[0].generated_text; // Adjust based on actual response structure
-                appendMessage(botReply, 'bot');
-            } catch (error) {
-                console.error('Error:', error);
-                appendMessage('Oops! Something went wrong.', 'bot');
+                // Format the transcript into "line:timestamp"
+                currentTranscript = transcriptData.transcript
+                    .map(item => `${item.text.replace(/[\{\}\[\]]/g, '')}:${item.timestamp}`)
+                    .join('\n');
+                
+                transcriptContent.textContent = currentTranscript;
+                chatSection.style.display = 'block';
+
+                // Process transcript through Gemma-2-2B-IT
+                await filterTranscriptForReactions();
+
+            } catch (err) {
+                error.textContent = 'Error: ' + err.message;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
             }
         }
 
-        function appendMessage(message, sender) {
-            const chatBody = document.getElementById('chat-body');
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('message', sender);
-            messageElement.textContent = message;
-            chatBody.appendChild(messageElement);
-            chatBody.scrollTop = chatBody.scrollHeight;
+        async function filterTranscriptForReactions() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const filteredContent = document.getElementById('filteredContent');
+
+            loading.style.display = 'block';
+            error.style.display = 'none';
+
+            try {
+                const modelResponse = await fetch('https://api-inference.huggingface.co/models/google/gemma-2-2b-it', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer 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' // Replace with your API key
+                    },
+                    body: JSON.stringify({
+                        inputs: `Analyze the following transcript and extract only the lines that someone might react to, such as funny or questionable statements. Format each line as "newcontext:timestamp":\n\n${currentTranscript}`
+                    })
+                });
+
+                const modelData = await modelResponse.json();
+
+                if (modelData.error) {
+                    throw new Error(modelData.error);
+                }
+
+                // Display the filtered content
+                filteredContent.textContent = modelData.generated_text || 'No reactions found.';
+
+            } catch (err) {
+                error.textContent = 'Error: ' + err.message;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
         }
     </script>
 </body>
