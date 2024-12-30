@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Transcript Summarizer</title>
+    <title>YouTube Transcript Chat</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            max-width: 600px;
+            max-width: 800px;
         }
-        input, button {
+        input, button, textarea {
             margin-bottom: 10px;
             padding: 8px;
             width: 100%;
@@ -39,38 +39,58 @@
             white-space: pre-wrap;
             word-wrap: break-word;
         }
+        .chat-input {
+            display: none;
+            margin-top: 20px;
+        }
+        #userPrompt {
+            height: 100px;
+            resize: vertical;
+        }
     </style>
 </head>
 <body>
-    <h1>YouTube Transcript Summarizer</h1>
+    <h1>YouTube Transcript Chat</h1>
     <input type="text" id="youtubeUrl" placeholder="Enter YouTube Video URL">
-    <button onclick="processTranscript()">Summarize Transcript</button>
+    <button onclick="getTranscript()">Get Transcript</button>
     <p id="loading">Loading...</p>
     <p id="error"></p>
-    <h2>Summary</h2>
-    <pre id="response"></pre>
+    
+    <div class="chat-input" id="chatSection">
+        <h2>Transcript Content</h2>
+        <pre id="transcriptContent"></pre>
+        
+        <h2>Ask About the Transcript</h2>
+        <textarea id="userPrompt" placeholder="Enter your question or request about the transcript..."></textarea>
+        <button onclick="askAboutTranscript()">Send Question</button>
+        
+        <h2>Response</h2>
+        <pre id="response"></pre>
+    </div>
 
     <script>
-        async function processTranscript() {
+        let currentTranscript = '';
+
+        async function getTranscript() {
             const urlInput = document.getElementById('youtubeUrl');
             const loading = document.getElementById('loading');
             const error = document.getElementById('error');
-            const response = document.getElementById('response');
+            const chatSection = document.getElementById('chatSection');
+            const transcriptContent = document.getElementById('transcriptContent');
             
             // Reset previous state
             error.style.display = 'none';
-            response.textContent = '';
+            loading.style.display = 'block';
+            chatSection.style.display = 'none';
             
             if (!urlInput.value) {
                 error.textContent = 'Please enter a YouTube URL';
                 error.style.display = 'block';
+                loading.style.display = 'none';
                 return;
             }
 
-            loading.style.display = 'block';
-
             try {
-                // Step 1: Fetch transcript from the Aiseo API
                 const transcriptResult = await fetch('https://free-api-call.aiseo.ai/youtube-video-transcript', {
                     method: 'POST',
                     headers: {
@@ -87,29 +107,49 @@
                     throw new Error('Failed to fetch transcript');
                 }
 
-                // Combine transcript text
-                const fullTranscript = transcriptData.transcript
+                // Store and display the transcript
+                currentTranscript = transcriptData.transcript
                     .map(item => item.text)
                     .join(' ');
+                
+                transcriptContent.textContent = currentTranscript;
+                chatSection.style.display = 'block';
 
-                // Step 2: Send the transcript to the Chat API with a "summarize this" message
+            } catch (err) {
+                error.textContent = 'Error: ' + err.message;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        async function askAboutTranscript() {
+            const userPrompt = document.getElementById('userPrompt');
+            const response = document.getElementById('response');
+            const error = document.getElementById('error');
+            const loading = document.getElementById('loading');
+
+            error.style.display = 'none';
+            loading.style.display = 'block';
+            response.textContent = '';
+
+            try {
                 const chatResponse = await fetch('https://huggingface.co/spaces/cognitivecomputations/chat/api/predict', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        data: [`Summarize this: ${fullTranscript}`]
+                        data: [`Context: ${currentTranscript}\n\nQuestion/Request: ${userPrompt.value}`]
                     })
                 });
 
                 const chatData = await chatResponse.json();
 
                 if (!chatData || !chatData.data || !chatData.data[0]) {
-                    throw new Error('Failed to summarize transcript');
+                    throw new Error('Failed to get response');
                 }
 
-                // Display summary
                 response.textContent = chatData.data[0];
 
             } catch (err) {
