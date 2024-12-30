@@ -51,8 +51,6 @@
     <pre id="response"></pre>
 
     <script>
-        const huggingFaceToken = "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";
-
         async function processTranscript() {
             const urlInput = document.getElementById('youtubeUrl');
             const loading = document.getElementById('loading');
@@ -94,26 +92,25 @@
                     .map(item => item.text)
                     .join(' ');
 
-                // Step 2: Send the transcript to AnyChat's Hugging Face Space API
-                const anyChatResult = await fetch('https://anychat.hf.space/run/predict', {
+                // Step 2: Send the transcript to the Chat API with a "summarize this" message
+                const chatResponse = await fetch('https://huggingface.co/spaces/cognitivecomputations/chat/api/predict', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${huggingFaceToken}`
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        data: [fullTranscript] // Adjust this as per AnyChat's API requirements
+                        data: [`Summarize this: ${fullTranscript}`]
                     })
                 });
 
-                const anyChatData = await anyChatResult.json();
+                const chatData = await chatResponse.json();
 
-                if (!anyChatData || !anyChatData.data || !anyChatData.data[0]) {
+                if (!chatData || !chatData.data || !chatData.data[0]) {
                     throw new Error('Failed to summarize transcript');
                 }
 
                 // Display summary
-                response.textContent = anyChatData.data[0];
+                response.textContent = chatData.data[0];
 
             } catch (err) {
                 error.textContent = 'Error: ' + err.message;
