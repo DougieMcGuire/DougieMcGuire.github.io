@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI Chat Interface</title>
+  <title>Qwen Chat Interface</title>
   <style>
     body {
       font-family: system-ui;
@@ -58,10 +58,6 @@
     button:hover {
       background: #1565c0;
     }
-    .error {
-      color: red;
-      margin-top: 10px;
-    }
   </style>
 </head>
 <body>
@@ -74,11 +70,12 @@
   </div>
 
   <script>
+    // Replace with your actual API key
+    const API_KEY = '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';
+    const API_URL = 'https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct/v1/chat/completions';
+    
     const messagesDiv = document.getElementById('messages');
     const userInput = document.getElementById('userInput');
-
-    const API_URL = 'https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct/v1/chat/completions';
-    const API_KEY = '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'; // Replace with your HuggingFace API key
 
     function addMessage(text, isUser) {
       const messageDiv = document.createElement('div');
@@ -115,13 +112,12 @@
           })
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch response');
-        }
-
         const data = await response.json();
-        const aiMessage = data.choices[0].message.content; // Extract AI response
-        addMessage(aiMessage, false);
+        if (data.choices && data.choices[0]) {
+          addMessage(data.choices[0].message.content, false);
+        } else {
+          addMessage('Error: Unexpected response format', false);
+        }
 
       } catch (error) {
         console.error('Error:', error);
