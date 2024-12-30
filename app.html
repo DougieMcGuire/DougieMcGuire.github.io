@@ -1,118 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with Gradio Client</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .chat-container {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            width: 400px;
-            max-width: 90%;
-            padding: 20px;
-        }
-        .messages {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            background: #f9f9f9;
-        }
-        .message {
-            margin: 5px 0;
-        }
-        .message.user {
-            text-align: right;
-        }
-        .input-container {
-            display: flex;
-            gap: 10px;
-        }
-        .input-container input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .input-container button {
-            padding: 10px 20px;
-            background: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .input-container button:hover {
-            background: #0056b3;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat with AI</title>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="messages" id="messages"></div>
-        <div class="input-container">
-            <input type="text" id="userMessage" placeholder="Type your message..." />
-            <button id="sendButton">Send</button>
-        </div>
-    </div>
+  <h1>Chat with Dolphin AI</h1>
+  <form id="chat-form">
+    <label for="user-message">Your Message:</label><br>
+    <input type="text" id="user-message" name="user-message" required><br><br>
+    <button type="submit">Send</button>
+  </form>
+  <div id="response"></div>
 
-    <script type="module">
-        import { Client } from "@gradio/client";
+  <script>
+    const apiUrl = "https://cognitivecomputations-chat.hf.space/call/chat";
 
-        const client = await Client.connect("cognitivecomputations/chat");
-        const messagesContainer = document.getElementById("messages");
-        const userMessageInput = document.getElementById("userMessage");
-        const sendButton = document.getElementById("sendButton");
-
-        async function sendMessage() {
-            const userMessage = userMessageInput.value.trim();
-            if (!userMessage) return;
-
-            addMessage(userMessage, "user");
-            userMessageInput.value = "";
-
-            try {
-                const result = await client.predict("/chat", {
-                    message: userMessage,
-                    model: "dolphin-2.9.1-llama-3-70b.Q3_K_M.gguf",
-                    max_tokens: 1,
-                    temperature: 0.1,
-                    top_p: 0.1,
-                    top_k: 0,
-                    repeat_penalty: 0,
-                });
-
-                addMessage(result.data, "bot");
-            } catch (error) {
-                addMessage("Error: Unable to connect to the server.", "bot");
-            }
-        }
-
-        function addMessage(text, sender) {
-            const messageElement = document.createElement("div");
-            messageElement.className = `message ${sender}`;
-            messageElement.textContent = text;
-            messagesContainer.appendChild(messageElement);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        sendButton.addEventListener("click", sendMessage);
-        userMessageInput.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") sendMessage();
+    async function getAIResponse(message) {
+      try {
+        // Step 1: Send the message to the API
+        const postResponse = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data: [
+              message,
+              "dolphin-2.9.1-llama-3-70b.Q3_K_M.gguf",
+              1,
+              0.1,
+              0.1,
+              0,
+              0,
+            ],
+          }),
         });
-    </script>
+
+        const postData = await postResponse.json();
+        const eventId = postData?.event_id;
+        if (!eventId) {
+          throw new Error("Failed to get event ID");
+        }
+
+        // Step 2: Fetch the chat response using the event ID
+        const chatResponse = await fetch(`${apiUrl}/${eventId}`, {
+          method: "GET",
+        });
+        const chatData = await chatResponse.json();
+
+        return chatData?.data?.[0] || "No response received.";
+      } catch (error) {
+        console.error("Error communicating with the API:", error);
+        return "An error occurred while getting the response.";
+      }
+    }
+
+    // Handle form submission
+    document.getElementById("chat-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const userMessage = document.getElementById("user-message").value;
+      const responseContainer = document.getElementById("response");
+
+      responseContainer.textContent = "Loading...";
+      const aiResponse = await getAIResponse(userMessage);
+      responseContainer.textContent = `AI: ${aiResponse}`;
+    });
+  </script>
 </body>
 </html>
