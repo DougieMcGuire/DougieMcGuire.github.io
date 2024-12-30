@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chatbot</title>
+  <title>Qwen Chatbot</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -37,10 +37,10 @@
     const sendButton = document.getElementById("sendButton");
 
     // Hugging Face API details
-    const API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct";
-    const API_KEY = "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"; // Replace with your key
+    const API_URL = "https://api-inference.huggingface.co/models/Qwen/QwQ-32B-Preview/v1/chat/completions";
+    const API_KEY = "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"; // Replace with your token
 
-    // Display messages in chatbox
+    // Append messages to chatbox
     function appendMessage(sender, message) {
       const msg = document.createElement("p");
       msg.innerHTML = `<strong>${sender}:</strong> ${message}`;
@@ -68,18 +68,25 @@
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            inputs: message,
-            parameters: { max_length: 200 },
+            model: "Qwen/QwQ-32B-Preview",
+            messages: [
+              {
+                role: "user",
+                content: message,
+              },
+            ],
+            max_tokens: 500,
+            stream: false,
           }),
         });
 
         const data = await response.json();
 
-        // Check for response and display it
-        if (data && data.generated_text) {
-          appendMessage("Bot", data.generated_text);
+        // Check response and display it
+        if (data && data.choices && data.choices.length > 0) {
+          appendMessage("Bot", data.choices[0].message.content);
         } else if (data.error) {
-          appendMessage("Bot", `Error: ${data.error}`);
+          appendMessage("Bot", `Error: ${data.error.message}`);
         } else {
           appendMessage("Bot", "Sorry, I didn't understand that.");
         }
@@ -88,10 +95,8 @@
       }
     }
 
-    // Attach event listener for button click
+    // Event listeners
     sendButton.addEventListener("click", sendMessage);
-
-    // Allow pressing Enter to send message
     userInput.addEventListener("keypress", function (e) {
       if (e.key === "Enter") sendMessage();
     });
