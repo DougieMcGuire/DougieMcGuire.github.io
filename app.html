@@ -67,6 +67,30 @@
     <script>
         let currentTranscript = '';
 
+        function roundToNearestSecond(timestamp) {
+            return Math.round(parseFloat(timestamp));
+        }
+
+        function combineLines(lines, chunkSize = 5) {
+            const combinedLines = [];
+            for (let i = 0; i < lines.length; i += chunkSize) {
+                const chunk = lines.slice(i, i + chunkSize);
+                const firstTimestamp = chunk[0]?.timestamp;
+                if (firstTimestamp !== undefined) {
+                    const roundedTimestamp = roundToNearestSecond(firstTimestamp);
+                    const combinedText = chunk
+                        .map(item => item.text)
+                        .filter(text => text) // Remove empty lines
+                        .join(' ');
+                    combinedLines.push({
+                        text: combinedText,
+                        timestamp: roundedTimestamp
+                    });
+                }
+            }
+            return combinedLines;
+        }
+
         async function getTranscript() {
             const urlInput = document.getElementById('youtubeUrl');
             const loading = document.getElementById('loading');
@@ -106,9 +130,12 @@
                     throw new Error('Failed to fetch transcript');
                 }
 
-                // Format the transcript into "line:timestamp"
-                currentTranscript = transcriptData.transcript
-                    .map(item => `${item.text.replace(/[\{\}\[\]]/g, '')}:${item.timestamp}`)
+                // Combine every 5 lines and format with timestamps
+                const combinedTranscript = combineLines(transcriptData.transcript);
+                
+                // Format the transcript with "s" prefix for timestamps
+                currentTranscript = combinedTranscript
+                    .map(item => `${item.text.replace(/[\{\}\[\]]/g, '')}: s${item.timestamp}`)
                     .join('\n');
                 
                 transcriptContent.textContent = currentTranscript;
@@ -138,10 +165,10 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer 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' // Replace with your API key
+                        'Authorization': 'Bearer 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'
                     },
                     body: JSON.stringify({
-                        inputs: `Analyze the following transcript and extract only the lines that someone might react to, such as funny or questionable statements. Format each line as "newcontext:timestamp":\n\n${currentTranscript}`
+                        inputs: `Analyze the following transcript and extract only the lines that someone might react to, such as funny or questionable statements. Keep the timestamps exactly as they appear:\n\n${currentTranscript}`
                     })
                 });
 
