@@ -67,30 +67,6 @@
     <script>
         let currentTranscript = '';
 
-        function roundToNearestSecond(timestamp) {
-            return Math.round(parseFloat(timestamp));
-        }
-
-        function combineLines(lines, chunkSize = 5) {
-            const combinedLines = [];
-            for (let i = 0; i < lines.length; i += chunkSize) {
-                const chunk = lines.slice(i, i + chunkSize);
-                const firstTimestamp = chunk[0]?.timestamp;
-                if (firstTimestamp !== undefined) {
-                    const roundedTimestamp = roundToNearestSecond(firstTimestamp);
-                    const combinedText = chunk
-                        .map(item => item.text)
-                        .filter(text => text) // Remove empty lines
-                        .join(' ');
-                    combinedLines.push({
-                        text: combinedText,
-                        timestamp: roundedTimestamp
-                    });
-                }
-            }
-            return combinedLines;
-        }
-
         async function getTranscript() {
             const urlInput = document.getElementById('youtubeUrl');
             const loading = document.getElementById('loading');
@@ -130,18 +106,18 @@
                     throw new Error('Failed to fetch transcript');
                 }
 
-                // Combine every 5 lines and format with timestamps
-                const combinedTranscript = combineLines(transcriptData.transcript);
-                
-                // Format the transcript with "s" prefix for timestamps
-                currentTranscript = combinedTranscript
-                    .map(item => `${item.text.replace(/[\{\}\[\]]/g, '')}: s${item.timestamp}`)
+                // Format the transcript with rounded timestamps and s prefix
+                currentTranscript = transcriptData.transcript
+                    .map(item => {
+                        const roundedTime = Math.round(parseFloat(item.start));
+                        return `${item.text}: s${roundedTime}`;
+                    })
                     .join('\n');
                 
                 transcriptContent.textContent = currentTranscript;
                 chatSection.style.display = 'block';
 
-                // Process transcript through Gemma-2-2B-IT
+                // Process transcript through Gemma
                 await filterTranscriptForReactions();
 
             } catch (err) {
@@ -168,21 +144,20 @@
                         'Authorization': 'Bearer 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'
                     },
                     body: JSON.stringify({
-                        inputs: `Analyze the following transcript and extract only the lines that someone might react to, such as funny or questionable statements. Keep the timestamps exactly as they appear:\n\n${currentTranscript}`
+                        inputs: `Extract only the most interesting or reaction-worthy lines from this transcript:\n\n${currentTranscript}`
                     })
                 });
 
                 const modelData = await modelResponse.json();
-
-                if (modelData.error) {
-                    throw new Error(modelData.error);
+                
+                if (Array.isArray(modelData) && modelData.length > 0) {
+                    filteredContent.textContent = modelData[0].generated_text || 'No reactions found.';
+                } else {
+                    filteredContent.textContent = modelData.generated_text || 'No reactions found.';
                 }
 
-                // Display the filtered content
-                filteredContent.textContent = modelData.generated_text || 'No reactions found.';
-
             } catch (err) {
-                error.textContent = 'Error: ' + err.message;
+                error.textContent = 'Error processing with AI: ' + err.message;
                 error.style.display = 'block';
             } finally {
                 loading.style.display = 'none';
