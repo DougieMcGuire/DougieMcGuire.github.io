@@ -176,7 +176,7 @@
                 // Generate reactions for each chunk
                 const allReactions = [];
                 for (const chunk of filteredChunks) {
-                    const prompt = `You are a reaction YouTuber. React to this part of a video (be brief but engaging, be relatable):
+                 const prompt = `As a reaction YouTuber, respond with enthusiasm and energy. Be interesting, entertaining, and relatable to viewers. React to the following transcript: "${chunk.text}" (Timestamp: s${chunk.timestamp}).`;
 
 ${chunk.text}
 
