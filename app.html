@@ -176,7 +176,7 @@
                 // Generate reactions for each chunk
                 const allReactions = [];
                 for (const chunk of filteredChunks) {
-                    const prompt = `You are a reaction YouTuber. React to this part of a video (be brief but engaging, be relatable):
+                    const prompt = `As a reaction YouTuber, respond with enthusiasm and energy. Be interesting, entertaining, and relatable to viewers. React to the following transcript: "${chunk.text}" (Timestamp: s${chunk.timestamp}).`;
 
 ${chunk.text}
 
@@ -199,4 +199,4 @@ Format your response exactly as: "Your Reaction". Use the timestamp: s${chunk.ti
         }
     </script>
 </body>
-</html> - this works PERFECTLY. but i do need to revise the prompt where its asking it to respond, rigjt now it responds to everything as “thanks for the tip” instead of actually reacting. so fix that please THEN shorten the whole thing making sure it all works EXACTLY  the same, just take out the css and unessesary notes like the // then make it so the only things that show is the input for link , the enter button, and the output by the ai.
+</html>
