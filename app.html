@@ -176,7 +176,7 @@
                 // Generate reactions for each chunk
                 const allReactions = [];
                 for (const chunk of filteredChunks) {
-                    const prompt = `How would you enthusiastically react to this in 10 words? ${chunk.text}`;
+                    const prompt = `respond in one sentence as if you a youtube commentator  ${chunk.text}`;
                     const aiResponse = await getAIResponse(prompt);
                     
                     // Format the timestamp and combine with the response
