@@ -53,39 +53,28 @@
     <p id="error"></p>
     
     <div class="chat-input" id="chatSection">
-        <h2>Original Transcript</h2>
-        <pre id="transcriptContent"></pre>
+        <h2>Edited Transcript</h2>
+        <pre id="editedTranscriptContent"></pre>
         
         <h2>Reactions</h2>
         <pre id="reactionsContent"></pre>
     </div>
 
     <script>
-        let currentTranscript = '';
-
-        function chunkAndSortTranscript(transcript) {
-            const chunks = [];
-            let currentChunk = [];
-            let firstTimestamp;
-            
-            for (let i = 0; i < transcript.length; i++) {
-                if (currentChunk.length === 0) {
-                    firstTimestamp = Math.round(parseFloat(transcript[i].start));
-                }
-                currentChunk.push(transcript[i].text);
-                
-                if (currentChunk.length === 10 || i === transcript.length - 1) {
-                    chunks.push({
-                        text: currentChunk.join(' '),
-                        timestamp: firstTimestamp,
-                        originalIndex: chunks.length  // Keep track of original order
+        function combineTranscriptLines(transcript) {
+            const combinedChunks = [];
+            for (let i = 0; i < transcript.length; i += 6) {
+                const chunk = transcript.slice(i, i + 6);
+                if (chunk.length > 0) {
+                    combinedChunks.push({
+                        text: chunk.map(item => item.text).join(' '),
+                        timestamp: Math.round(parseFloat(chunk[0].start))
                     });
-                    currentChunk = [];
                 }
             }
-            
-            // Sort chunks by timestamp
-            return chunks.sort((a, b) => a.timestamp - b.timestamp);
+
+            // Keep every third chunk and discard the rest
+            return combinedChunks.filter((_, index) => index % 3 === 0);
         }
 
         async function getTranscript() {
@@ -93,7 +82,7 @@
             const loading = document.getElementById('loading');
             const error = document.getElementById('error');
             const chatSection = document.getElementById('chatSection');
-            const transcriptContent = document.getElementById('transcriptContent');
+            const editedTranscriptContent = document.getElementById('editedTranscriptContent');
             const reactionsContent = document.getElementById('reactionsContent');
             
             loading.style.display = 'block';
@@ -108,7 +97,7 @@
             }
 
             try {
-                // Original transcript fetch
+                // Fetch transcript
                 const transcriptResult = await fetch('https://free-api-call.aiseo.ai/youtube-video-transcript', {
                     method: 'POST',
                     headers: {
@@ -125,21 +114,18 @@
                     throw new Error('Failed to fetch transcript');
                 }
 
-                // Format and display original transcript
-                currentTranscript = transcriptData.transcript
-                    .map(item => {
-                        const roundedTime = Math.round(parseFloat(item.start));
-                        return `${item.text}: s${roundedTime}`;
-                    })
+                // Combine transcript lines and keep every third chunk
+                const combinedChunks = combineTranscriptLines(transcriptData.transcript);
+
+                // Display edited transcript
+                const editedTranscript = combinedChunks
+                    .map(chunk => `Timestamp: s${chunk.timestamp}\n${chunk.text}\n`)
                     .join('\n');
-                
-                transcriptContent.textContent = currentTranscript;
-                
-                // Process chunks in timestamp order
-                const sortedChunks = chunkAndSortTranscript(transcriptData.transcript);
+                editedTranscriptContent.textContent = editedTranscript;
+
+                // Process each chunk through AI
                 const allReactions = [];
-                
-                for (const chunk of sortedChunks) {
+                for (const chunk of combinedChunks) {
                     const prompt = `You are a reaction YouTuber. React to this part of a video (be brief but engaging):
 
 ${chunk.text}
@@ -161,9 +147,9 @@ Use the timestamp: s${chunk.timestamp}`;
                     });
 
                     const responseData = await modelResponse.json();
-                    allReactions.push(responseData.generated_text);
+                    allReactions.push(responseData.generated_text || 'Error in generating response');
                 }
-                
+
                 reactionsContent.textContent = allReactions.join('\n');
                 chatSection.style.display = 'block';
 
