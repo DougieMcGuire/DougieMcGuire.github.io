@@ -90,7 +90,7 @@
 
         async function getAIResponse(prompt) {
             try {
-                const modelResponse = await fetch('https://api-inference.huggingface.co/models/google/gemma-2-2b-it', {
+                const modelResponse = await fetch('https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -176,7 +176,7 @@
                 // Generate reactions for each chunk
                 const allReactions = [];
                 for (const chunk of filteredChunks) {
-                    const prompt = `As a reaction YouTuber, respond with enthusiasm and energy. Be interesting, entertaining, and relatable to viewers. React to the following transcript: "${chunk.text}" (Timestamp: s${chunk.timestamp}). - the timestamp should stay the same and your response should be only 10 words no emojis`;
+                    const prompt = `How would you enthusiastically react to this in 10 words? ${chunk.text} `;
 
                     const aiResponse = await getAIResponse(prompt);
                     allReactions.push(`Reaction for Timestamp s${chunk.timestamp}: ${aiResponse}`);
