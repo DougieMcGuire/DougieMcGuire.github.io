@@ -53,40 +53,39 @@
     <p id="error"></p>
     
     <div class="chat-input" id="chatSection">
+        <h2>Original Transcript</h2>
+        <pre id="transcriptContent"></pre>
+        
         <h2>Reactions</h2>
         <pre id="reactionsContent"></pre>
     </div>
 
     <script>
-        function chunkTranscript(transcript, size = 20) {
+        let currentTranscript = '';
+
+        function chunkAndSortTranscript(transcript) {
             const chunks = [];
             let currentChunk = [];
             let firstTimestamp;
-
-            for (const line of transcript) {
+            
+            for (let i = 0; i < transcript.length; i++) {
                 if (currentChunk.length === 0) {
-                    firstTimestamp = Math.round(parseFloat(line.start));
+                    firstTimestamp = Math.round(parseFloat(transcript[i].start));
                 }
-                currentChunk.push(line.text);
+                currentChunk.push(transcript[i].text);
                 
-                if (currentChunk.length === size) {
+                if (currentChunk.length === 20 || i === transcript.length - 1) {
                     chunks.push({
                         text: currentChunk.join(' '),
-                        timestamp: firstTimestamp
+                        timestamp: firstTimestamp,
+                        originalIndex: chunks.length  // Keep track of original order
                     });
                     currentChunk = [];
                 }
             }
-
-            // Don't forget the last chunk if it's not full
-            if (currentChunk.length > 0) {
-                chunks.push({
-                    text: currentChunk.join(' '),
-                    timestamp: firstTimestamp
-                });
-            }
-
-            return chunks;
+            
+            // Sort chunks by timestamp
+            return chunks.sort((a, b) => a.timestamp - b.timestamp);
         }
 
         async function getTranscript() {
@@ -94,12 +93,12 @@
             const loading = document.getElementById('loading');
             const error = document.getElementById('error');
             const chatSection = document.getElementById('chatSection');
+            const transcriptContent = document.getElementById('transcriptContent');
             const reactionsContent = document.getElementById('reactionsContent');
             
             loading.style.display = 'block';
             error.style.display = 'none';
             chatSection.style.display = 'none';
-            reactionsContent.textContent = '';
             
             if (!urlInput.value) {
                 error.textContent = 'Please enter a YouTube URL';
@@ -109,6 +108,7 @@
             }
 
             try {
+                // Original transcript fetch
                 const transcriptResult = await fetch('https://free-api-call.aiseo.ai/youtube-video-transcript', {
                     method: 'POST',
                     headers: {
@@ -125,13 +125,21 @@
                     throw new Error('Failed to fetch transcript');
                 }
 
-                // Chunk the transcript into groups of 20 lines
-                const chunks = chunkTranscript(transcriptData.transcript);
+                // Format and display original transcript
+                currentTranscript = transcriptData.transcript
+                    .map(item => {
+                        const roundedTime = Math.round(parseFloat(item.start));
+                        return `${item.text}: s${roundedTime}`;
+                    })
+                    .join('\n');
                 
-                // Generate reactions for each chunk
+                transcriptContent.textContent = currentTranscript;
+                
+                // Process chunks in timestamp order
+                const sortedChunks = chunkAndSortTranscript(transcriptData.transcript);
                 const allReactions = [];
                 
-                for (const chunk of chunks) {
+                for (const chunk of sortedChunks) {
                     const prompt = `You are a reaction YouTuber. React to this part of a video (be brief but engaging):
 
 ${chunk.text}
