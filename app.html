@@ -54,27 +54,62 @@
     
     <div class="chat-input" id="chatSection">
         <h2>Edited Transcript</h2>
-        <pre id="editedTranscriptContent"></pre>
+        <pre id="transcriptContent"></pre>
         
         <h2>Reactions</h2>
         <pre id="reactionsContent"></pre>
     </div>
 
     <script>
-        function combineTranscriptLines(transcript) {
-            const combinedChunks = [];
-            for (let i = 0; i < transcript.length; i += 6) {
-                const chunk = transcript.slice(i, i + 6);
-                if (chunk.length > 0) {
-                    combinedChunks.push({
-                        text: chunk.map(item => item.text).join(' '),
-                        timestamp: Math.round(parseFloat(chunk[0].start))
+        let currentTranscript = '';
+
+        function chunkAndProcessTranscript(transcript) {
+            const chunks = [];
+            let currentChunk = [];
+            let firstTimestamp;
+            
+            for (let i = 0; i < transcript.length; i++) {
+                if (currentChunk.length === 0) {
+                    firstTimestamp = Math.round(parseFloat(transcript[i].start));
+                }
+                currentChunk.push(transcript[i].text);
+
+                if (currentChunk.length === 6 || i === transcript.length - 1) {
+                    chunks.push({
+                        text: currentChunk.join(' '),
+                        timestamp: firstTimestamp,
                     });
+                    currentChunk = [];
                 }
             }
 
-            // Keep every third chunk and discard the rest
-            return combinedChunks.filter((_, index) => index % 3 === 0);
+            // Remove every 3rd chunk
+            const filteredChunks = chunks.filter((_, index) => (index + 1) % 3 !== 0);
+            return filteredChunks;
+        }
+
+        async function getAIResponse(prompt) {
+            try {
+                const modelResponse = await fetch('https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer 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'
+                    },
+                    body: JSON.stringify({ inputs: prompt })
+                });
+
+                if (!modelResponse.ok) {
+                    const errorData = await modelResponse.json();
+                    throw new Error(errorData.error || 'Failed to fetch AI response');
+                }
+
+                const responseData = await modelResponse.json();
+                return responseData.generated_text || 'No response generated.';
+            } catch (error) {
+                console.error('AI Error:', error.message);
+                return `Error: ${error.message}`;
+            }
         }
 
         async function getTranscript() {
@@ -82,7 +117,7 @@
             const loading = document.getElementById('loading');
             const error = document.getElementById('error');
             const chatSection = document.getElementById('chatSection');
-            const editedTranscriptContent = document.getElementById('editedTranscriptContent');
+            const transcriptContent = document.getElementById('transcriptContent');
             const reactionsContent = document.getElementById('reactionsContent');
             
             loading.style.display = 'block';
@@ -97,7 +132,7 @@
             }
 
             try {
-                // Fetch transcript
+                // Original transcript fetch
                 const transcriptResult = await fetch('https://free-api-call.aiseo.ai/youtube-video-transcript', {
                     method: 'POST',
                     headers: {
@@ -114,18 +149,17 @@
                     throw new Error('Failed to fetch transcript');
                 }
 
-                // Combine transcript lines and keep every third chunk
-                const combinedChunks = combineTranscriptLines(transcriptData.transcript);
+                // Process chunks
+                const filteredChunks = chunkAndProcessTranscript(transcriptData.transcript);
+                const formattedTranscript = filteredChunks
+                    .map(chunk => `${chunk.text} (Timestamp: s${chunk.timestamp})`)
+                    .join('\n\n');
+                
+                transcriptContent.textContent = formattedTranscript;
 
-                // Display edited transcript
-                const editedTranscript = combinedChunks
-                    .map(chunk => `Timestamp: s${chunk.timestamp}\n${chunk.text}\n`)
-                    .join('\n');
-                editedTranscriptContent.textContent = editedTranscript;
-
-                // Process each chunk through AI
+                // Generate reactions for each chunk
                 const allReactions = [];
-                for (const chunk of combinedChunks) {
+                for (const chunk of filteredChunks) {
                     const prompt = `You are a reaction YouTuber. React to this part of a video (be brief but engaging):
 
 ${chunk.text}
@@ -135,21 +169,11 @@ Where Expression must be one of: Happy, normal, cry, confusion, boredom, laughte
 And your Reaction should be a short genuine response
 Use the timestamp: s${chunk.timestamp}`;
 
-                    const modelResponse = await fetch('https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer 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'
-                        },
-                        body: JSON.stringify({
-                            inputs: prompt
-                        })
-                    });
-
-                    const responseData = await modelResponse.json();
-                    allReactions.push(responseData.generated_text || 'Error in generating response');
+                    const aiResponse = await getAIResponse(prompt);
+                    allReactions.push(`Reaction for Timestamp s${chunk.timestamp}: ${aiResponse}`);
                 }
 
+                // Display reactions
                 reactionsContent.textContent = allReactions.join('\n');
                 chatSection.style.display = 'block';
 
