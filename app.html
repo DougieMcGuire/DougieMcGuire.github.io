@@ -168,7 +168,7 @@
                 // Process chunks
                 const filteredChunks = chunkAndProcessTranscript(transcriptData.transcript);
                 const formattedTranscript = filteredChunks
-                    .map(chunk => `${chunk.text} (Timestamp: s${chunk.timestamp})`)
+                    .map(chunk => `[${formatTimestamp(chunk.timestamp)}] ${chunk.text}`)
                     .join('\n\n');
                 
                 transcriptContent.textContent = formattedTranscript;
@@ -176,10 +176,12 @@
                 // Generate reactions for each chunk
                 const allReactions = [];
                 for (const chunk of filteredChunks) {
-                    const prompt = `How would you enthusiastically react to this in 10 words? ${chunk.text} `;
-
+                    const prompt = `How would you enthusiastically react to this in 10 words? ${chunk.text}`;
                     const aiResponse = await getAIResponse(prompt);
-                    allReactions.push(`Reaction for Timestamp s${chunk.timestamp}: ${aiResponse}`);
+                    
+                    // Format the timestamp and combine with the response
+                    const timestamp = formatTimestamp(chunk.timestamp);
+                    allReactions.push(`[${timestamp}] Original: "${chunk.text}"\nReaction: ${aiResponse}\n`);
                 }
 
                 // Display reactions
@@ -192,6 +194,12 @@
             } finally {
                 loading.style.display = 'none';
             }
+        }
+
+        function formatTimestamp(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
         }
     </script>
 </body>
