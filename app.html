@@ -74,7 +74,7 @@
                 }
                 currentChunk.push(transcript[i].text);
 
-                if (currentChunk.length === 6 || i === transcript.length - 1) {
+                if (currentChunk.length === 4 || i === transcript.length - 1) {
                     chunks.push({
                         text: currentChunk.join(' '),
                         timestamp: firstTimestamp,
