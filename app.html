@@ -74,7 +74,7 @@
                 }
                 currentChunk.push(transcript[i].text);
 
-                if (currentChunk.length === 2|| i === transcript.length - 1) {
+                if (currentChunk.length === 2 || i === transcript.length - 1) {
                     chunks.push({
                         text: currentChunk.join(' '),
                         timestamp: firstTimestamp,
@@ -105,7 +105,18 @@
                 }
 
                 const responseData = await modelResponse.json();
-                return responseData.generated_text || 'No response generated.';
+                console.log('AI Response:', responseData); // Log the full response for debugging
+                
+                // Check for the actual key containing the response text
+                if (responseData && responseData.generated_text) {
+                    return responseData.generated_text;
+                } else if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].generated_text) {
+                    return responseData[0].generated_text;
+                } else if (responseData && responseData.text) { 
+                    return responseData.text; // Alternative key, depending on API response
+                }
+
+                return 'No response generated.';
             } catch (error) {
                 console.error('AI Error:', error.message);
                 return `Error: ${error.message}`;
@@ -160,12 +171,11 @@
                 // Generate reactions for each chunk
                 const allReactions = [];
                 for (const chunk of filteredChunks) {
-                    const prompt = `You are a reaction YouTuber. React to this part of a video (be brief but engaging be relatable):
+                    const prompt = `You are a reaction YouTuber. React to this part of a video (be brief but engaging, be relatable):
 
 ${chunk.text}
 
-Format your response exactly as:your Reaction should be a short genuine response
-Use the timestamp: s${chunk.timestamp}`;
+Format your response exactly as: "Your Reaction". Use the timestamp: s${chunk.timestamp}`;
 
                     const aiResponse = await getAIResponse(prompt);
                     allReactions.push(`Reaction for Timestamp s${chunk.timestamp}: ${aiResponse}`);
