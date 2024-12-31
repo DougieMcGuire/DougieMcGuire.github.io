@@ -74,7 +74,7 @@
                 }
                 currentChunk.push(transcript[i].text);
 
-                if (currentChunk.length === 3|| i === transcript.length - 1) {
+                if (currentChunk.length === 2|| i === transcript.length - 1) {
                     chunks.push({
                         text: currentChunk.join(' '),
                         timestamp: firstTimestamp,
@@ -160,13 +160,11 @@
                 // Generate reactions for each chunk
                 const allReactions = [];
                 for (const chunk of filteredChunks) {
-                    const prompt = `You are a reaction YouTuber. React to this part of a video (be brief but engaging):
+                    const prompt = `You are a reaction YouTuber. React to this part of a video (be brief but engaging be relatable):
 
 ${chunk.text}
 
-Format your response exactly as: Reaction:Expression:time
-Where Expression must be one of: Happy, normal, cry, confusion, boredom, laughter
-And your Reaction should be a short genuine response
+Format your response exactly as:your Reaction should be a short genuine response
 Use the timestamp: s${chunk.timestamp}`;
 
                     const aiResponse = await getAIResponse(prompt);
