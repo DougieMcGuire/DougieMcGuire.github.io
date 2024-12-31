@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Transcript Chat</title>
+    <title>AI Reactor</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -43,34 +43,50 @@
             display: none;
             margin-top: 20px;
         }
-        #userPrompt {
-            height: 100px;
-            resize: vertical;
-        }
     </style>
 </head>
 <body>
-    <h1>YouTube Transcript Reaction Generator</h1>
+    <h1>AI Reactor</h1>
     <input type="text" id="youtubeUrl" placeholder="Enter YouTube Video URL">
     <button onclick="getTranscript()">Generate Reactions</button>
     <p id="loading">Loading...</p>
     <p id="error"></p>
     
     <div class="chat-input" id="chatSection">
-        <h2>Original Transcript</h2>
-        <pre id="transcriptContent"></pre>
-        
         <h2>Reactions</h2>
-        <pre id="filteredContent"></pre>
+        <pre id="reactionsContent"></pre>
     </div>
 
     <script>
-        let currentTranscript = '';
+        function chunkTranscript(transcript, size = 20) {
+            const chunks = [];
+            let currentChunk = [];
+            let firstTimestamp;
 
-        function getRandomSubset(array, percentage = 0.5) {
-            const shuffled = [...array].sort(() => Math.random() - 0.5);
-            const numItems = Math.ceil(array.length * percentage);
-            return shuffled.slice(0, numItems);
+            for (const line of transcript) {
+                if (currentChunk.length === 0) {
+                    firstTimestamp = Math.round(parseFloat(line.start));
+                }
+                currentChunk.push(line.text);
+                
+                if (currentChunk.length === size) {
+                    chunks.push({
+                        text: currentChunk.join(' '),
+                        timestamp: firstTimestamp
+                    });
+                    currentChunk = [];
+                }
+            }
+
+            // Don't forget the last chunk if it's not full
+            if (currentChunk.length > 0) {
+                chunks.push({
+                    text: currentChunk.join(' '),
+                    timestamp: firstTimestamp
+                });
+            }
+
+            return chunks;
         }
 
         async function getTranscript() {
@@ -78,14 +94,12 @@
             const loading = document.getElementById('loading');
             const error = document.getElementById('error');
             const chatSection = document.getElementById('chatSection');
-            const transcriptContent = document.getElementById('transcriptContent');
-            const filteredContent = document.getElementById('filteredContent');
+            const reactionsContent = document.getElementById('reactionsContent');
             
-            // Reset previous state
-            error.style.display = 'none';
             loading.style.display = 'block';
+            error.style.display = 'none';
             chatSection.style.display = 'none';
-            filteredContent.textContent = '';
+            reactionsContent.textContent = '';
             
             if (!urlInput.value) {
                 error.textContent = 'Please enter a YouTube URL';
@@ -95,7 +109,6 @@
             }
 
             try {
-                // Fetch the transcript
                 const transcriptResult = await fetch('https://free-api-call.aiseo.ai/youtube-video-transcript', {
                     method: 'POST',
                     headers: {
@@ -112,47 +125,22 @@
                     throw new Error('Failed to fetch transcript');
                 }
 
-                // Get random subset of transcript entries
-                const randomTranscript = getRandomSubset(transcriptData.transcript);
+                // Chunk the transcript into groups of 20 lines
+                const chunks = chunkTranscript(transcriptData.transcript);
                 
-                // Format the transcript with rounded timestamps
-                currentTranscript = randomTranscript
-                    .map(item => {
-                        const roundedTime = Math.round(parseFloat(item.start));
-                        return `${item.text}: s${roundedTime}`;
-                    })
-                    .join('\n');
-                
-                transcriptContent.textContent = currentTranscript;
-                chatSection.style.display = 'block';
-
-                // Generate reactions using BlenderBot
-                await generateReactions(randomTranscript);
-
-            } catch (err) {
-                error.textContent = 'Error: ' + err.message;
-                error.style.display = 'block';
-            } finally {
-                loading.style.display = 'none';
-            }
-        }
-
-        async function generateReactions(transcriptLines) {
-            const loading = document.getElementById('loading');
-            const error = document.getElementById('error');
-            const filteredContent = document.getElementById('filteredContent');
-
-            loading.style.display = 'block';
-            error.style.display = 'none';
-
-            const reactions = ['Happy', 'normal', 'cry', 'confusion', 'boredom', 'laughter'];
-            
-            try {
+                // Generate reactions for each chunk
                 const allReactions = [];
                 
-                for (const line of transcriptLines) {
-                    const roundedTime = Math.round(parseFloat(line.start));
-                    
+                for (const chunk of chunks) {
+                    const prompt = `You are a reaction YouTuber. React to this part of a video (be brief but engaging):
+
+${chunk.text}
+
+Format your response exactly as: Reaction:Expression:time
+Where Expression must be one of: Happy, normal, cry, confusion, boredom, laughter
+And your Reaction should be a short genuine response
+Use the timestamp: s${chunk.timestamp}`;
+
                     const modelResponse = await fetch('https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill', {
                         method: 'POST',
                         headers: {
@@ -160,24 +148,19 @@
                             'Authorization': 'Bearer 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'
                         },
                         body: JSON.stringify({
-                            inputs: `How would you react to this: "${line.text}"? Give a brief response.`
+                            inputs: prompt
                         })
                     });
 
                     const responseData = await modelResponse.json();
-                    
-                    // Get random reaction type (you might want to make this smarter based on the response)
-                    const reaction = reactions[Math.floor(Math.random() * reactions.length)];
-                    
-                    // Format: ReactorResponse:Reaction:Timestamp
-                    const formattedResponse = `${responseData.generated_text}:${reaction}:s${roundedTime}`;
-                    allReactions.push(formattedResponse);
+                    allReactions.push(responseData.generated_text);
                 }
                 
-                filteredContent.textContent = allReactions.join('\n');
+                reactionsContent.textContent = allReactions.join('\n');
+                chatSection.style.display = 'block';
 
             } catch (err) {
-                error.textContent = 'Error generating reactions: ' + err.message;
+                error.textContent = 'Error: ' + err.message;
                 error.style.display = 'block';
             } finally {
                 loading.style.display = 'none';
