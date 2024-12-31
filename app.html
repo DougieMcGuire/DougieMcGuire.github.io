@@ -53,9 +53,6 @@
     <p id="error"></p>
     
     <div class="chat-input" id="chatSection">
-        <h2>Edited Transcript</h2>
-        <pre id="transcriptContent"></pre>
-        
         <h2>Reactions</h2>
         <pre id="reactionsContent"></pre>
     </div>
@@ -127,7 +124,6 @@
             const loading = document.getElementById('loading');
             const error = document.getElementById('error');
             const chatSection = document.getElementById('chatSection');
-            const transcriptContent = document.getElementById('transcriptContent');
             const reactionsContent = document.getElementById('reactionsContent');
             
             loading.style.display = 'block';
@@ -167,25 +163,28 @@
 
                 // Process chunks
                 const filteredChunks = chunkAndProcessTranscript(transcriptData.transcript);
-                const formattedTranscript = filteredChunks
-                    .map(chunk => `[${formatTimestamp(chunk.timestamp)}] ${chunk.text}`)
-                    .join('\n\n');
-                
-                transcriptContent.textContent = formattedTranscript;
 
                 // Generate reactions for each chunk
                 const allReactions = [];
-                for (const chunk of filteredChunks) {
-                    const prompt = `respond in one sentence as if you a youtube commentator  ${chunk.text}`;
+                const uniqueResponses = new Set();
+                for (let i = 0; i < filteredChunks.length; i++) {
+                    if (i % 3 !== 0) continue; // Show only 1 out of every 3 chunks
+
+                    const chunk = filteredChunks[i];
+                    const prompt = `Respond in one concise sentence as a YouTube commentator without asking any questions. Avoid repeating responses. ${chunk.text}`;
                     const aiResponse = await getAIResponse(prompt);
                     
+                    // Avoid duplicate responses
+                    if (uniqueResponses.has(aiResponse)) continue;
+                    uniqueResponses.add(aiResponse);
+
                     // Format the timestamp and combine with the response
                     const timestamp = formatTimestamp(chunk.timestamp);
-                    allReactions.push(`[${timestamp}] Original: "${chunk.text}"\nReaction: ${aiResponse}\n`);
+                    allReactions.push(`[${timestamp}] ${aiResponse}`);
                 }
 
                 // Display reactions
-                reactionsContent.textContent = allReactions.join('\n');
+                reactionsContent.textContent = allReactions.join('\n\n');
                 chatSection.style.display = 'block';
 
             } catch (err) {
@@ -197,7 +196,7 @@
         }
 
         function formatTimestamp(seconds) {
-            const minutes = Math.floor(seconds / 60);
+            const minutes = Math.floor(seconds / 60); 
             const remainingSeconds = seconds % 60;
             return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
         }
