@@ -50,22 +50,28 @@
     </style>
 </head>
 <body>
-    <h1>YouTube Transcript Chat</h1>
+    <h1>YouTube Transcript Reaction Generator</h1>
     <input type="text" id="youtubeUrl" placeholder="Enter YouTube Video URL">
-    <button onclick="getTranscript()">Get Transcript</button>
+    <button onclick="getTranscript()">Generate Reactions</button>
     <p id="loading">Loading...</p>
     <p id="error"></p>
     
     <div class="chat-input" id="chatSection">
-        <h2>Transcript Content</h2>
+        <h2>Original Transcript</h2>
         <pre id="transcriptContent"></pre>
         
-        <h2>Filtered Context (Reactions)</h2>
+        <h2>Reactions</h2>
         <pre id="filteredContent"></pre>
     </div>
 
     <script>
         let currentTranscript = '';
+
+        function getRandomSubset(array, percentage = 0.5) {
+            const shuffled = [...array].sort(() => Math.random() - 0.5);
+            const numItems = Math.ceil(array.length * percentage);
+            return shuffled.slice(0, numItems);
+        }
 
         async function getTranscript() {
             const urlInput = document.getElementById('youtubeUrl');
@@ -106,8 +112,11 @@
                     throw new Error('Failed to fetch transcript');
                 }
 
-                // Format the transcript with rounded timestamps and s prefix
-                currentTranscript = transcriptData.transcript
+                // Get random subset of transcript entries
+                const randomTranscript = getRandomSubset(transcriptData.transcript);
+                
+                // Format the transcript with rounded timestamps
+                currentTranscript = randomTranscript
                     .map(item => {
                         const roundedTime = Math.round(parseFloat(item.start));
                         return `${item.text}: s${roundedTime}`;
@@ -117,8 +126,8 @@
                 transcriptContent.textContent = currentTranscript;
                 chatSection.style.display = 'block';
 
-                // Process transcript through Gemma
-                await filterTranscriptForReactions();
+                // Generate reactions using BlenderBot
+                await generateReactions(randomTranscript);
 
             } catch (err) {
                 error.textContent = 'Error: ' + err.message;
@@ -128,7 +137,7 @@
             }
         }
 
-        async function filterTranscriptForReactions() {
+        async function generateReactions(transcriptLines) {
             const loading = document.getElementById('loading');
             const error = document.getElementById('error');
             const filteredContent = document.getElementById('filteredContent');
@@ -136,28 +145,39 @@
             loading.style.display = 'block';
             error.style.display = 'none';
 
+            const reactions = ['Happy', 'normal', 'cry', 'confusion', 'boredom', 'laughter'];
+            
             try {
-                const modelResponse = await fetch('https://api-inference.huggingface.co/models/google/gemma-2-2b-it', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer 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'
-                    },
-                    body: JSON.stringify({
-                        inputs: `Extract only the most interesting or reaction-worthy lines from this transcript:\n\n${currentTranscript}`
-                    })
-                });
-
-                const modelData = await modelResponse.json();
+                const allReactions = [];
                 
-                if (Array.isArray(modelData) && modelData.length > 0) {
-                    filteredContent.textContent = modelData[0].generated_text || 'No reactions found.';
-                } else {
-                    filteredContent.textContent = modelData.generated_text || 'No reactions found.';
+                for (const line of transcriptLines) {
+                    const roundedTime = Math.round(parseFloat(line.start));
+                    
+                    const modelResponse = await fetch('https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer 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'
+                        },
+                        body: JSON.stringify({
+                            inputs: `How would you react to this: "${line.text}"? Give a brief response.`
+                        })
+                    });
+
+                    const responseData = await modelResponse.json();
+                    
+                    // Get random reaction type (you might want to make this smarter based on the response)
+                    const reaction = reactions[Math.floor(Math.random() * reactions.length)];
+                    
+                    // Format: ReactorResponse:Reaction:Timestamp
+                    const formattedResponse = `${responseData.generated_text}:${reaction}:s${roundedTime}`;
+                    allReactions.push(formattedResponse);
                 }
+                
+                filteredContent.textContent = allReactions.join('\n');
 
             } catch (err) {
-                error.textContent = 'Error processing with AI: ' + err.message;
+                error.textContent = 'Error generating reactions: ' + err.message;
                 error.style.display = 'block';
             } finally {
                 loading.style.display = 'none';
