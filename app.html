@@ -88,40 +88,39 @@
             return filteredChunks;
         }
 
-        async function getAIResponse(prompt) {
-            try {
-                const modelResponse = await fetch('https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer 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'
-                    },
-                    body: JSON.stringify({ inputs: prompt })
-                });
+ async function getAIResponse(prompt) {
+    try {
+        const modelResponse = await fetch('https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer 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'
+            },
+            body: JSON.stringify({ inputs: prompt })
+        });
 
-                if (!modelResponse.ok) {
-                    const errorData = await modelResponse.json();
-                    throw new Error(errorData.error || 'Failed to fetch AI response');
-                }
-
-                const responseData = await modelResponse.json();
-                console.log('AI Response:', responseData); // Log the full response for debugging
-                
-                // Check for the actual key containing the response text
-                if (responseData && responseData.generated_text) {
-                    return responseData.generated_text;
-                } else if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].generated_text) {
-                    return responseData[0].generated_text;
-                } else if (responseData && responseData.text) { 
-                    return responseData.text; // Alternative key, depending on API response
-                }
-
-                return 'No response generated.';
-            } catch (error) {
-                console.error('AI Error:', error.message);
-                return `Error: ${error.message}`;
-            }
+        if (!modelResponse.ok) {
+            const errorData = await modelResponse.json();
+            throw new Error(errorData.error || 'Failed to fetch AI response');
         }
+
+        const responseData = await modelResponse.json();
+        
+        // Check for possible AI response formats
+        if (responseData.generated_text) {
+            return responseData.generated_text;
+        } else if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].generated_text) {
+            return responseData[0].generated_text;
+        } else if (responseData.message) {
+            return responseData.message;
+        } else {
+            throw new Error('Unexpected response format from AI');
+        }
+    } catch (error) {
+        console.error('AI Error:', error.message);
+        return `Error: ${error.message}`;
+    }
+}
 
         async function getTranscript() {
             const urlInput = document.getElementById('youtubeUrl');
