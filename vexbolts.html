@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Countdown to Vexbolts Mass Unfollowing Event">
+    <title>Vexbolts Mass Unfollow Countdown</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <style>
+        :root {
+            --primary-bg: #1a1a1a;
+            --secondary-bg: #2a2a2a;
+            --accent-color: #ff0000;
+            --text-color: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--primary-bg), var(--secondary-bg));
+            color: var(--text-color);
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 1rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 10px var(--shadow-color);
+            color: var(--accent-color);
+            animation: glowText 2s ease-in-out infinite;
+        }
+
+        .event-info {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            animation: glowText 2s ease-in-out infinite;
+        }
+
+        .countdown-wrapper {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem auto;
+            max-width: 600px;
+            padding: 0 1rem;
+        }
+
+        .countdown-item {
+            background: rgba(40, 40, 40, 0.8);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(255, 0, 0, 0.2);
+        }
+
+        .countdown-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+        }
+
+        .countdown-number {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .countdown-label {
+            font-size: 1rem;
+            color: #cccccc;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 0.5rem;
+        }
+
+        .rain {
+            position: fixed;
+            pointer-events: none;
+            width: 100px;
+            height: 100px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 0;
+            opacity: 0.6;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-120px) rotate(0deg);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes glowText {
+            0%, 100% { text-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
+            50% { text-shadow: 0 0 20px rgba(255, 0, 0, 0.8), 0 0 30px rgba(255, 0, 0, 0.6); }
+        }
+
+        .embed-container {
+            background: rgba(40, 40, 40, 0.8);
+            padding: 1rem;
+            border-radius: 1rem;
+            margin: 2rem auto;
+            max-width: 400px;
+            border: 1px solid rgba(255, 0, 0, 0.2);
+        }
+
+        .notes {
+            background: rgba(40, 40, 40, 0.8);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 2rem auto;
+            max-width: 600px;
+            line-height: 1.8;
+            font-size: 1rem;
+            border: 1px solid rgba(255, 0, 0, 0.2);
+        }
+
+        .notes a {
+            color: var(--accent-color);
+            text-decoration: none;
+            position: relative;
+            padding: 0.2em 0;
+        }
+
+        .notes a:hover {
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        .promo a {
+            background: var(--accent-color);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+            margin: 2rem 0;
+        }
+
+        .promo a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 0, 0, 0.5);
+            background: #cc0000;
+        }
+
+        .audio-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(40, 40, 40, 0.9);
+            padding: 1rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            border: 1px solid rgba(255, 0, 0, 0.2);
+        }
+
+        .audio-controls button {
+            background: var(--accent-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .audio-controls button:hover {
+            transform: scale(1.1);
+            background: #cc0000;
+        }
+
+        .volume-slider {
+            width: 100px;
+            margin: 0 10px;
+        }
+
+        @media (max-width: 600px) {
+            .audio-controls {
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: 20px;
+                right: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Vexbolts Mass Unfollow</h1>
+        <div class="event-info">11:59 PM EST Mass Unfollowing Event</div>
+        
+        <div class="countdown-wrapper">
+            <div class="countdown-item">
+                <div class="countdown-number" id="hours">00</div>
+                <div class="countdown-label">Hours</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="minutes">00</div>
+                <div class="countdown-label">Minutes</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="seconds">00</div>
+                <div class="countdown-label">Seconds</div>
+            </div>
+        </div>
+
+        <div class="embed-container">
+            <iframe height="80px" width="100%" frameborder="0" src="https://livecounts.io/embed/tiktok-live-follower-counter/vexbolts" style="border: 0;"></iframe>
+        </div>
+
+        <div class="notes">
+            <p>1. Biggest thank you to <a href="https://discord.gg/z5YRnmDM" target="_blank" rel="noopener noreferrer">Santeszz</a> broke ass for buying the vexbolts domain, only for him to be left in 2024.</p>
+            <p>2. <a href="https://dougie.wtf" target="_blank" rel="noopener noreferrer">Dougie</a> made the code. Follow him on IG for a follow back <a href="https://instagram.com/@dqugie" target="_blank" rel="noopener noreferrer">@dqugie</a>.</p>
+            <p>3. <a href="https://www.tiktok.com/@vexbolts" target="_blank" rel="noopener noreferrer">UNFOLLOW BRO</a> on TikTok.</p>
+        </div>
+
+        <div class="promo">
+            <a href="https://discord.gg/z5YRnmDM" target="_blank" rel="noopener noreferrer">JOIN THE DISCORD</a>
+        </div>
+    </div>
+
+    <div class="audio-controls">
+        <button id="playPause" aria-label="Play/Pause">▶️</button>
+        <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.5">
+        <button id="muteUnmute" aria-label="Mute/Unmute">🔊</button>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://dougie.wtf/ssstik.io_1735303756248.mp3" type="audio/mp3">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Audio controls
+            const audio = document.getElementById('bgMusic');
+            const playPauseBtn = document.getElementById('playPause');
+            const muteUnmuteBtn = document.getElementById('muteUnmute');
+            const volumeSlider = document.querySelector('.volume-slider');
+            
+            playPauseBtn.addEventListener('click', () => {
+                if (audio.paused) {
+                    audio.play();
+                    playPauseBtn.textContent = '⏸️';
+                } else {
+                    audio.pause();
+                    playPauseBtn.textContent = '▶️';
+                }
+            });
+
+            muteUnmuteBtn.addEventListener('click', () => {
+                audio.muted = !audio.muted;
+                muteUnmuteBtn.textContent = audio.muted ? '🔇' : '🔊';
+            });
+
+            volumeSlider.addEventListener('input', (e) => {
+                audio.volume = e.target.value;
+                muteUnmuteBtn.textContent = audio.volume === 0 ? '🔇' : '🔊';
+            });
+
+            // Countdown function
+            function updateCountdown() {
+                const now = new Date();
+                const targetTime = new Date();
+                targetTime.setHours(23, 59, 0, 0);
+                
+                if (now > targetTime) {
+                    targetTime.setDate(targetTime.getDate() + 1);
+                }
+                
+                const timeDiff = targetTime - now;
+                
+                if (timeDiff <= 0) {
+                    document.querySelector('h1').textContent = 'MASS UNFOLLOW NOW!';
+                    document.querySelector('.event-info').textContent = 'GO GO GO!';
+                    return;
+                }
+                
+                const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((timeDiff / (1000 * 60)) % 60);
+                const seconds = Math.floor((timeDiff / 1000) % 60);
+                
+                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            }
+
+            // Create raining effect
+            function createRain() {
+                const container = document.body;
+                const placeholder = 'https://cdn.allfamous.org/people/avatars/vexbolts-xe27-allfamous.org.jpg';
+
+                function createRaindrop() {
+                    const drop = document.createElement('div');
+                    drop.className = 'rain';
+                    drop.style.left = `${Math.random() * 100}vw`;
+                    drop.style.animationDuration = `${Math.random() * 2 + 3}s`;
+                    drop.style.backgroundImage = `url('${placeholder}')`;
+                    container.appendChild(drop);
+
+                    drop.addEventListener('animationend', () => {
+                        drop.remove();
+                    });
+                }
+
+                // Create initial raindrops
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(createRaindrop, Math.random() * 3000);
+                }
+
+                // Continue creating raindrops
+                setInterval(createRaindrop, 300);
+            }
+
+            // Initialize
+            setInterval(updateCountdown, 1000);
+            updateCountdown();
+            createRain();
+        });
+    </script>
+</body>
+</html>
