@@ -61,39 +61,40 @@
 
     const canvasHeight = 2000;
 
+    // Initialize Race
     function initRace() {
-      canvas.height = 600;
+      scrollOffset = 0;
+      raceFinished = false;
+      winnerText.textContent = '';
+
       marbles = [
         { x: 100, y: 0, radius: 12, color: 'red', vx: 0, vy: 0 },
         { x: 300, y: 0, radius: 12, color: 'blue', vx: 0, vy: 0 }
       ];
-      obstacles = [];
-      raceFinished = false;
-      scrollOffset = 0;
-      winnerText.textContent = '';
 
-      // Generate smooth-sloped obstacles
+      obstacles = [];
       for (let i = 0; i < 25; i++) {
         obstacles.push({
-          x: Math.random() * (canvas.width - 100) + 50,
+          x: Math.random() * (canvas.width - 120) + 60,
           y: i * 80 + 100,
           width: 120,
           height: 20,
-          angle: Math.random() * 0.5 - 0.25 // Small slope angle
+          angle: Math.random() * 0.4 - 0.2 // Random slopes
         });
       }
     }
 
+    // Draw the Track
     function drawTrack() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
       ctx.translate(0, -scrollOffset);
 
-      // Finish line
+      // Finish Line
       ctx.fillStyle = 'green';
       ctx.fillRect(0, canvasHeight - 50, canvas.width, 20);
 
-      // Draw obstacles
+      // Obstacles
       for (let obs of obstacles) {
         ctx.save();
         ctx.translate(obs.x, obs.y);
@@ -103,7 +104,7 @@
         ctx.restore();
       }
 
-      // Draw marbles
+      // Marbles
       for (let marble of marbles) {
         ctx.beginPath();
         ctx.arc(marble.x, marble.y, marble.radius, 0, Math.PI * 2);
@@ -111,12 +112,14 @@
         ctx.fill();
         ctx.closePath();
       }
+
       ctx.restore();
     }
 
+    // Update Marble Physics
     function updateMarbles() {
       for (let marble of marbles) {
-        marble.vy += 0.4; // Gravity
+        marble.vy += 0.3; // Gravity
         marble.vx *= 0.98; // Friction
         marble.y += marble.vy;
         marble.x += marble.vx;
@@ -128,26 +131,19 @@
           const distY = Math.abs(dy);
 
           if (distY < marble.radius + obs.height / 2 && distX < obs.width / 2) {
-            // Slide down slope
             const slope = Math.tan(obs.angle);
             marble.vy = Math.sin(obs.angle) * 2;
-            marble.vx += slope * 0.5; // Horizontal movement
-            marble.y = obs.y - marble.radius - 2; // Stay on top
+            marble.vx += slope * 0.5;
+            marble.y = obs.y - marble.radius - 2;
           }
         }
 
-        // Scroll down as marbles descend
-        if (marble.y - scrollOffset > 300) {
-          scrollOffset += 5;
-        }
-
-        // Detect finish line
-        if (marble.y >= canvasHeight - 50) {
-          raceFinished = true;
-        }
+        if (marble.y - scrollOffset > 300) scrollOffset += 5;
+        if (marble.y >= canvasHeight - 50) raceFinished = true;
       }
     }
 
+    // Winner Check
     function checkWinner() {
       if (raceFinished) {
         cancelAnimationFrame(animationFrame);
@@ -157,6 +153,7 @@
       }
     }
 
+    // Animation
     function animate() {
       drawTrack();
       updateMarbles();
@@ -164,6 +161,7 @@
       if (!raceFinished) animationFrame = requestAnimationFrame(animate);
     }
 
+    // Recording
     function startRecording() {
       const stream = canvas.captureStream();
       recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
@@ -179,6 +177,7 @@
       recorder.start();
     }
 
+    // Event Listeners
     startBtn.addEventListener('click', () => {
       initRace();
       startRecording();
