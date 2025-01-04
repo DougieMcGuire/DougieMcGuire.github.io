@@ -7,8 +7,9 @@
     <style>
         body {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             height: 100vh;
             margin: 0;
             background-color: #f0f0f0;
@@ -17,36 +18,40 @@
             border: 2px solid #333;
             background: #d1e7ff;
         }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <canvas id="raceCanvas" width="400" height="600"></canvas>
+    <button id="saveVideo">Save as MP4</button>
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
     <script>
         const canvas = document.getElementById("raceCanvas");
         const ctx = canvas.getContext("2d");
+        const saveButton = document.getElementById("saveVideo");
 
-        // Marble properties
         const marbles = [
             { x: 100, y: 0, color: "red" },
             { x: 300, y: 0, color: "blue" },
         ];
         const finishLine = canvas.height - 20;
 
-        // Randomize speed for marbles
         function randomSpeed() {
             return Math.random() * 2 + 1; // Speed between 1 and 3
         }
-
         const speeds = marbles.map(() => randomSpeed());
 
-        // Draw the race track
         function drawTrack() {
             ctx.fillStyle = "#ccc";
             ctx.fillRect(90, 0, 20, canvas.height); // Left track
             ctx.fillRect(290, 0, 20, canvas.height); // Right track
         }
 
-        // Draw the marbles
         function drawMarbles() {
             marbles.forEach((marble) => {
                 ctx.beginPath();
@@ -56,7 +61,6 @@
             });
         }
 
-        // Update marble positions
         function updatePositions() {
             marbles.forEach((marble, index) => {
                 marble.y += speeds[index];
@@ -66,12 +70,10 @@
             });
         }
 
-        // Check if race is finished
         function isRaceFinished() {
             return marbles.some((marble) => marble.y >= finishLine);
         }
 
-        // Main animation loop
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawTrack();
@@ -88,24 +90,41 @@
         // Start the race
         animate();
 
-        // Recording the canvas animation
-        const stream = canvas.captureStream();
-        const recorder = new MediaRecorder(stream);
+        // Recording setup
+        const stream = canvas.captureStream(30); // 30 FPS
+        const recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
         const chunks = [];
 
         recorder.ondataavailable = (e) => chunks.push(e.data);
-        recorder.onstop = () => {
+        recorder.onstop = async () => {
             const blob = new Blob(chunks, { type: "video/webm" });
-            const url = URL.createObjectURL(blob);
+            const webmUrl = URL.createObjectURL(blob);
+
+            // Convert WebM to MP4 using ffmpeg.wasm
+            const ffmpeg = FFmpeg.createFFmpeg({ log: true });
+            await ffmpeg.load();
+
+            const webmFile = new Uint8Array(await blob.arrayBuffer());
+            ffmpeg.FS("writeFile", "input.webm", webmFile);
+
+            await ffmpeg.run("-i", "input.webm", "-c:v", "libx264", "-preset", "veryfast", "output.mp4");
+            const mp4Data = ffmpeg.FS("readFile", "output.mp4");
+
+            const mp4Blob = new Blob([mp4Data.buffer], { type: "video/mp4" });
+            const mp4Url = URL.createObjectURL(mp4Blob);
+
+            // Download the MP4
             const a = document.createElement("a");
-            a.href = url;
-            a.download = "marble_race.webm";
+            a.href = mp4Url;
+            a.download = "marble_race.mp4";
             a.click();
         };
 
-        // Record the race
+        // Start recording and save when clicking the button
         recorder.start();
-        setTimeout(() => recorder.stop(), 10000); // Stop recording after 10 seconds
+        saveButton.addEventListener("click", () => {
+            recorder.stop(); // Stop recording and trigger the saving process
+        });
     </script>
 </body>
 </html>
