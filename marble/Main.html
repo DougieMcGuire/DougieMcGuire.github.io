@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marble Race Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            border: 2px solid #333;
+            background: #d1e7ff;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="raceCanvas" width="400" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById("raceCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Marble properties
+        const marbles = [
+            { x: 100, y: 0, color: "red" },
+            { x: 300, y: 0, color: "blue" },
+        ];
+        const finishLine = canvas.height - 20;
+
+        // Randomize speed for marbles
+        function randomSpeed() {
+            return Math.random() * 2 + 1; // Speed between 1 and 3
+        }
+
+        const speeds = marbles.map(() => randomSpeed());
+
+        // Draw the race track
+        function drawTrack() {
+            ctx.fillStyle = "#ccc";
+            ctx.fillRect(90, 0, 20, canvas.height); // Left track
+            ctx.fillRect(290, 0, 20, canvas.height); // Right track
+        }
+
+        // Draw the marbles
+        function drawMarbles() {
+            marbles.forEach((marble) => {
+                ctx.beginPath();
+                ctx.arc(marble.x, marble.y, 10, 0, Math.PI * 2);
+                ctx.fillStyle = marble.color;
+                ctx.fill();
+            });
+        }
+
+        // Update marble positions
+        function updatePositions() {
+            marbles.forEach((marble, index) => {
+                marble.y += speeds[index];
+                if (marble.y >= finishLine) {
+                    marble.y = finishLine; // Stop at finish line
+                }
+            });
+        }
+
+        // Check if race is finished
+        function isRaceFinished() {
+            return marbles.some((marble) => marble.y >= finishLine);
+        }
+
+        // Main animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTrack();
+            drawMarbles();
+            updatePositions();
+
+            if (!isRaceFinished()) {
+                requestAnimationFrame(animate);
+            } else {
+                console.log("Race finished!");
+            }
+        }
+
+        // Start the race
+        animate();
+
+        // Recording the canvas animation
+        const stream = canvas.captureStream();
+        const recorder = new MediaRecorder(stream);
+        const chunks = [];
+
+        recorder.ondataavailable = (e) => chunks.push(e.data);
+        recorder.onstop = () => {
+            const blob = new Blob(chunks, { type: "video/webm" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "marble_race.webm";
+            a.click();
+        };
+
+        // Record the race
+        recorder.start();
+        setTimeout(() => recorder.stop(), 10000); // Stop recording after 10 seconds
+    </script>
+</body>
+</html>
