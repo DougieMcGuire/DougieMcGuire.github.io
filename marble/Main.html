@@ -1,129 +1,176 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marble Race Game</title>
+    <title>Random Marble Race</title>
     <style>
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
+            font-family: Arial, sans-serif;
             background-color: #f0f0f0;
         }
         canvas {
             border: 2px solid #333;
-            background: #d1e7ff;
+            background: white;
+            margin: 20px;
         }
         button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 12px 24px;
+            font-size: 18px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
+            margin: 10px;
+        }
+        button:disabled {
+            background: #cccccc;
+        }
+        #result {
+            font-size: 24px;
+            margin: 20px;
+            font-weight: bold;
+        }
+        #saveButton {
+            background: #2196F3;
         }
     </style>
 </head>
 <body>
-    <canvas id="raceCanvas" width="400" height="600"></canvas>
-    <button id="saveVideo">Save as MP4</button>
-    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+    <h1>Marble Race</h1>
+    <canvas id="raceCanvas" width="800" height="400"></canvas>
+    <button id="startRace">Start Random Marble Race</button>
+    <button id="saveRace" disabled>Save Race</button>
+    <div id="result"></div>
+
     <script>
-        const canvas = document.getElementById("raceCanvas");
-        const ctx = canvas.getContext("2d");
-        const saveButton = document.getElementById("saveVideo");
+        const canvas = document.getElementById('raceCanvas');
+        const ctx = canvas.getContext('2d');
+        const startButton = document.getElementById('startRace');
+        const saveButton = document.getElementById('saveRace');
+        const resultDiv = document.getElementById('result');
 
-        const marbles = [
-            { x: 100, y: 0, color: "red" },
-            { x: 300, y: 0, color: "blue" },
-        ];
-        const finishLine = canvas.height - 20;
+        let marble1 = { x: 50, y: 100, speed: 0, color: 'red' };
+        let marble2 = { x: 50, y: 300, speed: 0, color: 'blue' };
+        let raceInProgress = false;
+        let mediaRecorder;
+        let recordedChunks = [];
 
-        function randomSpeed() {
-            return Math.random() * 2 + 1; // Speed between 1 and 3
+        function resetMarbles() {
+            marble1 = { x: 50, y: 100, speed: 0, color: 'red' };
+            marble2 = { x: 50, y: 300, speed: 0, color: 'blue' };
+            resultDiv.textContent = '';
+            saveButton.disabled = true;
         }
-        const speeds = marbles.map(() => randomSpeed());
+
+        function drawMarble(marble) {
+            ctx.beginPath();
+            ctx.arc(marble.x, marble.y, 15, 0, Math.PI * 2);
+            ctx.fillStyle = marble.color;
+            ctx.fill();
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
 
         function drawTrack() {
-            ctx.fillStyle = "#ccc";
-            ctx.fillRect(90, 0, 20, canvas.height); // Left track
-            ctx.fillRect(290, 0, 20, canvas.height); // Right track
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw finish line
+            ctx.fillStyle = 'black';
+            ctx.fillRect(700, 0, 5, canvas.height);
+            
+            // Draw lanes
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, 200);
+            ctx.lineTo(canvas.width, 200);
+            ctx.stroke();
         }
 
-        function drawMarbles() {
-            marbles.forEach((marble) => {
-                ctx.beginPath();
-                ctx.arc(marble.x, marble.y, 10, 0, Math.PI * 2);
-                ctx.fillStyle = marble.color;
-                ctx.fill();
-            });
+        function updateMarbles() {
+            marble1.speed = marble1.speed + (Math.random() * 0.5 - 0.25);
+            marble2.speed = marble2.speed + (Math.random() * 0.5 - 0.25);
+            
+            marble1.speed = Math.max(1, Math.min(marble1.speed, 5));
+            marble2.speed = Math.max(1, Math.min(marble2.speed, 5));
+            
+            marble1.x += marble1.speed;
+            marble2.x += marble2.speed;
         }
 
-        function updatePositions() {
-            marbles.forEach((marble, index) => {
-                marble.y += speeds[index];
-                if (marble.y >= finishLine) {
-                    marble.y = finishLine; // Stop at finish line
+        function checkWinner() {
+            if (marble1.x >= 700 || marble2.x >= 700) {
+                raceInProgress = false;
+                startButton.disabled = false;
+                
+                let winner = marble1.x > marble2.x ? "Red Marble" : "Blue Marble";
+                resultDiv.textContent = `${winner} wins the race!`;
+                
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
                 }
-            });
-        }
-
-        function isRaceFinished() {
-            return marbles.some((marble) => marble.y >= finishLine);
+                
+                saveButton.disabled = false;
+                return true;
+            }
+            return false;
         }
 
         function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (!raceInProgress) return;
+            
             drawTrack();
-            drawMarbles();
-            updatePositions();
-
-            if (!isRaceFinished()) {
+            updateMarbles();
+            drawMarble(marble1);
+            drawMarble(marble2);
+            
+            if (!checkWinner()) {
                 requestAnimationFrame(animate);
-            } else {
-                console.log("Race finished!");
             }
         }
 
-        // Start the race
-        animate();
+        function startRecording() {
+            recordedChunks = [];
+            const stream = canvas.captureStream(60);
+            mediaRecorder = new MediaRecorder(stream, {
+                mimeType: 'video/webm;codecs=vp9'
+            });
 
-        // Recording setup
-        const stream = canvas.captureStream(30); // 30 FPS
-        const recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
-        const chunks = [];
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) {
+                    recordedChunks.push(e.data);
+                }
+            };
 
-        recorder.ondataavailable = (e) => chunks.push(e.data);
-        recorder.onstop = async () => {
-            const blob = new Blob(chunks, { type: "video/webm" });
-            const webmUrl = URL.createObjectURL(blob);
+            mediaRecorder.onstop = () => {
+                saveButton.disabled = false;
+            };
 
-            // Convert WebM to MP4 using ffmpeg.wasm
-            const ffmpeg = FFmpeg.createFFmpeg({ log: true });
-            await ffmpeg.load();
+            mediaRecorder.start();
+        }
 
-            const webmFile = new Uint8Array(await blob.arrayBuffer());
-            ffmpeg.FS("writeFile", "input.webm", webmFile);
+        startButton.addEventListener('click', () => {
+            resetMarbles();
+            raceInProgress = true;
+            startButton.disabled = true;
+            startRecording();
+            animate();
+        });
 
-            await ffmpeg.run("-i", "input.webm", "-c:v", "libx264", "-preset", "veryfast", "output.mp4");
-            const mp4Data = ffmpeg.FS("readFile", "output.mp4");
-
-            const mp4Blob = new Blob([mp4Data.buffer], { type: "video/mp4" });
-            const mp4Url = URL.createObjectURL(mp4Blob);
-
-            // Download the MP4
-            const a = document.createElement("a");
-            a.href = mp4Url;
-            a.download = "marble_race.mp4";
+        saveButton.addEventListener('click', () => {
+            const blob = new Blob(recordedChunks, {
+                type: 'video/webm'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'marble-race.webm';
             a.click();
-        };
-
-        // Start recording and save when clicking the button
-        recorder.start();
-        saveButton.addEventListener("click", () => {
-            recorder.stop(); // Stop recording and trigger the saving process
+            URL.revokeObjectURL(url);
         });
     </script>
 </body>
