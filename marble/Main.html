@@ -10,38 +10,38 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      height: 100vh;
       margin: 0;
-      background: linear-gradient(to bottom, #4a90e2, #003c82);
       font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #6ab7ff, #0057b8);
     }
     canvas {
       border: 2px solid #333;
-      background: #eaeaea;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      background: radial-gradient(circle, #ffffff, #cccccc);
     }
     button {
       margin: 10px;
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
-      background-color: #007bff;
+      background-color: #0057b8;
       color: white;
       border: none;
       border-radius: 5px;
-      transition: background-color 0.3s;
     }
     button:hover {
-      background-color: #0056b3;
+      background-color: #003c82;
     }
     #winnerText {
       font-size: 18px;
+      font-weight: bold;
       color: white;
       margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <canvas id="raceCanvas" width="600" height="800"></canvas>
+  <canvas id="raceCanvas" width="400" height="600"></canvas>
   <button id="startRace">Start Race</button>
   <button id="saveRace" disabled>Save Race as Video</button>
   <div id="winnerText"></div>
@@ -53,136 +53,185 @@
     const saveBtn = document.getElementById('saveRace');
     const winnerText = document.getElementById('winnerText');
 
-    let marbles, obstacles, animationFrame, raceFinished = false;
+    let marbles, obstacles, spinningObstacles, animationFrame, raceFinished = false;
     let recorder, recordedChunks = [];
-    const canvasHeight = 3000; // Race track height
-    const gravity = 0.5;
-    const friction = 0.98;
-    const bounce = 0.7;
     let scrollOffset = 0;
 
+    const canvasHeight = 1800; // Extended map height
+
     function initRace() {
-      canvas.height = 800;
+      canvas.height = 600;
       marbles = [
-        { x: 200, y: 0, radius: 15, color: 'red', vy: 0 },
-        { x: 400, y: 0, radius: 15, color: 'blue', vy: 0 }
+        { x: 100, y: 0, radius: 10, color: 'red', vy: 0 },
+        { x: 300, y: 0, radius: 10, color: 'blue', vy: 0 }
       ];
       obstacles = [];
+      spinningObstacles = [];
       raceFinished = false;
       scrollOffset = 0;
-      winnerText.textContent = '';
+      winnerText.textContent = ''; // Clear winner text
 
-      // Create obstacles
-      for (let i = 0; i < 25; i++) {
+      // Generate static obstacles
+      for (let i = 0; i < 15; i++) {
+        const slopeDirection = Math.random() < 0.5 ? 1 : -1; // Random slope
         obstacles.push({
           x: Math.random() * (canvas.width - 100) + 50,
-          y: i * 120 + 100,
-          width: 120,
+          y: i * 100 + 100,
+          width: 100,
           height: 20,
-          slope: Math.random() < 0.5 ? -1 : 1
+          slope: slopeDirection * 0.5
+        });
+      }
+
+      // Generate spinning obstacles
+      for (let i = 0; i < 5; i++) {
+        spinningObstacles.push({
+          x: Math.random() * (canvas.width - 50) + 25,
+          y: i * 300 + 200,
+          radius: 30,
+          angle: 0
         });
       }
     }
 
-    function drawBackground() {
-      ctx.fillStyle = ctx.createLinearGradient(0, 0, 0, canvasHeight);
-      ctx.fillStyle.addColorStop(0, '#6ab7ff');
-      ctx.fillStyle.addColorStop(1, '#003c82');
-      ctx.fillRect(0, -scrollOffset, canvas.width, canvasHeight);
-    }
+    // Draw the race track
+    function drawTrack() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    function drawObstacles() {
+      ctx.save();
+      ctx.translate(0, -scrollOffset);
+
+      // Draw finish line
+      ctx.fillStyle = 'green';
+      ctx.fillRect(0, canvasHeight - 50, canvas.width, 20);
+
+      // Draw static obstacles
       for (let obs of obstacles) {
         ctx.save();
-        ctx.translate(obs.x, obs.y - scrollOffset);
-        ctx.rotate(obs.slope * 0.2);
-        ctx.fillStyle = '#333';
+        ctx.translate(obs.x, obs.y);
+        ctx.rotate(obs.slope);
+        ctx.fillStyle = 'black';
         ctx.fillRect(-obs.width / 2, -obs.height / 2, obs.width, obs.height);
         ctx.restore();
       }
-    }
 
-    function drawMarbles() {
+      // Draw spinning obstacles
+      for (let spin of spinningObstacles) {
+        ctx.save();
+        ctx.translate(spin.x, spin.y);
+        ctx.rotate(spin.angle);
+        ctx.beginPath();
+        ctx.moveTo(0, -spin.radius);
+        ctx.lineTo(spin.radius, 0);
+        ctx.lineTo(0, spin.radius);
+        ctx.lineTo(-spin.radius, 0);
+        ctx.closePath();
+        ctx.fillStyle = 'orange';
+        ctx.fill();
+        ctx.restore();
+
+        // Rotate spinning obstacle
+        spin.angle += 0.05;
+      }
+
+      // Draw marbles
       for (let marble of marbles) {
         ctx.beginPath();
-        ctx.arc(marble.x, marble.y - scrollOffset, marble.radius, 0, Math.PI * 2);
+        ctx.arc(marble.x, marble.y, marble.radius, 0, Math.PI * 2);
         ctx.fillStyle = marble.color;
         ctx.fill();
         ctx.closePath();
       }
+
+      ctx.restore();
     }
 
-    function updatePhysics() {
+    // Update marble positions
+    function updateMarbles() {
       for (let marble of marbles) {
-        marble.vy += gravity;
+        marble.vy += 0.5; // Gravity
         marble.y += marble.vy;
 
+        // Collision detection with static obstacles
         for (let obs of obstacles) {
-          const obsTop = obs.y - scrollOffset;
-          const obsLeft = obs.x - obs.width / 2;
-          const obsRight = obs.x + obs.width / 2;
+          const obsCenterY = obs.y;
+          const obsLeftX = obs.x - obs.width / 2;
+          const obsRightX = obs.x + obs.width / 2;
 
           if (
-            marble.y + marble.radius >= obsTop &&
-            marble.x > obsLeft &&
-            marble.x < obsRight
+            marble.y + marble.radius >= obsCenterY &&
+            marble.x >= obsLeftX &&
+            marble.x <= obsRightX
           ) {
-            marble.vy = -bounce * marble.vy;
-            marble.y = obsTop - marble.radius;
+            marble.vy = -2; // Bounce effect
+            marble.x += obs.slope * 5; // Sliding effect
           }
         }
 
-        if (marble.y + marble.radius >= canvasHeight) {
+        // Collision detection with spinning obstacles
+        for (let spin of spinningObstacles) {
+          const dist = Math.hypot(marble.x - spin.x, marble.y - spin.y);
+          if (dist <= marble.radius + spin.radius) {
+            marble.vy = -2; // Bounce off spinning obstacles
+            marble.x += Math.cos(spin.angle) * 5;
+          }
+        }
+
+        // Scroll canvas down as marbles descend
+        if (marble.y - scrollOffset > 300) {
+          scrollOffset += 5;
+        }
+
+        // Detect finish line
+        if (marble.y >= canvasHeight - 50) {
           raceFinished = true;
         }
       }
-
-      scrollOffset += 5;
     }
 
+    // Check if race is over
     function checkWinner() {
       if (raceFinished) {
         cancelAnimationFrame(animationFrame);
-        recorder.stop();
+        saveBtn.disabled = false;
         const winner = marbles[0].y > marbles[1].y ? 'Blue' : 'Red';
         winnerText.textContent = `${winner} marble wins!`;
       }
     }
 
+    // Animation loop
     function animate() {
-      drawBackground();
-      drawObstacles();
-      drawMarbles();
-      updatePhysics();
+      drawTrack();
+      updateMarbles();
       checkWinner();
-
-      if (!raceFinished) {
-        animationFrame = requestAnimationFrame(animate);
-      }
+      if (!raceFinished) animationFrame = requestAnimationFrame(animate);
     }
 
+    // Start recording the canvas
     function startRecording() {
       const stream = canvas.captureStream();
-      recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+      recorder = new MediaRecorder(stream, { mimeType: 'video/mp4' });
       recordedChunks = [];
 
       recorder.ondataavailable = (e) => recordedChunks.push(e.data);
       recorder.onstop = () => {
-        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const blob = new Blob(recordedChunks, { type: 'video/mp4' });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'marble_race.webm';
+        a.download = 'marble_race.mp4';
         a.click();
       };
 
       recorder.start();
     }
 
+    // Event listeners
     startBtn.addEventListener('click', () => {
       initRace();
       startRecording();
+      saveBtn.disabled = true;
       animate();
     });
 
@@ -190,9 +239,9 @@
       recorder.stop();
     });
 
+    // Initialize first state
     initRace();
-    drawBackground();
-    drawMarbles();
+    drawTrack();
   </script>
 </body>
 </html>
