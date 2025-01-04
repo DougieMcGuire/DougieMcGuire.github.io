@@ -3,40 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ultimate Marble Race</title>
+  <title>Enhanced Marble Race</title>
   <style>
     body {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
       margin: 0;
+      background: linear-gradient(to bottom, #4a90e2, #003c82);
       font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #4a90e2, #145cab);
     }
     canvas {
       border: 2px solid #333;
       background: #eaeaea;
-      box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
     button {
       margin: 10px;
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
-      background-color: #1e88e5;
+      background-color: #007bff;
       color: white;
       border: none;
       border-radius: 5px;
       transition: background-color 0.3s;
     }
     button:hover {
-      background-color: #1565c0;
+      background-color: #0056b3;
     }
     #winnerText {
-      font-size: 20px;
-      font-weight: bold;
+      font-size: 18px;
       color: white;
       margin-top: 10px;
     }
@@ -55,116 +53,52 @@
     const saveBtn = document.getElementById('saveRace');
     const winnerText = document.getElementById('winnerText');
 
-    let marbles, obstacles, spinningObstacles, movingPlatforms, animationFrame, raceFinished = false;
+    let marbles, obstacles, animationFrame, raceFinished = false;
     let recorder, recordedChunks = [];
+    const canvasHeight = 3000; // Race track height
+    const gravity = 0.5;
+    const friction = 0.98;
+    const bounce = 0.7;
     let scrollOffset = 0;
-    let gradientBackground;
-
-    const canvasHeight = 3000; // Extended track height
-    const gravity = 0.3; // Gravity acceleration
-    const friction = 0.98; // Friction coefficient
-    const bounce = 0.6; // Bounce energy retention
 
     function initRace() {
       canvas.height = 800;
       marbles = [
-        { x: 200, y: 0, radius: 15, color: 'red', vx: 0, vy: 0 },
-        { x: 400, y: 0, radius: 15, color: 'blue', vx: 0, vy: 0 }
+        { x: 200, y: 0, radius: 15, color: 'red', vy: 0 },
+        { x: 400, y: 0, radius: 15, color: 'blue', vy: 0 }
       ];
       obstacles = [];
-      spinningObstacles = [];
-      movingPlatforms = [];
       raceFinished = false;
       scrollOffset = 0;
-      winnerText.textContent = ''; // Clear winner text
+      winnerText.textContent = '';
 
-      // Generate a scrolling gradient background
-      gradientBackground = ctx.createLinearGradient(0, 0, 0, canvasHeight);
-      gradientBackground.addColorStop(0, '#6ab7ff');
-      gradientBackground.addColorStop(1, '#003c82');
-
-      // Static obstacles
-      for (let i = 0; i < 20; i++) {
-        const slopeDirection = Math.random() < 0.5 ? 1 : -1;
+      // Create obstacles
+      for (let i = 0; i < 25; i++) {
         obstacles.push({
-          x: Math.random() * (canvas.width - 120) + 60,
-          y: i * 150 + 100,
+          x: Math.random() * (canvas.width - 100) + 50,
+          y: i * 120 + 100,
           width: 120,
           height: 20,
-          slope: slopeDirection * 0.4
-        });
-      }
-
-      // Spinning obstacles
-      for (let i = 0; i < 8; i++) {
-        spinningObstacles.push({
-          x: Math.random() * (canvas.width - 60) + 30,
-          y: i * 350 + 200,
-          radius: 40,
-          angle: 0
-        });
-      }
-
-      // Moving platforms
-      for (let i = 0; i < 5; i++) {
-        movingPlatforms.push({
-          x: 100 + (i % 2) * 300,
-          y: i * 500 + 300,
-          width: 120,
-          height: 10,
-          direction: Math.random() < 0.5 ? 1 : -1,
-          speed: 2
+          slope: Math.random() < 0.5 ? -1 : 1
         });
       }
     }
 
     function drawBackground() {
-      ctx.fillStyle = gradientBackground;
+      ctx.fillStyle = ctx.createLinearGradient(0, 0, 0, canvasHeight);
+      ctx.fillStyle.addColorStop(0, '#6ab7ff');
+      ctx.fillStyle.addColorStop(1, '#003c82');
       ctx.fillRect(0, -scrollOffset, canvas.width, canvasHeight);
     }
 
     function drawObstacles() {
-      // Static obstacles
       for (let obs of obstacles) {
         ctx.save();
         ctx.translate(obs.x, obs.y - scrollOffset);
-        ctx.rotate(obs.slope);
-        ctx.fillStyle = '#444';
+        ctx.rotate(obs.slope * 0.2);
+        ctx.fillStyle = '#333';
         ctx.fillRect(-obs.width / 2, -obs.height / 2, obs.width, obs.height);
         ctx.restore();
-      }
-
-      // Spinning obstacles
-      for (let spin of spinningObstacles) {
-        ctx.save();
-        ctx.translate(spin.x, spin.y - scrollOffset);
-        ctx.rotate(spin.angle);
-        ctx.beginPath();
-        ctx.arc(0, 0, spin.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = 'orange';
-        ctx.lineWidth = 5;
-        ctx.stroke();
-        ctx.restore();
-
-        // Spin animation
-        spin.angle += 0.05;
-      }
-
-      // Moving platforms
-      for (let platform of movingPlatforms) {
-        ctx.fillStyle = 'green';
-        ctx.fillRect(
-          platform.x - platform.width / 2,
-          platform.y - scrollOffset,
-          platform.width,
-          platform.height
-        );
-
-        // Move platform
-        platform.x += platform.speed * platform.direction;
-        if (platform.x < 60 || platform.x > canvas.width - 60) {
-          platform.direction *= -1; // Bounce back
-        }
       }
     }
 
@@ -180,47 +114,38 @@
 
     function updatePhysics() {
       for (let marble of marbles) {
-        marble.vy += gravity; // Gravity
-        marble.x += marble.vx;
+        marble.vy += gravity;
         marble.y += marble.vy;
 
-        // Friction
-        marble.vx *= friction;
-
-        // Bounce off walls
-        if (marble.x < marble.radius || marble.x > canvas.width - marble.radius) {
-          marble.vx *= -1 * bounce;
-          marble.x = Math.max(marble.radius, Math.min(marble.x, canvas.width - marble.radius));
-        }
-
-        // Collision with obstacles
         for (let obs of obstacles) {
-          const obsTop = obs.y - scrollOffset - obs.height / 2;
-          const obsBottom = obsTop + obs.height;
+          const obsTop = obs.y - scrollOffset;
           const obsLeft = obs.x - obs.width / 2;
-          const obsRight = obsLeft + obs.width;
+          const obsRight = obs.x + obs.width / 2;
 
           if (
+            marble.y + marble.radius >= obsTop &&
             marble.x > obsLeft &&
-            marble.x < obsRight &&
-            marble.y + marble.radius > obsTop &&
-            marble.y - marble.radius < obsBottom
+            marble.x < obsRight
           ) {
-            marble.vy *= -1 * bounce;
-            marble.vx += obs.slope * 2;
+            marble.vy = -bounce * marble.vy;
+            marble.y = obsTop - marble.radius;
           }
         }
+
+        if (marble.y + marble.radius >= canvasHeight) {
+          raceFinished = true;
+        }
       }
+
+      scrollOffset += 5;
     }
 
     function checkWinner() {
-      for (let marble of marbles) {
-        if (marble.y > canvasHeight - 50) {
-          raceFinished = true;
-          winnerText.textContent = `${marble.color.charAt(0).toUpperCase() + marble.color.slice(1)} marble wins!`;
-          cancelAnimationFrame(animationFrame);
-          recorder.stop();
-        }
+      if (raceFinished) {
+        cancelAnimationFrame(animationFrame);
+        recorder.stop();
+        const winner = marbles[0].y > marbles[1].y ? 'Blue' : 'Red';
+        winnerText.textContent = `${winner} marble wins!`;
       }
     }
 
@@ -248,7 +173,7 @@
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'marble_race.mp4';
+        a.download = 'marble_race.webm';
         a.click();
       };
 
@@ -264,6 +189,10 @@
     saveBtn.addEventListener('click', () => {
       recorder.stop();
     });
+
+    initRace();
+    drawBackground();
+    drawMarbles();
   </script>
 </body>
 </html>
