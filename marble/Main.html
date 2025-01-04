@@ -59,29 +59,67 @@
     let recorder, recordedChunks = [];
     let scrollOffset = 0;
 
-    const canvasHeight = 2000;
+    const canvasHeight = 4000;
 
     function initRace() {
       canvas.height = 600;
       marbles = [
-        { x: 100, y: 0, radius: 12, color: 'red', vx: 0, vy: 0 },
-        { x: 300, y: 0, radius: 12, color: 'blue', vx: 0, vy: 0 }
+        { x: 100, y: 100, radius: 24, color: 'red', vx: 0, vy: 0 },
+        { x: 300, y: 100, radius: 24, color: 'blue', vx: 0, vy: 0 }
       ];
       obstacles = [];
       raceFinished = false;
       scrollOffset = 0;
       winnerText.textContent = '';
 
-      // Generate smooth-sloped obstacles
-      for (let i = 0; i < 25; i++) {
+      // Starting cage
+      obstacles.push({ type: 'cage', x: 200, y: 100, radius: 80 });
+
+      // Generate sections with varied obstacles
+      generateSectionWithRamps();
+      generateCurvedSection();
+      generateDynamicGate();
+      generateFinishLine();
+    }
+
+    function generateSectionWithRamps() {
+      for (let i = 0; i < 5; i++) {
         obstacles.push({
-          x: Math.random() * (canvas.width - 100) + 50,
-          y: i * 80 + 100,
-          width: 120,
+          x: i % 2 === 0 ? 50 : 350,
+          y: 200 + i * 150,
+          width: 150,
           height: 20,
-          angle: Math.random() * 0.5 - 0.25 // Small slope angle
+          angle: i % 2 === 0 ? 0.2 : -0.2
         });
       }
+    }
+
+    function generateCurvedSection() {
+      for (let i = 0; i < 5; i++) {
+        obstacles.push({
+          x: 200,
+          y: 1000 + i * 150,
+          width: 200,
+          height: 20,
+          angle: Math.sin(i * 0.5)
+        });
+      }
+    }
+
+    function generateDynamicGate() {
+      obstacles.push({
+        type: 'gate',
+        x: 200,
+        y: 2000,
+        width: 100,
+        height: 20,
+        open: true,
+        toggleTime: 60
+      });
+    }
+
+    function generateFinishLine() {
+      obstacles.push({ type: 'finish', x: 200, y: canvasHeight - 50, width: 400 });
     }
 
     function drawTrack() {
@@ -89,18 +127,25 @@
       ctx.save();
       ctx.translate(0, -scrollOffset);
 
-      // Finish line
-      ctx.fillStyle = 'green';
-      ctx.fillRect(0, canvasHeight - 50, canvas.width, 20);
-
       // Draw obstacles
       for (let obs of obstacles) {
-        ctx.save();
-        ctx.translate(obs.x, obs.y);
-        ctx.rotate(obs.angle);
-        ctx.fillStyle = '#444';
-        ctx.fillRect(-obs.width / 2, -obs.height / 2, obs.width, obs.height);
-        ctx.restore();
+        if (obs.type === 'cage') {
+          ctx.beginPath();
+          ctx.arc(obs.x, obs.y, obs.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = 'black';
+          ctx.stroke();
+          ctx.closePath();
+        } else if (obs.type === 'gate') {
+          ctx.fillStyle = obs.open ? 'green' : 'red';
+          ctx.fillRect(obs.x - obs.width / 2, obs.y - obs.height / 2, obs.width, obs.height);
+        } else {
+          ctx.save();
+          ctx.translate(obs.x, obs.y);
+          ctx.rotate(obs.angle || 0);
+          ctx.fillStyle = '#444';
+          ctx.fillRect(-obs.width / 2, -obs.height / 2, obs.width, obs.height);
+          ctx.restore();
+        }
       }
 
       // Draw marbles
@@ -122,17 +167,14 @@
         marble.x += marble.vx;
 
         for (let obs of obstacles) {
-          const dx = marble.x - obs.x;
-          const dy = marble.y - obs.y;
-          const distX = Math.abs(dx);
-          const distY = Math.abs(dy);
+          // Handle cage
+          if (obs.type === 'cage' && marble.y < obs.y + obs.radius) {
+            marble.vy = 0;
+          }
 
-          if (distY < marble.radius + obs.height / 2 && distX < obs.width / 2) {
-            // Slide down slope
-            const slope = Math.tan(obs.angle);
-            marble.vy = Math.sin(obs.angle) * 2;
-            marble.vx += slope * 0.5; // Horizontal movement
-            marble.y = obs.y - marble.radius - 2; // Stay on top
+          // Handle gate
+          if (obs.type === 'gate' && Math.abs(marble.y - obs.y) < marble.radius) {
+            if (!obs.open) marble.vy = -1;
           }
         }
 
@@ -148,22 +190,6 @@
       }
     }
 
-    function checkWinner() {
-      if (raceFinished) {
-        cancelAnimationFrame(animationFrame);
-        saveBtn.disabled = false;
-        const winner = marbles[0].y > marbles[1].y ? 'Blue' : 'Red';
-        winnerText.textContent = `${winner} marble wins!`;
-      }
-    }
-
-    function animate() {
-      drawTrack();
-      updateMarbles();
-      checkWinner();
-      if (!raceFinished) animationFrame = requestAnimationFrame(animate);
-    }
-
     function startRecording() {
       const stream = canvas.captureStream();
       recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
@@ -177,6 +203,12 @@
         a.click();
       };
       recorder.start();
+    }
+
+    function animate() {
+      drawTrack();
+      updateMarbles();
+      if (!raceFinished) requestAnimationFrame(animate);
     }
 
     startBtn.addEventListener('click', () => {
