@@ -25,18 +25,26 @@
       font-size: 16px;
       cursor: pointer;
     }
+    #winnerText {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
   <canvas id="raceCanvas" width="400" height="600"></canvas>
   <button id="startRace">Start Race</button>
   <button id="saveRace" disabled>Save Race as Video</button>
+  <div id="winnerText"></div>
 
   <script>
     const canvas = document.getElementById('raceCanvas');
     const ctx = canvas.getContext('2d');
     const startBtn = document.getElementById('startRace');
     const saveBtn = document.getElementById('saveRace');
+    const winnerText = document.getElementById('winnerText');
     
     let marbles, obstacles, animationFrame, raceFinished = false;
     let recorder, recordedChunks = [];
@@ -49,14 +57,17 @@
       ];
       obstacles = [];
       raceFinished = false;
+      winnerText.textContent = ''; // Clear winner text
 
-      // Generate obstacles
+      // Generate sloped obstacles
       for (let i = 0; i < 10; i++) {
+        const slopeDirection = Math.random() < 0.5 ? 1 : -1; // Random slope direction
         obstacles.push({
           x: Math.random() * (canvas.width - 100) + 50,
           y: i * 60 + 50,
           width: 100,
-          height: 20
+          height: 20,
+          slope: slopeDirection * 0.5 // Slope factor
         });
       }
     }
@@ -66,9 +77,13 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Draw obstacles
-      ctx.fillStyle = 'black';
       for (let obs of obstacles) {
-        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        ctx.save();
+        ctx.translate(obs.x, obs.y);
+        ctx.rotate(obs.slope);
+        ctx.fillStyle = 'black';
+        ctx.fillRect(-obs.width / 2, -obs.height / 2, obs.width, obs.height);
+        ctx.restore();
       }
 
       // Draw marbles
@@ -89,13 +104,17 @@
 
         // Collision detection with obstacles
         for (let obs of obstacles) {
+          const obsCenterY = obs.y;
+          const obsLeftX = obs.x - obs.width / 2;
+          const obsRightX = obs.x + obs.width / 2;
+
           if (
-            marble.y + marble.radius >= obs.y &&
-            marble.y - marble.radius <= obs.y + obs.height &&
-            marble.x >= obs.x &&
-            marble.x <= obs.x + obs.width
+            marble.y + marble.radius >= obsCenterY &&
+            marble.x >= obsLeftX &&
+            marble.x <= obsRightX
           ) {
             marble.vy = -2; // Bounce effect
+            marble.x += obs.slope * 5; // Add sliding effect
           }
         }
 
@@ -113,7 +132,7 @@
         cancelAnimationFrame(animationFrame);
         saveBtn.disabled = false;
         const winner = marbles[0].y > marbles[1].y ? 'Blue' : 'Red';
-        alert(`${winner} marble wins!`);
+        winnerText.textContent = `${winner} marble wins!`;
       }
     }
 
@@ -128,17 +147,17 @@
     // Start recording the canvas
     function startRecording() {
       const stream = canvas.captureStream();
-      recorder = new MediaRecorder(stream);
+      recorder = new MediaRecorder(stream, { mimeType: 'video/mp4' });
       recordedChunks = [];
 
       recorder.ondataavailable = (e) => recordedChunks.push(e.data);
       recorder.onstop = () => {
-        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const blob = new Blob(recordedChunks, { type: 'video/mp4' });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'marble_race.webm';
+        a.download = 'marble_race.mp4';
         a.click();
       };
 
