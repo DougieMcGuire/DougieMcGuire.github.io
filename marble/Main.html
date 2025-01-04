@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enhanced Marble Race</title>
+  <title>Ultimate Marble Race</title>
   <style>
     body {
       display: flex;
@@ -13,27 +13,29 @@
       height: 100vh;
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #6ab7ff, #0057b8);
+      background: linear-gradient(180deg, #4a90e2, #145cab);
     }
     canvas {
       border: 2px solid #333;
-      background: radial-gradient(circle, #ffffff, #cccccc);
+      background: #eaeaea;
+      box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
     }
     button {
       margin: 10px;
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
-      background-color: #0057b8;
+      background-color: #1e88e5;
       color: white;
       border: none;
       border-radius: 5px;
+      transition: background-color 0.3s;
     }
     button:hover {
-      background-color: #003c82;
+      background-color: #1565c0;
     }
     #winnerText {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
       color: white;
       margin-top: 10px;
@@ -41,7 +43,7 @@
   </style>
 </head>
 <body>
-  <canvas id="raceCanvas" width="400" height="600"></canvas>
+  <canvas id="raceCanvas" width="600" height="800"></canvas>
   <button id="startRace">Start Race</button>
   <button id="saveRace" disabled>Save Race as Video</button>
   <div id="winnerText"></div>
@@ -53,169 +55,195 @@
     const saveBtn = document.getElementById('saveRace');
     const winnerText = document.getElementById('winnerText');
 
-    let marbles, obstacles, spinningObstacles, animationFrame, raceFinished = false;
+    let marbles, obstacles, spinningObstacles, movingPlatforms, animationFrame, raceFinished = false;
     let recorder, recordedChunks = [];
     let scrollOffset = 0;
+    let gradientBackground;
 
-    const canvasHeight = 1800; // Extended map height
+    const canvasHeight = 3000; // Extended track height
+    const gravity = 0.3; // Gravity acceleration
+    const friction = 0.98; // Friction coefficient
+    const bounce = 0.6; // Bounce energy retention
 
     function initRace() {
-      canvas.height = 600;
+      canvas.height = 800;
       marbles = [
-        { x: 100, y: 0, radius: 10, color: 'red', vy: 0 },
-        { x: 300, y: 0, radius: 10, color: 'blue', vy: 0 }
+        { x: 200, y: 0, radius: 15, color: 'red', vx: 0, vy: 0 },
+        { x: 400, y: 0, radius: 15, color: 'blue', vx: 0, vy: 0 }
       ];
       obstacles = [];
       spinningObstacles = [];
+      movingPlatforms = [];
       raceFinished = false;
       scrollOffset = 0;
       winnerText.textContent = ''; // Clear winner text
 
-      // Generate static obstacles
-      for (let i = 0; i < 15; i++) {
-        const slopeDirection = Math.random() < 0.5 ? 1 : -1; // Random slope
+      // Generate a scrolling gradient background
+      gradientBackground = ctx.createLinearGradient(0, 0, 0, canvasHeight);
+      gradientBackground.addColorStop(0, '#6ab7ff');
+      gradientBackground.addColorStop(1, '#003c82');
+
+      // Static obstacles
+      for (let i = 0; i < 20; i++) {
+        const slopeDirection = Math.random() < 0.5 ? 1 : -1;
         obstacles.push({
-          x: Math.random() * (canvas.width - 100) + 50,
-          y: i * 100 + 100,
-          width: 100,
+          x: Math.random() * (canvas.width - 120) + 60,
+          y: i * 150 + 100,
+          width: 120,
           height: 20,
-          slope: slopeDirection * 0.5
+          slope: slopeDirection * 0.4
         });
       }
 
-      // Generate spinning obstacles
-      for (let i = 0; i < 5; i++) {
+      // Spinning obstacles
+      for (let i = 0; i < 8; i++) {
         spinningObstacles.push({
-          x: Math.random() * (canvas.width - 50) + 25,
-          y: i * 300 + 200,
-          radius: 30,
+          x: Math.random() * (canvas.width - 60) + 30,
+          y: i * 350 + 200,
+          radius: 40,
           angle: 0
+        });
+      }
+
+      // Moving platforms
+      for (let i = 0; i < 5; i++) {
+        movingPlatforms.push({
+          x: 100 + (i % 2) * 300,
+          y: i * 500 + 300,
+          width: 120,
+          height: 10,
+          direction: Math.random() < 0.5 ? 1 : -1,
+          speed: 2
         });
       }
     }
 
-    // Draw the race track
-    function drawTrack() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function drawBackground() {
+      ctx.fillStyle = gradientBackground;
+      ctx.fillRect(0, -scrollOffset, canvas.width, canvasHeight);
+    }
 
-      ctx.save();
-      ctx.translate(0, -scrollOffset);
-
-      // Draw finish line
-      ctx.fillStyle = 'green';
-      ctx.fillRect(0, canvasHeight - 50, canvas.width, 20);
-
-      // Draw static obstacles
+    function drawObstacles() {
+      // Static obstacles
       for (let obs of obstacles) {
         ctx.save();
-        ctx.translate(obs.x, obs.y);
+        ctx.translate(obs.x, obs.y - scrollOffset);
         ctx.rotate(obs.slope);
-        ctx.fillStyle = 'black';
+        ctx.fillStyle = '#444';
         ctx.fillRect(-obs.width / 2, -obs.height / 2, obs.width, obs.height);
         ctx.restore();
       }
 
-      // Draw spinning obstacles
+      // Spinning obstacles
       for (let spin of spinningObstacles) {
         ctx.save();
-        ctx.translate(spin.x, spin.y);
+        ctx.translate(spin.x, spin.y - scrollOffset);
         ctx.rotate(spin.angle);
         ctx.beginPath();
-        ctx.moveTo(0, -spin.radius);
-        ctx.lineTo(spin.radius, 0);
-        ctx.lineTo(0, spin.radius);
-        ctx.lineTo(-spin.radius, 0);
-        ctx.closePath();
-        ctx.fillStyle = 'orange';
-        ctx.fill();
+        ctx.arc(0, 0, spin.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = 'orange';
+        ctx.lineWidth = 5;
+        ctx.stroke();
         ctx.restore();
 
-        // Rotate spinning obstacle
+        // Spin animation
         spin.angle += 0.05;
       }
 
-      // Draw marbles
+      // Moving platforms
+      for (let platform of movingPlatforms) {
+        ctx.fillStyle = 'green';
+        ctx.fillRect(
+          platform.x - platform.width / 2,
+          platform.y - scrollOffset,
+          platform.width,
+          platform.height
+        );
+
+        // Move platform
+        platform.x += platform.speed * platform.direction;
+        if (platform.x < 60 || platform.x > canvas.width - 60) {
+          platform.direction *= -1; // Bounce back
+        }
+      }
+    }
+
+    function drawMarbles() {
       for (let marble of marbles) {
         ctx.beginPath();
-        ctx.arc(marble.x, marble.y, marble.radius, 0, Math.PI * 2);
+        ctx.arc(marble.x, marble.y - scrollOffset, marble.radius, 0, Math.PI * 2);
         ctx.fillStyle = marble.color;
         ctx.fill();
         ctx.closePath();
       }
-
-      ctx.restore();
     }
 
-    // Update marble positions
-    function updateMarbles() {
+    function updatePhysics() {
       for (let marble of marbles) {
-        marble.vy += 0.5; // Gravity
+        marble.vy += gravity; // Gravity
+        marble.x += marble.vx;
         marble.y += marble.vy;
 
-        // Collision detection with static obstacles
+        // Friction
+        marble.vx *= friction;
+
+        // Bounce off walls
+        if (marble.x < marble.radius || marble.x > canvas.width - marble.radius) {
+          marble.vx *= -1 * bounce;
+          marble.x = Math.max(marble.radius, Math.min(marble.x, canvas.width - marble.radius));
+        }
+
+        // Collision with obstacles
         for (let obs of obstacles) {
-          const obsCenterY = obs.y;
-          const obsLeftX = obs.x - obs.width / 2;
-          const obsRightX = obs.x + obs.width / 2;
+          const obsTop = obs.y - scrollOffset - obs.height / 2;
+          const obsBottom = obsTop + obs.height;
+          const obsLeft = obs.x - obs.width / 2;
+          const obsRight = obsLeft + obs.width;
 
           if (
-            marble.y + marble.radius >= obsCenterY &&
-            marble.x >= obsLeftX &&
-            marble.x <= obsRightX
+            marble.x > obsLeft &&
+            marble.x < obsRight &&
+            marble.y + marble.radius > obsTop &&
+            marble.y - marble.radius < obsBottom
           ) {
-            marble.vy = -2; // Bounce effect
-            marble.x += obs.slope * 5; // Sliding effect
+            marble.vy *= -1 * bounce;
+            marble.vx += obs.slope * 2;
           }
-        }
-
-        // Collision detection with spinning obstacles
-        for (let spin of spinningObstacles) {
-          const dist = Math.hypot(marble.x - spin.x, marble.y - spin.y);
-          if (dist <= marble.radius + spin.radius) {
-            marble.vy = -2; // Bounce off spinning obstacles
-            marble.x += Math.cos(spin.angle) * 5;
-          }
-        }
-
-        // Scroll canvas down as marbles descend
-        if (marble.y - scrollOffset > 300) {
-          scrollOffset += 5;
-        }
-
-        // Detect finish line
-        if (marble.y >= canvasHeight - 50) {
-          raceFinished = true;
         }
       }
     }
 
-    // Check if race is over
     function checkWinner() {
-      if (raceFinished) {
-        cancelAnimationFrame(animationFrame);
-        saveBtn.disabled = false;
-        const winner = marbles[0].y > marbles[1].y ? 'Blue' : 'Red';
-        winnerText.textContent = `${winner} marble wins!`;
+      for (let marble of marbles) {
+        if (marble.y > canvasHeight - 50) {
+          raceFinished = true;
+          winnerText.textContent = `${marble.color.charAt(0).toUpperCase() + marble.color.slice(1)} marble wins!`;
+          cancelAnimationFrame(animationFrame);
+          recorder.stop();
+        }
       }
     }
 
-    // Animation loop
     function animate() {
-      drawTrack();
-      updateMarbles();
+      drawBackground();
+      drawObstacles();
+      drawMarbles();
+      updatePhysics();
       checkWinner();
-      if (!raceFinished) animationFrame = requestAnimationFrame(animate);
+
+      if (!raceFinished) {
+        animationFrame = requestAnimationFrame(animate);
+      }
     }
 
-    // Start recording the canvas
     function startRecording() {
       const stream = canvas.captureStream();
-      recorder = new MediaRecorder(stream, { mimeType: 'video/mp4' });
+      recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
       recordedChunks = [];
 
       recorder.ondataavailable = (e) => recordedChunks.push(e.data);
       recorder.onstop = () => {
-        const blob = new Blob(recordedChunks, { type: 'video/mp4' });
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a');
@@ -227,21 +255,15 @@
       recorder.start();
     }
 
-    // Event listeners
     startBtn.addEventListener('click', () => {
       initRace();
       startRecording();
-      saveBtn.disabled = true;
       animate();
     });
 
     saveBtn.addEventListener('click', () => {
       recorder.stop();
     });
-
-    // Initialize first state
-    initRace();
-    drawTrack();
   </script>
 </body>
 </html>
