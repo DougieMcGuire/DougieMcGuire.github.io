@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Marble Race</title>
+  <title>Enhanced Marble Race</title>
   <style>
     body {
       display: flex;
@@ -13,22 +13,29 @@
       height: 100vh;
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
+      background: linear-gradient(180deg, #6ab7ff, #0057b8);
     }
     canvas {
       border: 2px solid #333;
-      background: #eee;
+      background: radial-gradient(circle, #ffffff, #cccccc);
     }
     button {
       margin: 10px;
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
+      background-color: #0057b8;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #003c82;
     }
     #winnerText {
       font-size: 18px;
       font-weight: bold;
-      color: #333;
+      color: white;
       margin-top: 10px;
     }
   </style>
@@ -45,29 +52,44 @@
     const startBtn = document.getElementById('startRace');
     const saveBtn = document.getElementById('saveRace');
     const winnerText = document.getElementById('winnerText');
-    
-    let marbles, obstacles, animationFrame, raceFinished = false;
-    let recorder, recordedChunks = [];
 
-    // Initialize game elements
+    let marbles, obstacles, spinningObstacles, animationFrame, raceFinished = false;
+    let recorder, recordedChunks = [];
+    let scrollOffset = 0;
+
+    const canvasHeight = 1800; // Extended map height
+
     function initRace() {
+      canvas.height = 600;
       marbles = [
         { x: 100, y: 0, radius: 10, color: 'red', vy: 0 },
         { x: 300, y: 0, radius: 10, color: 'blue', vy: 0 }
       ];
       obstacles = [];
+      spinningObstacles = [];
       raceFinished = false;
+      scrollOffset = 0;
       winnerText.textContent = ''; // Clear winner text
 
-      // Generate sloped obstacles
-      for (let i = 0; i < 10; i++) {
-        const slopeDirection = Math.random() < 0.5 ? 1 : -1; // Random slope direction
+      // Generate static obstacles
+      for (let i = 0; i < 15; i++) {
+        const slopeDirection = Math.random() < 0.5 ? 1 : -1; // Random slope
         obstacles.push({
           x: Math.random() * (canvas.width - 100) + 50,
-          y: i * 60 + 50,
+          y: i * 100 + 100,
           width: 100,
           height: 20,
-          slope: slopeDirection * 0.5 // Slope factor
+          slope: slopeDirection * 0.5
+        });
+      }
+
+      // Generate spinning obstacles
+      for (let i = 0; i < 5; i++) {
+        spinningObstacles.push({
+          x: Math.random() * (canvas.width - 50) + 25,
+          y: i * 300 + 200,
+          radius: 30,
+          angle: 0
         });
       }
     }
@@ -76,7 +98,14 @@
     function drawTrack() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw obstacles
+      ctx.save();
+      ctx.translate(0, -scrollOffset);
+
+      // Draw finish line
+      ctx.fillStyle = 'green';
+      ctx.fillRect(0, canvasHeight - 50, canvas.width, 20);
+
+      // Draw static obstacles
       for (let obs of obstacles) {
         ctx.save();
         ctx.translate(obs.x, obs.y);
@@ -84,6 +113,25 @@
         ctx.fillStyle = 'black';
         ctx.fillRect(-obs.width / 2, -obs.height / 2, obs.width, obs.height);
         ctx.restore();
+      }
+
+      // Draw spinning obstacles
+      for (let spin of spinningObstacles) {
+        ctx.save();
+        ctx.translate(spin.x, spin.y);
+        ctx.rotate(spin.angle);
+        ctx.beginPath();
+        ctx.moveTo(0, -spin.radius);
+        ctx.lineTo(spin.radius, 0);
+        ctx.lineTo(0, spin.radius);
+        ctx.lineTo(-spin.radius, 0);
+        ctx.closePath();
+        ctx.fillStyle = 'orange';
+        ctx.fill();
+        ctx.restore();
+
+        // Rotate spinning obstacle
+        spin.angle += 0.05;
       }
 
       // Draw marbles
@@ -94,6 +142,8 @@
         ctx.fill();
         ctx.closePath();
       }
+
+      ctx.restore();
     }
 
     // Update marble positions
@@ -102,7 +152,7 @@
         marble.vy += 0.5; // Gravity
         marble.y += marble.vy;
 
-        // Collision detection with obstacles
+        // Collision detection with static obstacles
         for (let obs of obstacles) {
           const obsCenterY = obs.y;
           const obsLeftX = obs.x - obs.width / 2;
@@ -114,13 +164,26 @@
             marble.x <= obsRightX
           ) {
             marble.vy = -2; // Bounce effect
-            marble.x += obs.slope * 5; // Add sliding effect
+            marble.x += obs.slope * 5; // Sliding effect
           }
         }
 
-        // Prevent marbles from leaving canvas
-        if (marble.y + marble.radius > canvas.height) {
-          marble.y = canvas.height - marble.radius;
+        // Collision detection with spinning obstacles
+        for (let spin of spinningObstacles) {
+          const dist = Math.hypot(marble.x - spin.x, marble.y - spin.y);
+          if (dist <= marble.radius + spin.radius) {
+            marble.vy = -2; // Bounce off spinning obstacles
+            marble.x += Math.cos(spin.angle) * 5;
+          }
+        }
+
+        // Scroll canvas down as marbles descend
+        if (marble.y - scrollOffset > 300) {
+          scrollOffset += 5;
+        }
+
+        // Detect finish line
+        if (marble.y >= canvasHeight - 50) {
           raceFinished = true;
         }
       }
