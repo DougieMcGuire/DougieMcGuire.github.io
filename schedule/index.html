@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Manager</title>
+    <link rel="manifest" id="manifestPlaceholder">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Schedule Manager">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📅</text></svg>">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
+    <!-- QR Code Generator -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        :root {
+            --primary-color: #007AFF;
+            --background-color: #f2f2f7;
+            --card-background: #ffffff;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: #000000;
+            line-height: 1.5;
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 2rem;
+            }
+
+            .card {
+                background: var(--card-background);
+                border-radius: 12px;
+                padding: 2rem;
+                margin-bottom: 1rem;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 767px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .card {
+                background: var(--card-background);
+                border-radius: 12px;
+                padding: 1rem;
+                margin-bottom: 1rem;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+
+            /* iOS-style components */
+            .ios-button {
+                background: var(--primary-color);
+                color: white;
+                border-radius: 8px;
+                padding: 0.8rem;
+                border: none;
+                width: 100%;
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        /* Common Styles */
+        .button {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #cccccc;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .schedule-item {
+            border-bottom: 1px solid #eeeeee;
+            padding: 1rem 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Auth Section -->
+        <div id="authSection" class="card">
+            <h2>Schedule Manager</h2>
+            <div id="signInForm">
+                <input type="email" id="email" class="input" placeholder="Email">
+                <input type="password" id="password" class="input" placeholder="Password">
+                <button onclick="signIn()" class="button">Sign In</button>
+                <button onclick="signUp()" class="button">Sign Up</button>
+            </div>
+        </div>
+
+        <!-- Main App Section -->
+        <div id="appSection" class="hidden">
+            <div class="card">
+                <h2>My Schedules</h2>
+                <button onclick="showCreateScheduleModal()" class="button">Create Schedule</button>
+                <div id="schedulesList"></div>
+            </div>
+        </div>
+
+        <!-- Create Schedule Modal -->
+        <div id="createScheduleModal" class="hidden card">
+            <h3>Create New Schedule</h3>
+            <input type="text" id="scheduleName" class="input" placeholder="Schedule Name">
+            <select id="scheduleType" class="input">
+                <option value="daily">Daily Schedule</option>
+                <option value="onetime">One-time Schedule</option>
+            </select>
+            <div id="dateSelector" class="hidden">
+                <input type="date" id="scheduleDate" class="input">
+            </div>
+            <div id="eventsList"></div>
+            <button onclick="addEvent()" class="button">Add Event</button>
+            <button onclick="saveSchedule()" class="button">Save Schedule</button>
+        </div>
+
+        <!-- Share Schedule Modal -->
+        <div id="shareScheduleModal" class="hidden card">
+            <h3>Share Schedule</h3>
+            <div id="qrCode"></div>
+            <input type="text" id="shareLink" class="input" readonly>
+            <button onclick="copyShareLink()" class="button">Copy Link</button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAg0n2RMCxZjBMGjPOXJarolggd7CtTbAw",
+            authDomain: "auth-5d180.firebaseapp.com",
+            projectId: "auth-5d180",
+            storageBucket: "auth-5d180.firebasestorage.app",
+            messagingSenderId: "189598882429",
+            appId: "1:189598882429:web:ffc83a4d0c9d6d9e636f14",
+            measurementId: "G-M2LH2Z0PTB"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // PWA Manifest
+        const manifestData = {
+            name: "Schedule Manager",
+            short_name: "Schedules",
+            start_url: "/",
+            display: "standalone",
+            background_color: "#ffffff",
+            theme_color: "#007AFF",
+            icons: [{
+                src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📅</text></svg>",
+                sizes: "192x192",
+                type: "image/svg+xml"
+            }]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        document.getElementById('manifestPlaceholder').href = manifestUrl;
+
+        // Auth Functions
+        async function signIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        async function signUp() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            try {
+                await auth.createUserWithEmailAndPassword(email, password);
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // Schedule Functions
+        async function showCreateScheduleModal() {
+            document.getElementById('createScheduleModal').classList.remove('hidden');
+            document.getElementById('eventsList').innerHTML = '';
+        }
+
+        function addEvent() {
+            const eventsList = document.getElementById('eventsList');
+            const eventDiv = document.createElement('div');
+            eventDiv.classList.add('schedule-item');
+            eventDiv.innerHTML = `
+                <input type="text" class="input event-name" placeholder="Event Name">
+                <input type="time" class="input event-time">
+                <button onclick="this.parentElement.remove()" class="button">Remove</button>
+            `;
+            eventsList.appendChild(eventDiv);
+        }
+
+        async function saveSchedule() {
+            const user = auth.currentUser;
+            const scheduleName = document.getElementById('scheduleName').value;
+            const scheduleType = document.getElementById('scheduleType').value;
+            const scheduleDate = document.getElementById('scheduleDate').value;
+            
+            const events = Array.from(document.getElementsByClassName('schedule-item')).map(item => ({
+                name: item.querySelector('.event-name').value,
+                time: item.querySelector('.event-time').value
+            }));
+
+            const scheduleData = {
+                name: scheduleName,
+                type: scheduleType,
+                date: scheduleDate,
+                events: events,
+                creator: user.uid,
+                participants: [user.uid]
+            };
+
+            try {
+                const docRef = await db.collection('schedules').add(scheduleData);
+                document.getElementById('createScheduleModal').classList.add('hidden');
+                loadSchedules();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        async function loadSchedules() {
+            const user = auth.currentUser;
+            const schedulesList = document.getElementById('schedulesList');
+            schedulesList.innerHTML = '';
+
+            const querySnapshot = await db.collection('schedules')
+                .where('participants', 'array-contains', user.uid)
+                .get();
+
+            if (querySnapshot.empty) {
+                schedulesList.innerHTML = '<p>No Schedules</p>';
+                return;
+            }
+
+            querySnapshot.forEach(doc => {
+                const schedule = doc.data();
+                const scheduleDiv = document.createElement('div');
+                scheduleDiv.classList.add('card');
+                scheduleDiv.innerHTML = `
+                    <h3>${schedule.name}</h3>
+                    <p>Type: ${schedule.type}</p>
+                    ${schedule.type === 'onetime' ? `<p>Date: ${schedule.date}</p>` : ''}
+                    <button onclick="shareSchedule('${doc.id}')" class="button">Share</button>
+                `;
+                schedulesList.appendChild(scheduleDiv);
+            });
+        }
+
+        async function shareSchedule(scheduleId) {
+            const shareLink = `${window.location.origin}/join?schedule=${scheduleId}`;
+            document.getElementById('shareLink').value = shareLink;
+            
+            // Generate QR Code
+            const qr = qrcode(0, 'L');
+            qr.addData(shareLink);
+            qr.make();
+            document.getElementById('qrCode').innerHTML = qr.createImgTag();
+            
+            document.getElementById('shareScheduleModal').classList.remove('hidden');
+        }
+
+        // Mobile App Detection
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            // App is installed
+            document.body.classList.add('standalone');
+        } else if (
+            navigator.standalone || // iOS
+            window.matchMedia('(display-mode: standalone)').matches // Android
+        ) {
+            // Running as installed PWA
+            document.body.classList.add('standalone');
+        } else if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            // Show install prompt
+            const installPrompt = document.createElement('div');
+            installPrompt.classList.add('card');
+            installPrompt.innerHTML = `
+                <h3>Install App</h3>
+                <p>Add this app to your home screen for the best experience!</p>
+                <p>iOS: Tap the share button and select "Add to Home Screen"</p>
+                <p>Android: Tap the menu button and select "Add to Home Screen"</p>
+            `;
+            document.body.insertBefore(installPrompt, document.body.firstChild);
+        }
+
+        // Auth State Observer
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('authSection').classList.add('hidden');
+                document.getElementById('appSection').classList.remove('hidden');
+                loadSchedules();
+            } else {
+                document.getElementById('authSection').classList.remove('hidden');
+                document.getElementById('appSection').classList.add('hidden');
+            }
+        });
+
+        // Schedule Type Change Handler
+        document.getElementById('scheduleType').addEventListener('change', (e) => {
+            const dateSelector = document.getElementById('dateSelector');
+            if (e.target.value === 'onetime') {
+                dateSelector.classList.remove('hidden');
+            } else {
+                dateSelector.classList.add('hidden');
+            }
+        });
+
+        // Handle Schedule Joining
+        window.onload = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const scheduleId = urlParams.get('schedule');
+            
+            if (scheduleId) {
+                const user = auth.currentUser;
+                if (!user) {
+                    // Show auth prompt
+                    document.getElementById('authSection').classList.remove('hidden');
+                    return;
+                }
+
+                try {
+                    const scheduleDoc = await db.collection('schedules').doc(scheduleId).get();
+                    const schedule = scheduleDoc.data();
+                    
+                    if (confirm(`Join ${schedule.name}'s Schedule?`)) {
+                        await db.collection('schedules').doc(scheduleId).update({
+                            participants: firebase.firestore.FieldValue.arrayUnion(user.uid)
+                        });
+                        loadSchedules();
+                    }
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+        };
+
+        // Handle copy share link
+        function copyShareLink() {
+            const shareLink = document.getElementById('shareLink');
+            shareLink.select();
+            document.execCommand('copy');
+            alert('Link copied to clipboard!');
+        }
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(error => {
+                console.log('Service Worker registration failed:', error);
+            });
+        }
+    </script>
+</body>
+</html>
