@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Random Facts API</title>
+    <script>
+        async function getFacts() {
+            try {
+                // Read the facts.txt file
+                const response = await fetch('facts.txt');
+                const text = await response.text();
+                
+                // Split the text into facts using double newline as separator
+                const facts = text.split('\n\n').filter(fact => fact.trim() !== '');
+                
+                // Get the 'num' parameter from URL, default to 1 if not specified
+                const urlParams = new URLSearchParams(window.location.search);
+                const numFacts = parseInt(urlParams.get('num')) || 1;
+                
+                // Get random facts
+                let selectedFacts = [];
+                for (let i = 0; i < Math.min(numFacts, facts.length); i++) {
+                    const randomIndex = Math.floor(Math.random() * facts.length);
+                    selectedFacts.push(facts[randomIndex]);
+                }
+                
+                // Create response object
+                const responseObj = {
+                    success: true,
+                    count: selectedFacts.length,
+                    facts: selectedFacts
+                };
+                
+                // Set content type to application/json
+                document.querySelector('pre').textContent = JSON.stringify(responseObj, null, 2);
+            } catch (error) {
+                // Handle errors
+                const errorObj = {
+                    success: false,
+                    error: "Failed to load facts"
+                };
+                document.querySelector('pre').textContent = JSON.stringify(errorObj, null, 2);
+            }
+        }
+
+        // Call getFacts when page loads
+        window.onload = getFacts;
+    </script>
+</head>
+<body style="margin: 0; padding: 0; background: #1e1e1e;">
+    <pre style="margin: 0; padding: 20px; color: #fff; font-family: monospace;"></pre>
+</body>
+</html>
