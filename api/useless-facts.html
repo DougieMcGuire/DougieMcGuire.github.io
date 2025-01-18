@@ -9,16 +9,21 @@
                 const response = await fetch('facts.txt');
                 const text = await response.text();
 
-                // Split the text into facts using double newline as separator
-                const facts = text.split('\n\n').filter(fact => fact.trim() !== '');
+                // Split the text into facts using newline as separator
+                const facts = text.split('\n').filter(fact => fact.trim() !== '');
 
                 // Get the 'num' parameter from URL, default to 1 if not specified
                 const urlParams = new URLSearchParams(window.location.search);
                 const numFacts = parseInt(urlParams.get('num')) || 1;
 
-                // Shuffle and select the desired number of facts
-                const shuffledFacts = facts.sort(() => 0.5 - Math.random());
-                const selectedFacts = shuffledFacts.slice(0, Math.min(numFacts, facts.length));
+                // Shuffle facts and select the required amount
+                const selectedFacts = [];
+                while (selectedFacts.length < Math.min(numFacts, facts.length)) {
+                    const randomIndex = Math.floor(Math.random() * facts.length);
+                    if (!selectedFacts.includes(facts[randomIndex])) {
+                        selectedFacts.push(facts[randomIndex]);
+                    }
+                }
 
                 // Create response object
                 const responseObj = {
@@ -27,7 +32,7 @@
                     facts: selectedFacts
                 };
 
-                // Set content type to application/json
+                // Display the response as JSON
                 document.querySelector('pre').textContent = JSON.stringify(responseObj, null, 2);
             } catch (error) {
                 // Handle errors
