@@ -1,0 +1,14 @@
+// Fetch the facts.txt file
+fetch('facts.txt')
+  .then(response => response.text())
+  .then(data => {
+    // Split the facts into an array and filter out empty lines
+    const facts = data.split('\n').map(line => line.trim()).filter(line => line !== '');
+    // Pick a random fact
+    const randomFact = facts[Math.floor(Math.random() * facts.length)];
+    // Print the random fact to the console
+    console.log(randomFact);
+  })
+  .catch(error => {
+    console.error('Error loading facts:', error);
+  });
