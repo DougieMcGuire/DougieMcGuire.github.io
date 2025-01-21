@@ -7,21 +7,29 @@
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; max-width: 600px; }
     textarea, input, button { width: 100%; margin: 10px 0; padding: 10px; }
-    #response, #video { margin-top: 20px; padding: 10px; border: 1px solid #ccc; background: #f9f9f9; }
+    #response, #video, #custom-video { margin-top: 20px; padding: 10px; border: 1px solid #ccc; background: #f9f9f9; }
   </style>
 </head>
 <body>
   <h1>DeepAI Chat & Video Generator</h1>
 
+  <!-- Chat Section -->
   <h2>Chat with AI</h2>
   <textarea id="chat-input" placeholder="Type your message..."></textarea>
   <button id="send-chat">Send Chat</button>
   <div id="response"></div>
 
+  <!-- Video Generator Section -->
   <h2>Generate Video</h2>
   <input id="video-prompt" type="text" placeholder="Enter video prompt...">
   <button id="generate-video">Generate Video</button>
   <div id="video"></div>
+
+  <!-- Custom Prompt Video Generator Section -->
+  <h2>Generate Video with Custom Topic</h2>
+  <input id="custom-topic" type="text" placeholder="Enter a topic (e.g., bird flying, robot walking)...">
+  <button id="generate-custom-video">Generate Custom Video</button>
+  <div id="custom-video"></div>
 
   <script>
     const apiKey = "263af725-f647-47c6-95ee-35ad858069c8";
@@ -44,7 +52,7 @@
         if (response.ok) {
           if (outputElementId === "response") {
             document.getElementById(outputElementId).innerText = result.output || "No response received.";
-          } else if (outputElementId === "video") {
+          } else if (outputElementId.includes("video")) {
             if (result.output_url) {
               document.getElementById(outputElementId).innerHTML = `<a href="${result.output_url}" target="_blank">View Generated Video</a>`;
             } else {
@@ -78,6 +86,20 @@
         return;
       }
       sendPostRequest("https://api.deepai.org/api/video-generator", { text: videoPrompt }, "video");
+    });
+
+    // Generate Video with Custom Topic
+    document.getElementById("generate-custom-video").addEventListener("click", () => {
+      const customTopic = document.getElementById("custom-topic").value.trim();
+      if (!customTopic) {
+        alert("Please enter a topic.");
+        return;
+      }
+
+      // Generate the prompt dynamically
+      const customPrompt = `Create a smooth 3D-animated video with a clean and minimalistic style. Use a white background and ensure the animation appears slightly farther away from the camera, allowing the full subject to fit comfortably in the frame. The animation should focus on ${customTopic}, depicted in a polished and clear way. Avoid realism and instead use simple, high-quality 3D animation techniques. Keep the movements fluid and visually appealing while maintaining the clean, uncluttered aesthetic.`;
+
+      sendPostRequest("https://api.deepai.org/api/video-generator", { text: customPrompt }, "custom-video");
     });
   </script>
 </body>
