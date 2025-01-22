@@ -51,22 +51,24 @@
                 "background_color": "black",
                 "scenes": [
                     {
-                        "scene_type": "image",
-                        "content": "https://www.pexels.com/photo/conspiracy-theory-image.jpg",  // Add a link to a stock image here
-                        "duration": 3,
-                        "transitions": "fade_in"
+                        "type": "image",
+                        "content": "https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg",  // Image: abstract, mystery (image for conspiracy)
+                        "duration": 5
                     },
                     {
-                        "scene_type": "image",
-                        "content": "https://www.pexels.com/photo/stock-image-of-dramatic-background.jpg",  // Add a link to a stock image here
-                        "duration": 3,
-                        "transitions": "fade_out"
+                        "type": "video",
+                        "content": "https://www.pexels.com/video/a-man-walking-through-a-dark-alley-3028742/",  // Video: mysterious footage (footage of dark alley)
+                        "duration": 7
                     },
                     {
-                        "scene_type": "video",
-                        "content": "https://www.pexels.com/video/stock-conspiracy-theory-video.mp4",  // Add a link to a stock video here
-                        "duration": 7,
-                        "transitions": "zoom_in"
+                        "type": "image",
+                        "content": "https://images.pexels.com/photos/4622392/pexels-photo-4622392.jpeg",  // Image: eerie, mysterious theme
+                        "duration": 5
+                    },
+                    {
+                        "type": "video",
+                        "content": "https://www.pexels.com/video/a-man-searching-for-evidence-in-a-desk-4067551/",  // Video: investigative footage (searching for evidence)
+                        "duration": 8
                     }
                 ],
                 "call_to_action": "Like and Subscribe for more insane conspiracy theories!",
@@ -83,8 +85,12 @@
             .then(response => response.json())
             .then(result => {
                 console.log(result); // Log the response for debugging
-                const videoLink = result.video_url; // Assuming the response has the video_url field
-                document.getElementById('output').innerHTML = `<p>Video generated successfully!</p><a href="${videoLink}" target="_blank" id="response-link">Click here to view the video</a>`;
+                if (result && result.video_url) {
+                    const videoLink = result.video_url; // Assuming the response contains a 'video_url'
+                    document.getElementById('output').innerHTML = `<p>Video generated successfully!</p><a href="${videoLink}" target="_blank" id="response-link">Click here to view the video</a>`;
+                } else {
+                    document.getElementById('output').innerHTML = `<p>Failed to generate video. No video link returned.</p>`;
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
