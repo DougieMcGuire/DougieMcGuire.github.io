@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON2Video Request Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #output {
+            margin-top: 20px;
+        }
+        #response-link {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        #response-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Generate Video from JSON2Video</h1>
+    
+    <div>
+        <label for="prompt">Enter your video prompt:</label>
+        <input type="text" id="prompt" placeholder="Enter video description">
+        <button onclick="generateVideo()">Generate Video</button>
+    </div>
+    
+    <div id="output"></div>
+    
+    <script>
+        function generateVideo() {
+            const userPrompt = document.getElementById('prompt').value;
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // CORS proxy URL
+            const apiUrl = 'https://api.json2video.com/v1/create_video'; // JSON2Video API endpoint
+            const apiKey = 'dMco0D1tvJBVo07bDxJ6FwygGaq82cvEPIgYWvNu'; // Your JSON2Video API key
+
+            const headers = {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            };
+
+            const data = {
+                "title": "Crazy Conspiracy Theory Documentary",
+                "description": userPrompt,
+                "background_color": "black",
+                "scenes": [
+                    {
+                        "scene_type": "image",
+                        "content": "https://www.pexels.com/photo/conspiracy-theory-image.jpg",  // Add a link to a stock image here
+                        "duration": 3,
+                        "transitions": "fade_in"
+                    },
+                    {
+                        "scene_type": "image",
+                        "content": "https://www.pexels.com/photo/stock-image-of-dramatic-background.jpg",  // Add a link to a stock image here
+                        "duration": 3,
+                        "transitions": "fade_out"
+                    },
+                    {
+                        "scene_type": "video",
+                        "content": "https://www.pexels.com/video/stock-conspiracy-theory-video.mp4",  // Add a link to a stock video here
+                        "duration": 7,
+                        "transitions": "zoom_in"
+                    }
+                ],
+                "call_to_action": "Like and Subscribe for more insane conspiracy theories!",
+                "quality": "high",
+                "theme": "documentary",
+                "hook": "What if everything you’ve been told was a lie?"
+            };
+
+            fetch(proxyUrl + apiUrl, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log(result); // Log the response for debugging
+                const videoLink = result.video_url; // Assuming the response has the video_url field
+                document.getElementById('output').innerHTML = `<p>Video generated successfully!</p><a href="${videoLink}" target="_blank" id="response-link">Click here to view the video</a>`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('output').innerHTML = `<p>Failed to generate video. Error: ${error.message}</p>`;
+            });
+        }
+    </script>
+
+</body>
+</html>
