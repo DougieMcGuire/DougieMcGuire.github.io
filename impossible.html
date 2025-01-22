@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Generator</title>
+</head>
+<body>
+  <h1>AI Video Generator</h1>
+  <label for="prompt">Enter a Prompt:</label>
+  <input type="text" id="prompt" placeholder="Type your idea here..." style="width: 300px;" />
+  <button id="generate">Generate Video</button>
+
+  <pre id="output" style="white-space: pre-wrap; margin-top: 20px;"></pre>
+
+  <script>
+    const groqApiKey = "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";
+    const pexelsApiKey = "U23PbTIgy2wbrUUmQyNp7qql4TnihfOmVFqQu8q0ejMPlsvyyDdQ3IQf";
+    const json2VideoApiKey = "dMco0D1tvJBVo07bDxJ6FwygGaq82cvEPIgYWvNu";
+
+    const groqEndpoint = "https://api.groq.ai/v1/chat";
+    const pexelsEndpoint = "https://api.pexels.com/v1/search";
+    const json2VideoEndpoint = "https://api.json2video.com/v1/video";
+
+    document.getElementById("generate").addEventListener("click", async () => {
+      const userPrompt = document.getElementById("prompt").value;
+      const output = document.getElementById("output");
+      output.textContent = "Generating, please wait...";
+
+      try {
+        // 1. Send the user prompt to the Groq API
+        const groqResponse = await fetch(groqEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${groqApiKey}`
+          },
+          body: JSON.stringify({
+            messages: [
+              { role: "system", content: "You are an assistant that generates captions and JSON2Video JSON files." },
+              { role: "user", content: `Generate: 1. A caption 2. A JSON2Video JSON using placeholders (x1, x2, x3). Explain the content of each placeholder (keywords, type - image or video). Based on the prompt: "${userPrompt}"` }
+            ]
+          })
+        });
+
+        const groqData = await groqResponse.json();
+        const groqMessage = groqData.messages[groqData.messages.length - 1].content;
+        const [caption, jsonString] = groqMessage.split("JSON:");
+
+        // 2. Extract placeholders and descriptions
+        const jsonData = JSON.parse(jsonString);
+        const placeholders = jsonData.layers
+          .filter(layer => layer.source && layer.source.startsWith("x"))
+          .map(layer => ({
+            placeholder: layer.source,
+            description: layer.description // Assuming the AI adds this field
+          }));
+
+        // 3. Fetch images or videos from Pexels
+        const pexelsLinks = {};
+        for (const { placeholder, description } of placeholders) {
+          const [keywords, type] = description.split(" | ");
+          const searchType = type.trim() === "i" ? "photos" : "videos";
+
+          const pexelsResponse = await fetch(`${pexelsEndpoint}?query=${encodeURIComponent(keywords)}&per_page=1`, {
+            headers: {
+              Authorization: pexelsApiKey
+            }
+          });
+
+          const pexelsData = await pexelsResponse.json();
+          pexelsLinks[placeholder] = searchType === "photos"
+            ? pexelsData.photos[0].src.original
+            : pexelsData.videos[0].video_files[0].link;
+        }
+
+        // 4. Replace placeholders with actual links
+        jsonData.layers.forEach(layer => {
+          if (pexelsLinks[layer.source]) {
+            layer.source = pexelsLinks[layer.source];
+          }
+        });
+
+        // 5. Send final JSON to JSON2Video API
+        const json2VideoResponse = await fetch(json2VideoEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${json2VideoApiKey}`
+          },
+          body: JSON.stringify(jsonData)
+        });
+
+        const videoData = await json2VideoResponse.json();
+
+        // 6. Display the results
+        output.textContent = `Caption: ${caption}\n\nGenerated Video URL: ${videoData.video_url}`;
+      } catch (error) {
+        console.error(error);
+        output.textContent = "An error occurred. Please try again.";
+      }
+    });
+  </script>
+</body>
+</html>
