@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edge TTS Demo</title>
 </head>
 <body>
@@ -13,7 +14,6 @@
     <script>
         async function convertTextToSpeech() {
             const text = document.getElementById('textInput').value;
-            const proxyUrl = 'https://corsproxy.io/?';
             const ttsUrl = 'https://speech.platform.bing.com/synthesize';
 
             const ssml = `
@@ -25,7 +25,7 @@
             `;
 
             try {
-                const response = await fetch(proxyUrl + encodeURIComponent(ttsUrl), {
+                const response = await fetch(ttsUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/ssml+xml',
