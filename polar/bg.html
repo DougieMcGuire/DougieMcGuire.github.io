@@ -12,16 +12,34 @@
             overflow: hidden;
         }
         video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             object-fit: cover;
         }
     </style>
 </head>
 <body>
-    <video src="https://dougie.wtf/polar/copy_A14DCEC6-5B24-4E7F-A152-B6E3C81A5F75.mov" loop autoplay muted></video>
+    <video id="video" src="https://dougie.wtf/polar/copy_A14DCEC6-5B24-4E7F-A152-B6E3C81A5F75.mov" loop autoplay muted></video>
+
+    <script>
+        // Function to enter fullscreen
+        function enterFullscreen() {
+            var videoElement = document.getElementById('video');
+            if (videoElement.requestFullscreen) {
+                videoElement.requestFullscreen();
+            } else if (videoElement.mozRequestFullScreen) { // Firefox
+                videoElement.mozRequestFullScreen();
+            } else if (videoElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                videoElement.webkitRequestFullscreen();
+            } else if (videoElement.msRequestFullscreen) { // IE/Edge
+                videoElement.msRequestFullscreen();
+            }
+        }
+
+        // Automatically enter fullscreen on page load
+        window.onload = function() {
+            enterFullscreen();
+        }
+    </script>
 </body>
 </html>
