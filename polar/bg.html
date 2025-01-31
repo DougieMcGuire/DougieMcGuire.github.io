@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fullscreen Image</title>
+    <title>Full Screen Looping Video</title>
     <style>
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
-
-        #fullscreenImage {
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -23,29 +22,6 @@
     </style>
 </head>
 <body>
-
-    <img id="fullscreenImage" src="https://dougie.wtf/polar/IMG_2738.jpeg" alt="Fullscreen Image">
-
-    <script>
-        // Function to trigger fullscreen mode
-        function enterFullScreen() {
-            const element = document.documentElement;
-            if (element.requestFullscreen) {
-                element.requestFullscreen();
-            } else if (element.mozRequestFullScreen) { // Firefox
-                element.mozRequestFullScreen();
-            } else if (element.webkitRequestFullscreen) { // Chrome, Safari, and Opera
-                element.webkitRequestFullscreen();
-            } else if (element.msRequestFullscreen) { // IE/Edge
-                element.msRequestFullscreen();
-            }
-        }
-
-        // Trigger fullscreen mode as soon as the page loads
-        window.onload = function() {
-            enterFullScreen();
-        };
-    </script>
-
+    <video src="https://dougie.wtf/polar/copy_A14DCEC6-5B24-4E7F-A152-B6E3C81A5F75.mov" loop autoplay muted></video>
 </body>
 </html>
