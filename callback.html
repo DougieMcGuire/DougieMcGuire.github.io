@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit OAuth Callback</title>
+</head>
+<body>
+    <h1>Reddit OAuth Callback</h1>
+    <p id="code"></p>
+
+    <script>
+        // Get the URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+
+        if (code) {
+            document.getElementById('code').innerText = `Authorization Code: ${code}`;
+            // You can now use this code to request the access token via a server-side request
+            // or use it in your frontend app if you want
+        } else {
+            document.getElementById('code').innerText = 'No code received.';
+        }
+    </script>
+</body>
+</html>
