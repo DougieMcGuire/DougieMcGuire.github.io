@@ -1,70 +1,103 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Powered Desmos 3D Animation</title>
-    <script src="https://www.desmos.com/api/v1.8/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ccapture.js/1.1.0/CCapture.all.min.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI-Generated Three.js Scene</title>
     <style>
-        body { text-align: center; font-family: Arial, sans-serif; background: #222; color: white; }
-        input, button { margin: 10px; padding: 10px; width: 80%; max-width: 400px; }
-        #calculator { width: 100vw; height: 80vh; }
+      body { margin: 0; }
+      canvas { display: block; }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <input id="sceneInput" type="text" placeholder="Enter AI Scene Description" />
+    <button id="generateBtn">Generate Scene</button>
+    <div id="scene-container"></div>
 
-    <h2>AI-Powered Desmos 3D Animation</h2>
-    <input type="text" id="equationInput" placeholder='Enter equation (e.g., "z=sin(x) * cos(y)")'>
-    <button onclick="generateGraph()">Generate</button>
-    <button onclick="startRecording()">Record</button>
-    <button onclick="stopRecording()">Download Video</button>
-
-    <div id="calculator"></div>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        let calculator, recorder, chunks = [];
+      let scene, camera, renderer, objects = [];
+      let clock = new THREE.Clock();
 
-        function initDesmos() {
-            calculator = Desmos.GraphingCalculator(document.getElementById("calculator"), { 
-                expressions: true, 
-                settingsMenu: false, 
-                keypad: true 
-            });
+      function init() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+      }
+
+      function generateScene(input) {
+        const sceneData = JSON.parse(input);  // Assuming AI response is JSON
+        
+        // Process the objects in the scene
+        sceneData.objects.forEach((obj) => {
+          let geometry;
+          if (obj.type === "cube") {
+            geometry = new THREE.BoxGeometry();
+          } else if (obj.type === "sphere") {
+            geometry = new THREE.SphereGeometry(1, 32, 32);
+          }
+
+          let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+          if (obj.material === "metal") {
+            material = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, metalness: 1, roughness: 0 });
+          } else if (obj.material === "glass") {
+            material = new THREE.MeshStandardMaterial({ color: 0x444444, transparent: true, opacity: 0.5 });
+          }
+
+          const mesh = new THREE.Mesh(geometry, material);
+          mesh.position.set(...obj.position);
+          mesh.rotation.set(...obj.rotation);
+          mesh.scale.set(...obj.scale);
+
+          scene.add(mesh);
+          objects.push({ mesh, animation: obj.animation });
+        });
+
+        // Add lighting
+        if (sceneData.lighting) {
+          const light = new THREE.DirectionalLight(0xffffff, sceneData.lighting.intensity);
+          light.position.set(...sceneData.lighting.position);
+          scene.add(light);
         }
 
-        function generateGraph() {
-            let equation = document.getElementById("equationInput").value;
-            calculator.setExpression({ id: 'graph1', latex: equation });
+        // Set up the camera
+        if (sceneData.camera) {
+          camera.position.set(...sceneData.camera.position);
+          camera.lookAt(...sceneData.camera.lookAt);
         }
 
-        function startRecording() {
-            let stream = document.querySelector("canvas").captureStream();
-            recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+        animate();
+      }
 
-            recorder.ondataavailable = function(event) {
-                chunks.push(event.data);
-            };
+      function animate() {
+        requestAnimationFrame(animate);
 
-            recorder.start();
-        }
+        // Update object animations
+        objects.forEach(obj => {
+          if (obj.animation) {
+            if (obj.animation.property === "rotation") {
+              obj.mesh.rotation[obj.animation.axis] += obj.animation.speed * clock.getDelta();
+            } else if (obj.animation.property === "position") {
+              const path = obj.animation.path;
+              // Simple path animation (e.g., linear interpolation) based on time
+              let time = clock.getElapsedTime() * obj.animation.speed;
+              let p = path[Math.floor(time) % path.length];
+              obj.mesh.position.set(...p);
+            }
+          }
+        });
 
-        function stopRecording() {
-            recorder.stop();
-            recorder.onstop = function() {
-                let blob = new Blob(chunks, { type: "video/webm" });
-                let url = URL.createObjectURL(blob);
-                let a = document.createElement("a");
-                a.href = url;
-                a.download = "desmos-animation.webm";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            };
-        }
+        renderer.render(scene, camera);
+      }
 
-        initDesmos();
+      // Button event listener
+      document.getElementById("generateBtn").addEventListener("click", function () {
+        const input = document.getElementById("sceneInput").value;
+        generateScene(input);
+      });
+
+      init();
     </script>
-
-</body>
+  </body>
 </html>
