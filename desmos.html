@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Desmos 3D Animation</title>
+    <script src="https://www.desmos.com/api/v1.8/calculator.js?apiKey=YOUR_DESMOS_API_KEY"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ccapture.js/1.1.0/CCapture.all.min.js"></script>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; background: #222; color: white; }
+        input, button { margin: 10px; padding: 10px; width: 80%; max-width: 400px; }
+        #calculator { width: 100vw; height: 80vh; }
+    </style>
+</head>
+<body>
+
+    <h2>AI-Powered Desmos 3D Animation</h2>
+    <input type="text" id="equationInput" placeholder='Enter equation (e.g., "z=sin(x) * cos(y)")'>
+    <button onclick="generateGraph()">Generate</button>
+    <button onclick="startRecording()">Record</button>
+    <button onclick="stopRecording()">Download Video</button>
+
+    <div id="calculator"></div>
+
+    <script>
+        let calculator, recorder, chunks = [];
+
+        function initDesmos() {
+            calculator = Desmos.GraphingCalculator(document.getElementById("calculator"), { 
+                expressions: true, 
+                settingsMenu: false, 
+                keypad: true 
+            });
+        }
+
+        function generateGraph() {
+            let equation = document.getElementById("equationInput").value;
+            calculator.setExpression({ id: 'graph1', latex: equation });
+        }
+
+        function startRecording() {
+            let stream = document.querySelector("canvas").captureStream();
+            recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+
+            recorder.ondataavailable = function(event) {
+                chunks.push(event.data);
+            };
+
+            recorder.start();
+        }
+
+        function stopRecording() {
+            recorder.stop();
+            recorder.onstop = function() {
+                let blob = new Blob(chunks, { type: "video/webm" });
+                let url = URL.createObjectURL(blob);
+                let a = document.createElement("a");
+                a.href = url;
+                a.download = "desmos-animation.webm";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+        }
+
+        initDesmos();
+    </script>
+
+</body>
+</html>
