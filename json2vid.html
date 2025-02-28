@@ -1,79 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JSON2Video Request</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      padding: 10px;
-      background-color: #f4f4f4;
-    }
-    textarea {
-      width: 100%;
-      height: 200px;
-      padding: 10px;
-      font-size: 14px;
-      margin: 10px 0;
-    }
-    button {
-      padding: 10px;
-      background-color: #3498db;
-      color: white;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #2980b9;
-    }
-    #response {
-      margin-top: 20px;
-      padding: 15px;
-      background-color: #ecf0f1;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Json2Video Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+        pre {
+            white-space: pre-wrap;
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
 </head>
 <body>
-  <h1>JSON2Video Request</h1>
-  <label for="jsonInput">Enter JSON:</label>
-  <textarea id="jsonInput" placeholder='Paste your JSON here'></textarea>
-  
-  <button onclick="sendRequest()">Send Request</button>
-
-  <div id="response"></div>
-
-  <script>
-    function sendRequest() {
-      const apiKey = "flLgUfxJjwTa0dyDvDMYUKFSAdNlAndCOEtrmSoB"; // Your API Key
-      const url = "https://api.json2video.com/v2/movies";
-      const jsonData = document.getElementById('jsonInput').value;
-
-      if (!jsonData) {
-        alert('Please enter JSON!');
-        return;
-      }
-
-      const requestData = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: jsonData
-      };
-
-      fetch(url, requestData)
-        .then(response => response.json())
-        .then(data => {
-          document.getElementById('response').innerHTML = `<h2>Response:</h2><pre>${JSON.stringify(data, null, 2)}</pre>`;
-        })
-        .catch(error => {
-          document.getElementById('response').innerHTML = `<h2>Error:</h2><pre>${error.message}</pre>`;
-        });
-    }
-  </script>
+    <h1>Json2Video API Demo</h1>
+    <p>Click the button below to create a simple video using Json2Video API</p>
+    
+    <button id="createVideoBtn">Create Video</button>
+    
+    <div id="result">
+        <p>Results will appear here...</p>
+    </div>
+    
+    <script>
+        document.getElementById('createVideoBtn').addEventListener('click', createVideo);
+        
+        async function createVideo() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Creating video, please wait...</p>';
+            
+            // Your API key
+            const apiKey = 'flLgUfxJjwTa0dyDvDMYUKFSAdNlAndCOEtrmSoB';
+            
+            // Simple video request payload
+            const videoData = {
+                "template": {
+                    "backgroundColor": "#000000",
+                    "width": 1280,
+                    "height": 720,
+                    "fps": 30
+                },
+                "scenes": [
+                    {
+                        "backgroundColor": "#000000",
+                        "duration": 3,
+                        "elements": [
+                            {
+                                "type": "text",
+                                "text": "Welcome to My Video",
+                                "fontSize": 60,
+                                "fontFamily": "Open Sans",
+                                "fontColor": "#FFFFFF",
+                                "x": 640,
+                                "y": 300,
+                                "width": 1000,
+                                "height": 100,
+                                "alignment": "center"
+                            }
+                        ]
+                    },
+                    {
+                        "backgroundColor": "#0066CC",
+                        "duration": 3,
+                        "elements": [
+                            {
+                                "type": "text",
+                                "text": "Created with Json2Video API",
+                                "fontSize": 50,
+                                "fontFamily": "Open Sans",
+                                "fontColor": "#FFFFFF",
+                                "x": 640,
+                                "y": 360,
+                                "width": 1000,
+                                "height": 100,
+                                "alignment": "center"
+                            }
+                        ]
+                    }
+                ]
+            };
+            
+            try {
+                // First, create the video project
+                const createResponse = await fetch('https://api.json2video.com/v1/project', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey
+                    },
+                    body: JSON.stringify(videoData)
+                });
+                
+                const createData = await createResponse.json();
+                
+                if (!createResponse.ok) {
+                    throw new Error(`Error creating project: ${JSON.stringify(createData)}`);
+                }
+                
+                resultDiv.innerHTML = `<p>Project created successfully!</p>
+                                      <pre>${JSON.stringify(createData, null, 2)}</pre>
+                                      <p>Rendering video...</p>`;
+                
+                const projectId = createData.project.id;
+                
+                // Now render the video
+                const renderResponse = await fetch(`https://api.json2video.com/v1/project/${projectId}/render`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey
+                    }
+                });
+                
+                const renderData = await renderResponse.json();
+                
+                if (!renderResponse.ok) {
+                    throw new Error(`Error rendering video: ${JSON.stringify(renderData)}`);
+                }
+                
+                resultDiv.innerHTML = `<p>Video rendering started!</p>
+                                      <pre>${JSON.stringify(renderData, null, 2)}</pre>
+                                      <p>Checking render status in 10 seconds...</p>`;
+                
+                // Wait 10 seconds before checking status
+                setTimeout(async () => {
+                    try {
+                        // Check render status
+                        const statusResponse = await fetch(`https://api.json2video.com/v1/project/${projectId}/render/${renderData.render.id}`, {
+                            method: 'GET',
+                            headers: {
+                                'x-api-key': apiKey
+                            }
+                        });
+                        
+                        const statusData = await statusResponse.json();
+                        
+                        if (!statusResponse.ok) {
+                            throw new Error(`Error checking status: ${JSON.stringify(statusData)}`);
+                        }
+                        
+                        // Display results with video if complete
+                        if (statusData.render.status === 'ready') {
+                            resultDiv.innerHTML = `
+                                <p>Video created successfully!</p>
+                                <pre>${JSON.stringify(statusData, null, 2)}</pre>
+                                <p><a href="${statusData.render.url}" target="_blank">Download Video</a></p>
+                                <video width="100%" controls>
+                                    <source src="${statusData.render.url}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            `;
+                        } else {
+                            resultDiv.innerHTML = `
+                                <p>Video is still processing. Current status: ${statusData.render.status}</p>
+                                <pre>${JSON.stringify(statusData, null, 2)}</pre>
+                                <p>Check the project in your Json2Video dashboard.</p>
+                            `;
+                        }
+                    } catch (err) {
+                        resultDiv.innerHTML = `<p>Error checking render status: ${err.message}</p>`;
+                    }
+                }, 10000);
+                
+            } catch (err) {
+                resultDiv.innerHTML = `<p>Error: ${err.message}</p>`;
+            }
+        }
+    </script>
 </body>
 </html>
