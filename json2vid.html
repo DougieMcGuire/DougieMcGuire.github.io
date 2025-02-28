@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON2Video Request</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 10px;
+      background-color: #f4f4f4;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      padding: 10px;
+      font-size: 14px;
+      margin: 10px 0;
+    }
+    button {
+      padding: 10px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    #response {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #ecf0f1;
+    }
+  </style>
+</head>
+<body>
+  <h1>JSON2Video Request</h1>
+  <label for="jsonInput">Enter JSON:</label>
+  <textarea id="jsonInput" placeholder='Paste your JSON here'></textarea>
+  
+  <button onclick="sendRequest()">Send Request</button>
+
+  <div id="response"></div>
+
+  <script>
+    function sendRequest() {
+      const apiKey = "flLgUfxJjwTa0dyDvDMYUKFSAdNlAndCOEtrmSoB"; // Your API Key
+      const url = "https://api.json2video.com/v2/movies";
+      const jsonData = document.getElementById('jsonInput').value;
+
+      if (!jsonData) {
+        alert('Please enter JSON!');
+        return;
+      }
+
+      const requestData = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: jsonData
+      };
+
+      fetch(url, requestData)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('response').innerHTML = `<h2>Response:</h2><pre>${JSON.stringify(data, null, 2)}</pre>`;
+        })
+        .catch(error => {
+          document.getElementById('response').innerHTML = `<h2>Error:</h2><pre>${error.message}</pre>`;
+        });
+    }
+  </script>
+</body>
+</html>
