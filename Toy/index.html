@@ -3,81 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FPS Demo</title>
-    <style>
-        body, html { margin: 0; padding: 0; overflow: hidden; }
-        canvas { display: block; }
-        #nameInput { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        #nameInput input { padding: 10px; font-size: 18px; }
-        #nameInput button { padding: 10px; font-size: 18px; margin-top: 10px; cursor: pointer; }
-    </style>
+    <title>1v1 Game</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4Sa8mLb2lLpmrrMM9bX_loiTS3MYul14",
+            authDomain: "toydemo-341bc.firebaseapp.com",
+            databaseURL: "https://toydemo-341bc-default-rtdb.firebaseio.com",
+            projectId: "toydemo-341bc",
+            storageBucket: "toydemo-341bc.firebasestorage.app",
+            messagingSenderId: "843712244489",
+            appId: "1:843712244489:web:8474efba9732edda7fc1d8",
+            measurementId: "G-QQRZQR4HZK"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let playerId = null;
+        let players = {};
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const startMenu = document.getElementById("start-menu");
+            const gameContainer = document.getElementById("game-container");
+            const nameInput = document.getElementById("name-input");
+            const startButton = document.getElementById("start-button");
+
+            startButton.addEventListener("click", () => {
+                const playerName = nameInput.value.trim();
+                if (playerName) {
+                    playerId = Date.now().toString();
+                    db.ref("players/" + playerId).set({
+                        name: playerName,
+                        x: Math.random() * 800,
+                        y: 300
+                    });
+
+                    startMenu.style.display = "none";
+                    gameContainer.style.display = "block";
+                    initGame();
+                }
+            });
+        });
+
+        function initGame() {
+            const canvas = document.getElementById("gameCanvas");
+            const ctx = canvas.getContext("2d");
+
+            document.addEventListener("keydown", (event) => {
+                if (!playerId || !players[playerId]) return;
+                let player = players[playerId];
+
+                if (event.key === "ArrowLeft") player.x -= 5;
+                if (event.key === "ArrowRight") player.x += 5;
+                if (event.key === "ArrowUp") player.y -= 5;
+                if (event.key === "ArrowDown") player.y += 5;
+
+                db.ref("players/" + playerId).set(player);
+            });
+
+            db.ref("players").on("value", (snapshot) => {
+                players = snapshot.val() || {};
+                renderGame(ctx);
+            });
+
+            window.addEventListener("beforeunload", () => {
+                db.ref("players/" + playerId).remove();
+            });
+        }
+
+        function renderGame(ctx) {
+            ctx.clearRect(0, 0, 800, 400);
+            ctx.fillStyle = "green";
+            ctx.fillRect(0, 350, 800, 50); // Baseplate
+
+            for (let id in players) {
+                let player = players[id];
+                ctx.fillStyle = id === playerId ? "blue" : "red";
+                ctx.fillRect(player.x, player.y, 20, 40); // Body
+                ctx.fillRect(player.x + 5, player.y - 10, 10, 10); // Head
+            }
+        }
+    </script>
 </head>
 <body>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.136/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.136/examples/jsm/controls/PointerLockControls.js"></script>
-    
-    <script>
-        let scene, camera, renderer, controls, player;
-        let keys = {};
-        
-        function init() {
-            // Scene setup
-            scene = new THREE.Scene();
-
-            // Camera setup
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 1.6, 5);
-
-            // Renderer setup
-            renderer = new THREE.WebGLRenderer();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
-
-            // Lighting
-            const light = new THREE.AmbientLight(0xffffff);
-            scene.add(light);
-
-            // Floor
-            const floorGeometry = new THREE.PlaneGeometry(50, 50);
-            const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x444444 });
-            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-            floor.rotation.x = -Math.PI / 2;
-            scene.add(floor);
-
-            // Player Character (First-Person Arms)
-            let armMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-            let armGeometry = new THREE.BoxGeometry(0.2, 0.7, 0.2);
-            let leftArm = new THREE.Mesh(armGeometry, armMaterial);
-            let rightArm = new THREE.Mesh(armGeometry, armMaterial);
-            leftArm.position.set(-0.3, 1.3, -0.5);
-            rightArm.position.set(0.3, 1.3, -0.5);
-            camera.add(leftArm);
-            camera.add(rightArm);
-            scene.add(camera);
-
-            // Controls
-            controls = new THREE.PointerLockControls(camera, document.body);
-            document.addEventListener('click', () => controls.lock());
-
-            document.addEventListener('keydown', (e) => keys[e.key] = true);
-            document.addEventListener('keyup', (e) => keys[e.key] = false);
-
-            animate();
-        }
-        
-        function animate() {
-            requestAnimationFrame(animate);
-            let speed = 0.1;
-
-            if (keys['w']) camera.position.z -= speed;
-            if (keys['s']) camera.position.z += speed;
-            if (keys['a']) camera.position.x -= speed;
-            if (keys['d']) camera.position.x += speed;
-
-            renderer.render(scene, camera);
-        }
-        
-        window.onload = init;
-    </script>
+    <div id="start-menu">
+        <input type="text" id="name-input" placeholder="Enter your name">
+        <button id="start-button">Start</button>
+    </div>
+    <div id="game-container" style="display: none;">
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+    </div>
 </body>
 </html>
