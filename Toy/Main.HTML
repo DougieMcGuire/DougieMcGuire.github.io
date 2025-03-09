@@ -4,23 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Optimized Game</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #222;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        #start-screen {
+            text-align: center;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 18px;
+        }
+        canvas {
+            display: none;
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Start Screen -->
+    <div id="start-screen">
+        <h1>Welcome to the Game</h1>
+        <input type="text" id="player-name" placeholder="Enter your name">
+        <button onclick="startGame()">Join Game</button>
+    </div>
+
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
     <script type="module">
         import { Character } from "./Character.js";
         import { Movement } from "./Movement.js";
         import { Physics } from "./Physics.js";
         import { Multiplayer } from "./Multiplayer.js";
 
-        const canvas = document.createElement("canvas");
+        let player, movement, physics, multiplayer;
+        const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
-        document.body.appendChild(canvas);
-        canvas.width = 800;
-        canvas.height = 600;
 
-        const player = new Character("Player1", 100, 100);
-        const movement = new Movement(player);
-        const physics = new Physics();
-        const multiplayer = new Multiplayer();
-        multiplayer.connect();
+        function startGame() {
+            const playerName = document.getElementById("player-name").value.trim();
+            if (!playerName) return alert("Enter a valid name!");
+
+            document.getElementById("start-screen").style.display = "none";
+            canvas.style.display = "block";
+
+            // Init game objects
+            player = new Character(playerName, 100, 100);
+            movement = new Movement(player);
+            physics = new Physics();
+            multiplayer = new Multiplayer();
+            multiplayer.connect();
+
+            gameLoop();
+        }
 
         function gameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -30,9 +76,7 @@
             player.draw(ctx);
             requestAnimationFrame(gameLoop);
         }
-
-        gameLoop();
     </script>
-</head>
-<body></body>
+
+</body>
 </html>
