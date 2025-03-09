@@ -19,20 +19,31 @@ const playersRef = ref(db, "players");
 let playerId;
 let players = {};
 
-// Initialize player
 export function initMultiplayer(player) {
     playerId = player.id;
-    set(ref(db, `players/${playerId}`), { x: player.x, y: player.y });
+    
+    // Store player position & rotation in Firebase
+    set(ref(db, `players/${playerId}`), {
+        x: player.x,
+        y: player.y,
+        z: player.z,
+        rotationY: player.rotationY
+    });
 
-    // Listen for other players
+    // Listen for updates from other players
     onValue(playersRef, (snapshot) => {
         players = snapshot.val() || {};
     });
 
-    // Update position in database
+    // Update player position in database every 100ms
     setInterval(() => {
         if (players[playerId]) {
-            set(ref(db, `players/${playerId}`), { x: player.x, y: player.y });
+            set(ref(db, `players/${playerId}`), {
+                x: player.x,
+                y: player.y,
+                z: player.z,
+                rotationY: player.rotationY
+            });
         }
     }, 100);
 }
