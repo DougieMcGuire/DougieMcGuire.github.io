@@ -17,51 +17,57 @@
         <input type="text" id="playerName" placeholder="Enter your name">
         <button onclick="startGame()">Join</button>
     </div>
-    <canvas id="gameCanvas"></canvas>
     
-<script type="module">
-    import { Player } from "./physics.js";
-    import { initMultiplayer, getPlayers } from "./multiplayer.js";
-
-    let player;
-    let keys = {};
-
-    function initGame() {
-        let name = localStorage.getItem("playerName");
-        if (!name) return;
-
-        player = new Player(name);
-        initMultiplayer(player);
-
-        document.addEventListener("keydown", (e) => (keys[e.key] = true));
-        document.addEventListener("keyup", (e) => (keys[e.key] = false));
-
-        requestAnimationFrame(gameLoop);
-    }
-
-    function gameLoop() {
-        let canvas = document.getElementById("gameCanvas");
-        let ctx = canvas.getContext("2d");
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+    <script type="module">
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.136/build/three.module.js';
+        import { PointerLockControls } from 'https://cdn.jsdelivr.net/npm/three@0.136/examples/jsm/controls/PointerLockControls.js';
         
-        player.move(keys);
-
-        let players = getPlayers();
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw players
-        for (let id in players) {
-            let p = players[id];
-            ctx.fillStyle = id === player.id ? "red" : "white";
-            ctx.fillRect(p.x, p.y, 20, 20);
+        function startGame() {
+            let name = document.getElementById('playerName').value;
+            if (!name) return alert('Enter a name!');
+            localStorage.setItem('playerName', name);
+            document.getElementById('nameInput').style.display = 'none';
+            initGame();
         }
-
-        requestAnimationFrame(gameLoop);
-    }
-
-    window.onload = initGame;
-</script>
-
+        
+        function initGame() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            
+            // Lighting
+            const light = new THREE.AmbientLight(0xffffff);
+            scene.add(light);
+            
+            // Floor
+            const floorGeometry = new THREE.PlaneGeometry(50, 50);
+            const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x555555 });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
+            
+            // Player Controls
+            const controls = new PointerLockControls(camera, document.body);
+            document.addEventListener('click', () => controls.lock());
+            
+            const keys = {};
+            document.addEventListener('keydown', (e) => keys[e.key] = true);
+            document.addEventListener('keyup', (e) => keys[e.key] = false);
+            
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                if (keys['w']) camera.position.z -= 0.1;
+                if (keys['s']) camera.position.z += 0.1;
+                if (keys['a']) camera.position.x -= 0.1;
+                if (keys['d']) camera.position.x += 0.1;
+                
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+    </script>
 </body>
 </html>
