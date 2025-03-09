@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Multiplayer Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+        
+        #game-screen {
+            display: none;
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background-color: #333;
+            overflow: hidden;
+        }
+        
+        .player {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: transform 0.1s ease-out;
+        }
+        
+        #name-input {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+            width: 300px;
+        }
+        
+        #play-button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        
+        #play-button:hover {
+            background-color: #45a049;
+        }
+        
+        #player-count {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        #instructions {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <h1>Multiplayer Game Demo</h1>
+        <input type="text" id="name-input" placeholder="Enter your name" maxlength="10">
+        <button id="play-button">Play</button>
+    </div>
+    
+    <!-- Game Screen -->
+    <div id="game-screen">
+        <div id="player-count">Players: 0</div>
+        <div id="instructions">Use arrow keys or WASD to move</div>
+    </div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getDatabase, ref, set, update, onValue, onChildAdded, onChildChanged, onChildRemoved, serverTimestamp, onDisconnect } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+        
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4Sa8mLb2lLpmrrMM9bX_loiTS3MYul14",
+            authDomain: "toydemo-341bc.firebaseapp.com",
+            projectId: "toydemo-341bc",
+            storageBucket: "toydemo-341bc.firebasestorage.app",
+            messagingSenderId: "843712244489",
+            appId: "1:843712244489:web:8474efba9732edda7fc1d8",
+            measurementId: "G-QQRZQR4HZK",
+            databaseURL: "https://toydemo-341bc-default-rtdb.firebaseio.com/" // Add this line for Realtime Database
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        // Game variables
+        let playerId = null;
+        let playerRef = null;
+        let players = {};
+        let playerElements = {};
+        
+        // Random color generator for players
+        function getRandomColor() {
+            const colors = [
+                '#FF5733', '#33FF57', '#3357FF', '#F033FF', '#FF33F0',
+                '#33FFF0', '#F0FF33', '#FF9933', '#33FF99', '#9933FF'
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        // Initialize game when Play button is clicked
+        document.getElementById('play-button').addEventListener('click', () => {
+            const name = document.getElementById('name-input').value.trim() || 'Player' + Math.floor(Math.random() * 1000);
+            initGame(name);
+        });
+        
+        // Allow enter key to start game
+        document.getElementById('name-input').addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                const name = document.getElementById('name-input').value.trim() || 'Player' + Math.floor(Math.random() * 1000);
+                initGame(name);
+            }
+        });
+        
+        function initGame(name) {
+            // Switch to game screen
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            
+            // Create a unique ID for the player
+            playerId = 'player_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
+            
+            // Create a reference to the player in the database
+            playerRef = ref(database, `players/${playerId}`);
+            
+            // Add player to database with initial position
+            const playerX = Math.floor(Math.random() * (window.innerWidth - 100)) + 50;
+            const playerY = Math.floor(Math.random() * (window.innerHeight - 100)) + 50;
+            
+            set(playerRef, {
+                name: name,
+                x: playerX,
+                y: playerY,
+                color: getRandomColor(),
+                lastUpdated: serverTimestamp()
+            });
+            
+            // Remove player when disconnected
+            onDisconnect(playerRef).remove();
+            
+            // Start listening for player updates
+            initPlayerListeners();
+            
+            // Start handling player input
+            initPlayerControls();
+        }
+        
+        function initPlayerListeners() {
+            // Listen for all players
+            const playersRef = ref(database, 'players');
+            
+            // When a player is added
+            onChildAdded(playersRef, (snapshot) => {
+                const playerData = snapshot.val();
+                const playerId = snapshot.key;
+                
+                // Add player to the game
+                players[playerId] = playerData;
+                
+                // Create DOM element for the player
+                const playerElement = document.createElement('div');
+                playerElement.classList.add('player');
+                playerElement.style.backgroundColor = playerData.color;
+                playerElement.style.transform = `translate(${playerData.x}px, ${playerData.y}px)`;
+                playerElement.innerText = playerData.name.substring(0, 2).toUpperCase();
+                
+                // Add the player element to the game
+                document.getElementById('game-screen').appendChild(playerElement);
+                
+                // Store the element reference
+                playerElements[playerId] = playerElement;
+                
+                // Update player count
+                updatePlayerCount();
+            });
+            
+            // When a player is updated
+            onChildChanged(playersRef, (snapshot) => {
+                const playerData = snapshot.val();
+                const playerId = snapshot.key;
+                
+                // Update player data
+                players[playerId] = playerData;
+                
+                // Update player element position
+                if (playerElements[playerId]) {
+                    playerElements[playerId].style.transform = `translate(${playerData.x}px, ${playerData.y}px)`;
+                }
+            });
+            
+            // When a player is removed
+            onChildRemoved(playersRef, (snapshot) => {
+                const playerId = snapshot.key;
+                
+                // Remove player from the game
+                if (playerElements[playerId]) {
+                    playerElements[playerId].remove();
+                    delete playerElements[playerId];
+                    delete players[playerId];
+                    
+                    // Update player count
+                    updatePlayerCount();
+                }
+            });
+        }
+        
+        function updatePlayerCount() {
+            document.getElementById('player-count').innerText = `Players: ${Object.keys(players).length}`;
+        }
+        
+        function initPlayerControls() {
+            // Movement speed
+            const speed = 10;
+            
+            // Track which keys are pressed
+            const keysPressed = {};
+            
+            // Listen for key presses
+            window.addEventListener('keydown', (e) => {
+                keysPressed[e.key] = true;
+            });
+            
+            // Listen for key releases
+            window.addEventListener('keyup', (e) => {
+                keysPressed[e.key] = false;
+            });
+            
+            // Game loop for movement
+            setInterval(() => {
+                if (!playerRef) return;
+                
+                const player = players[playerId];
+                if (!player) return;
+                
+                let x = player.x;
+                let y = player.y;
+                let moved = false;
+                
+                // Check arrow keys and WASD
+                if ((keysPressed['ArrowUp'] || keysPressed['w'] || keysPressed['W']) && y > 0) {
+                    y -= speed;
+                    moved = true;
+                }
+                if ((keysPressed['ArrowDown'] || keysPressed['s'] || keysPressed['S']) && y < window.innerHeight - 50) {
+                    y += speed;
+                    moved = true;
+                }
+                if ((keysPressed['ArrowLeft'] || keysPressed['a'] || keysPressed['A']) && x > 0) {
+                    x -= speed;
+                    moved = true;
+                }
+                if ((keysPressed['ArrowRight'] || keysPressed['d'] || keysPressed['D']) && x < window.innerWidth - 50) {
+                    x += speed;
+                    moved = true;
+                }
+                
+                // Update player position if moved
+                if (moved) {
+                    update(playerRef, {
+                        x,
+                        y,
+                        lastUpdated: serverTimestamp()
+                    });
+                }
+            }, 33); // About 30 FPS
+        }
+    </script>
+</body>
+</html>
