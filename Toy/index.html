@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPS Demo</title>
+    <style>
+        body, html { margin: 0; padding: 0; overflow: hidden; background: black; }
+        canvas { display: block; }
+        #nameInput { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        #nameInput input { padding: 10px; font-size: 18px; }
+        #nameInput button { padding: 10px; font-size: 18px; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="nameInput">
+        <input type="text" id="playerName" placeholder="Enter your name">
+        <button onclick="startGame()">Join</button>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4Sa8mLb2lLpmrrMM9bX_loiTS3MYul14",
+            authDomain: "toydemo-341bc.firebaseapp.com",
+            databaseURL: "https://toydemo-341bc-default-rtdb.firebaseio.com",
+            projectId: "toydemo-341bc",
+            storageBucket: "toydemo-341bc.firebasestorage.app",
+            messagingSenderId: "843712244489",
+            appId: "1:843712244489:web:8474efba9732edda7fc1d8",
+            measurementId: "G-QQRZQR4HZK"
+        };
+        
+        function startGame() {
+            let name = document.getElementById('playerName').value;
+            if (!name) return alert('Enter a name!');
+            localStorage.setItem('playerName', name);
+            document.getElementById('nameInput').style.display = 'none';
+            initGame();
+        }
+        
+        function initGame() {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            ctx.fillStyle = 'white';
+            ctx.fillRect(canvas.width / 2 - 10, canvas.height / 2 - 10, 20, 20);
+        }
+    </script>
+</body>
+</html>
