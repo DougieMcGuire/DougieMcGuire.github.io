@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimized Game</title>
+    <script type="module">
+        import { Character } from "./Character.js";
+        import { Movement } from "./Movement.js";
+        import { Physics } from "./Physics.js";
+        import { Multiplayer } from "./Multiplayer.js";
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        document.body.appendChild(canvas);
+        canvas.width = 800;
+        canvas.height = 600;
+
+        const player = new Character("Player1", 100, 100);
+        const movement = new Movement(player);
+        const physics = new Physics();
+        const multiplayer = new Multiplayer();
+        multiplayer.connect();
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            movement.update();
+            physics.applyGravity(player);
+            physics.checkCollision(player, canvas.height - 50);
+            player.draw(ctx);
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</head>
+<body></body>
+</html>
