@@ -79,6 +79,17 @@
             border-radius: 5px;
             z-index: 5;
         }
+        #debug {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+            z-index: 5;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -93,11 +104,14 @@
     <div id="player-count">Players: 0</div>
     <div id="player-name"></div>
     <div id="controls">Controls: W,A,S,D to move | Mouse to look | Space to jump</div>
+    <div id="debug"></div>
+    
+    <!-- Import Firebase directly from CDN with latest compatible versions -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.1/firebase-database-compat.js"></script>
     
     <script>
         // Firebase Configuration
@@ -112,9 +126,18 @@
             measurementId: "G-QQRZQR4HZK"
         };
         
+        // Debug function
+        function debugLog(message) {
+            const debug = document.getElementById('debug');
+            debug.textContent = message;
+            console.log(message);
+        }
+        
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        
+        debugLog("Firebase initialized");
         
         // Game Variables
         let camera, scene, renderer;
@@ -167,6 +190,8 @@
         }
         
         function init() {
+            debugLog("Initializing 3D scene");
+            
             // Scene setup
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x87ceeb); // Sky blue background
@@ -240,71 +265,114 @@
             playerObject.add(indicator);
             
             scene.add(playerObject);
+            
+            // Set initial position to help with prev comparisons
+            prevPosition.copy(playerObject.position);
+            prevRotation.copy(playerObject.rotation);
         }
         
         function connectToFirebase() {
-            // Create a unique ID for this player
-            playerId = database.ref().child('players').push().key;
+            debugLog("Connecting to Firebase");
             
-            // Set up player data in Firebase
-            const playerRef = database.ref('players/' + playerId);
-            playerRef.set({
-                name: playerName,
-                color: playerColor,
-                position: {
-                    x: playerObject.position.x,
-                    y: playerObject.position.y,
-                    z: playerObject.position.z
-                },
-                rotation: {
-                    y: playerObject.rotation.y
-                },
-                lastUpdate: firebase.database.ServerValue.TIMESTAMP
-            });
-            
-            // Remove player data when disconnected
-            playerRef.onDisconnect().remove();
-            
-            // Listen for other players
-            database.ref('players').on('value', function(snapshot) {
-                const playerData = snapshot.val() || {};
-                updatePlayerCount(Object.keys(playerData).length);
+            try {
+                // Create a unique ID for this player
+                playerId = Date.now().toString() + Math.floor(Math.random() * 1000).toString();
                 
-                // Remove players that no longer exist
-                Object.keys(players).forEach(id => {
-                    if (!playerData[id]) {
-                        scene.remove(players[id].mesh);
-                        delete players[id];
-                    }
-                });
+                // Reference to players in database
+                const playersRef = database.ref('players');
                 
-                // Update or add players
-                Object.keys(playerData).forEach(id => {
-                    if (id !== playerId) {
-                        const data = playerData[id];
+                // Set up player data in Firebase
+                const playerRef = playersRef.child(playerId);
+                const playerData = {
+                    name: playerName,
+                    color: playerColor,
+                    position: {
+                        x: playerObject.position.x,
+                        y: playerObject.position.y,
+                        z: playerObject.position.z
+                    },
+                    rotation: {
+                        y: playerObject.rotation.y
+                    },
+                    lastUpdate: firebase.database.ServerValue.TIMESTAMP
+                };
+                
+                playerRef.set(playerData)
+                    .then(() => {
+                        debugLog("Player data set successfully");
                         
-                        // If player already exists, update position
-                        if (players[id]) {
-                            const playerMesh = players[id].mesh;
-                            playerMesh.position.set(data.position.x, data.position.y, data.position.z);
-                            playerMesh.rotation.y = data.rotation.y;
-                            players[id].lastUpdate = data.lastUpdate;
-                        } else {
-                            // Create new player
-                            createRemotePlayer(id, data);
-                        }
-                    }
-                });
+                        // Remove player data when disconnected
+                        playerRef.onDisconnect().remove();
+                        
+                        // First update Firebase with our position
+                        updatePlayerInFirebase();
+                        
+                        // Listen for other players
+                        playersRef.on('value', (snapshot) => {
+                            const playerData = snapshot.val() || {};
+                            updatePlayerCount(Object.keys(playerData).length);
+                            
+                            debugLog(`Players in DB: ${Object.keys(playerData).length}`);
+                            
+                            // Process other players
+                            processPlayers(playerData);
+                        }, (error) => {
+                            debugLog("Firebase error: " + error.message);
+                        });
+                    })
+                    .catch((error) => {
+                        debugLog("Error setting player data: " + error.message);
+                    });
+                
+                // Send regular updates to keep player visible
+                setInterval(() => {
+                    updatePlayerInFirebase();
+                }, 1000);
+                
+                // Cleanup old players (if they haven't updated in a while)
+                setInterval(cleanupPlayers, 10000);
+                
+            } catch (error) {
+                debugLog("Firebase connection error: " + error.message);
+            }
+        }
+        
+        function processPlayers(playerData) {
+            // Remove players that no longer exist
+            Object.keys(players).forEach(id => {
+                if (!playerData[id] && id !== playerId) {
+                    scene.remove(players[id].mesh);
+                    delete players[id];
+                }
             });
             
-            // Cleanup old players (if they haven't updated in a while)
-            setInterval(cleanupPlayers, 10000);
+            // Update or add players
+            Object.keys(playerData).forEach(id => {
+                if (id !== playerId) {
+                    const data = playerData[id];
+                    
+                    // If player already exists, update position
+                    if (players[id]) {
+                        const playerMesh = players[id].mesh;
+                        playerMesh.position.set(data.position.x, data.position.y, data.position.z);
+                        playerMesh.rotation.y = data.rotation.y;
+                        players[id].lastUpdate = data.lastUpdate;
+                    } else {
+                        // Create new player
+                        createRemotePlayer(id, data);
+                    }
+                }
+            });
         }
         
         function createRemotePlayer(id, data) {
+            debugLog(`Creating remote player: ${data.name} (${id})`);
+            
             // Create player mesh (same structure as local player)
             const bodyGeometry = new THREE.CylinderGeometry(playerRadius, playerRadius, playerHeight, 16);
-            const bodyMaterial = new THREE.MeshStandardMaterial({ color: data.color });
+            const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                color: data.color || 0xff0000
+            });
             const playerMesh = new THREE.Mesh(bodyGeometry, bodyMaterial);
             
             // Direction indicator
@@ -316,11 +384,6 @@
             playerMesh.add(indicator);
             
             // Player name tag
-            const nameMaterial = new THREE.MeshBasicMaterial({
-                color: 0xffffff,
-                side: THREE.DoubleSide
-            });
-            
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
             canvas.width = 256;
@@ -332,26 +395,39 @@
             
             const nameTexture = new THREE.CanvasTexture(canvas);
             const nameGeometry = new THREE.PlaneGeometry(2, 0.5);
-            const nameMesh = new THREE.Mesh(nameGeometry, 
-                new THREE.MeshBasicMaterial({ 
-                    map: nameTexture, 
-                    transparent: true,
-                    depthTest: false
-                })
-            );
+            const nameMaterial = new THREE.MeshBasicMaterial({ 
+                map: nameTexture, 
+                transparent: true,
+                depthTest: false
+            });
+            const nameMesh = new THREE.Mesh(nameGeometry, nameMaterial);
             nameMesh.position.y = playerHeight + 0.5;
-            nameMesh.rotation.x = Math.PI / 2;
-            playerMesh.add(nameMesh);
+            
+            // Make name tag always face the camera
+            const nameBillboard = new THREE.Object3D();
+            nameBillboard.add(nameMesh);
+            playerMesh.add(nameBillboard);
             
             // Set position and add to scene
-            playerMesh.position.set(data.position.x, data.position.y, data.position.z);
-            playerMesh.rotation.y = data.rotation.y;
+            if (data.position) {
+                playerMesh.position.set(
+                    data.position.x || 0,
+                    data.position.y || playerHeight / 2,
+                    data.position.z || 0
+                );
+            }
+            
+            if (data.rotation) {
+                playerMesh.rotation.y = data.rotation.y || 0;
+            }
+            
             scene.add(playerMesh);
             
             // Store reference
             players[id] = {
                 mesh: playerMesh,
-                lastUpdate: data.lastUpdate
+                nameBillboard: nameBillboard,
+                lastUpdate: data.lastUpdate || Date.now()
             };
         }
         
@@ -364,6 +440,7 @@
             Object.keys(players).forEach(id => {
                 // Remove player if they haven't updated in 30 seconds
                 if (now - players[id].lastUpdate > 30000) {
+                    debugLog(`Cleaning up inactive player: ${id}`);
                     scene.remove(players[id].mesh);
                     delete players[id];
                 }
@@ -371,24 +448,31 @@
         }
         
         function updatePlayerInFirebase() {
-            // Only update Firebase if position or rotation has changed
-            if (!prevPosition.equals(playerObject.position) || 
-                prevRotation.y !== playerObject.rotation.y) {
+            try {
+                // Check if there's a real change in position or rotation
+                const positionChanged = !prevPosition.equals(playerObject.position);
+                const rotationChanged = prevRotation.y !== playerObject.rotation.y;
                 
-                database.ref('players/' + playerId).update({
-                    position: {
-                        x: playerObject.position.x,
-                        y: playerObject.position.y,
-                        z: playerObject.position.z
-                    },
-                    rotation: {
-                        y: playerObject.rotation.y
-                    },
-                    lastUpdate: firebase.database.ServerValue.TIMESTAMP
-                });
-                
-                prevPosition.copy(playerObject.position);
-                prevRotation.copy(playerObject.rotation);
+                if (positionChanged || rotationChanged || Math.random() < 0.1) { // Occasional update even without changes
+                    database.ref('players/' + playerId).update({
+                        position: {
+                            x: playerObject.position.x,
+                            y: playerObject.position.y,
+                            z: playerObject.position.z
+                        },
+                        rotation: {
+                            y: playerObject.rotation.y
+                        },
+                        lastUpdate: firebase.database.ServerValue.TIMESTAMP
+                    }).catch(error => {
+                        debugLog("Error updating position: " + error.message);
+                    });
+                    
+                    prevPosition.copy(playerObject.position);
+                    prevRotation.copy(playerObject.rotation);
+                }
+            } catch (error) {
+                debugLog("Error in updatePlayerInFirebase: " + error.message);
             }
         }
         
@@ -497,6 +581,13 @@
             
             // Update camera rotation to match player direction
             camera.rotation.y = playerObject.rotation.y;
+            
+            // Make all name billboards face the camera
+            Object.values(players).forEach(player => {
+                if (player.nameBillboard) {
+                    player.nameBillboard.rotation.y = -player.mesh.rotation.y + camera.rotation.y;
+                }
+            });
         }
         
         function animate() {
@@ -504,7 +595,6 @@
             
             const delta = Math.min(0.1, clock.getDelta());
             updatePlayerMovement(delta);
-            updatePlayerInFirebase();
             
             renderer.render(scene, camera);
         }
@@ -514,6 +604,13 @@
         
         // Initialize the clock
         clock.start();
+        
+        // Window beforeunload to ensure player is removed when closing the page
+        window.addEventListener('beforeunload', function() {
+            if (playerId) {
+                database.ref('players/' + playerId).remove();
+            }
+        });
     </script>
 </body>
 </html>
