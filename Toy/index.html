@@ -5,69 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FPS Demo</title>
     <style>
-        body, html { margin: 0; padding: 0; overflow: hidden; background: black; }
+        body, html { margin: 0; padding: 0; overflow: hidden; }
         canvas { display: block; }
-        #nameInput { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        #nameInput input { padding: 10px; font-size: 18px; }
-        #nameInput button { padding: 10px; font-size: 18px; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div id="nameInput">
-        <input type="text" id="playerName" placeholder="Enter your name">
-        <button onclick="startGame()">Join</button>
-    </div>
-    
     <script type="module">
         import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.136/build/three.module.js';
         import { PointerLockControls } from 'https://cdn.jsdelivr.net/npm/three@0.136/examples/jsm/controls/PointerLockControls.js';
-        
-        function startGame() {
-            let name = document.getElementById('playerName').value;
-            if (!name) return alert('Enter a name!');
-            localStorage.setItem('playerName', name);
-            document.getElementById('nameInput').style.display = 'none';
-            initGame();
-        }
-        
-        function initGame() {
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer();
+        import { Player } from './character.js';
+
+        let scene, camera, renderer, controls, player;
+
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 1.6, 5);
+
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer();
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
-            
+
             // Lighting
             const light = new THREE.AmbientLight(0xffffff);
             scene.add(light);
-            
+
             // Floor
             const floorGeometry = new THREE.PlaneGeometry(50, 50);
-            const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x555555 });
+            const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x444444 });
             const floor = new THREE.Mesh(floorGeometry, floorMaterial);
             floor.rotation.x = -Math.PI / 2;
             scene.add(floor);
-            
-            // Player Controls
-            const controls = new PointerLockControls(camera, document.body);
+
+            // Player Character
+            player = new Player(scene);
+
+            // First-person controls
+            controls = new PointerLockControls(camera, document.body);
             document.addEventListener('click', () => controls.lock());
-            
+
             const keys = {};
             document.addEventListener('keydown', (e) => keys[e.key] = true);
             document.addEventListener('keyup', (e) => keys[e.key] = false);
-            
+
             function animate() {
                 requestAnimationFrame(animate);
-                
-                if (keys['w']) camera.position.z -= 0.1;
-                if (keys['s']) camera.position.z += 0.1;
-                if (keys['a']) camera.position.x -= 0.1;
-                if (keys['d']) camera.position.x += 0.1;
-                
+
+                // Basic movement
+                let speed = 0.1;
+                if (keys["w"]) player.updatePosition(player.body.position.x, player.body.position.y, player.body.position.z - speed);
+                if (keys["s"]) player.updatePosition(player.body.position.x, player.body.position.y, player.body.position.z + speed);
+                if (keys["a"]) player.updatePosition(player.body.position.x - speed, player.body.position.y, player.body.position.z);
+                if (keys["d"]) player.updatePosition(player.body.position.x + speed, player.body.position.y, player.body.position.z);
+
                 renderer.render(scene, camera);
             }
+
             animate();
         }
+
+        init();
     </script>
 </body>
 </html>
