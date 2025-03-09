@@ -7,16 +7,19 @@
     <style>
         body, html { margin: 0; padding: 0; overflow: hidden; }
         canvas { display: block; }
+        #nameInput { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        #nameInput input { padding: 10px; font-size: 18px; }
+        #nameInput button { padding: 10px; font-size: 18px; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <script type="module">
-        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.136/build/three.module.js';
-        import { PointerLockControls } from 'https://cdn.jsdelivr.net/npm/three@0.136/examples/jsm/controls/PointerLockControls.js';
-        import { Player } from './character.js';
-
+    <script src="https://cdn.jsdelivr.net/npm/three@0.136/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.136/examples/jsm/controls/PointerLockControls.js"></script>
+    
+    <script>
         let scene, camera, renderer, controls, player;
-
+        let keys = {};
+        
         function init() {
             // Scene setup
             scene = new THREE.Scene();
@@ -41,34 +44,40 @@
             floor.rotation.x = -Math.PI / 2;
             scene.add(floor);
 
-            // Player Character
-            player = new Player(scene);
+            // Player Character (First-Person Arms)
+            let armMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+            let armGeometry = new THREE.BoxGeometry(0.2, 0.7, 0.2);
+            let leftArm = new THREE.Mesh(armGeometry, armMaterial);
+            let rightArm = new THREE.Mesh(armGeometry, armMaterial);
+            leftArm.position.set(-0.3, 1.3, -0.5);
+            rightArm.position.set(0.3, 1.3, -0.5);
+            camera.add(leftArm);
+            camera.add(rightArm);
+            scene.add(camera);
 
-            // First-person controls
-            controls = new PointerLockControls(camera, document.body);
+            // Controls
+            controls = new THREE.PointerLockControls(camera, document.body);
             document.addEventListener('click', () => controls.lock());
 
-            const keys = {};
             document.addEventListener('keydown', (e) => keys[e.key] = true);
             document.addEventListener('keyup', (e) => keys[e.key] = false);
 
-            function animate() {
-                requestAnimationFrame(animate);
-
-                // Basic movement
-                let speed = 0.1;
-                if (keys["w"]) player.updatePosition(player.body.position.x, player.body.position.y, player.body.position.z - speed);
-                if (keys["s"]) player.updatePosition(player.body.position.x, player.body.position.y, player.body.position.z + speed);
-                if (keys["a"]) player.updatePosition(player.body.position.x - speed, player.body.position.y, player.body.position.z);
-                if (keys["d"]) player.updatePosition(player.body.position.x + speed, player.body.position.y, player.body.position.z);
-
-                renderer.render(scene, camera);
-            }
-
             animate();
         }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            let speed = 0.1;
 
-        init();
+            if (keys['w']) camera.position.z -= speed;
+            if (keys['s']) camera.position.z += speed;
+            if (keys['a']) camera.position.x -= speed;
+            if (keys['d']) camera.position.x += speed;
+
+            renderer.render(scene, camera);
+        }
+        
+        window.onload = init;
     </script>
 </body>
 </html>
