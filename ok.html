@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio to Video Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        #video-container {
+            margin-top: 20px;
+            display: none;
+        }
+        #video-container video {
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Audio to Video Generator</h1>
+
+    <!-- Audio Input Section -->
+    <h2>Step 1: Upload Audio</h2>
+    <input type="file" id="audioInput" accept="audio/*" />
+    <button onclick="uploadAudio()">Convert Audio to SRT</button>
+    
+    <h2>Generated SRT</h2>
+    <textarea id="srtOutput" rows="10" cols="50" readonly></textarea>
+    <button onclick="copyToClipboard()">Copy SRT</button>
+
+    <!-- Manim Code Input Section -->
+    <h2>Step 2: Enter Manim Code</h2>
+    <textarea id="manimCode" rows="10" cols="50" placeholder="Enter Manim code here..."></textarea>
+    <button onclick="generateVideo()">Generate Video</button>
+
+    <!-- Video Display Section -->
+    <div id="video-container">
+        <h2>Generated Video</h2>
+        <video id="video" controls></video>
+        <a id="downloadLink" href="#" download="generated_video.mp4">
+            <button>Download Video</button>
+        </a>
+    </div>
+
+    <script>
+        // Upload Audio and get SRT
+        function uploadAudio() {
+            const audioInput = document.getElementById('audioInput').files[0];
+            if (!audioInput) {
+                alert("Please upload an audio file.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', audioInput);
+
+            fetch('https://stt-ym3y.onrender.com/convert', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('srtOutput').value = data;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Failed to convert audio.");
+            });
+        }
+
+        // Copy SRT text to clipboard
+        function copyToClipboard() {
+            const srtOutput = document.getElementById('srtOutput');
+            srtOutput.select();
+            document.execCommand('copy');
+            alert('SRT copied to clipboard!');
+        }
+
+        // Generate Video from Manim code
+        function generateVideo() {
+            const manimCode = document.getElementById('manimCode').value;
+            if (!manimCode) {
+                alert("Please enter Manim code.");
+                return;
+            }
+
+            fetch('https://auto-vqn1.onrender.com/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: manimCode }),
+            })
+            .then(response => response.blob())
+            .then(videoBlob => {
+                const videoUrl = URL.createObjectURL(videoBlob);
+                const videoElement = document.getElementById('video');
+                videoElement.src = videoUrl;
+                
+                const videoContainer = document.getElementById('video-container');
+                videoContainer.style.display = 'block';
+
+                const downloadLink = document.getElementById('downloadLink');
+                downloadLink.href = videoUrl;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Failed to generate video.");
+            });
+        }
+    </script>
+</body>
+</html>
