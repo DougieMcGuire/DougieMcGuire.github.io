@@ -3,28 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Video Script Generator</title>
+    <title>AI Video Script & Voice Generator</title>
 </head>
 <body>
-    <h1>Generate a Video Script</h1>
+
+    <h2>AI Video Script & Voice Generator</h2>
 
     <label>Topic:</label>
-    <input type="text" id="topic"><br><br>
+    <input type="text" id="topic" placeholder="Enter your topic"><br><br>
 
-    <label>Format:</label>
-    <select id="format">
+    <label>Video Type:</label>
+    <select id="videoType">
         <option value="2D">2D</option>
         <option value="3D">3D</option>
-    </select><br><br>
-
-    <label>Style:</label>
-    <select id="style">
-        <option value="Documentary">Documentary (Well-studied, professional)</option>
-        <option value="Story">Story (Narrative-driven)</option>
-        <option value="Explaining">Explaining (How things work)</option>
-        <option value="Custom">Custom (Enter below)</option>
     </select>
-    <input type="text" id="customStyle" placeholder="Custom Style (if selected)"><br><br>
 
     <label>Length:</label>
     <select id="length">
@@ -32,49 +24,52 @@
         <option value="longform">Longform</option>
     </select><br><br>
 
-    <label>Additional Notes:</label>
-    <textarea id="notes"></textarea><br><br>
+    <label>Style:</label>
+    <select id="style">
+        <option value="Documentary">Documentary</option>
+        <option value="Storytelling">Storytelling</option>
+        <option value="Explaining how things work">Explaining how things work</option>
+        <option value="custom">Custom</option>
+    </select>
+    <input type="text" id="customStyle" placeholder="Custom style (if selected)" disabled><br><br>
 
     <label>Voice:</label>
-    <input type="text" id="voice" placeholder="e.g., en-US-AriaNeural"><br><br>
+    <input type="text" id="voice" placeholder="Enter voice"><br><br>
 
-    <button onclick="generateScript()">Generate Script</button>
+    <label>Extra Notes:</label>
+    <input type="text" id="notes" placeholder="Any extra notes (optional)"><br><br>
 
-    <h2>Output</h2>
-    <p><strong>Script:</strong></p>
-    <pre id="scriptOutput"></pre>
+    <button onclick="generate()">Generate</button>
 
-    <p><strong>Audio:</strong></p>
-    <audio id="audioPlayer" controls></audio>
-
-    <p><strong>Subtitles (SRT):</strong></p>
-    <pre id="srtOutput"></pre>
+    <h3>Generated Audio:</h3>
+    <audio id="audioPlayer" controls style="display:none;"></audio>
 
     <script>
-        async function generateScript() {
-            const topic = document.getElementById("topic").value;
-            const format = document.getElementById("format").value;
-            const style = document.getElementById("style").value === "Custom" ? 
-                document.getElementById("customStyle").value : document.getElementById("style").value;
-            const length = document.getElementById("length").value;
-            const notes = document.getElementById("notes").value;
-            const voice = document.getElementById("voice").value || "en-US-AriaNeural";
+        document.getElementById("style").addEventListener("change", function() {
+            document.getElementById("customStyle").disabled = this.value !== "custom";
+        });
 
-            if (!topic) {
-                alert("Please enter a topic.");
+        async function generate() {
+            const topic = document.getElementById("topic").value;
+            const videoType = document.getElementById("videoType").value;
+            const length = document.getElementById("length").value;
+            let style = document.getElementById("style").value;
+            const customStyle = document.getElementById("customStyle").value;
+            const voice = document.getElementById("voice").value;
+            const notes = document.getElementById("notes").value;
+
+            if (style === "custom") style = customStyle || "Custom Style";
+
+            if (!topic || !voice) {
+                alert("Please fill in the Topic and Voice fields.");
                 return;
             }
 
-            const prompt = `Generate me the most perfect YouTube (${length}) video script about (${topic}). 
-            When I say video script, I mean just what the narrator should say. 
-            Do not send me any extra text, do not converse with me. Whatever you send will be sent directly to a TTS model. 
-            ONLY put what the narrator should say, as if this will be read off every word you send. 
-            Be descriptive. Make this perfect for attention and engagement. 
-            It should be in this style: (${style}) ${notes ? "Additional notes: " + notes : ""}`;
+            const prompt = `Generate me a narrative script for a ${length} YouTube video. The video should be about ${topic} and in the style of ${style}. ONLY send me what the narrator says, don't conversate with me. Whatever you send back will be put straight into a TTS program. Everything you send back will be verbally said, so don't mess that up. Make these engaging, addictive, and entertaining videos. Additional notes: ${notes}`;
 
             try {
-                // Step 1: Generate script with Groq API
-                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                // Step 1: Request script from Groq API
+                const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -86,39 +81,39 @@
                     })
                 });
 
-                const data = await response.json();
-                if (!data.choices || !data.choices.length) throw new Error("No script generated.");
-                const script = data.choices[0].message.content.trim();
-                document.getElementById("scriptOutput").innerText = script;
+                const groqData = await groqResponse.json();
+                const scriptText = groqData.choices?.[0]?.message?.content?.trim();
 
-                // Step 2: Convert script to audio (TTS API)
+                if (!scriptText) {
+                    alert("Error generating script. Please try again.");
+                    return;
+                }
+
+                // Step 2: Request speech from TTS API
                 const ttsResponse = await fetch("https://o-6sxb.onrender.com/generate-speech", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ text: script, voice: voice })
+                    body: JSON.stringify({ text: scriptText, voice: voice })
                 });
 
                 const ttsData = await ttsResponse.json();
-                if (!ttsData.audio_url) throw new Error("TTS failed.");
-                document.getElementById("audioPlayer").src = ttsData.audio_url;
+                const audioUrl = ttsData.audio_url;
 
-                // Step 3: Generate subtitles (STT API)
-                const sttFormData = new FormData();
-                sttFormData.append("file", await fetch(ttsData.audio_url).then(res => res.blob()));
+                if (!audioUrl) {
+                    alert("Error generating audio. Please try again.");
+                    return;
+                }
 
-                const sttResponse = await fetch("https://stt-ym3y.onrender.com/convert", {
-                    method: "POST",
-                    body: sttFormData
-                });
-
-                const sttData = await sttResponse.json();
-                if (!sttData.srt) throw new Error("STT failed.");
-                document.getElementById("srtOutput").innerText = sttData.srt;
-
+                // Step 3: Display the generated audio
+                const audioPlayer = document.getElementById("audioPlayer");
+                audioPlayer.src = audioUrl;
+                audioPlayer.style.display = "block";
             } catch (error) {
-                alert("Error: " + error.message);
+                console.error("Error:", error);
+                alert("Something went wrong. Check console for details.");
             }
         }
     </script>
+
 </body>
 </html>
