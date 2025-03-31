@@ -89,6 +89,8 @@
                     return;
                 }
 
+                console.log("Generated Script:", scriptText);
+
                 // Step 2: Request speech from TTS API
                 const ttsResponse = await fetch("https://o-6sxb.onrender.com/generate-speech", {
                     method: "POST",
@@ -97,16 +99,17 @@
                 });
 
                 const ttsData = await ttsResponse.json();
-                const audioUrl = ttsData.audio_url;
 
-                if (!audioUrl) {
+                if (!ttsData.audio_url) {
                     alert("Error generating audio. Please try again.");
                     return;
                 }
 
+                console.log("Generated Audio URL:", ttsData.audio_url);
+
                 // Step 3: Display the generated audio
                 const audioPlayer = document.getElementById("audioPlayer");
-                audioPlayer.src = audioUrl;
+                audioPlayer.src = ttsData.audio_url;
                 audioPlayer.style.display = "block";
             } catch (error) {
                 console.error("Error:", error);
