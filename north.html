@@ -24,7 +24,14 @@
     </select>
 
     <label>Style of Video:</label>
-    <input type="text" id="style" placeholder="E.g., Documentary, Fast-paced, Cinematic">
+    <select id="style" onchange="toggleCustomStyle()">
+        <option value="Documentary">Documentary - Well studied, professional, entertaining</option>
+        <option value="Story">Story - Tell a compelling story</option>
+        <option value="Explaining">Explaining - Break down how things work</option>
+        <option value="custom">Custom (Enter your own)</option>
+    </select>
+
+    <input type="text" id="customStyle" placeholder="Enter custom style" style="display: none;">
 
     <label>Shortform or Longform:</label>
     <select id="format">
@@ -41,10 +48,18 @@
     <div id="output">Waiting for response...</div>
 
     <script>
+        function toggleCustomStyle() {
+            const styleSelect = document.getElementById("style");
+            const customStyleInput = document.getElementById("customStyle");
+            customStyleInput.style.display = styleSelect.value === "custom" ? "block" : "none";
+        }
+
         async function generateScript() {
             const topic = document.getElementById('topic').value;
             const dimension = document.getElementById('dimension').value;
-            const style = document.getElementById('style').value;
+            const selectedStyle = document.getElementById('style').value;
+            const customStyle = document.getElementById('customStyle').value;
+            const style = selectedStyle === "custom" ? customStyle : selectedStyle;
             const format = document.getElementById('format').value;
             const details = document.getElementById('details').value;
 
@@ -53,7 +68,7 @@
                 return;
             }
 
-            const prompt = `Generate me the most perfect YouTube ${format} video script about ${topic}. When I say video script, I mean just what the narrator should say. Do not send me any extra text or conversate with me. Whatever you send will be sent directly to a TTS model. ONLY put what the narrator should say, as if this will be read off every word you send. Be descriptive. Make this perfect for attention and engagement. It should be in this style: ${style}. ${details ? "Additional notes: " + details : ""}`;
+            const prompt = `Generate me the most perfect YouTube ${format} video script about ${topic}. Start it dynamically like this: 'As the ${topic.toLowerCase()} continues to capture attention...' or something similar that hooks the viewer immediately. When I say video script, I mean just what the narrator should say. Do not send me any extra text or conversate with me. Whatever you send will be sent directly to a TTS model. ONLY put what the narrator should say, as if this will be read off every word you send. Be descriptive. Make this perfect for attention and engagement. It should be in this style: ${style}. ${details ? "Additional notes: " + details : ""}`;
 
             const responseDiv = document.getElementById("output");
             responseDiv.innerHTML = "Generating...";
