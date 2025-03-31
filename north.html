@@ -143,8 +143,8 @@
                 // Step 1: Generate script using Groq API
                 document.getElementById("scriptOutput").textContent = "Generating script with Groq...";
                 
-                // Corrected Groq API URL
-                const groqResponse = await fetch("https://api.groq.com/v1/chat/completions", {
+                // Using the correct Groq API URL from your curl example
+                const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
