@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Script Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        input, select, textarea, button { width: 100%; margin: 10px 0; padding: 10px; }
+        #output { white-space: pre-wrap; background: #f4f4f4; padding: 10px; border-radius: 5px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h2>Generate a Video Script</h2>
+
+    <label>Topic:</label>
+    <input type="text" id="topic" placeholder="Enter the topic">
+
+    <label>2D or 3D:</label>
+    <select id="dimension">
+        <option value="2D">2D</option>
+        <option value="3D">3D</option>
+    </select>
+
+    <label>Style of Video:</label>
+    <input type="text" id="style" placeholder="E.g., Documentary, Fast-paced, Cinematic">
+
+    <label>Shortform or Longform:</label>
+    <select id="format">
+        <option value="shortform">Shortform</option>
+        <option value="longform">Longform</option>
+    </select>
+
+    <label>Additional Details:</label>
+    <textarea id="details" placeholder="Any extra instructions"></textarea>
+
+    <button onclick="generateScript()">Generate Script</button>
+
+    <h3>Generated Script:</h3>
+    <div id="output">Waiting for response...</div>
+
+    <script>
+        async function generateScript() {
+            const topic = document.getElementById('topic').value;
+            const dimension = document.getElementById('dimension').value;
+            const style = document.getElementById('style').value;
+            const format = document.getElementById('format').value;
+            const details = document.getElementById('details').value;
+
+            if (!topic || !style) {
+                alert("Please fill out all required fields.");
+                return;
+            }
+
+            const prompt = `Generate me the most perfect YouTube ${format} video script about ${topic}. When I say video script, I mean just what the narrator should say. Do not send me any extra text or conversate with me. Whatever you send will be sent directly to a TTS model. ONLY put what the narrator should say, as if this will be read off every word you send. Be descriptive. Make this perfect for attention and engagement. It should be in this style: ${style}. ${details ? "Additional notes: " + details : ""}`;
+
+            const responseDiv = document.getElementById("output");
+            responseDiv.innerHTML = "Generating...";
+
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer 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"
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [{ role: "user", content: prompt }]
+                    })
+                });
+
+                const data = await response.json();
+                responseDiv.innerHTML = data.choices[0].message.content || "Error: No response received.";
+            } catch (error) {
+                responseDiv.innerHTML = "Error fetching script. Check API key or connection.";
+            }
+        }
+    </script>
+
+</body>
+</html>
