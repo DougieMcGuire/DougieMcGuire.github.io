@@ -2,56 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Generator</title>
+  <title>Generating Image...</title>
   <style>
     body {
       margin: 0;
       background: #000;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       height: 100vh;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-    #loading {
       color: white;
       font-family: sans-serif;
     }
   </style>
 </head>
 <body>
-  <div id="loading">Generating image...</div>
+  <div id="status">Generating image...</div>
+  <script src="https://js.puter.com/v2/"></script>
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const prompt = params.get("prompt");
-
-    if (!prompt) {
-      document.body.innerHTML = "<p style='color:white;font-family:sans-serif;'>Missing ?prompt= in URL</p>";
-    } else {
-      // Wait for puter.ai to load
-      const tryGenerate = () => {
-        if (window.puter?.ai?.txt2img) {
-          window.puter.ai.txt2img(prompt).then(imageElement => {
-            document.body.innerHTML = "";
-            document.body.appendChild(imageElement);
-          }).catch(err => {
-            document.body.innerHTML = `<p style="color:white;font-family:sans-serif;">Error: ${err.message}</p>`;
-          });
-        } else {
-          setTimeout(tryGenerate, 200); // Retry until loaded
-        }
-      };
-
-      // Dynamically load puter.ai
-      const script = document.createElement("script");
-      script.src = "https://puter.ai/embed.js";
-      script.onload = tryGenerate;
-      document.body.appendChild(script);
+    async function waitForPuter(retries = 20) {
+      while ((!window.puter || !puter.ai || !puter.ai.txt2img) && retries > 0) {
+        await new Promise(r => setTimeout(r, 250));
+        retries--;
+      }
+      if (!puter?.ai?.txt2img) throw new Error("puter.ai.txt2img not available");
     }
+
+    async function generateImage() {
+      const params = new URLSearchParams(window.location.search);
+      const prompt = params.get("prompt");
+      if (!prompt) {
+        document.getElementById("status").innerText = "Missing ?prompt= in URL";
+        return;
+      }
+
+      try {
+        await waitForPuter();
+        const imgEl = await puter.ai.txt2img(prompt);
+        document.body.innerHTML = ""; // Clear the page
+        document.body.appendChild(imgEl);
+      } catch (err) {
+        document.getElementById("status").innerText = "Error: " + err.message;
+      }
+    }
+
+    generateImage();
   </script>
 </body>
 </html>
