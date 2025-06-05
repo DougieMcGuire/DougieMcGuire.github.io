@@ -1,27 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Redirecting...</title>
-  <script>
-    function redirect() {
-      const params = new URLSearchParams(window.location.search);
-      const encoded = params.get("u");
-      if (!encoded) {
-        document.body.innerText = "Missing ?u parameter.";
-        return;
+  <head>
+    <title>Redirecting...</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <script>
+      function redirect() {
+        const params = new URLSearchParams(window.location.search);
+        const encoded = params.get("u");
+
+        if (!encoded) {
+          document.body.innerText = "Missing ?u parameter.";
+          return;
+        }
+
+        try {
+          // Decode Base64
+          const base64Decoded = atob(decodeURIComponent(encoded));
+
+          // Reverse the string again to restore original URL
+          const originalUrl = base64Decoded.split("").reverse().join("");
+
+          // Redirect
+          window.location.href = originalUrl;
+        } catch (e) {
+          document.body.innerText = "Invalid encoding or corrupted URL.";
+        }
       }
 
-      try {
-        const base64 = decodeURIComponent(encoded);
-        const originalUrl = atob(base64);
-        window.location.href = originalUrl;
-      } catch (e) {
-        document.body.innerText = "Invalid encoded URL.";
-      }
-    }
-
-    window.onload = redirect;
-  </script>
-</head>
-<body></body>
+      window.onload = redirect;
+    </script>
+  </body>
 </html>
