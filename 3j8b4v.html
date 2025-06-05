@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Redirecting...</title>
+  <script>
+    function redirect() {
+      const params = new URLSearchParams(window.location.search);
+      const encoded = params.get("u");
+      if (!encoded) {
+        document.body.innerText = "Missing ?u parameter.";
+        return;
+      }
+
+      try {
+        const base64 = decodeURIComponent(encoded);
+        const originalUrl = atob(base64);
+        window.location.href = originalUrl;
+      } catch (e) {
+        document.body.innerText = "Invalid encoded URL.";
+      }
+    }
+
+    window.onload = redirect;
+  </script>
+</head>
+<body></body>
+</html>
