@@ -1,24 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Expander</title>
-  <script>
-    function expand() {
-      const params = new URLSearchParams(window.location.search);
-      const url = params.get("url");
-      if (!url) {
-        document.body.innerText = "Missing ?url parameter.";
-        return;
+  <head>
+    <title>Expander</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <script>
+      function expand() {
+        const params = new URLSearchParams(window.location.search);
+        const rawUrl = params.get("url");
+
+        if (!rawUrl) {
+          document.body.innerText = "Missing ?url parameter.";
+          return;
+        }
+
+        // Ensure https:// is present
+        const inputUrl = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
+
+        // Reverse the string
+        const reversed = inputUrl.split("").reverse().join("");
+
+        // Encode to Base64 and then URL encode
+        const base64 = btoa(reversed);
+        const encoded = encodeURIComponent(base64);
+
+        // Output final link
+        const finalUrl = `https://dougie.wtf/3j8b4v?u=${encoded}`;
+        document.body.innerText = finalUrl;
       }
 
-      const base64 = btoa(url);
-      const encoded = encodeURIComponent(base64);
-      const finalUrl = `https://dougie.wtf/3j8b4v?u=${encoded}`;
-      document.body.innerText = finalUrl;
-    }
-
-    window.onload = expand;
-  </script>
-</head>
-<body style="font-family: monospace;"></body>
+      window.onload = expand;
+    </script>
+  </body>
 </html>
