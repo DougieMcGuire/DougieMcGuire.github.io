@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Expander</title>
+  <script>
+    function expand() {
+      const params = new URLSearchParams(window.location.search);
+      const url = params.get("url");
+      if (!url) {
+        document.body.innerText = "Missing ?url parameter.";
+        return;
+      }
+
+      const base64 = btoa(url);
+      const encoded = encodeURIComponent(base64);
+      const finalUrl = `https://dougie.wtf/3j8b4v?u=${encoded}`;
+      document.body.innerText = finalUrl;
+    }
+
+    window.onload = expand;
+  </script>
+</head>
+<body style="font-family: monospace;"></body>
+</html>
