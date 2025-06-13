@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Braille ASCII Generator</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #1a1a1a 0%, #0a0a0a 100%);
+      color: #ffffff;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-top: 2rem;
+      letter-spacing: 1px;
+      color: #ffffff;
+    }
+
+    input[type="file"],
+    label {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      background: #222;
+      border: 1px solid #444;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    input[type="checkbox"] {
+      accent-color: #ffffff;
+    }
+
+    button {
+      background: #ffffff;
+      color: #000;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      margin: 0.75rem 0.4rem;
+      font-weight: bold;
+      font-size: 0.9rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: #dddddd;
+    }
+
+    #ascii {
+      white-space: pre;
+      font-size: 6px;
+      line-height: 6px;
+      margin-top: 1.2rem;
+      border: 1px solid #333;
+      padding: 1rem;
+      background: #000;
+      max-width: 95%;
+      overflow-x: auto;
+      color: #ffffff;
+    }
+
+    canvas {
+      display: none;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 2rem 1rem 1rem;
+      color: #777;
+      font-size: 0.9rem;
+    }
+
+    footer span {
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <h1>⠿ Braille ASCII Generator</h1>
+  <input type="file" id="imgInput" accept="image/*" />
+  <label><input type="checkbox" id="invertToggle" /> Invert black & white</label>
+  <div>
+    <button onclick="generate()">Generate</button>
+    <button onclick="copyToClipboard()">Copy</button>
+  </div>
+  <canvas id="canvas"></canvas>
+  <pre id="ascii"></pre>
+  <footer>
+    Tool made by <span>Dougie</span>
+  </footer>
+
+  <script>
+    const imgInput = document.getElementById('imgInput');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const asciiOutput = document.getElementById('ascii');
+    const invertToggle = document.getElementById('invertToggle');
+    const BRAILLE_OFFSET = 0x2800;
+
+    const DOT_MAP = [
+      [0, 0], [0, 1], [0, 2],
+      [1, 0], [1, 1], [1, 2],
+      [0, 3], [1, 3]
+    ];
+
+    let image = null;
+
+    imgInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        image = img;
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    function generate() {
+      if (!image) return;
+
+      const scale = Math.min(120 / image.width, 1);
+      canvas.width = Math.floor(image.width * scale);
+      canvas.height = Math.floor(image.height * scale);
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+      const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const w = canvas.width;
+      const h = canvas.height;
+      let result = '';
+      const invert = invertToggle.checked;
+
+      for (let y = 0; y < h; y += 4) {
+        for (let x = 0; x < w; x += 2) {
+          let braille = 0;
+
+          DOT_MAP.forEach((dot, i) => {
+            const dx = x + dot[0];
+            const dy = y + dot[1];
+            if (dx < w && dy < h) {
+              const idx = (dy * w + dx) * 4;
+              const r = data[idx];
+              const g = data[idx + 1];
+              const b = data[idx + 2];
+              const avg = (r + g + b) / 3;
+              let binary = avg > 128 ? 1 : 0;
+              if (invert) binary = 1 - binary;
+              if (binary) braille |= (1 << i);
+            }
+          });
+
+          result += String.fromCharCode(BRAILLE_OFFSET + braille);
+        }
+        result += '\n';
+      }
+
+      asciiOutput.textContent = result;
+    }
+
+    function copyToClipboard() {
+      const text = asciiOutput.textContent;
+      navigator.clipboard.writeText(text)
+        .then(() => alert("Copied!"))
+        .catch(() => alert("Failed to copy."));
+    }
+  </script>
+</body>
+</html>
