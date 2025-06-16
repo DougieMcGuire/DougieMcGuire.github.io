@@ -1,65 +1,476 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Avatar Viewer</title>
-<style>
-  body {
-    background: #111;
-    color: white;
-    font-family: Arial, sans-serif;
-    margin: 0; padding: 0;
-    display: flex; flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    height: 100vh;
-  }
-  label, input, button {
-    margin: 10px;
-    font-size: 1rem;
-  }
-  input {
-    width: 400px;
-    padding: 5px;
-    border-radius: 5px;
-    border: none;
-  }
-  button {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background: #3a86ff;
-    color: white;
-    font-weight: bold;
-  }
-  iframe {
-    margin-top: 20px;
-    width: 320px;
-    height: 320px;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #3a86ffaa;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <title>Avatar Generator</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 400px 1fr;
+      gap: 30px;
+      align-items: start;
+    }
+
+    .editor-panel, .preview-panel {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .avatar-display {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      grid-column: 1 / -1;
+    }
+
+    h2 {
+      color: #333;
+      font-size: 1.4em;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 5px;
+    }
+
+    .category {
+      margin-bottom: 20px;
+    }
+
+    .category label {
+      display: block;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 8px;
+      text-transform: capitalize;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      background: white;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    #avatar {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 0 auto 20px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      background: #f8f9fa;
+      image-rendering: pixelated;
+    }
+
+    #avatar img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .url-display {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 15px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      word-break: break-all;
+      color: #495057;
+    }
+
+    .generated-image {
+      max-width: 100%;
+      border-radius: 10px;
+      margin: 15px 0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    #canvas {
+      display: none;
+    }
+
+    .status {
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-weight: 500;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .randomize-btn {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .randomize-btn:hover {
+      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    }
+  </style>
 </head>
 <body>
-  <h1>Avatar Viewer</h1>
-  <label for="urlInput">Paste avatar URL:</label>
-  <input type="text" id="urlInput" placeholder="https://example.com/avatar?bases=1.png&eyes=BasicMale.png" />
-  <button onclick="loadAvatar()">Load Avatar</button>
+  <div class="container">
+    <h1>🎨 Avatar Generator</h1>
+    
+    <div class="editor-panel">
+      <h2>Customize Avatar</h2>
+      <div id="controls"></div>
+      <div class="action-buttons">
+        <button onclick="randomizeAvatar()" class="randomize-btn">🎲 Randomize</button>
+        <button onclick="clearAvatar()">🗑️ Clear All</button>
+      </div>
+    </div>
 
-  <iframe id="avatarFrame" src="" title="Avatar Preview"></iframe>
+    <div class="avatar-display">
+      <div id="avatar"></div>
+      <div class="action-buttons">
+        <button onclick="generateImage()">📸 Generate Image</button>
+        <button onclick="copyURL()">🔗 Copy URL</button>
+      </div>
+      <canvas id="canvas" width="300" height="300"></canvas>
+      <div id="status"></div>
+      <div id="generated-result"></div>
+    </div>
+
+    <div class="preview-panel">
+      <h2>Avatar URL</h2>
+      <div id="current-url" class="url-display">Build your avatar to see the URL...</div>
+      
+      <h2>Usage</h2>
+      <p><strong>As a viewer:</strong> Use the generated URL to display the avatar in an iframe or new tab.</p>
+      <p><strong>As an image:</strong> Click "Generate Image" to create a downloadable PNG that can be used anywhere as a regular image file.</p>
+    </div>
+  </div>
 
   <script>
-    function loadAvatar() {
-      const url = document.getElementById('urlInput').value.trim();
-      if (!url) {
-        alert('Please enter a URL');
+    // Sample manifest - replace with your actual manifest.json
+    const manifest = {
+      "bases": [
+        "1.png", "2.png", "3.png", "4.png", "5.png", "6.png"
+      ],
+      "brows": [
+        "Basic.png", "LeftSlit.png", "RightSlit.png"
+      ],
+      "ears": [],
+      "extra": [],
+      "eyes": [
+        "BasicFemale.png", "BasicMale.png"
+      ],
+      "face": [],
+      "glasses": [
+        "eyepatch.png", "glasses.png", "goggles.png", "nerd.png", "shades.png", "sports.png"
+      ],
+      "hair": [
+        "messy.png", "middlepart.png"
+      ],
+      "hats": [
+        "blackcap.png", "BlackHijab.png", "bluecap.png", "BlueHijab.png", "bowler.png", "browncap.png", "cowboy.png", "GreenHijab.png", "kippah.png", "pirate.png", "redcap.png", "RedHijab.png", "vikings.png", "WhiteHijab.png"
+      ],
+      "mouth": [
+        "Basic.png", "frown.png"
+      ],
+      "neck": [
+        "chain.png", "cross.png"
+      ],
+      "nose": [
+        "basic.png", "bulky.png"
+      ],
+      "tops": [
+        "crewneck.png", "hoodie.png", "shirt.png"
+      ]
+    };
+
+    const layeringOrder = ["bases", "tops", "hair", "hats", "eyes", "brows", "nose", "mouth", "glasses", "neck", "ears", "extra", "face"];
+    let currentAvatar = {};
+
+    function initializeControls() {
+      const controlsDiv = document.getElementById('controls');
+      
+      layeringOrder.forEach(category => {
+        if (manifest[category] && manifest[category].length > 0) {
+          const div = document.createElement('div');
+          div.className = 'category';
+          
+          const label = document.createElement('label');
+          label.textContent = category;
+          
+          const select = document.createElement('select');
+          select.id = `select-${category}`;
+          
+          // Add default "None" option
+          const noneOption = document.createElement('option');
+          noneOption.value = '';
+          noneOption.textContent = 'None';
+          select.appendChild(noneOption);
+          
+          // Add options for each item in the category
+          manifest[category].forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;
+            option.textContent = item.replace('.png', '');
+            select.appendChild(option);
+          });
+          
+          select.addEventListener('change', () => {
+            currentAvatar[category] = select.value;
+            renderAvatar();
+            updateURL();
+          });
+          
+          div.appendChild(label);
+          div.appendChild(select);
+          controlsDiv.appendChild(div);
+        }
+      });
+    }
+
+    function renderAvatar() {
+      const avatarDiv = document.getElementById('avatar');
+      avatarDiv.innerHTML = '';
+      
+      layeringOrder.forEach(category => {
+        if (currentAvatar[category]) {
+          const img = document.createElement('img');
+          img.src = `./characters/${category}/${currentAvatar[category]}`;
+          img.addEventListener('contextmenu', e => e.preventDefault());
+          img.onerror = () => {
+            console.warn(`Failed to load: ${img.src}`);
+            // You could show a placeholder or remove the broken image
+          };
+          avatarDiv.appendChild(img);
+        }
+      });
+    }
+
+    function updateURL() {
+      const params = new URLSearchParams();
+      Object.entries(currentAvatar).forEach(([key, value]) => {
+        if (value) params.set(key, value);
+      });
+      
+      const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+      document.getElementById('current-url').textContent = url;
+    }
+
+    function loadFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      
+      layeringOrder.forEach(category => {
+        const value = params.get(category);
+        if (value && manifest[category]?.includes(value)) {
+          currentAvatar[category] = value;
+          const select = document.getElementById(`select-${category}`);
+          if (select) select.value = value;
+        }
+      });
+      
+      renderAvatar();
+      updateURL();
+    }
+
+    function randomizeAvatar() {
+      // Clear current avatar
+      currentAvatar = {};
+      
+      // Randomize each category (50% chance to include each)
+      layeringOrder.forEach(category => {
+        if (manifest[category] && manifest[category].length > 0) {
+          if (Math.random() > 0.5) {
+            const randomIndex = Math.floor(Math.random() * manifest[category].length);
+            currentAvatar[category] = manifest[category][randomIndex];
+            const select = document.getElementById(`select-${category}`);
+            if (select) select.value = currentAvatar[category];
+          } else {
+            const select = document.getElementById(`select-${category}`);
+            if (select) select.value = '';
+          }
+        }
+      });
+      
+      renderAvatar();
+      updateURL();
+    }
+
+    function clearAvatar() {
+      currentAvatar = {};
+      
+      // Reset all selects
+      layeringOrder.forEach(category => {
+        const select = document.getElementById(`select-${category}`);
+        if (select) select.value = '';
+      });
+      
+      renderAvatar();
+      updateURL();
+    }
+
+    function copyURL() {
+      const url = document.getElementById('current-url').textContent;
+      navigator.clipboard.writeText(url).then(() => {
+        showStatus('URL copied to clipboard!', 'success');
+      }).catch(() => {
+        showStatus('Failed to copy URL', 'error');
+      });
+    }
+
+    function generateImage() {
+      const avatarDiv = document.getElementById('avatar');
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, 300, 300);
+      
+      const images = avatarDiv.querySelectorAll('img');
+      let loadedCount = 0;
+      const totalImages = images.length;
+      
+      if (totalImages === 0) {
+        showStatus('No avatar to generate!', 'error');
         return;
       }
-      document.getElementById('avatarFrame').src = url;
+      
+      showStatus('Generating image...', 'success');
+      
+      function drawNextImage(index) {
+        if (index >= totalImages) {
+          // All images loaded and drawn, convert to blob
+          canvas.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+            const img = document.createElement('img');
+            img.src = url;
+            img.className = 'generated-image';
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.href = url;
+            downloadLink.download = 'avatar.png';
+            downloadLink.textContent = '💾 Download Avatar';
+            downloadLink.style.display = 'inline-block';
+            downloadLink.style.marginTop = '10px';
+            downloadLink.style.padding = '8px 16px';
+            downloadLink.style.background = '#28a745';
+            downloadLink.style.color = 'white';
+            downloadLink.style.textDecoration = 'none';
+            downloadLink.style.borderRadius = '5px';
+            
+            const resultDiv = document.getElementById('generated-result');
+            resultDiv.innerHTML = '';
+            resultDiv.appendChild(img);
+            resultDiv.appendChild(downloadLink);
+            
+            showStatus('Image generated successfully!', 'success');
+          }, 'image/png');
+          return;
+        }
+        
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0, 300, 300);
+          drawNextImage(index + 1);
+        };
+        img.onerror = () => {
+          console.warn(`Failed to load image for canvas: ${images[index].src}`);
+          drawNextImage(index + 1);
+        };
+        img.src = images[index].src;
+      }
+      
+      drawNextImage(0);
     }
+
+    function showStatus(message, type) {
+      const statusDiv = document.getElementById('status');
+      statusDiv.textContent = message;
+      statusDiv.className = `status ${type}`;
+      
+      setTimeout(() => {
+        statusDiv.textContent = '';
+        statusDiv.className = 'status';
+      }, 3000);
+    }
+
+    // Initialize the app
+    initializeControls();
+    loadFromURL();
   </script>
 </body>
 </html>
