@@ -58,7 +58,7 @@
       for (const category of layeringOrder) {
         const value = query.get(category);
         if (value && manifest[category]?.includes(value)) {
-          const img = await loadImage(`${category}/${value}`);
+          const img = await loadImage(`./character/${category}/${value}`);
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         }
       }
