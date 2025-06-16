@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Baked Avatar</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    img {
+      width: 300px;
+      height: 300px;
+      image-rendering: pixelated;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="300" height="300" style="display:none;"></canvas>
+
+  <script>
+    const manifest = {
+      bases: ["1.png", "2.png", "3.png", "4.png", "5.png", "6.png"],
+      brows: ["Basic.png", "LeftSlit.png", "RightSlit.png"],
+      ears: [],
+      extra: [],
+      eyes: ["BasicFemale.png", "BasicMale.png"],
+      face: [],
+      glasses: ["eyepatch.png", "glasses.png", "goggles.png", "nerd.png", "shades.png", "sports.png"],
+      hair: ["messy.png", "middlepart.png"],
+      hats: ["blackcap.png", "BlackHijab.png", "bluecap.png", "BlueHijab.png", "bowler.png", "browncap.png", "cowboy.png", "GreenHijab.png", "kippah.png", "pirate.png", "redcap.png", "RedHijab.png", "vikings.png", "WhiteHijab.png"],
+      mouth: ["Basic.png", "frown.png"],
+      neck: ["chain.png", "cross.png"],
+      nose: ["basic.png", "bulky.png"],
+      tops: ["crewneck.png", "hoodie.png", "shirt.png"]
+    };
+
+    const layeringOrder = ["bases", "tops", "hair", "hats", "eyes", "brows", "nose", "mouth", "glasses", "neck", "ears", "extra", "face"];
+    const query = new URLSearchParams(location.search);
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    async function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    async function bakeAvatar() {
+      for (const category of layeringOrder) {
+        const value = query.get(category);
+        if (value && manifest[category]?.includes(value)) {
+          const img = await loadImage(`${category}/${value}`);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
+      }
+
+      const dataUrl = canvas.toDataURL("image/png");
+
+      // Show the baked image on the page
+      document.body.innerHTML = "";
+      const baked = new Image();
+      baked.src = dataUrl;
+      baked.alt = "Baked avatar";
+      document.body.appendChild(baked);
+    }
+
+    bakeAvatar();
+  </script>
+</body>
+</html>
