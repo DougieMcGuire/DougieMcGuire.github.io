@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Avatar Viewer</title>
+<style>
+  body {
+    background: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
+  }
+  label, input, button {
+    margin: 10px;
+    font-size: 1rem;
+  }
+  input {
+    width: 400px;
+    padding: 5px;
+    border-radius: 5px;
+    border: none;
+  }
+  button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: #3a86ff;
+    color: white;
+    font-weight: bold;
+  }
+  iframe {
+    margin-top: 20px;
+    width: 320px;
+    height: 320px;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #3a86ffaa;
+  }
+</style>
+</head>
+<body>
+  <h1>Avatar Viewer</h1>
+  <label for="urlInput">Paste avatar URL:</label>
+  <input type="text" id="urlInput" placeholder="https://example.com/avatar?bases=1.png&eyes=BasicMale.png" />
+  <button onclick="loadAvatar()">Load Avatar</button>
+
+  <iframe id="avatarFrame" src="" title="Avatar Preview"></iframe>
+
+  <script>
+    function loadAvatar() {
+      const url = document.getElementById('urlInput').value.trim();
+      if (!url) {
+        alert('Please enter a URL');
+        return;
+      }
+      document.getElementById('avatarFrame').src = url;
+    }
+  </script>
+</body>
+</html>
