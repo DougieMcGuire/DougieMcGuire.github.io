@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Avatar Viewer</title>
   <style>
     body {
@@ -11,17 +11,29 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
+      -webkit-user-select: none; /* Disable text selection */
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
     #avatar {
       position: relative;
       width: 300px;
       height: 300px;
       image-rendering: pixelated;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
     #avatar img {
       position: absolute;
       width: 100%;
       height: 100%;
+      pointer-events: none; /* Disable dragging and right-click on images */
+      -webkit-user-drag: none;
+      user-drag: none;
+      user-select: none;
     }
   </style>
 </head>
@@ -29,35 +41,36 @@
   <div id="avatar"></div>
 
   <script>
-    const manifest = {
-      bases: ["1.png", "2.png", "3.png", "4.png", "5.png", "6.png"],
-      brows: ["Basic.png", "LeftSlit.png", "RightSlit.png"],
-      ears: [],
-      extra: [],
-      eyes: ["BasicFemale.png", "BasicMale.png"],
-      face: [],
-      glasses: ["eyepatch.png", "glasses.png", "goggles.png", "nerd.png", "shades.png", "sports.png"],
-      hair: ["messy.png", "middlepart.png"],
-      hats: ["blackcap.png", "BlackHijab.png", "bluecap.png", "BlueHijab.png", "bowler.png", "browncap.png", "cowboy.png", "GreenHijab.png", "kippah.png", "pirate.png", "redcap.png", "RedHijab.png", "vikings.png", "WhiteHijab.png"],
-      mouth: ["Basic.png", "frown.png"],
-      neck: ["chain.png", "cross.png"],
-      nose: ["basic.png", "bulky.png"],
-      tops: ["crewneck.png", "hoodie.png", "shirt.png"]
-    };
+    async function loadManifestAndRender() {
+      try {
+        const res = await fetch('./manifest.json');
+        if (!res.ok) throw new Error('Failed to load manifest.json');
+        const manifest = await res.json();
 
-    const layeringOrder = ["bases", "tops", "hair", "hats", "eyes", "brows", "nose", "mouth", "glasses", "neck", "ears", "extra", "face"];
+        // Define layering order (same as before)
+        const layeringOrder = ["bases", "tops", "hair", "hats", "eyes", "brows", "nose", "mouth", "glasses", "neck", "ears", "extra", "face"];
 
-    const query = new URLSearchParams(location.search);
-    const avatar = document.getElementById("avatar");
+        const query = new URLSearchParams(location.search);
+        const avatar = document.getElementById("avatar");
 
-    for (const category of layeringOrder) {
-      const value = query.get(category);
-      if (value && manifest[category]?.includes(value)) {
-        const img = document.createElement("img");
-        img.src = `./characters/${category}/${value}`;
-        avatar.appendChild(img);
+        for (const category of layeringOrder) {
+          const value = query.get(category);
+          if (value && manifest[category]?.includes(value)) {
+            const img = document.createElement("img");
+            img.src = `./characters/${category}/${value}`;
+            // Disable drag, right click handled via CSS pointer-events:none on images,
+            // but also disable contextmenu event to be safe:
+            img.addEventListener('contextmenu', e => e.preventDefault());
+            avatar.appendChild(img);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        document.body.innerHTML = '<p style="color:red; text-align:center;">Error loading manifest.json</p>';
       }
     }
+
+    loadManifestAndRender();
   </script>
 </body>
 </html>
