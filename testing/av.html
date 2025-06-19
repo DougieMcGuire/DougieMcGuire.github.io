@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting...</title>
+  <meta http-equiv="refresh" content="0;url=#">
+  <script>
+    window.onload = function () {
+      const params = new URLSearchParams(window.location.search);
+      const encoded = params.get('');
+      if (!encoded || !encoded.includes('-')) {
+        document.body.innerText = 'Invalid masked URL';
+        return;
+      }
+
+      const [folder, filename] = encoded.split('-', 2);
+      const realUrl = `https://i.ibb.co/${folder}/${filename}`;
+
+      // Redirect to actual image
+      window.location.href = realUrl;
+    };
+  </script>
+</head>
+<body>
+  Redirecting to image...
+</body>
+</html>
