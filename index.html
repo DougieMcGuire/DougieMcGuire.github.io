@@ -1,261 +1,530 @@
-<html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dougie.WTF</title>
-  <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const isMobile = window.matchMedia("only screen and (max-width: 767px)").matches;
-
-    if (isMobile) {
-      window.location.href = "https://dougie.wtf/mobile";
-    }
-  });
-</script>
-
-
+    <title>Dougie's Links</title>
     <style>
-        body, html {
+        * {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #111;
-            color: #eee;
+            box-sizing: border-box;
         }
-        #content {
-            position: relative;
-            width: 100vw;
+
+        body {
+            font-family: 'Arial', sans-serif;
             height: 100vh;
             overflow: hidden;
+            position: relative;
+            background: #000;
         }
-        #enterBtn {
-            padding: 15px 30px;
-            font-size: 24px;
+
+        /* Intro Screen */
+        .intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 1s ease-out, visibility 1s ease-out;
+        }
+
+        .intro-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .intro-title {
+            font-size: 4rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 30px;
+            letter-spacing: 3px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            }
+            to {
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        .enter-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid white;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 8px;
             cursor: pointer;
-            display: none;
-            animation: pulse 2s infinite;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.6);
-            border: 2px solid #ffcc00;
-            color: #ffcc00;
-            border-radius: 30px;
             transition: all 0.3s ease;
-            z-index: 10;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+            margin-bottom: 15px;
+            font-weight: 500;
+            letter-spacing: 1px;
         }
-        #enterBtn:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-            transform: translate(-50%, -50%) scale(1.1);
+
+        .enter-button:hover {
+            background: white;
+            color: black;
+            transform: scale(1.05);
         }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(255, 204, 0, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0); }
+
+        .music-notice {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            font-style: italic;
         }
-        video, img {
-            position: absolute;
+
+        @media (max-width: 480px) {
+            .intro-title {
+                font-size: 2.5rem;
+                letter-spacing: 2px;
+            }
+            
+            .enter-button {
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+        }
+
+        /* Background GIF */
+        .background {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            background-image: url('background.gif');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            z-index: -1;
         }
-        #ooo {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            max-width: 400px;
-            height: auto;
-            min-height: 650px;
-            max-height: 90vh;
-            background: linear-gradient(145deg, rgba(255, 179, 153, 0.95), rgba(255, 140, 105, 0.85)); /* Peach gradient */
-            border-radius: 30px;
-            padding: 100px 20px 20px;
-            box-sizing: border-box;
-            overflow-y: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+
+        /* Main container */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        /* Main rectangle */
+        .main-card {
+            background: rgba(0, 0, 0, 0.75);
             border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 60px 40px 40px;
+            max-width: 400px;
+            width: 100%;
+            position: relative;
+            backdrop-filter: blur(10px);
+            animation: slideIn 1s ease-out;
         }
-        #ooo::-webkit-scrollbar {
-            display: none;
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        #snapcode {
-            width: 90px;
-            height: 90px;
-            object-fit: cover;
-            border-radius: 50%;
+
+        /* Profile picture */
+        .profile-pic {
             position: absolute;
-            top: 5px; /* Adjusted for better visibility */
+            top: -50px;
             left: 50%;
             transform: translateX(-50%);
-            border: 5px solid rgba(255, 204, 0, 0.7);
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid white;
+            background-image: url('pp.png');
+            background-size: cover;
+            background-position: center;
             transition: all 0.3s ease;
+            animation: bounce 2s infinite;
         }
-        #snapcode:hover {
-            transform: translateX(-50%) scale(1.1);
-            border-color: rgba(255, 255, 255, 0.9);
-        }
-       .social-btn {
-    display: block;
-    width: 90%;
-    padding: 15px;
-    margin: 15px auto;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: #ffcc00;
-    text-decoration: none;
-    border-radius: 25px;
-    font-size: 18px;
-    transition: all 0.3s ease;
-    text-align: center;
-    font-weight: bold;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-}
-.social-btn:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    color: #fff;
-    transform: translateY(-5px) scale(1.05) rotate(1deg);
-}
 
-        #bible-verse {
-            margin-top: 25px;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        .profile-pic:hover {
+            transform: translateX(-50%) scale(1.1);
+            border-color: #ff6b6b;
+            animation: none;
+        }
+
+        /* Links container */
+        .links-container {
+            margin-top: 40px;
+        }
+
+        /* Individual link */
+        .link-item {
+            display: block;
+            text-decoration: none;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin: 15px 0;
+            padding: 15px 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
             text-align: center;
-            color: #ffcc00;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
         }
-        #verse-text {
+
+        .link-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .link-item:hover::before {
+            left: 100%;
+        }
+
+        .link-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Link content styling */
+        .link-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .link-icon {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
+        }
+
+        /* Bible verse */
+        .bible-verse {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ccc;
             font-style: italic;
-            font-size: 16px;
-            line-height: 1.6;
-            color: #fff;
+            text-align: center;
+            animation: fadeIn 2s ease-in;
         }
-        #musicToggle {
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Mute button */
+        .mute-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .mute-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+            transform: scale(1.1);
+        }
+
+        .mute-button.muted {
+            background: rgba(255, 0, 0, 0.7);
+        }
+
+        /* Footer */
+        .footer {
             position: fixed;
             bottom: 20px;
-            right: 20px;
-            background-color: rgba(0, 0, 0, 0.6);
-            border: none;
-            color: #ffcc00;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 20;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            left: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            animation: pulse 3s infinite;
         }
-        #musicToggle:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-            color: #fff;
-            transform: scale(1.1);
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .heart {
+            color: #ff3333;
+            font-size: 16px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .main-card {
+                margin: 20px;
+                padding: 50px 30px 30px;
+            }
+            
+            .profile-pic {
+                width: 80px;
+                height: 80px;
+                top: -40px;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="content">
-        <video id="video1" muted="" playsinline="">
-            <source src="1.mp4" type="video/mp4">
-        </video>
-        <img id="introImg" src="intro.jpeg" style="display: block;">
-        <button id="enterBtn" style="display: block;">Enter</button>
-        <video id="paperVideo" style="display:none;">
-            <source src="paper.mp4" type="video/mp4">
-        </video>
-        <video id="loopVideo" style="display:none;" loop="">
-            <source src="2.mp4" type="video/mp4">
-        </video>
-        <audio id="backgroundMusic" loop="">
-            <source src="audio.mp3" type="audio/mp3">
-        </audio>
-        <div id="ooo">
-            <img id="snapcode" src="Untitled.png" alt="Snapcode">
-            <a href="https://www.tiktok.com/@MS4wLjABAAAAWeYM0K4CVaYCP7At_wqmyZsgbjYnozeo51loiUjKZnctRAxSL25bXGJLCBxAIDSN?is_from_webapp=1&amp;sender_device=pc" class="social-btn" target="_blank">TikTok</a>
-            <a href="https://instagram.com/d8ugie" class="social-btn" target="_blank">Instagram</a>
-            <a href="https://youtube.com/@dcug" class="social-btn" target="_blank">YouTube</a>
-            <a href="https://snapchat.com/add/dovgie" class="social-btn" target="_blank">Snapchat</a>
-            <a href="https://dougie.wtf/" class="social-btn">Back</a>
-            <div id="bible-verse">
-                <h3>Random Bible Verse</h3>
-                <p id="verse-text"></p>
+    <!-- Intro Screen -->
+    <div class="intro-screen" id="introScreen">
+        <h1 class="intro-title">DOUGIE.WTF</h1>
+        <button class="enter-button" id="enterBtn">ENTER</button>
+        <p class="music-notice">music will start playing</p>
+    </div>
+
+    <!-- Background GIF -->
+    <div class="background"></div>
+
+    <!-- Audio -->
+    <audio id="bgMusic" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Mute Button -->
+    <button class="mute-button" id="muteBtn">🔊</button>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="main-card">
+            <!-- Profile Picture -->
+            <div class="profile-pic"></div>
+
+            <!-- Links -->
+            <div class="links-container">
+                <a href="https://instagram.com/d8ugie" target="_blank" class="link-item">
+                    <div class="link-content">
+                        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                        <span>@d8ugie</span>
+                    </div>
+                </a>
+                <a href="https://tiktok.com/@d8ugie" target="_blank" class="link-item">
+                    <div class="link-content">
+                        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-.88-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                        </svg>
+                        <span>@d8ugie</span>
+                    </div>
+                </a>
+                <a href="https://twitter.com/d8ugie" target="_blank" class="link-item">
+                    <div class="link-content">
+                        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                        <span>@d8ugie</span>
+                    </div>
+                </a>
+                <a href="https://snapchat.com/add/dovgie" target="_blank" class="link-item">
+                    <div class="link-content">
+                        <img src="snapd.png" alt="Snapchat" class="link-icon">
+                        <span>@dovgie</span>
+                    </div>
+                </a>
+                <a href="https://discord.com/users/d2ug" target="_blank" class="link-item">
+                    <div class="link-content">
+                        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                        </svg>
+                        <span>@d2ug</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Bible Verse -->
+            <div class="bible-verse" id="bibleVerse">
+                Loading verse...
             </div>
         </div>
     </div>
-    <button id="musicToggle">Pause Music</button>
+
+    <!-- Footer -->
+    <div class="footer">
+        made with <span class="heart">❤️</span> - dougie
+    </div>
 
     <script>
-        const video1 = document.getElementById('video1');
-        const introImg = document.getElementById('introImg');
+        // Bible verses array (expanded collection)
+        const bibleVerses = [
+            "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, to give you hope and a future. - Jeremiah 29:11",
+            "Trust in the Lord with all your heart and lean not on your own understanding. - Proverbs 3:5",
+            "I can do all things through Christ who strengthens me. - Philippians 4:13",
+            "The Lord your God is with you, the Mighty Warrior who saves. - Zephaniah 3:17",
+            "Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go. - Joshua 1:9",
+            "Cast all your anxiety on him because he cares for you. - 1 Peter 5:7",
+            "And we know that in all things God works for the good of those who love him. - Romans 8:28",
+            "The Lord is my shepherd, I lack nothing. - Psalm 23:1",
+            "Love is patient, love is kind. It does not envy, it does not boast, it is not proud. - 1 Corinthians 13:4",
+            "In all your ways submit to him, and he will make your paths straight. - Proverbs 3:6",
+            "Have I not commanded you? Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go. - Joshua 1:9",
+            "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life. - John 3:16",
+            "The Lord is my light and my salvation—whom shall I fear? The Lord is the stronghold of my life—of whom shall I be afraid? - Psalm 27:1",
+            "Therefore do not worry about tomorrow, for tomorrow will worry about itself. Each day has enough trouble of its own. - Matthew 6:34",
+            "But those who hope in the Lord will renew their strength. They will soar on wings like eagles; they will run and not grow weary, they will walk and not be faint. - Isaiah 40:31",
+            "The name of the Lord is a fortified tower; the righteous run to it and are safe. - Proverbs 18:10",
+            "Come to me, all you who are weary and burdened, and I will give you rest. - Matthew 11:28",
+            "Peace I leave with you; my peace I give you. I do not give to you as the world gives. Do not let your hearts be troubled and do not be afraid. - John 14:27",
+            "The Lord will fight for you; you need only to be still. - Exodus 14:14",
+            "Delight yourself in the Lord, and he will give you the desires of your heart. - Psalm 37:4",
+            "She is clothed with strength and dignity; she can laugh at the days to come. - Proverbs 31:25",
+            "Above all else, guard your heart, for everything you do flows from it. - Proverbs 4:23",
+            "Commit to the Lord whatever you do, and he will establish your plans. - Proverbs 16:3",
+            "The grass withers and the flowers fall, but the word of our God endures forever. - Isaiah 40:8",
+            "God is our refuge and strength, an ever-present help in trouble. - Psalm 46:1",
+            "Wait for the Lord; be strong and take heart and wait for the Lord. - Psalm 27:14",
+            "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God. - Philippians 4:6",
+            "The Lord your God is in your midst, a mighty one who will save; he will rejoice over you with gladness; he will quiet you by his love; he will exult over you with loud singing. - Zephaniah 3:17",
+            "For my thoughts are not your thoughts, neither are your ways my ways, declares the Lord. - Isaiah 55:8",
+            "Be still, and know that I am God; I will be exalted among the nations, I will be exalted in the earth. - Psalm 46:10",
+            "The heart of man plans his way, but the Lord establishes his steps. - Proverbs 16:9",
+            "Give thanks to the Lord, for he is good; his love endures forever. - Psalm 107:1",
+            "And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus. - Philippians 4:7",
+            "Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here! - 2 Corinthians 5:17",
+            "Let your light shine before others, that they may see your good deeds and glorify your Father in heaven. - Matthew 5:16",
+            "Humble yourselves, therefore, under God's mighty hand, that he may lift you up in due time. - 1 Peter 5:6",
+            "But seek first his kingdom and his righteousness, and all these things will be given to you as well. - Matthew 6:33",
+            "For we are God's handiwork, created in Christ Jesus to do good works, which God prepared in advance for us to do. - Ephesians 2:10",
+            "May the God of hope fill you with all joy and peace as you trust in him, so that you may overflow with hope by the power of the Holy Spirit. - Romans 15:13",
+            "Consider it pure joy, my brothers and sisters, whenever you face trials of many kinds, because you know that the testing of your faith produces perseverance. - James 1:2-3",
+            "The Lord is close to the brokenhearted and saves those who are crushed in spirit. - Psalm 34:18",
+            "A man's heart plans his way, but the Lord directs his steps. - Proverbs 16:9",
+            "But he said to me, 'My grace is sufficient for you, for my power is made perfect in weakness.' - 2 Corinthians 12:9",
+            "He heals the brokenhearted and binds up their wounds. - Psalm 147:3",
+            "In their hearts humans plan their course, but the Lord establishes their steps. - Proverbs 16:9",
+            "Weeping may stay for the night, but rejoicing comes in the morning. - Psalm 30:5",
+            "Therefore we do not lose heart. Though outwardly we are wasting away, yet inwardly we are being renewed day by day. - 2 Corinthians 4:16",
+            "The Lord has done it this very day; let us rejoice today and be glad. - Psalm 118:24",
+            "This is the day the Lord has made; we will rejoice and be glad in it. - Psalm 118:24",
+            "All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness. - 2 Timothy 3:16"
+        ];
+
+        // Intro screen functionality
+        const introScreen = document.getElementById('introScreen');
         const enterBtn = document.getElementById('enterBtn');
-        const paperVideo = document.getElementById('paperVideo');
-        const loopVideo = document.getElementById('loopVideo');
-        const ooo = document.getElementById('ooo');
-        const verseText = document.getElementById('verse-text');
-        const backgroundMusic = document.getElementById('backgroundMusic');
-        const musicToggle = document.getElementById('musicToggle');
-
-        video1.load();
-        video1.oncanplaythrough = function() {
-            video1.play().catch(error => {
-                console.error("Error playing video1:", error);
-                showIntroImage();
-            });
-        };
-
-        function showIntroImage() {
-            introImg.style.display = 'block';
-            enterBtn.style.display = 'block';
-        }
-
-        setTimeout(showIntroImage, 4000);
 
         enterBtn.addEventListener('click', () => {
-            introImg.style.display = 'none';
-            enterBtn.style.display = 'none';
-            paperVideo.style.display = 'block';
-            paperVideo.play();
-            backgroundMusic.play();
-
+            // Start music
+            bgMusic.play().catch(e => console.log('Audio play failed:', e));
+            
+            // Fade out intro screen
+            introScreen.classList.add('hidden');
+            
+            // Remove intro screen from DOM after animation
             setTimeout(() => {
-                paperVideo.style.display = 'none';
-                loopVideo.style.display = 'block';
-                loopVideo.play();
-                ooo.style.display = 'block';
-                loadRandomVerse();
-            }, 800);
+                introScreen.style.display = 'none';
+            }, 1000);
         });
 
-        function loadRandomVerse() {
-            fetch('verses.txt')
-                .then(response => response.text())
-                .then(text => {
-                    const verses = text.split('\n').filter(verse => verse.trim() !== '');
-                    const randomVerse = verses[Math.floor(Math.random() * verses.length)];
-                    verseText.textContent = randomVerse;
-                })
-                .catch(error => console.error('Error loading verses:', error));
-        }
+        // Audio controls
+        const bgMusic = document.getElementById('bgMusic');
+        const muteBtn = document.getElementById('muteBtn');
+        let isMuted = false;
 
-        musicToggle.addEventListener('click', () => {
-            if (backgroundMusic.paused) {
-                backgroundMusic.play();
-                musicToggle.textContent = 'Pause Music';
+        // Remove the old auto-play code since intro handles it now
+
+        muteBtn.addEventListener('click', () => {
+            if (isMuted) {
+                bgMusic.play().catch(e => console.log('Audio play failed:', e));
+                muteBtn.textContent = '🔊';
+                muteBtn.classList.remove('muted');
+                isMuted = false;
             } else {
-                backgroundMusic.pause();
-                musicToggle.textContent = 'Play Music';
+                bgMusic.pause();
+                muteBtn.textContent = '🔇';
+                muteBtn.classList.add('muted');
+                isMuted = true;
             }
         });
+
+        // Random bible verse
+        function loadRandomVerse() {
+            const randomIndex = Math.floor(Math.random() * bibleVerses.length);
+            document.getElementById('bibleVerse').textContent = bibleVerses[randomIndex];
+        }
+
+        // Load verse on page load
+        loadRandomVerse();
+
+        // Add staggered animation to links
+        const links = document.querySelectorAll('.link-item');
+        links.forEach((link, index) => {
+            link.style.animationDelay = `${index * 0.1}s`;
+            link.style.animation = 'slideIn 0.6s ease-out forwards';
+            link.style.opacity = '0';
+            
+            setTimeout(() => {
+                link.style.opacity = '1';
+            }, index * 100);
+        });
+
+        // Floating animation for the main card
+        let floatDirection = 1;
+        setInterval(() => {
+            const card = document.querySelector('.main-card');
+            const currentTransform = card.style.transform || 'translateY(0px)';
+            const currentY = parseFloat(currentTransform.match(/translateY\(([^)]+)\)/)?.[1] || 0);
+            
+            if (currentY >= 5) floatDirection = -1;
+            if (currentY <= -5) floatDirection = 1;
+            
+            card.style.transform = `translateY(${currentY + floatDirection * 0.5}px)`;
+        }, 100);
     </script>
-
-
-</body></html>
+</body>
+</html>
