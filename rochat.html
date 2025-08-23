@@ -259,7 +259,7 @@
 
         <div class="search-section">
             <div class="warning">
-                <strong>Privacy Notice:</strong> This tool only displays publicly available information from Roblox profiles. All data comes from official Roblox APIs.
+                <strong>Privacy Notice:</strong> This tool displays publicly available information from Roblox profiles using official APIs. Now includes badges, groups, avatar details, and more comprehensive data.
             </div>
             
             <form class="search-form" id="searchForm">
@@ -292,6 +292,10 @@
         const FRIENDS_API = 'https://friends.roblox.com/v1';
         const GAMES_API = 'https://games.roblox.com/v2';
         const PRESENCE_API = 'https://presence.roblox.com/v1';
+        const BADGES_API = 'https://badges.roblox.com/v1';
+        const GROUPS_API = 'https://groups.roblox.com/v1';
+        const INVENTORY_API = 'https://inventory.roblox.com/v1';
+        const AVATAR_API = 'https://avatar.roblox.com/v1';
 
         // Helper function to make CORS-enabled requests
         async function fetchWithCORS(url, options = {}) {
@@ -349,30 +353,42 @@
                 const [
                     userDetails,
                     avatar,
+                    fullBodyAvatar,
                     friendsCount,
                     followersCount,
                     followingCount,
                     presence,
-                    games
+                    games,
+                    badges,
+                    groups,
+                    avatarInfo
                 ] = await Promise.allSettled([
                     fetchUserDetails(userId),
                     fetchAvatar(userId),
+                    fetchFullBodyAvatar(userId),
                     fetchFriendsCount(userId),
                     fetchFollowersCount(userId),
                     fetchFollowingCount(userId),
                     fetchPresence(userId),
-                    fetchUserGames(userId)
+                    fetchUserGames(userId),
+                    fetchUserBadges(userId),
+                    fetchUserGroups(userId),
+                    fetchAvatarInfo(userId)
                 ]);
 
                 displayUserInfo({
                     basic: basicInfo,
                     details: userDetails.status === 'fulfilled' ? userDetails.value : null,
                     avatar: avatar.status === 'fulfilled' ? avatar.value : null,
+                    fullBodyAvatar: fullBodyAvatar.status === 'fulfilled' ? fullBodyAvatar.value : null,
                     friendsCount: friendsCount.status === 'fulfilled' ? friendsCount.value : 0,
                     followersCount: followersCount.status === 'fulfilled' ? followersCount.value : 0,
                     followingCount: followingCount.status === 'fulfilled' ? followingCount.value : 0,
                     presence: presence.status === 'fulfilled' ? presence.value : null,
-                    games: games.status === 'fulfilled' ? games.value : []
+                    games: games.status === 'fulfilled' ? games.value : [],
+                    badges: badges.status === 'fulfilled' ? badges.value : [],
+                    groups: groups.status === 'fulfilled' ? groups.value : [],
+                    avatarInfo: avatarInfo.status === 'fulfilled' ? avatarInfo.value : null
                 });
 
             } catch (error) {
@@ -390,6 +406,45 @@
             const response = await fetchWithCORS(`${THUMBNAILS_API}/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`);
             const data = await response.json();
             return data.data && data.data[0] ? data.data[0].imageUrl : null;
+        }
+
+        async function fetchFullBodyAvatar(userId) {
+            try {
+                const response = await fetchWithCORS(`${THUMBNAILS_API}/users/avatar?userIds=${userId}&size=420x420&format=Png`);
+                const data = await response.json();
+                return data.data && data.data[0] ? data.data[0].imageUrl : null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        async function fetchUserBadges(userId) {
+            try {
+                const response = await fetchWithCORS(`${BADGES_API}/users/${userId}/badges?limit=100&sortOrder=Desc`);
+                const data = await response.json();
+                return data.data || [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        async function fetchUserGroups(userId) {
+            try {
+                const response = await fetchWithCORS(`${GROUPS_API}/users/${userId}/groups/roles`);
+                const data = await response.json();
+                return data.data || [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        async function fetchAvatarInfo(userId) {
+            try {
+                const response = await fetchWithCORS(`${AVATAR_API}/users/${userId}/avatar`);
+                return response.json();
+            } catch (error) {
+                return null;
+            }
         }
 
         async function fetchFriendsCount(userId) {
@@ -452,24 +507,31 @@
 
         function displayUserInfo(data) {
             const resultsDiv = document.getElementById('resultsDiv');
-            const { basic, details, avatar, friendsCount, followersCount, followingCount, presence, games } = data;
+            const { basic, details, avatar, fullBodyAvatar, friendsCount, followersCount, followingCount, presence, games, badges, groups, avatarInfo } = data;
 
             const createdDate = details?.created ? new Date(details.created).toLocaleDateString() : 'Unknown';
             const description = details?.description || 'No description available';
             const onlineStatus = presence?.userPresenceType === 1 ? '🟢 Online' : 
-                                presence?.userPresenceType === 2 ? '🟡 In Game' : '⚫ Offline';
+                                presence?.userPresenceType === 2 ? '🟡 In Game' : 
+                                presence?.userPresenceType === 3 ? '🔴 Studio' : '⚫ Offline';
             
             const lastLocation = presence?.lastLocation || 'Unknown';
+            const accountAge = details?.created ? Math.floor((Date.now() - new Date(details.created)) / (1000 * 60 * 60 * 24)) : 0;
 
             resultsDiv.innerHTML = `
                 <div class="user-card">
                     <div class="user-header">
-                        <img src="${avatar || 'https://via.placeholder.com/120?text=No+Avatar'}" 
-                             alt="${basic.name}'s avatar" class="avatar">
+                        <div style="display: flex; gap: 15px;">
+                            <img src="${avatar || 'https://via.placeholder.com/120?text=No+Avatar'}" 
+                                 alt="${basic.name}'s avatar" class="avatar">
+                            <img src="${fullBodyAvatar || 'https://via.placeholder.com/120?text=No+Avatar'}" 
+                                 alt="${basic.name}'s full avatar" class="avatar" style="height: 200px; width: auto;">
+                        </div>
                         <div class="user-info">
                             <h2>${basic.displayName} (@${basic.name})</h2>
-                            ${basic.hasVerifiedBadge ? '<span style="color: #1da1f2;">✓ Verified</span>' : ''}
-                            <p style="color: #666; margin-top: 10px;">${onlineStatus}</p>
+                            ${basic.hasVerifiedBadge ? '<span style="color: #1da1f2; font-size: 1.2rem;">✓ Verified</span>' : ''}
+                            <p style="color: #666; margin-top: 10px; font-size: 1.1rem;">${onlineStatus}</p>
+                            <p style="color: #888; font-size: 0.9rem;">Account Age: ${accountAge} days</p>
                         </div>
                     </div>
 
@@ -498,6 +560,14 @@
                             <div class="meta-label">Last Location</div>
                             <div class="meta-value">${lastLocation}</div>
                         </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Total Badges</div>
+                            <div class="meta-value">${badges.length}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Groups</div>
+                            <div class="meta-value">${groups.length}</div>
+                        </div>
                     </div>
 
                     <div class="info-grid">
@@ -508,25 +578,99 @@
 
                         <div class="info-section">
                             <h3>🎮 Created Games (${games.length})</h3>
-                            ${games.length > 0 ? games.map(game => `
+                            ${games.length > 0 ? games.slice(0, 10).map(game => `
                                 <div class="game-item">
                                     <strong>${game.name}</strong>
                                     <p style="color: #666; font-size: 0.9rem;">${game.description || 'No description'}</p>
                                     <p style="color: #888; font-size: 0.8rem;">
                                         Created: ${new Date(game.created).toLocaleDateString()} | 
                                         Updated: ${new Date(game.updated).toLocaleDateString()}
+                                        ${game.placeVisits ? ` | Visits: ${game.placeVisits.toLocaleString()}` : ''}
                                     </p>
                                 </div>
                             `).join('') : '<p style="color: #666;">No public games found</p>'}
                         </div>
+
+                        <div class="info-section">
+                            <h3>🏆 Recent Badges (${badges.length})</h3>
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                ${badges.length > 0 ? badges.slice(0, 20).map(badge => `
+                                    <div class="badge">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <img src="${badge.iconImageId ? `https://assetdelivery.roblox.com/v1/asset/?id=${badge.iconImageId}` : 'https://via.placeholder.com/50?text=?'}" 
+                                                 style="width: 50px; height: 50px; border-radius: 8px;" alt="Badge">
+                                            <div>
+                                                <strong>${badge.name}</strong>
+                                                <p style="color: #666; font-size: 0.8rem;">${badge.description || 'No description'}</p>
+                                                <p style="color: #888; font-size: 0.7rem;">Awarded: ${new Date(badge.awardedDate).toLocaleDateString()}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('') : '<p style="color: #666;">No badges found</p>'}
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <h3>👥 Groups (${groups.length})</h3>
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                ${groups.length > 0 ? groups.map(groupData => `
+                                    <div class="badge">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <img src="${groupData.group.shout?.poster?.avatar?.imageUrl || 'https://via.placeholder.com/50?text=G'}" 
+                                                 style="width: 50px; height: 50px; border-radius: 8px;" alt="Group">
+                                            <div>
+                                                <strong>${groupData.group.name}</strong>
+                                                <p style="color: #666; font-size: 0.8rem;">Role: ${groupData.role.name}</p>
+                                                <p style="color: #888; font-size: 0.7rem;">Members: ${groupData.group.memberCount?.toLocaleString() || 'Unknown'}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('') : '<p style="color: #666;">No groups found</p>'}
+                            </div>
+                        </div>
+
+                        ${avatarInfo && avatarInfo.assets ? `
+                            <div class="info-section">
+                                <h3>👔 Current Avatar Items (${avatarInfo.assets.length})</h3>
+                                <div style="max-height: 300px; overflow-y: auto;">
+                                    ${avatarInfo.assets.slice(0, 15).map(asset => `
+                                        <div class="badge">
+                                            <strong>${asset.name}</strong>
+                                            <p style="color: #666; font-size: 0.8rem;">Type: ${asset.assetType?.name || 'Unknown'}</p>
+                                            <p style="color: #888; font-size: 0.7rem;">ID: ${asset.id}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
                     </div>
 
                     ${basic.previousUsernames && basic.previousUsernames.length > 0 ? `
                         <div class="info-section" style="margin-top: 20px;">
                             <h3>📝 Previous Usernames</h3>
-                            <p>${basic.previousUsernames.join(', ')}</p>
+                            <p style="background: #f0f0f0; padding: 10px; border-radius: 8px;">${basic.previousUsernames.join(', ')}</p>
                         </div>
                     ` : ''}
+
+                    <div class="info-section" style="margin-top: 20px;">
+                        <h3>🔗 Quick Links</h3>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <a href="https://www.roblox.com/users/${basic.id}/profile" target="_blank" 
+                               style="background: #667eea; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 0.9rem;">
+                               View Profile
+                            </a>
+                            <a href="https://www.roblox.com/users/${basic.id}/inventory" target="_blank" 
+                               style="background: #764ba2; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 0.9rem;">
+                               View Inventory
+                            </a>
+                            ${games.length > 0 ? `
+                                <a href="https://www.roblox.com/users/${basic.id}/creations" target="_blank" 
+                                   style="background: #52c41a; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 0.9rem;">
+                                   View Games
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
                 </div>
             `;
         }
