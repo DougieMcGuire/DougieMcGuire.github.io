@@ -285,11 +285,19 @@
     </div>
 
     <script>
+        // Using CORS proxy to bypass browser restrictions
+        const PROXY = 'https://corsproxy.io/?';
         const API_BASE = 'https://users.roblox.com/v1';
         const THUMBNAILS_API = 'https://thumbnails.roblox.com/v1';
         const FRIENDS_API = 'https://friends.roblox.com/v1';
         const GAMES_API = 'https://games.roblox.com/v2';
         const PRESENCE_API = 'https://presence.roblox.com/v1';
+
+        // Helper function to make CORS-enabled requests
+        async function fetchWithCORS(url, options = {}) {
+            const proxyUrl = PROXY + encodeURIComponent(url);
+            return fetch(proxyUrl, options);
+        }
 
         let currentUserData = {};
 
@@ -306,7 +314,7 @@
             
             try {
                 // First, search for the user to get exact match
-                const searchResponse = await fetch(`${API_BASE}/users/search?keyword=${encodeURIComponent(username)}`);
+                const searchResponse = await fetchWithCORS(`${API_BASE}/users/search?keyword=${encodeURIComponent(username)}`);
                 const searchData = await searchResponse.json();
                 
                 if (!searchData.data || searchData.data.length === 0) {
@@ -374,19 +382,19 @@
         }
 
         async function fetchUserDetails(userId) {
-            const response = await fetch(`${API_BASE}/users/${userId}`);
+            const response = await fetchWithCORS(`${API_BASE}/users/${userId}`);
             return response.json();
         }
 
         async function fetchAvatar(userId) {
-            const response = await fetch(`${THUMBNAILS_API}/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`);
+            const response = await fetchWithCORS(`${THUMBNAILS_API}/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`);
             const data = await response.json();
             return data.data && data.data[0] ? data.data[0].imageUrl : null;
         }
 
         async function fetchFriendsCount(userId) {
             try {
-                const response = await fetch(`${FRIENDS_API}/users/${userId}/friends/count`);
+                const response = await fetchWithCORS(`${FRIENDS_API}/users/${userId}/friends/count`);
                 const data = await response.json();
                 return data.count || 0;
             } catch (error) {
@@ -396,7 +404,7 @@
 
         async function fetchFollowersCount(userId) {
             try {
-                const response = await fetch(`${FRIENDS_API}/users/${userId}/followers/count`);
+                const response = await fetchWithCORS(`${FRIENDS_API}/users/${userId}/followers/count`);
                 const data = await response.json();
                 return data.count || 0;
             } catch (error) {
@@ -406,7 +414,7 @@
 
         async function fetchFollowingCount(userId) {
             try {
-                const response = await fetch(`${FRIENDS_API}/users/${userId}/followings/count`);
+                const response = await fetchWithCORS(`${FRIENDS_API}/users/${userId}/followings/count`);
                 const data = await response.json();
                 return data.count || 0;
             } catch (error) {
@@ -416,7 +424,7 @@
 
         async function fetchPresence(userId) {
             try {
-                const response = await fetch(`${PRESENCE_API}/presence/users`, {
+                const response = await fetchWithCORS(`${PRESENCE_API}/presence/users`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -434,7 +442,7 @@
 
         async function fetchUserGames(userId) {
             try {
-                const response = await fetch(`${GAMES_API}/users/${userId}/games?accessFilter=Public&limit=10`);
+                const response = await fetchWithCORS(`${GAMES_API}/users/${userId}/games?accessFilter=Public&limit=10`);
                 const data = await response.json();
                 return data.data || [];
             } catch (error) {
