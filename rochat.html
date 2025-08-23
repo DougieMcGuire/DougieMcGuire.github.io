@@ -169,7 +169,7 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, push, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, push, onValue, remove, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyBFQ6AiX3GtcPIF48zZZHFSjDTsOPtGOVk",
@@ -193,14 +193,17 @@
         const emojiSelect = document.getElementById('emojiSelect');
         const clearButton = document.getElementById('clearButton');
 
-        let messageCache = new Map();
-
         async function getRobloxAvatar(userId) {
             try {
                 const response = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`);
                 const data = await response.json();
-                return data.data[0].imageUrl;
+                
+                if (data.data && data.data[0] && data.data[0].imageUrl) {
+                    return data.data[0].imageUrl;
+                }
+                return null;
             } catch (error) {
+                console.log('Avatar fetch failed:', error);
                 return null;
             }
         }
@@ -213,16 +216,19 @@
             if (message.platform === 'roblox' && message.userId) {
                 profileElement = document.createElement('img');
                 profileElement.className = 'profile-pic';
+                profileElement.alt = message.username;
                 
+                // Get the actual avatar URL from the API
                 const avatarUrl = await getRobloxAvatar(message.userId);
                 if (avatarUrl) {
                     profileElement.src = avatarUrl;
+                    console.log('Avatar loaded for', message.username, ':', avatarUrl);
                 } else {
+                    // Fallback to emoji if avatar fails
                     profileElement = document.createElement('div');
                     profileElement.className = 'emoji-pic';
                     profileElement.textContent = '🎮';
                 }
-                profileElement.alt = message.username;
             } else {
                 profileElement = document.createElement('div');
                 profileElement.className = 'emoji-pic';
@@ -250,31 +256,24 @@
             
             div.appendChild(profileElement);
             div.appendChild(messageContent);
-            
-            return div;
-        }
-
-        function updateChatDisplay() {
-            chatMessages.innerHTML = '';
-            const sortedMessages = Array.from(messageCache.entries())
-                .sort((a, b) => a[1].timestamp - b[1].timestamp);
-                
-            sortedMessages.forEach(async ([id, message]) => {
-                const messageDiv = await addMessage(message);
-                chatMessages.appendChild(messageDiv);
-            });
-            
+            chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
+        // Listen for messages and sort by timestamp
         onValue(messagesRef, (snapshot) => {
             const messages = snapshot.val();
             if (messages) {
-                messageCache.clear();
-                for (const [id, message] of Object.entries(messages)) {
-                    messageCache.set(id, message);
-                }
-                updateChatDisplay();
+                chatMessages.innerHTML = '';
+                
+                // Sort messages by timestamp before displaying
+                const sortedMessages = Object.entries(messages)
+                    .sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
+                
+                // Add messages in correct order
+                sortedMessages.forEach(([id, message]) => {
+                    addMessage(message);
+                });
             }
         });
 
@@ -285,18 +284,26 @@
             
             if (!text) return;
             
+            // Use server timestamp for proper ordering
             const message = {
                 text: text,
                 username: username,
                 platform: 'web',
                 emoji: emoji,
-                timestamp: Date.now()
+                timestamp: serverTimestamp(),
+                clientTimestamp: Date.now() // Backup timestamp
             };
             
             push(messagesRef, message);
             push(webhookRef, {
                 action: "web_message",
-                data: message,
+                data: {
+                    text: text,
+                    username: username,
+                    platform: 'web',
+                    emoji: emoji,
+                    timestamp: Date.now()
+                },
                 timestamp: Date.now()
             });
             
@@ -307,7 +314,6 @@
             if (confirm('Clear all chat messages?')) {
                 remove(messagesRef);
                 remove(webhookRef);
-                messageCache.clear();
                 chatMessages.innerHTML = '';
             }
         }
