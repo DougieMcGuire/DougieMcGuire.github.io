@@ -1,201 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Cross-Platform Chat</title>
+    <title>Roblox Chat</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            margin: 0;
         }
-
         .chat-container {
             width: 400px;
             height: 600px;
-            background: rgba(255, 255, 255, 0.95);
+            background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-
         .chat-header {
             background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
             padding: 20px;
             text-align: center;
             font-weight: bold;
-            font-size: 18px;
         }
-
         .chat-messages {
             flex: 1;
             overflow-y: auto;
             padding: 15px;
-            background: rgba(248, 249, 250, 0.9);
+            background: #f8f9fa;
         }
-
         .message {
-            margin-bottom: 12px;
-            padding: 10px 15px;
-            border-radius: 15px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
             max-width: 80%;
-            word-wrap: break-word;
-            animation: fadeIn 0.3s ease-in;
         }
-
         .message.web {
-            background: linear-gradient(45deg, #007bff, #0056b3);
+            background: #007bff;
             color: white;
             margin-left: auto;
-            text-align: right;
         }
-
         .message.roblox {
-            background: linear-gradient(45deg, #28a745, #1e7e34);
+            background: #28a745;
             color: white;
-            margin-right: auto;
         }
-
-        .message-info {
-            font-size: 11px;
-            opacity: 0.8;
-            margin-bottom: 5px;
-        }
-
-        .message-text {
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
         .chat-input-container {
-            padding: 20px;
+            padding: 15px;
             background: white;
-            border-top: 1px solid #e0e0e0;
             display: flex;
             gap: 10px;
         }
-
         .username-input {
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            font-size: 14px;
-            flex: 0 0 120px;
-            outline: none;
-            transition: border-color 0.3s;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            width: 100px;
         }
-
-        .username-input:focus {
-            border-color: #4CAF50;
-        }
-
         .message-input {
             flex: 1;
-            padding: 12px 20px;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.3s;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
         }
-
-        .message-input:focus {
-            border-color: #4CAF50;
-        }
-
         .send-button {
-            padding: 12px 20px;
-            background: linear-gradient(45deg, #4CAF50, #45a049);
+            padding: 10px 20px;
+            background: #4CAF50;
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 20px;
             cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .send-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
-        }
-
-        .send-button:active {
-            transform: translateY(0);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .status {
-            text-align: center;
-            padding: 10px;
-            font-size: 12px;
-            color: #666;
-            background: rgba(255, 255, 255, 0.7);
-        }
-
-        .online-indicator {
-            width: 8px;
-            height: 8px;
-            background: #4CAF50;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        <div class="chat-header">
-            <span class="online-indicator"></span>
-            Roblox Cross-Platform Chat
-        </div>
-        
-        <div class="status" id="status">
-            Connecting to Firebase...
-        </div>
-        
-        <div class="chat-messages" id="chatMessages">
-            <!-- Messages will appear here -->
-        </div>
-        
+        <div class="chat-header">Roblox Cross-Platform Chat</div>
+        <div class="chat-messages" id="chatMessages"></div>
         <div class="chat-input-container">
-            <input type="text" id="usernameInput" class="username-input" placeholder="Your name" value="WebUser">
-            <input type="text" id="messageInput" class="message-input" placeholder="Type your message..." maxlength="200">
+            <input type="text" id="usernameInput" class="username-input" placeholder="Name" value="WebUser">
+            <input type="text" id="messageInput" class="message-input" placeholder="Type message...">
             <button id="sendButton" class="send-button">Send</button>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
-        // Import Firebase modules
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, push, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, push, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        // Your Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyBFQ6AiX3GtcPIF48zZZHFSjDTsOPtGOVk",
             authDomain: "roblox-df2ad.firebaseapp.com",
@@ -206,108 +103,79 @@
             appId: "1:323286791287:web:d0eadbb92c93d45386c272"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
         const messagesRef = ref(database, 'chat/messages');
+        const webhookRef = ref(database, 'roblox/webhook');
 
-        // DOM elements
         const chatMessages = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
         const usernameInput = document.getElementById('usernameInput');
         const sendButton = document.getElementById('sendButton');
-        const status = document.getElementById('status');
 
-        // Update status
-        status.textContent = "Connected! Chat with Roblox players in real-time";
-        status.style.background = "rgba(76, 175, 80, 0.2)";
-
-        // Function to add message to chat
-        function addMessageToChat(message) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${message.platform}`;
+        function addMessage(message) {
+            const div = document.createElement('div');
+            div.className = `message ${message.platform}`;
             
-            const messageInfo = document.createElement('div');
-            messageInfo.className = 'message-info';
-            messageInfo.textContent = `${message.username} • ${message.platform.toUpperCase()} • ${new Date(message.timestamp).toLocaleTimeString()}`;
+            const info = document.createElement('div');
+            info.className = 'message-info';
+            info.textContent = `${message.username} • ${message.platform.toUpperCase()}`;
             
-            const messageText = document.createElement('div');
-            messageText.className = 'message-text';
-            messageText.textContent = message.text;
+            const text = document.createElement('div');
+            text.className = 'message-text';
+            text.textContent = message.text;
             
-            messageDiv.appendChild(messageInfo);
-            messageDiv.appendChild(messageText);
-            chatMessages.appendChild(messageDiv);
-            
-            // Auto scroll to bottom
+            div.appendChild(info);
+            div.appendChild(text);
+            chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // Listen for new messages
         onValue(messagesRef, (snapshot) => {
             const messages = snapshot.val();
             if (messages) {
-                // Clear current messages and reload all
                 chatMessages.innerHTML = '';
-                
-                // Sort messages by timestamp
-                const sortedMessages = Object.values(messages).sort((a, b) => a.timestamp - b.timestamp);
-                
-                sortedMessages.forEach(message => {
-                    addMessageToChat(message);
-                });
+                const sorted = Object.values(messages).sort((a, b) => a.timestamp - b.timestamp);
+                sorted.forEach(addMessage);
             }
         });
 
-        // Send message function
         function sendMessage() {
-            const messageText = messageInput.value.trim();
+            const text = messageInput.value.trim();
             const username = usernameInput.value.trim() || 'WebUser';
             
-            if (!messageText) return;
+            if (!text) return;
             
             const message = {
-                text: messageText,
+                text: text,
                 username: username,
                 platform: 'web',
                 timestamp: Date.now()
             };
             
-            // Send to Firebase
-            push(messagesRef, message)
-                .then(() => {
-                    messageInput.value = '';
-                    console.log('Message sent successfully');
-                })
-                .catch((error) => {
-                    console.error('Error sending message:', error);
-                    alert('Failed to send message. Check your Firebase config.');
-                });
+            push(messagesRef, message);
+            push(webhookRef, {
+                action: "web_message",
+                data: message,
+                timestamp: Date.now()
+            });
+            
+            messageInput.value = '';
         }
 
-        // Event listeners
         sendButton.addEventListener('click', sendMessage);
-        
         messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
+            if (e.key === 'Enter') sendMessage();
         });
 
-        // Focus on message input
-        messageInput.focus();
-
-        // Add some demo messages on load
         setTimeout(() => {
-            if (chatMessages.children.length === 0) {
-                addMessageToChat({
-                    text: "Welcome to cross-platform chat! Connect your Roblox game to start chatting.",
-                    username: "System",
-                    platform: "web",
-                    timestamp: Date.now()
-                });
-            }
-        }, 2000);
+            addMessage({
+                text: "Connected! Send messages to Roblox players!",
+                username: "System",
+                platform: "web",
+                timestamp: Date.now()
+            });
+        }, 1000);
     </script>
 </body>
 </html>
