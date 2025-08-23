@@ -3,325 +3,546 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Chat</title>
+    <title>Roblox User Info Lookup</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .chat-container {
-            width: 400px;
-            height: 600px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
         }
-        .chat-header {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-            padding: 15px 20px;
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
             text-align: center;
-            font-weight: bold;
-            font-size: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            margin-bottom: 40px;
         }
-        .clear-button {
-            background: rgba(255,255,255,0.2);
+
+        .header h1 {
             color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 12px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
         }
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            background: #f8f9fa;
+
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
         }
-        .message {
-            margin-bottom: 12px;
-            padding: 10px 15px;
-            border-radius: 15px;
-            max-width: 80%;
+
+        .search-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .search-form {
             display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        .message.web {
-            background: linear-gradient(45deg, #007bff, #0056b3);
-            color: white;
-            margin-left: auto;
-            flex-direction: row-reverse;
-        }
-        .message.roblox {
-            background: linear-gradient(45deg, #28a745, #1e7e34);
-            color: white;
-            margin-right: auto;
-        }
-        .profile-pic {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-        .emoji-pic {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            display: flex;
+            gap: 15px;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            flex-shrink: 0;
+            flex-wrap: wrap;
         }
-        .message-content {
+
+        .search-input {
             flex: 1;
+            min-width: 300px;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            outline: none;
         }
-        .message-info {
-            font-size: 11px;
-            opacity: 0.8;
-            margin-bottom: 5px;
+
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        .message-text {
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        .timestamp {
-            font-size: 10px;
-            opacity: 0.6;
-            margin-top: 3px;
-        }
-        .chat-input-container {
-            padding: 15px;
-            background: white;
-            display: flex;
-            gap: 10px;
-        }
-        .emoji-select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            background: white;
-            font-size: 16px;
-            width: 60px;
-        }
-        .username-input {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            width: 100px;
-        }
-        .message-input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-        }
-        .send-button {
-            padding: 10px 20px;
-            background: #4CAF50;
+
+        .search-btn {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             border: none;
-            border-radius: 20px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 140px;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .user-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .user-info h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .user-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .meta-item {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .meta-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-value {
+            font-size: 1.2rem;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .info-section {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .badge, .friend, .game-item {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .badge:hover, .friend:hover, .game-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #fcc;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ffeaa7;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .search-input {
+                min-width: 100%;
+            }
+            
+            .user-header {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <span>🎮 Roblox Cross-Platform Chat</span>
-            <button id="clearButton" class="clear-button">Clear Chat</button>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Roblox User Lookup</h1>
+            <p>Get public information about any Roblox user</p>
         </div>
-        <div class="chat-messages" id="chatMessages"></div>
-        <div class="chat-input-container">
-            <select id="emojiSelect" class="emoji-select">
-                <option value="😀">😀</option>
-                <option value="😎">😎</option>
-                <option value="🤔">🤔</option>
-                <option value="😂">😂</option>
-                <option value="🔥">🔥</option>
-                <option value="💀">💀</option>
-                <option value="👽">👽</option>
-                <option value="🤖">🤖</option>
-                <option value="🎮">🎮</option>
-                <option value="⚡">⚡</option>
-            </select>
-            <input type="text" id="usernameInput" class="username-input" placeholder="Name" value="WebUser">
-            <input type="text" id="messageInput" class="message-input" placeholder="Type message...">
-            <button id="sendButton" class="send-button">Send</button>
+
+        <div class="search-section">
+            <div class="warning">
+                <strong>Privacy Notice:</strong> This tool only displays publicly available information from Roblox profiles. All data comes from official Roblox APIs.
+            </div>
+            
+            <form class="search-form" id="searchForm">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="usernameInput" 
+                    placeholder="Enter Roblox username..."
+                    required
+                >
+                <button type="submit" class="search-btn" id="searchBtn">
+                    🔍 Search User
+                </button>
+            </form>
         </div>
+
+        <div id="loadingDiv" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            Searching for user information...
+        </div>
+
+        <div id="resultsDiv"></div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, push, onValue, remove, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    <script>
+        const API_BASE = 'https://users.roblox.com/v1';
+        const THUMBNAILS_API = 'https://thumbnails.roblox.com/v1';
+        const FRIENDS_API = 'https://friends.roblox.com/v1';
+        const GAMES_API = 'https://games.roblox.com/v2';
+        const PRESENCE_API = 'https://presence.roblox.com/v1';
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBFQ6AiX3GtcPIF48zZZHFSjDTsOPtGOVk",
-            authDomain: "roblox-df2ad.firebaseapp.com",
-            databaseURL: "https://roblox-df2ad-default-rtdb.firebaseio.com",
-            projectId: "roblox-df2ad",
-            storageBucket: "roblox-df2ad.firebasestorage.app",
-            messagingSenderId: "323286791287",
-            appId: "1:323286791287:web:d0eadbb92c93d45386c272"
-        };
+        let currentUserData = {};
 
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-        const messagesRef = ref(database, 'chat/messages');
-        const webhookRef = ref(database, 'roblox/webhook');
-
-        const chatMessages = document.getElementById('chatMessages');
-        const messageInput = document.getElementById('messageInput');
-        const usernameInput = document.getElementById('usernameInput');
-        const sendButton = document.getElementById('sendButton');
-        const emojiSelect = document.getElementById('emojiSelect');
-        const clearButton = document.getElementById('clearButton');
-
-        async function getRobloxAvatar(userId) {
-            try {
-                const response = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`);
-                const data = await response.json();
-                
-                if (data.data && data.data[0] && data.data[0].imageUrl) {
-                    return data.data[0].imageUrl;
-                }
-                return null;
-            } catch (error) {
-                console.log('Avatar fetch failed:', error);
-                return null;
-            }
-        }
-
-        async function addMessage(message) {
-            const div = document.createElement('div');
-            div.className = `message ${message.platform}`;
-            
-            let profileElement;
-            if (message.platform === 'roblox' && message.userId) {
-                profileElement = document.createElement('img');
-                profileElement.className = 'profile-pic';
-                profileElement.alt = message.username;
-                
-                // Get the actual avatar URL from the API
-                const avatarUrl = await getRobloxAvatar(message.userId);
-                if (avatarUrl) {
-                    profileElement.src = avatarUrl;
-                    console.log('Avatar loaded for', message.username, ':', avatarUrl);
-                } else {
-                    // Fallback to emoji if avatar fails
-                    profileElement = document.createElement('div');
-                    profileElement.className = 'emoji-pic';
-                    profileElement.textContent = '🎮';
-                }
-            } else {
-                profileElement = document.createElement('div');
-                profileElement.className = 'emoji-pic';
-                profileElement.textContent = message.emoji || '😀';
-            }
-            
-            const messageContent = document.createElement('div');
-            messageContent.className = 'message-content';
-            
-            const info = document.createElement('div');
-            info.className = 'message-info';
-            info.textContent = `${message.username} • ${message.platform.toUpperCase()}`;
-            
-            const timestamp = document.createElement('div');
-            timestamp.className = 'timestamp';
-            timestamp.textContent = new Date(message.timestamp).toLocaleTimeString();
-            
-            const text = document.createElement('div');
-            text.className = 'message-text';
-            text.textContent = message.text;
-            
-            messageContent.appendChild(info);
-            messageContent.appendChild(text);
-            messageContent.appendChild(timestamp);
-            
-            div.appendChild(profileElement);
-            div.appendChild(messageContent);
-            chatMessages.appendChild(div);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Listen for messages and sort by timestamp
-        onValue(messagesRef, (snapshot) => {
-            const messages = snapshot.val();
-            if (messages) {
-                chatMessages.innerHTML = '';
-                
-                // Sort messages by timestamp before displaying
-                const sortedMessages = Object.entries(messages)
-                    .sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
-                
-                // Add messages in correct order
-                sortedMessages.forEach(([id, message]) => {
-                    addMessage(message);
-                });
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('usernameInput').value.trim();
+            if (username) {
+                await searchUser(username);
             }
         });
 
-        function sendMessage() {
-            const text = messageInput.value.trim();
-            const username = usernameInput.value.trim() || 'WebUser';
-            const emoji = emojiSelect.value;
+        async function searchUser(username) {
+            showLoading(true);
             
-            if (!text) return;
-            
-            // Use server timestamp for proper ordering
-            const message = {
-                text: text,
-                username: username,
-                platform: 'web',
-                emoji: emoji,
-                timestamp: serverTimestamp(),
-                clientTimestamp: Date.now() // Backup timestamp
-            };
-            
-            push(messagesRef, message);
-            push(webhookRef, {
-                action: "web_message",
-                data: {
-                    text: text,
-                    username: username,
-                    platform: 'web',
-                    emoji: emoji,
-                    timestamp: Date.now()
-                },
-                timestamp: Date.now()
-            });
-            
-            messageInput.value = '';
-        }
+            try {
+                // First, search for the user to get exact match
+                const searchResponse = await fetch(`${API_BASE}/users/search?keyword=${encodeURIComponent(username)}`);
+                const searchData = await searchResponse.json();
+                
+                if (!searchData.data || searchData.data.length === 0) {
+                    showError('User not found. Please check the username and try again.');
+                    return;
+                }
 
-        function clearChat() {
-            if (confirm('Clear all chat messages?')) {
-                remove(messagesRef);
-                remove(webhookRef);
-                chatMessages.innerHTML = '';
+                // Find exact match (case-insensitive)
+                const exactMatch = searchData.data.find(user => 
+                    user.name.toLowerCase() === username.toLowerCase()
+                );
+
+                if (!exactMatch) {
+                    showError('Exact username match not found. Please check the spelling.');
+                    return;
+                }
+
+                currentUserData = exactMatch;
+                await loadUserDetails(exactMatch.id, exactMatch);
+
+            } catch (error) {
+                console.error('Search error:', error);
+                showError('Failed to search for user. Please try again.');
+            } finally {
+                showLoading(false);
             }
         }
 
-        sendButton.addEventListener('click', sendMessage);
-        clearButton.addEventListener('click', clearChat);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
+        async function loadUserDetails(userId, basicInfo) {
+            try {
+                // Gather all available public information
+                const [
+                    userDetails,
+                    avatar,
+                    friendsCount,
+                    followersCount,
+                    followingCount,
+                    presence,
+                    games
+                ] = await Promise.allSettled([
+                    fetchUserDetails(userId),
+                    fetchAvatar(userId),
+                    fetchFriendsCount(userId),
+                    fetchFollowersCount(userId),
+                    fetchFollowingCount(userId),
+                    fetchPresence(userId),
+                    fetchUserGames(userId)
+                ]);
+
+                displayUserInfo({
+                    basic: basicInfo,
+                    details: userDetails.status === 'fulfilled' ? userDetails.value : null,
+                    avatar: avatar.status === 'fulfilled' ? avatar.value : null,
+                    friendsCount: friendsCount.status === 'fulfilled' ? friendsCount.value : 0,
+                    followersCount: followersCount.status === 'fulfilled' ? followersCount.value : 0,
+                    followingCount: followingCount.status === 'fulfilled' ? followingCount.value : 0,
+                    presence: presence.status === 'fulfilled' ? presence.value : null,
+                    games: games.status === 'fulfilled' ? games.value : []
+                });
+
+            } catch (error) {
+                console.error('Error loading user details:', error);
+                showError('Failed to load complete user information.');
+            }
+        }
+
+        async function fetchUserDetails(userId) {
+            const response = await fetch(`${API_BASE}/users/${userId}`);
+            return response.json();
+        }
+
+        async function fetchAvatar(userId) {
+            const response = await fetch(`${THUMBNAILS_API}/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`);
+            const data = await response.json();
+            return data.data && data.data[0] ? data.data[0].imageUrl : null;
+        }
+
+        async function fetchFriendsCount(userId) {
+            try {
+                const response = await fetch(`${FRIENDS_API}/users/${userId}/friends/count`);
+                const data = await response.json();
+                return data.count || 0;
+            } catch (error) {
+                return 0;
+            }
+        }
+
+        async function fetchFollowersCount(userId) {
+            try {
+                const response = await fetch(`${FRIENDS_API}/users/${userId}/followers/count`);
+                const data = await response.json();
+                return data.count || 0;
+            } catch (error) {
+                return 0;
+            }
+        }
+
+        async function fetchFollowingCount(userId) {
+            try {
+                const response = await fetch(`${FRIENDS_API}/users/${userId}/followings/count`);
+                const data = await response.json();
+                return data.count || 0;
+            } catch (error) {
+                return 0;
+            }
+        }
+
+        async function fetchPresence(userId) {
+            try {
+                const response = await fetch(`${PRESENCE_API}/presence/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userIds: [userId]
+                    })
+                });
+                const data = await response.json();
+                return data.userPresences && data.userPresences[0] ? data.userPresences[0] : null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        async function fetchUserGames(userId) {
+            try {
+                const response = await fetch(`${GAMES_API}/users/${userId}/games?accessFilter=Public&limit=10`);
+                const data = await response.json();
+                return data.data || [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function displayUserInfo(data) {
+            const resultsDiv = document.getElementById('resultsDiv');
+            const { basic, details, avatar, friendsCount, followersCount, followingCount, presence, games } = data;
+
+            const createdDate = details?.created ? new Date(details.created).toLocaleDateString() : 'Unknown';
+            const description = details?.description || 'No description available';
+            const onlineStatus = presence?.userPresenceType === 1 ? '🟢 Online' : 
+                                presence?.userPresenceType === 2 ? '🟡 In Game' : '⚫ Offline';
+            
+            const lastLocation = presence?.lastLocation || 'Unknown';
+
+            resultsDiv.innerHTML = `
+                <div class="user-card">
+                    <div class="user-header">
+                        <img src="${avatar || 'https://via.placeholder.com/120?text=No+Avatar'}" 
+                             alt="${basic.name}'s avatar" class="avatar">
+                        <div class="user-info">
+                            <h2>${basic.displayName} (@${basic.name})</h2>
+                            ${basic.hasVerifiedBadge ? '<span style="color: #1da1f2;">✓ Verified</span>' : ''}
+                            <p style="color: #666; margin-top: 10px;">${onlineStatus}</p>
+                        </div>
+                    </div>
+
+                    <div class="user-meta">
+                        <div class="meta-item">
+                            <div class="meta-label">User ID</div>
+                            <div class="meta-value">${basic.id}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Join Date</div>
+                            <div class="meta-value">${createdDate}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Friends</div>
+                            <div class="meta-value">${friendsCount.toLocaleString()}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Followers</div>
+                            <div class="meta-value">${followersCount.toLocaleString()}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Following</div>
+                            <div class="meta-value">${followingCount.toLocaleString()}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Last Location</div>
+                            <div class="meta-value">${lastLocation}</div>
+                        </div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-section">
+                            <h3>📝 Description</h3>
+                            <p>${description}</p>
+                        </div>
+
+                        <div class="info-section">
+                            <h3>🎮 Created Games (${games.length})</h3>
+                            ${games.length > 0 ? games.map(game => `
+                                <div class="game-item">
+                                    <strong>${game.name}</strong>
+                                    <p style="color: #666; font-size: 0.9rem;">${game.description || 'No description'}</p>
+                                    <p style="color: #888; font-size: 0.8rem;">
+                                        Created: ${new Date(game.created).toLocaleDateString()} | 
+                                        Updated: ${new Date(game.updated).toLocaleDateString()}
+                                    </p>
+                                </div>
+                            `).join('') : '<p style="color: #666;">No public games found</p>'}
+                        </div>
+                    </div>
+
+                    ${basic.previousUsernames && basic.previousUsernames.length > 0 ? `
+                        <div class="info-section" style="margin-top: 20px;">
+                            <h3>📝 Previous Usernames</h3>
+                            <p>${basic.previousUsernames.join(', ')}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingDiv').style.display = show ? 'block' : 'none';
+            document.getElementById('searchBtn').disabled = show;
+            document.getElementById('searchBtn').textContent = show ? 'Searching...' : '🔍 Search User';
+        }
+
+        function showError(message) {
+            document.getElementById('resultsDiv').innerHTML = `
+                <div class="error">
+                    ⚠️ ${message}
+                </div>
+            `;
+        }
+
+        // Handle Enter key in input
+        document.getElementById('usernameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+            }
         });
     </script>
 </body>
