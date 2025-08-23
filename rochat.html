@@ -647,19 +647,38 @@
         }
 
         async function generateRecap() {
-            if (isGenerating) return;
+            console.log('generateRecap called');
+            
+            if (isGenerating) {
+                console.log('Already generating, returning');
+                return;
+            }
+            
             isGenerating = true;
 
             const username = document.getElementById('usernameInput').value.trim();
-            if (!username) return;
+            console.log('Username:', username);
+            
+            if (!username) {
+                alert('Please enter a username');
+                isGenerating = false;
+                return;
+            }
 
             showLoading(true);
             
             try {
                 // Step 1: Search user
                 updateLoadingStatus('Searching for user...');
-                const searchResponse = await fetchWithCORS(`${API_BASE}/users/search?keyword=${encodeURIComponent(username)}`);
+                console.log('Searching for user...');
+                
+                const searchUrl = `${API_BASE}/users/search?keyword=${encodeURIComponent(username)}`;
+                console.log('Search URL:', searchUrl);
+                
+                const searchResponse = await fetchWithCORS(searchUrl);
                 const searchData = await searchResponse.json();
+                
+                console.log('Search response:', searchData);
                 
                 if (!searchData.data || searchData.data.length === 0) {
                     showError('User not found');
@@ -675,15 +694,19 @@
                     return;
                 }
 
+                console.log('Found user:', exactMatch);
+
                 // Step 2: Gather all data
                 updateLoadingStatus('Gathering profile data...');
                 const userDetails = await fetchUserDetails(exactMatch.id);
+                console.log('User details:', userDetails);
                 
                 updateLoadingStatus('Loading avatars...');
                 const [avatar, fullBody] = await Promise.all([
                     fetchAvatar(exactMatch.id),
                     fetchFullBodyAvatar(exactMatch.id)
                 ]);
+                console.log('Avatars loaded');
 
                 updateLoadingStatus('Analyzing social connections...');
                 const [friendsCount, followersCount, followingCount] = await Promise.all([
@@ -691,6 +714,7 @@
                     fetchFollowersCount(exactMatch.id),
                     fetchFollowingCount(exactMatch.id)
                 ]);
+                console.log('Social data loaded');
 
                 updateLoadingStatus('Scanning games and badges...');
                 const [games, badges, groups] = await Promise.all([
@@ -698,6 +722,7 @@
                     fetchUserBadges(exactMatch.id),
                     fetchUserGroups(exactMatch.id)
                 ]);
+                console.log('Games, badges, groups loaded');
 
                 updateLoadingStatus('Calculating your Roblox DNA...');
                 
@@ -714,6 +739,8 @@
                     badges,
                     groups
                 };
+
+                console.log('All user data:', userData);
 
                 updateLoadingStatus('Finalizing your recap...');
                 await new Promise(resolve => setTimeout(resolve, 1000));
