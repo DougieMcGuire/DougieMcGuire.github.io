@@ -27,10 +27,22 @@
         .chat-header {
             background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
-            padding: 20px;
+            padding: 15px 20px;
             text-align: center;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .clear-button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
         }
         .chat-messages {
             flex: 1;
@@ -88,6 +100,11 @@
             font-size: 14px;
             line-height: 1.4;
         }
+        .timestamp {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 3px;
+        }
         .chat-input-container {
             padding: 15px;
             background: white;
@@ -126,7 +143,10 @@
 </head>
 <body>
     <div class="chat-container">
-        <div class="chat-header">🎮 Roblox Cross-Platform Chat</div>
+        <div class="chat-header">
+            <span>🎮 Roblox Cross-Platform Chat</span>
+            <button id="clearButton" class="clear-button">Clear Chat</button>
+        </div>
         <div class="chat-messages" id="chatMessages"></div>
         <div class="chat-input-container">
             <select id="emojiSelect" class="emoji-select">
@@ -149,7 +169,7 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, push, onChildAdded } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, push, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyBFQ6AiX3GtcPIF48zZZHFSjDTsOPtGOVk",
@@ -171,6 +191,9 @@
         const usernameInput = document.getElementById('usernameInput');
         const sendButton = document.getElementById('sendButton');
         const emojiSelect = document.getElementById('emojiSelect');
+        const clearButton = document.getElementById('clearButton');
+
+        let messageCache = new Map();
 
         async function getRobloxAvatar(userId) {
             try {
@@ -213,24 +236,45 @@
             info.className = 'message-info';
             info.textContent = `${message.username} • ${message.platform.toUpperCase()}`;
             
+            const timestamp = document.createElement('div');
+            timestamp.className = 'timestamp';
+            timestamp.textContent = new Date(message.timestamp).toLocaleTimeString();
+            
             const text = document.createElement('div');
             text.className = 'message-text';
             text.textContent = message.text;
             
             messageContent.appendChild(info);
             messageContent.appendChild(text);
+            messageContent.appendChild(timestamp);
             
             div.appendChild(profileElement);
             div.appendChild(messageContent);
-            chatMessages.appendChild(div);
+            
+            return div;
+        }
+
+        function updateChatDisplay() {
+            chatMessages.innerHTML = '';
+            const sortedMessages = Array.from(messageCache.entries())
+                .sort((a, b) => a[1].timestamp - b[1].timestamp);
+                
+            sortedMessages.forEach(async ([id, message]) => {
+                const messageDiv = await addMessage(message);
+                chatMessages.appendChild(messageDiv);
+            });
+            
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // Use onChildAdded instead of onValue to prevent reloading
-        onChildAdded(messagesRef, (snapshot) => {
-            const message = snapshot.val();
-            if (message) {
-                addMessage(message);
+        onValue(messagesRef, (snapshot) => {
+            const messages = snapshot.val();
+            if (messages) {
+                messageCache.clear();
+                for (const [id, message] of Object.entries(messages)) {
+                    messageCache.set(id, message);
+                }
+                updateChatDisplay();
             }
         });
 
@@ -259,7 +303,17 @@
             messageInput.value = '';
         }
 
+        function clearChat() {
+            if (confirm('Clear all chat messages?')) {
+                remove(messagesRef);
+                remove(webhookRef);
+                messageCache.clear();
+                chatMessages.innerHTML = '';
+            }
+        }
+
         sendButton.addEventListener('click', sendMessage);
+        clearButton.addEventListener('click', clearChat);
         messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
