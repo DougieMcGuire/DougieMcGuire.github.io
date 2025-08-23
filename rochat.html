@@ -1,296 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Roblox Chat with Avatars</title>
-   <style>
-       body {
-           font-family: Arial, sans-serif;
-           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-           height: 100vh;
-           display: flex;
-           justify-content: center;
-           align-items: center;
-           margin: 0;
-       }
-       
-       .chat-container {
-           width: 400px;
-           height: 600px;
-           background: rgba(255, 255, 255, 0.95);
-           border-radius: 20px;
-           display: flex;
-           flex-direction: column;
-           overflow: hidden;
-           box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-       }
-       
-       .chat-header {
-           background: linear-gradient(45deg, #4CAF50, #45a049);
-           color: white;
-           padding: 20px;
-           text-align: center;
-           font-weight: bold;
-           font-size: 18px;
-       }
-       
-       .chat-messages {
-           flex: 1;
-           overflow-y: auto;
-           padding: 15px;
-           background: #f8f9fa;
-       }
-       
-       .message {
-           margin-bottom: 12px;
-           padding: 10px 15px;
-           border-radius: 15px;
-           max-width: 80%;
-           display: flex;
-           align-items: flex-start;
-           gap: 10px;
-       }
-       
-       .message.web {
-           background: linear-gradient(45deg, #007bff, #0056b3);
-           color: white;
-           margin-left: auto;
-           flex-direction: row-reverse;
-       }
-       
-       .message.roblox {
-           background: linear-gradient(45deg, #28a745, #1e7e34);
-           color: white;
-           margin-right: auto;
-       }
-       
-       .profile-pic {
-           width: 40px;
-           height: 40px;
-           border-radius: 50%;
-           flex-shrink: 0;
-           border: 2px solid rgba(255,255,255,0.3);
-       }
-       
-       .emoji-pic {
-           width: 40px;
-           height: 40px;
-           border-radius: 50%;
-           background: rgba(255,255,255,0.2);
-           display: flex;
-           align-items: center;
-           justify-content: center;
-           font-size: 24px;
-           flex-shrink: 0;
-       }
-       
-       .message-content {
-           flex: 1;
-       }
-       
-       .message-info {
-           font-size: 11px;
-           opacity: 0.8;
-           margin-bottom: 5px;
-       }
-       
-       .message-text {
-           font-size: 14px;
-           line-height: 1.4;
-       }
-       
-       .chat-input-container {
-           padding: 15px;
-           background: white;
-           display: flex;
-           gap: 10px;
-       }
-       
-       .emoji-select {
-           padding: 10px;
-           border: 1px solid #ddd;
-           border-radius: 20px;
-           background: white;
-           font-size: 16px;
-           width: 60px;
-       }
-       
-       .username-input {
-           padding: 10px;
-           border: 1px solid #ddd;
-           border-radius: 20px;
-           width: 100px;
-       }
-       
-       .message-input {
-           flex: 1;
-           padding: 10px;
-           border: 1px solid #ddd;
-           border-radius: 20px;
-       }
-       
-       .send-button {
-           padding: 10px 20px;
-           background: #4CAF50;
-           color: white;
-           border: none;
-           border-radius: 20px;
-           cursor: pointer;
-       }
-   </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .chat-container {
+            width: 400px;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .chat-header {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+        .message {
+            margin-bottom: 12px;
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .message.web {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+        .message.roblox {
+            background: linear-gradient(45deg, #28a745, #1e7e34);
+            color: white;
+            margin-right: auto;
+        }
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .emoji-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .message-content {
+            flex: 1;
+        }
+        .message-info {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        .message-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .chat-input-container {
+            padding: 15px;
+            background: white;
+            display: flex;
+            gap: 10px;
+        }
+        .emoji-select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            font-size: 16px;
+            width: 60px;
+        }
+        .username-input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            width: 100px;
+        }
+        .message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+        }
+        .send-button {
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-   <div class="chat-container">
-       <div class="chat-header">🎮 Roblox Cross-Platform Chat</div>
-       
-       <div class="chat-messages" id="chatMessages"></div>
-       
-       <div class="chat-input-container">
-           <select id="emojiSelect" class="emoji-select">
-               <option value="😀">😀</option>
-               <option value="😎">😎</option>
-               <option value="🤔">🤔</option>
-               <option value="😂">😂</option>
-               <option value="🔥">🔥</option>
-               <option value="💀">💀</option>
-               <option value="👽">👽</option>
-               <option value="🤖">🤖</option>
-               <option value="🎮">🎮</option>
-               <option value="⚡">⚡</option>
-           </select>
-           <input type="text" id="usernameInput" class="username-input" placeholder="Name" value="WebUser">
-           <input type="text" id="messageInput" class="message-input" placeholder="Type message...">
-           <button id="sendButton" class="send-button">Send</button>
-       </div>
-   </div>
+    <div class="chat-container">
+        <div class="chat-header">🎮 Roblox Cross-Platform Chat</div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-container">
+            <select id="emojiSelect" class="emoji-select">
+                <option value="😀">😀</option>
+                <option value="😎">😎</option>
+                <option value="🤔">🤔</option>
+                <option value="😂">😂</option>
+                <option value="🔥">🔥</option>
+                <option value="💀">💀</option>
+                <option value="👽">👽</option>
+                <option value="🤖">🤖</option>
+                <option value="🎮">🎮</option>
+                <option value="⚡">⚡</option>
+            </select>
+            <input type="text" id="usernameInput" class="username-input" placeholder="Name" value="WebUser">
+            <input type="text" id="messageInput" class="message-input" placeholder="Type message...">
+            <button id="sendButton" class="send-button">Send</button>
+        </div>
+    </div>
 
-   <script type="module">
-       import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-       import { getDatabase, ref, push, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, push, onValue, off } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-       const firebaseConfig = {
-           apiKey: "AIzaSyBFQ6AiX3GtcPIF48zZZHFSjDTsOPtGOVk",
-           authDomain: "roblox-df2ad.firebaseapp.com",
-           databaseURL: "https://roblox-df2ad-default-rtdb.firebaseio.com",
-           projectId: "roblox-df2ad",
-           storageBucket: "roblox-df2ad.firebasestorage.app",
-           messagingSenderId: "323286791287",
-           appId: "1:323286791287:web:d0eadbb92c93d45386c272"
-       };
+        const firebaseConfig = {
+            apiKey: "AIzaSyBFQ6AiX3GtcPIF48zZZHFSjDTsOPtGOVk",
+            authDomain: "roblox-df2ad.firebaseapp.com",
+            databaseURL: "https://roblox-df2ad-default-rtdb.firebaseio.com",
+            projectId: "roblox-df2ad",
+            storageBucket: "roblox-df2ad.firebasestorage.app",
+            messagingSenderId: "323286791287",
+            appId: "1:323286791287:web:d0eadbb92c93d45386c272"
+        };
 
-       const app = initializeApp(firebaseConfig);
-       const database = getDatabase(app);
-       const messagesRef = ref(database, 'chat/messages');
-       const webhookRef = ref(database, 'roblox/webhook');
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const messagesRef = ref(database, 'chat/messages');
+        const webhookRef = ref(database, 'roblox/webhook');
 
-       const chatMessages = document.getElementById('chatMessages');
-       const messageInput = document.getElementById('messageInput');
-       const usernameInput = document.getElementById('usernameInput');
-       const sendButton = document.getElementById('sendButton');
-       const emojiSelect = document.getElementById('emojiSelect');
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const usernameInput = document.getElementById('usernameInput');
+        const sendButton = document.getElementById('sendButton');
+        const emojiSelect = document.getElementById('emojiSelect');
 
-       async function getRobloxAvatar(userId) {
-           try {
-               const response = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`);
-               const data = await response.json();
-               return data.data[0].imageUrl;
-           } catch (error) {
-               console.log('Avatar fetch failed:', error);
-               return null;
-           }
-       }
+        let displayedMessages = new Set();
 
-       async function addMessage(message) {
-           const div = document.createElement('div');
-           div.className = `message ${message.platform}`;
-           
-           let profileElement;
-           if (message.platform === 'roblox' && message.userId) {
-               profileElement = document.createElement('img');
-               profileElement.className = 'profile-pic';
-               
-               const avatarUrl = await getRobloxAvatar(message.userId);
-               if (avatarUrl) {
-                   profileElement.src = avatarUrl;
-               } else {
-                   profileElement.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2NjciLz4KPHN2Zz4K';
-               }
-               profileElement.alt = message.username;
-           } else {
-               profileElement = document.createElement('div');
-               profileElement.className = 'emoji-pic';
-               profileElement.textContent = message.emoji || '😀';
-           }
-           
-           const messageContent = document.createElement('div');
-           messageContent.className = 'message-content';
-           
-           const info = document.createElement('div');
-           info.className = 'message-info';
-           info.textContent = `${message.username} • ${message.platform.toUpperCase()}`;
-           
-           const text = document.createElement('div');
-           text.className = 'message-text';
-           text.textContent = message.text;
-           
-           messageContent.appendChild(info);
-           messageContent.appendChild(text);
-           
-           div.appendChild(profileElement);
-           div.appendChild(messageContent);
-           chatMessages.appendChild(div);
-           chatMessages.scrollTop = chatMessages.scrollHeight;
-       }
+        async function getRobloxAvatar(userId) {
+            try {
+                const response = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`);
+                const data = await response.json();
+                return data.data[0].imageUrl;
+            } catch (error) {
+                return null;
+            }
+        }
 
-       onValue(messagesRef, (snapshot) => {
-           const messages = snapshot.val();
-           if (messages) {
-               chatMessages.innerHTML = '';
-               const sorted = Object.values(messages).sort((a, b) => a.timestamp - b.timestamp);
-               sorted.forEach(addMessage);
-           }
-       });
+        async function addMessage(message, messageId) {
+            if (displayedMessages.has(messageId)) return;
+            displayedMessages.add(messageId);
 
-       function sendMessage() {
-           const text = messageInput.value.trim();
-           const username = usernameInput.value.trim() || 'WebUser';
-           const emoji = emojiSelect.value;
-           
-           if (!text) return;
-           
-           const message = {
-               text: text,
-               username: username,
-               platform: 'web',
-               emoji: emoji,
-               timestamp: Date.now()
-           };
-           
-           push(messagesRef, message);
-           push(webhookRef, {
-               action: "web_message",
-               data: message,
-               timestamp: Date.now()
-           });
-           
-           messageInput.value = '';
-       }
+            const div = document.createElement('div');
+            div.className = `message ${message.platform}`;
+            
+            let profileElement;
+            if (message.platform === 'roblox' && message.userId) {
+                profileElement = document.createElement('img');
+                profileElement.className = 'profile-pic';
+                
+                const avatarUrl = await getRobloxAvatar(message.userId);
+                if (avatarUrl) {
+                    profileElement.src = avatarUrl;
+                } else {
+                    profileElement.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2NjYiLz48L3N2Zz4K';
+                }
+                profileElement.alt = message.username;
+            } else {
+                profileElement = document.createElement('div');
+                profileElement.className = 'emoji-pic';
+                profileElement.textContent = message.emoji || '😀';
+            }
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            const info = document.createElement('div');
+            info.className = 'message-info';
+            info.textContent = `${message.username} • ${message.platform.toUpperCase()}`;
+            
+            const text = document.createElement('div');
+            text.className = 'message-text';
+            text.textContent = message.text;
+            
+            messageContent.appendChild(info);
+            messageContent.appendChild(text);
+            
+            div.appendChild(profileElement);
+            div.appendChild(messageContent);
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
 
-       sendButton.addEventListener('click', sendMessage);
-       messageInput.addEventListener('keypress', (e) => {
-           if (e.key === 'Enter') sendMessage();
-       });
+        onValue(messagesRef, (snapshot) => {
+            const messages = snapshot.val();
+            if (messages) {
+                chatMessages.innerHTML = '';
+                displayedMessages.clear();
+                const sorted = Object.entries(messages).sort((a, b) => a[1].timestamp - b[1].timestamp);
+                sorted.forEach(([id, message]) => {
+                    addMessage(message, id);
+                });
+            }
+        });
 
-       setTimeout(() => {
-           addMessage({
-               text: "Connected! Chat with Roblox players!",
-               username: "System",
-               platform: "web",
-               emoji: "🤖",
-               timestamp: Date.now()
-           });
-       }, 1000);
-   </script>
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            const username = usernameInput.value.trim() || 'WebUser';
+            const emoji = emojiSelect.value;
+            
+            if (!text) return;
+            
+            const message = {
+                text: text,
+                username: username,
+                platform: 'web',
+                emoji: emoji,
+                timestamp: Date.now()
+            };
+            
+            push(messagesRef, message);
+            push(webhookRef, {
+                action: "web_message",
+                data: message,
+                timestamp: Date.now()
+            });
+            
+            messageInput.value = '';
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        setTimeout(() => {
+            addMessage({
+                text: "Connected! Ready to chat!",
+                username: "System",
+                platform: "web",
+                emoji: "🤖",
+                timestamp: Date.now()
+            }, 'system-welcome');
+        }, 1000);
+    </script>
 </body>
 </html>
