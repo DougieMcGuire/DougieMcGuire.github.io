@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Editor - Pollinations Kontext</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        max-width: 1200px;
+        width: 100%;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .header h1 {
+        color: #333;
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .header p {
+        color: #666;
+        font-size: 1.1em;
+    }
+
+    .main-content {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 30px;
+        align-items: start;
+    }
+
+    .image-section {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        min-height: 500px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .image-container {
+        width: 100%;
+        max-width: 500px;
+        aspect-ratio: 1;
+        border: 3px dashed #ccc;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .image-container:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
+    }
+
+    .image-container.has-image {
+        border: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .current-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 8px;
+    }
+
+    .upload-prompt {
+        text-align: center;
+        color: #888;
+        font-size: 1.1em;
+    }
+
+    .upload-prompt .icon {
+        font-size: 3em;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .file-input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .controls-section {
+        background: #fff;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .control-group {
+        margin-bottom: 25px;
+    }
+
+    .control-group label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+        font-size: 0.95em;
+    }
+
+    .text-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .text-input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .textarea-input {
+        resize: vertical;
+        min-height: 100px;
+        font-family: inherit;
+    }
+
+    .button {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .button:active {
+        transform: translateY(0);
+    }
+
+    .button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .button-secondary {
+        background: #f8f9fa;
+        color: #333;
+        border: 2px solid #e1e5e9;
+    }
+
+    .button-secondary:hover {
+        background: #e9ecef;
+        border-color: #667eea;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+    }
+
+    .history-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .history-controls .button {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    .loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        z-index: 100;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .status-message {
+        text-align: center;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        font-weight: 500;
+    }
+
+    .status-error {
+        background: #fee;
+        color: #c33;
+        border: 1px solid #fcc;
+    }
+
+    .status-success {
+        background: #efe;
+        color: #393;
+        border: 1px solid #cfc;
+    }
+
+    .history-info {
+        background: #e8f4fd;
+        border: 1px solid #b8daff;
+        color: #0c5aa6;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 0.9em;
+        margin-bottom: 15px;
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+        }
+        
+        .container {
+            padding: 20px;
+        }
+    }
+
+    .drag-over {
+        border-color: #667eea !important;
+        background: #f0f4ff !important;
+    }
+</style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 AI Image Editor</h1>
+            <p>Powered by Pollinations.ai Kontext Model</p>
+        </div>
+
+    <div class="main-content">
+        <div class="image-section">
+            <div class="image-container" id="imageContainer">
+                <div class="upload-prompt" id="uploadPrompt">
+                    <span class="icon">📸</span>
+                    <div>Drop an image here or click to upload</div>
+                    <small>Supports JPG, PNG, GIF, WebP</small>
+                </div>
+                <input type="file" class="file-input" id="fileInput" accept="image/*">
+                <img class="current-image" id="currentImage" style="display: none;">
+            </div>
+            
+            <div class="loading" id="loadingIndicator" style="display: none;">
+                <div class="spinner"></div>
+                <div>Generating your image...</div>
+            </div>
+        </div>
+
+        <div class="controls-section">
+            <div class="control-group">
+                <label for="apiKey">API Key:</label>
+                <input type="password" id="apiKey" class="text-input" placeholder="Enter your Pollinations API key" value="HzOkb3A_SO3fUe8U">
+            </div>
+
+            <div class="history-info" id="historyInfo">
+                No image loaded yet. Upload an image to start editing!
+            </div>
+
+            <div class="history-controls">
+                <button class="button button-secondary" id="undoBtn" disabled>↶ Undo</button>
+                <button class="button button-secondary" id="redoBtn" disabled>↷ Redo</button>
+            </div>
+
+            <div class="control-group">
+                <label for="editPrompt">What would you like to change?</label>
+                <textarea id="editPrompt" class="text-input textarea-input" placeholder="Describe the changes you want to make...&#10;&#10;Examples:&#10;• Add a red hat to the person&#10;• Change the background to a beach&#10;• Make it look like a painting&#10;• Add sunglasses&#10;• Change the sky to sunset"></textarea>
+            </div>
+
+            <button class="button" id="generateBtn" disabled>✨ Apply Changes</button>
+
+            <div class="control-group">
+                <label for="imageSize">Image Size:</label>
+                <select id="imageSize" class="text-input">
+                    <option value="1024x1024">Square (1024×1024)</option>
+                    <option value="1280x720">Landscape (1280×720)</option>
+                    <option value="720x1280">Portrait (720×1280)</option>
+                    <option value="1536x1024">Wide (1536×1024)</option>
+                    <option value="1024x1536">Tall (1024×1536)</option>
+                </select>
+            </div>
+
+            <button class="button button-secondary" id="downloadBtn" disabled>💾 Download Image</button>
+            <button class="button button-secondary" id="clearBtn">🗑️ Clear & Start Over</button>
+
+            <div id="statusMessage"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    class ImageEditor {
+        constructor() {
+            this.apiKey = 'HzOkb3A_SO3fUe8U';
+            this.currentImageUrl = null;
+            this.history = [];
+            this.historyIndex = -1;
+            this.isLoading = false;
+            
+            this.initElements();
+            this.attachEventListeners();
+            this.updateHistoryInfo();
+        }
+
+        initElements() {
+            this.elements = {
+                fileInput: document.getElementById('fileInput'),
+                imageContainer: document.getElementById('imageContainer'),
+                currentImage: document.getElementById('currentImage'),
+                uploadPrompt: document.getElementById('uploadPrompt'),
+                loadingIndicator: document.getElementById('loadingIndicator'),
+                apiKey: document.getElementById('apiKey'),
+                editPrompt: document.getElementById('editPrompt'),
+                generateBtn: document.getElementById('generateBtn'),
+                undoBtn: document.getElementById('undoBtn'),
+                redoBtn: document.getElementById('redoBtn'),
+                downloadBtn: document.getElementById('downloadBtn'),
+                clearBtn: document.getElementById('clearBtn'),
+                imageSize: document.getElementById('imageSize'),
+                statusMessage: document.getElementById('statusMessage'),
+                historyInfo: document.getElementById('historyInfo')
+            };
+        }
+
+        attachEventListeners() {
+            // File input
+            this.elements.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+            
+            // Drag and drop
+            this.elements.imageContainer.addEventListener('dragover', (e) => this.handleDragOver(e));
+            this.elements.imageContainer.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+            this.elements.imageContainer.addEventListener('drop', (e) => this.handleDrop(e));
+            
+            // API key
+            this.elements.apiKey.addEventListener('input', (e) => {
+                this.apiKey = e.target.value;
+            });
+
+            // Buttons
+            this.elements.generateBtn.addEventListener('click', () => this.generateImage());
+            this.elements.undoBtn.addEventListener('click', () => this.undo());
+            this.elements.redoBtn.addEventListener('click', () => this.redo());
+            this.elements.downloadBtn.addEventListener('click', () => this.downloadImage());
+            this.elements.clearBtn.addEventListener('click', () => this.clearAll());
+
+            // Enter key in prompt
+            this.elements.editPrompt.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    this.generateImage();
+                }
+            });
+        }
+
+        handleDragOver(e) {
+            e.preventDefault();
+            this.elements.imageContainer.classList.add('drag-over');
+        }
+
+        handleDragLeave(e) {
+            e.preventDefault();
+            this.elements.imageContainer.classList.remove('drag-over');
+        }
+
+        handleDrop(e) {
+            e.preventDefault();
+            this.elements.imageContainer.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                this.processFile(files[0]);
+            }
+        }
+
+        handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                this.processFile(file);
+            }
+        }
+
+        processFile(file) {
+            if (!file.type.startsWith('image/')) {
+                this.showStatus('Please select a valid image file.', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.loadImage(e.target.result);
+                this.showStatus('Image loaded successfully!', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        loadImage(imageDataUrl) {
+            this.currentImageUrl = imageDataUrl;
+            this.addToHistory(imageDataUrl, 'Original image loaded');
+            this.displayImage(imageDataUrl);
+            this.elements.generateBtn.disabled = false;
+            this.elements.downloadBtn.disabled = false;
+        }
+
+        displayImage(imageUrl) {
+            this.elements.currentImage.src = imageUrl;
+            this.elements.currentImage.style.display = 'block';
+            this.elements.uploadPrompt.style.display = 'none';
+            this.elements.imageContainer.classList.add('has-image');
+        }
+
+        addToHistory(imageUrl, description) {
+            // Remove any future history if we're not at the end
+            if (this.historyIndex < this.history.length - 1) {
+                this.history = this.history.slice(0, this.historyIndex + 1);
+            }
+            
+            this.history.push({
+                imageUrl: imageUrl,
+                description: description,
+                timestamp: new Date()
+            });
+            
+            this.historyIndex = this.history.length - 1;
+            this.updateHistoryButtons();
+            this.updateHistoryInfo();
+        }
+
+        updateHistoryButtons() {
+            this.elements.undoBtn.disabled = this.historyIndex <= 0;
+            this.elements.redoBtn.disabled = this.historyIndex >= this.history.length - 1;
+        }
+
+        updateHistoryInfo() {
+            if (this.history.length === 0) {
+                this.elements.historyInfo.textContent = 'No image loaded yet. Upload an image to start editing!';
+            } else {
+                const current = this.history[this.historyIndex];
+                this.elements.historyInfo.textContent = `Step ${this.historyIndex + 1} of ${this.history.length}: ${current.description}`;
+            }
+        }
+
+        undo() {
+            if (this.historyIndex > 0) {
+                this.historyIndex--;
+                const previousImage = this.history[this.historyIndex];
+                this.currentImageUrl = previousImage.imageUrl;
+                this.displayImage(previousImage.imageUrl);
+                this.updateHistoryButtons();
+                this.updateHistoryInfo();
+            }
+        }
+
+        redo() {
+            if (this.historyIndex < this.history.length - 1) {
+                this.historyIndex++;
+                const nextImage = this.history[this.historyIndex];
+                this.currentImageUrl = nextImage.imageUrl;
+                this.displayImage(nextImage.imageUrl);
+                this.updateHistoryButtons();
+                this.updateHistoryInfo();
+            }
+        }
+
+        async generateImage() {
+            const prompt = this.elements.editPrompt.value.trim();
+            
+            if (!prompt) {
+                this.showStatus('Please enter a description of what you want to change.', 'error');
+                return;
+            }
+
+            if (!this.currentImageUrl) {
+                this.showStatus('Please upload an image first.', 'error');
+                return;
+            }
+
+            if (!this.apiKey) {
+                this.showStatus('Please enter your API key.', 'error');
+                return;
+            }
+
+            this.setLoading(true);
+            
+            try {
+                // Upload current image to a temporary hosting service or convert to URL
+                const imageBlob = await this.dataUrlToBlob(this.currentImageUrl);
+                const imageUrl = await this.uploadImageToTemporaryHost(imageBlob);
+                
+                // Get image dimensions
+                const [width, height] = this.elements.imageSize.value.split('x').map(Number);
+                
+                // Generate new image using Kontext model
+                const response = await this.callPollinationsAPI(prompt, imageUrl, width, height);
+                
+                this.currentImageUrl = response;
+                this.displayImage(response);
+                this.addToHistory(response, `Applied: "${prompt}"`);
+                
+                this.showStatus('Image generated successfully!', 'success');
+                this.elements.editPrompt.value = ''; // Clear the prompt
+                
+            } catch (error) {
+                console.error('Generation error:', error);
+                this.showStatus(`Error generating image: ${error.message}`, 'error');
+            } finally {
+                this.setLoading(false);
+            }
+        }
+
+        async dataUrlToBlob(dataUrl) {
+            const response = await fetch(dataUrl);
+            return await response.blob();
+        }
+
+        async uploadImageToTemporaryHost(blob) {
+            // Convert blob to data URL since we can't actually upload to external service
+            // In a real implementation, you would upload to a service like imgur, cloudinary, etc.
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async callPollinationsAPI(prompt, imageUrl, width, height) {
+            // Encode the prompt for URL
+            const encodedPrompt = encodeURIComponent(prompt);
+            
+            // Build the API URL
+            let apiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
+            
+            const params = new URLSearchParams({
+                model: 'kontext',
+                width: width.toString(),
+                height: height.toString(),
+                image: imageUrl,
+                nologo: 'true'
+            });
+
+            // Add API key as token parameter
+            if (this.apiKey) {
+                params.append('token', this.apiKey);
+            }
+
+            apiUrl += '?' + params.toString();
+            
+            // Make the request
+            const response = await fetch(apiUrl);
+            
+            if (!response.ok) {
+                throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+            }
+            
+            // Check if response is an image
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.startsWith('image/')) {
+                const text = await response.text();
+                throw new Error(`Expected image but got: ${contentType}. Response: ${text.substring(0, 200)}`);
+            }
+            
+            // Convert response to blob and then to data URL
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        setLoading(loading) {
+            this.isLoading = loading;
+            this.elements.loadingIndicator.style.display = loading ? 'block' : 'none';
+            this.elements.generateBtn.disabled = loading || !this.currentImageUrl;
+            
+            if (loading) {
+                this.elements.generateBtn.textContent = 'Generating...';
+            } else {
+                this.elements.generateBtn.textContent = '✨ Apply Changes';
+            }
+        }
+
+        showStatus(message, type) {
+            this.elements.statusMessage.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+            
+            // Clear status after 5 seconds for success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    this.elements.statusMessage.innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        downloadImage() {
+            if (!this.currentImageUrl) {
+                this.showStatus('No image to download.', 'error');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.download = `edited-image-${Date.now()}.png`;
+            link.href = this.currentImageUrl;
+            link.click();
+        }
+
+        clearAll() {
+            this.currentImageUrl = null;
+            this.history = [];
+            this.historyIndex = -1;
+            
+            this.elements.currentImage.style.display = 'none';
+            this.elements.uploadPrompt.style.display = 'block';
+            this.elements.imageContainer.classList.remove('has-image');
+            this.elements.fileInput.value = '';
+            this.elements.editPrompt.value = '';
+            this.elements.generateBtn.disabled = true;
+            this.elements.downloadBtn.disabled = true;
+            this.elements.statusMessage.innerHTML = '';
+            
+            this.updateHistoryButtons();
+            this.updateHistoryInfo();
+            this.showStatus('Canvas cleared. Upload a new image to start editing.', 'success');
+        }
+    }
+
+    // Initialize the editor when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        new ImageEditor();
+    });
+</script>
+
+
+</body>
+</html>
