@@ -163,162 +163,202 @@
         };
 
         function getSystemPrompt(level = 5) {
-            return "You are helpful and knowledgeable. Respond naturally to questions and avoid repetitive patterns in your writing.";
+            return "You are helpful and knowledgeable. Respond naturally to questions.";
         }
 
         function getHumanizePrompt(level) {
-            return `Rewrite this text. Keep the same ideas and information but write it differently. Vary your sentence structure and avoid repetitive patterns. Use standard punctuation only.`;
+            return `Rewrite this text with the same information but use different sentence structures and varied writing patterns.`;
         }
 
         function deepHumanize(text, level) {
             let result = text;
 
-            // Remove em dashes and long dashes
-            result = result.replace(/—/g, ' ');
-            result = result.replace(/–/g, ' ');
-            result = result.replace(/\u2014/g, ' ');
-            result = result.replace(/\u2013/g, ' ');
+            // Strip all special dashes and replace with regular spaces or hyphens
+            result = result.replace(/[—–\u2014\u2013]/g, ' ');
             
-            // Remove ellipses at sentence ends sometimes
-            result = result.replace(/\.\.\.(\s+[A-Z])/g, (match, next) => {
-                if (Math.random() > 0.5) return '.' + next;
-                return match;
-            });
+            // Remove most filler words that AI overuses
+            const overusedFillers = ['probably', 'basically', 'really', 'honestly', 'actually', 'truly', 'certainly', 'indeed'];
+            for (let filler of overusedFillers) {
+                const pattern = new RegExp(`\\b${filler}\\s+`, 'gi');
+                if (Math.random() > 0.3) {
+                    result = result.replace(pattern, '');
+                }
+            }
 
             // Aggressive contractions
-            const contractionMap = [
-                [/\b[Ii] am\b/g, "I'm"],
-                [/\b[Yy]ou are\b/g, "you're"],
-                [/\b[Ww]e are\b/g, "we're"],
-                [/\b[Tt]hey are\b/g, "they're"],
-                [/\b[Hh]e is\b/g, "he's"],
-                [/\b[Ss]he is\b/g, "she's"],
-                [/\b[Ii]t is\b/g, "it's"],
-                [/\b[Tt]hat is\b/g, "that's"],
-                [/\b[Ww]ho is\b/g, "who's"],
-                [/\b[Ww]hat is\b/g, "what's"],
-                [/\b[Dd]o not\b/g, "don't"],
-                [/\b[Dd]oes not\b/g, "doesn't"],
-                [/\b[Dd]id not\b/g, "didn't"],
-                [/\b[Cc]annot\b/g, "can't"],
-                [/\b[Cc]ould not\b/g, "couldn't"],
-                [/\b[Ww]ould not\b/g, "wouldn't"],
-                [/\b[Ss]hould not\b/g, "shouldn't"],
-                [/\b[Ww]ill not\b/g, "won't"],
-                [/\b[Hh]ave not\b/g, "haven't"],
-                [/\b[Hh]as not\b/g, "hasn't"],
-                [/\b[Hh]ad not\b/g, "hadn't"],
-                [/\b[Ii]s not\b/g, "isn't"],
-                [/\b[Ww]as not\b/g, "wasn't"],
-                [/\b[Ww]ere not\b/g, "weren't"],
-                [/\b[Ii] would\b/g, "I'd"],
+            const contractions = [
+                [/\bI am\b/g, "I'm"],
+                [/\byou are\b/g, "you're"],
+                [/\bwe are\b/g, "we're"],
+                [/\bthey are\b/g, "they're"],
+                [/\bhe is\b/g, "he's"],
+                [/\bshe is\b/g, "she's"],
+                [/\bit is\b/g, "it's"],
+                [/\bthat is\b/g, "that's"],
+                [/\bwho is\b/g, "who's"],
+                [/\bwhat is\b/g, "what's"],
+                [/\bthere is\b/g, "there's"],
+                [/\bdo not\b/g, "don't"],
+                [/\bdoes not\b/g, "doesn't"],
+                [/\bdid not\b/g, "didn't"],
+                [/\bcannot\b/g, "can't"],
+                [/\bcould not\b/g, "couldn't"],
+                [/\bwould not\b/g, "wouldn't"],
+                [/\bshould not\b/g, "shouldn't"],
+                [/\bwill not\b/g, "won't"],
+                [/\bhave not\b/g, "haven't"],
+                [/\bhas not\b/g, "hasn't"],
+                [/\bhad not\b/g, "hadn't"],
+                [/\bis not\b/g, "isn't"],
+                [/\bare not\b/g, "aren't"],
+                [/\bwas not\b/g, "wasn't"],
+                [/\bwere not\b/g, "weren't"],
+                [/\bI would\b/g, "I'd"],
                 [/\byou would\b/g, "you'd"],
                 [/\bhe would\b/g, "he'd"],
                 [/\bshe would\b/g, "she'd"],
                 [/\bwe would\b/g, "we'd"],
                 [/\bthey would\b/g, "they'd"],
-                [/\b[Ii] have\b/g, "I've"],
+                [/\bI have\b/g, "I've"],
                 [/\byou have\b/g, "you've"],
                 [/\bwe have\b/g, "we've"],
-                [/\bthey have\b/g, "they've"]
+                [/\bthey have\b/g, "they've"],
+                [/\bwho have\b/g, "who've"],
+                [/\bI will\b/g, "I'll"],
+                [/\byou will\b/g, "you'll"],
+                [/\bhe will\b/g, "he'll"],
+                [/\bshe will\b/g, "she'll"],
+                [/\bwe will\b/g, "we'll"],
+                [/\bthey will\b/g, "they'll"],
+                [/\bthat will\b/g, "that'll"]
             ];
 
-            for (let [pattern, replacement] of contractionMap) {
+            for (let [pattern, replacement] of contractions) {
                 result = result.replace(pattern, replacement);
             }
 
+            // Remove formal academic transitions
+            result = result.replace(/\b(Furthermore|Moreover|Nevertheless|Nonetheless|Subsequently|Consequently|Therefore|Thus|Hence),?\s+/gi, '');
+            result = result.replace(/\bIn conclusion,?\s+/gi, '');
+            result = result.replace(/\bIn summary,?\s+/gi, '');
+            result = result.replace(/\bTo summarize,?\s+/gi, '');
+            result = result.replace(/\bIt is important to note that\s+/gi, '');
+            result = result.replace(/\bIt should be noted that\s+/gi, '');
+            result = result.replace(/\bNotably,?\s+/gi, '');
+
             // Split into sentences
-            let sentences = result.split(/(?<=[.!?])\s+/);
+            let sentences = result.split(/([.!?]+\s+)/);
+            let processed = [];
+            
+            for (let i = 0; i < sentences.length; i++) {
+                let s = sentences[i];
+                
+                // Skip punctuation-only parts
+                if (/^[.!?]+\s+$/.test(s)) {
+                    processed.push(s);
+                    continue;
+                }
 
-            // Process each sentence
-            sentences = sentences.map((sentence, idx) => {
-                let s = sentence;
+                if (s.trim().length === 0) continue;
 
-                // Add filler words at higher levels
-                if (level >= 5 && Math.random() > 0.65) {
-                    const fillers = ['honestly', 'actually', 'basically', 'really', 'probably', 'like', 'you know'];
-                    const filler = fillers[Math.floor(Math.random() * fillers.length)];
-                    if (!s.toLowerCase().startsWith(filler)) {
+                // Add natural fillers occasionally but not the AI ones
+                if (level >= 5 && Math.random() > 0.75 && processed.length > 2) {
+                    const naturalFillers = ['Plus', 'Also', 'And', 'But'];
+                    const filler = naturalFillers[Math.floor(Math.random() * naturalFillers.length)];
+                    if (!/^(Plus|Also|And|But|So|Or)\s/i.test(s)) {
                         s = filler + ' ' + s.charAt(0).toLowerCase() + s.slice(1);
                     }
                 }
 
-                // Remove some filler words randomly
-                if (Math.random() > 0.7) {
-                    s = s.replace(/\b(honestly|actually|basically|truly|really|quite|very|somewhat|rather),?\s/gi, '');
-                }
-
-                // Add conjunctions at sentence start
-                if (level >= 6 && idx > 0 && Math.random() > 0.75) {
-                    const conjunctions = ['And ', 'But ', 'So ', 'Or '];
-                    const conj = conjunctions[Math.floor(Math.random() * conjunctions.length)];
-                    if (!/^(And|But|So|Or)\s/i.test(s)) {
-                        s = conj + s.charAt(0).toLowerCase() + s.slice(1);
-                    }
-                }
-
-                // Introduce minor grammar issues
-                if (level >= 7 && Math.random() > 0.85) {
-                    // Missing comma before "and"
-                    s = s.replace(/, and /g, () => Math.random() > 0.5 ? ' and ' : ', and ');
-                    // Extra comma
-                    if (Math.random() > 0.7) {
-                        const words = s.split(' ');
-                        if (words.length > 5) {
-                            const pos = Math.floor(Math.random() * (words.length - 2)) + 2;
-                            words[pos] = words[pos] + ',';
-                            s = words.join(' ');
-                        }
-                    }
-                }
-
-                // Vary punctuation
-                if (level >= 8 && Math.random() > 0.8) {
-                    if (s.endsWith('.')) {
-                        const variations = ['.', '..', '...'];
-                        s = s.slice(0, -1) + variations[Math.floor(Math.random() * variations.length)];
-                    }
-                }
-
-                return s;
-            });
-
-            result = sentences.join(' ');
-
-            // Fix double spaces
-            result = result.replace(/  +/g, ' ');
-
-            // Random lowercase after period
-            if (level >= 8) {
-                result = result.replace(/\.\s+([A-Z])/g, (match, letter) => {
-                    if (Math.random() > 0.92) {
-                        return '. ' + letter.toLowerCase();
-                    }
-                    return match;
-                });
-            }
-
-            // Remove overly formal transitions
-            result = result.replace(/\b(Furthermore|Moreover|Nevertheless|Nonetheless|Subsequently|Consequently|Therefore),?\s/gi, '');
-            result = result.replace(/\bIn conclusion,?\s/gi, '');
-            result = result.replace(/\bIn summary,?\s/gi, '');
-            result = result.replace(/\bTo summarize,?\s/gi, '');
-
-            // Break up parallel structures by adding variation
-            const parallelPatterns = [
-                /(\w+ing),\s(\w+ing),\s(and\s)?(\w+ing)/gi,
-                /\bHe (\w+)\.\s+He (\w+)\.\s+He (\w+)\./gi,
-                /\bShe (\w+)\.\s+She (\w+)\.\s+She (\w+)\./gi
-            ];
-
-            for (let pattern of parallelPatterns) {
-                if (pattern.test(result) && Math.random() > 0.6) {
-                    result = result.replace(pattern, (match) => {
-                        const fillers = ['also', 'then', 'plus'];
-                        return match.replace(/\.\s+/, '. ' + fillers[Math.floor(Math.random() * fillers.length)] + ' ');
+                // Vary sentence connectors to break patterns
+                if (level >= 6 && Math.random() > 0.8) {
+                    s = s.replace(/;\s+/g, '. ');
+                    s = s.replace(/:\s+([a-z])/gi, (match, letter) => {
+                        return Math.random() > 0.5 ? ' - ' + letter : ': ' + letter;
                     });
                 }
+
+                // Introduce natural imperfections
+                if (level >= 7 && Math.random() > 0.85) {
+                    // Remove some commas
+                    const words = s.split(' ');
+                    if (words.length > 6) {
+                        s = s.replace(/, /g, () => Math.random() > 0.4 ? ', ' : ' ');
+                    }
+                }
+
+                // Break up lists that sound too structured
+                if (level >= 6) {
+                    s = s.replace(/(\w+), (\w+), and (\w+)/g, (match, w1, w2, w3) => {
+                        const variations = [
+                            `${w1} and ${w2} and ${w3}`,
+                            `${w1}, ${w2} and ${w3}`,
+                            `${w1} plus ${w2} and ${w3}`
+                        ];
+                        return variations[Math.floor(Math.random() * variations.length)];
+                    });
+                }
+
+                // Shuffle formal academic words
+                const formalWords = {
+                    'demonstrates': ['shows', 'proves', 'reveals'],
+                    'illustrates': ['shows', 'displays', 'demonstrates'],
+                    'exemplifies': ['shows', 'represents', 'demonstrates'],
+                    'utilizes': ['uses', 'employs'],
+                    'indicates': ['shows', 'suggests', 'points to'],
+                    'reveals': ['shows', 'uncovers', 'exposes'],
+                    'manifests': ['shows', 'displays', 'appears as']
+                };
+
+                for (let [formal, informal] of Object.entries(formalWords)) {
+                    const pattern = new RegExp(`\\b${formal}\\b`, 'gi');
+                    if (pattern.test(s) && Math.random() > 0.5) {
+                        const replacement = informal[Math.floor(Math.random() * informal.length)];
+                        s = s.replace(pattern, replacement);
+                    }
+                }
+
+                processed.push(s);
             }
+
+            result = processed.join('');
+
+            // Final cleanup
+            result = result.replace(/\s+([.,!?])/g, '$1');
+            result = result.replace(/\s{2,}/g, ' ');
+            result = result.replace(/([.!?]){2,}/g, '.');
+            
+            // Vary paragraph breaks for better flow
+            if (level >= 7) {
+                const paragraphs = result.split('\n\n');
+                result = paragraphs.map(para => {
+                    // Sometimes merge short sentences
+                    if (Math.random() > 0.7) {
+                        para = para.replace(/\.\s+([A-Z])/g, (match, letter) => {
+                            return Math.random() > 0.6 ? ', and ' + letter.toLowerCase() : match;
+                        });
+                    }
+                    return para;
+                }).join('\n\n');
+            }
+
+            // Remove repetitive starts
+            const lines = result.split('. ');
+            const startWords = {};
+            for (let i = 0; i < lines.length; i++) {
+                const firstWord = lines[i].trim().split(' ')[0];
+                if (startWords[firstWord]) {
+                    startWords[firstWord]++;
+                    if (startWords[firstWord] > 2 && Math.random() > 0.5) {
+                        const alternatives = ['Also', 'Plus', 'And', 'Then'];
+                        const alt = alternatives[Math.floor(Math.random() * alternatives.length)];
+                        lines[i] = alt + ' ' + lines[i].charAt(0).toLowerCase() + lines[i].slice(1);
+                    }
+                } else {
+                    startWords[firstWord] = 1;
+                }
+            }
+            result = lines.join('. ');
 
             return result.trim();
         }
