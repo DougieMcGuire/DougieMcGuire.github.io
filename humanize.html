@@ -3,97 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Humanizer Advanced</title>
+<title>Humanizer Balanced</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background-color: #f5f5f5;
-  }
-  h1 {
-    font-size: 24px;
-  }
-  textarea {
-    width: 100%;
-    height: 150px;
-    margin-bottom: 10px;
-    font-size: 16px;
-    padding: 10px;
-  }
-  button {
-    padding: 10px 15px;
-    font-size: 16px;
-  }
-  #output {
-    margin-top: 20px;
-    white-space: pre-wrap;
-    background-color: #fff;
-    padding: 15px;
-    border: 1px solid #ccc;
-  }
+body { font-family: Arial, sans-serif; margin: 20px; background:#f5f5f5; }
+h1 { font-size: 24px; }
+textarea { width:100%; height:150px; margin-bottom:10px; font-size:16px; padding:10px; }
+button { padding:10px 15px; font-size:16px; }
+#output { margin-top:20px; white-space:pre-wrap; background:#fff; padding:15px; border:1px solid #ccc; }
 </style>
 </head>
 <body>
-<h1>AI Humanizer Advanced</h1>
-<textarea id="input" placeholder="Paste AI-generated text here"></textarea>
+<h1>Balanced AI Humanizer</h1>
+<textarea id="input" placeholder="Paste AI text here"></textarea>
 <br>
 <button onclick="humanizeText()">Humanize Text</button>
 <div id="output"></div>
-
 <script>
 function humanizeText() {
-  let text = document.getElementById('input').value;
+    let text = document.getElementById('input').value;
+    // Remove em dashes
+    text = text.replace(/—/g,"");
 
-  // Remove em dashes
-  text = text.replace(/—/g, "");
+    // Word replacements
+    const subs = { "can":"could", "could":"can", "may":"might", "just":"simply", "really":"truly", "actually":"in fact", "that":"which", "very":"extremely" };
 
-  // Word substitutions for "banned words"
-  const substitutions = {
-    "can": "could",
-    "could": "can",
-    "may": "might",
-    "just": "simply",
-    "really": "truly",
-    "actually": "in fact",
-    "that": "which",
-    "very": "extremely"
-    // add more substitutions as needed
-  };
+    text = text.split(" ").map(word=>{
+        let clean = word.replace(/[^a-zA-Z]/g,"");
+        if(subs[clean.toLowerCase()]) word = word.replace(clean, subs[clean.toLowerCase()]);
+        // Random capitalization
+        if(Math.random()<0.07) word = word.toUpperCase();
+        // Random small typos
+        if(Math.random()<0.03 && word.length>3) {
+            let i=Math.floor(Math.random()*word.length);
+            word = word.slice(0,i)+word[i+1]+word[i]+word.slice(i+2);
+        }
+        return word;
+    }).join(" ");
 
-  for (let word in substitutions) {
-    let regex = new RegExp("\\b" + word + "\\b", "gi");
-    text = text.replace(regex, function(match) {
-      // Randomize capitalization
-      if (Math.random() < 0.3) match = match.toUpperCase();
-      return substitutions[word];
+    // Randomly add commas, remove some
+    text = text.replace(/, /g, m => Math.random()<0.5?", ":" ");
+
+    // Split sentences and randomly break or shorten
+    let sentences = text.split(/[.!?]+/).map(s=>s.trim()).filter(s=>s.length>0);
+    sentences = sentences.map(s=>{
+        if(s.length>120 && Math.random()<0.5){
+            let p = Math.floor(s.length/2);
+            s = s.slice(0,p)+". "+s.slice(p);
+        }
+        return s;
     });
-  }
 
-  // Introduce random punctuation and comma randomness
-  text = text.split(" ").map(word => {
-    if (Math.random() < 0.1) word += ",";
-    if (Math.random() < 0.05) word = word.toUpperCase();
-    return word;
-  }).join(" ");
-
-  // Split sentences
-  let sentences = text.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 0);
-
-  // Randomly break long sentences
-  sentences = sentences.map(sentence => {
-    if (sentence.length > 120) {
-      let parts = sentence.match(/.{1,100}(?:\s|$)/g);
-      if (parts) sentence = parts.join(". ");
-    }
-    // Add random punctuation inside sentences
-    sentence = sentence.replace(/, /g, function() {
-      return Math.random() < 0.3 ? " " : ", ";
+    // Randomly add human-like fillers
+    sentences = sentences.map(s=>{
+        if(Math.random()<0.05) s="well, "+s;
+        if(Math.random()<0.03) s=s+" you know";
+        return s;
     });
-    return sentence;
-  });
 
-  let humanized = sentences.join(". ") + ".";
-  document.getElementById('output').innerText = humanized;
+    let humanized = sentences.join(". ") + ".";
+    document.getElementById('output').innerText = humanized;
 }
 </script>
 </body>
