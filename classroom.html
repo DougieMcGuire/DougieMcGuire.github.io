@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chat</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            height: 100vh;
+        }
+        .panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #ddd;
+        }
+        .panel:last-child { border-right: none; }
+        .panel-header {
+            padding: 15px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+        }
+        #chat {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .msg {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        .user {
+            align-self: flex-end;
+            background: #007aff;
+            color: white;
+        }
+        .assistant {
+            align-self: flex-start;
+            background: white;
+            color: black;
+            border: 1px solid #e0e0e0;
+        }
+        .input-area {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            font-family: inherit;
+            margin-bottom: 10px;
+        }
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .slider-container {
+            margin-bottom: 15px;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #666;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        #humanized-output {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            min-height: 150px;
+            white-space: pre-wrap;
+            line-height: 1.5;
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .humanizer-content {
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            flex: 1;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="panel">
+        <div class="panel-header">Chat</div>
+        <div id="chat"></div>
+        <div class="input-area">
+            <input type="text" id="input" placeholder="Type a message..." />
+            <button id="send">Send</button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">Text Humanizer</div>
+        <div class="humanizer-content">
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span>Humanization Level</span>
+                    <span id="level-value">5</span>
+                </div>
+                <input type="range" id="humanize-level" min="1" max="10" value="5">
+            </div>
+            <textarea id="text-input" placeholder="Paste text here to humanize..."></textarea>
+            <button id="humanize-btn">Humanize Text</button>
+            <div id="humanized-output"></div>
+        </div>
+    </div>
+
+    <script>
+        const chat = document.getElementById('chat');
+        const input = document.getElementById('input');
+        const sendBtn = document.getElementById('send');
+        const textInput = document.getElementById('text-input');
+        const humanizeBtn = document.getElementById('humanize-btn');
+        const humanizeLevel = document.getElementById('humanize-level');
+        const levelValue = document.getElementById('level-value');
+        const humanizedOutput = document.getElementById('humanized-output');
+        let history = [];
+
+        humanizeLevel.oninput = (e) => {
+            levelValue.textContent = e.target.value;
+        };
+
+        function getSystemPrompt(level = 5) {
+            const levels = {
+                1: "Write naturally and conversationally. Use some casual language and contractions.",
+                3: "Write like youre texting someone smart. Be casual, use contractions, mix up how you start sentences. Real but clear.",
+                5: "Talk like a real person writing an essay or explanation. Use contractions everywhere, vary your sentences a lot, add personality. Sometimes throw in a you know or honestly or actually. Dont be too polished, let it flow naturally. Use some sentence fragments where it feels right. Start some sentences with And or But. Be authentic.",
+                7: "Write exactly how someone would if they were typing their thoughts naturally. Super casual, tons of contractions, fragments, starting with conjunctions, using filler words like honestly actually you know what i mean. Mix long and short sentences randomly. Add personal asides. Rephrase things mid thought. Use rhetorical questions sometimes. Let the writing breathe and feel imperfect.",
+                10: "Maximum human style. Write like someone genuinely typing out their thoughts in real time with zero AI polish. Use tons of contractions, fragments everywhere, run ons, sentences starting with And But Or So. Throw in filler words naturally like honestly tbh actually you know i mean. Use casual phrasing, sometimes drop punctuation where it feels natural, mix up capitalization occasionally if it fits the vibe. Add tangents, backtrack on thoughts, use dashes and ellipses. Personal voice throughout. Make it messy and real and totally human. No perfect structure or AI patterns. Think stream of consciousness but coherent enough to follow."
+            };
+
+            const exactLevel = parseInt(level);
+            if (levels[exactLevel]) return levels[exactLevel];
+            return levels[5];
+        }
+
+        function getHumanizePrompt(level) {
+            const basePrompt = `Rewrite this text to sound completely human written. Critical rules:
+
+1. ELIMINATE AI PATTERNS:
+   - No perfectly balanced sentences or parallel structures
+   - No overly smooth transitions
+   - No repeated sentence patterns (like starting multiple sentences the same way)
+   - No formulaic opening/closing statements
+   - Break up any rhythmic or sing-song quality
+   
+2. ADD HUMAN IMPERFECTIONS:
+   - Mix sentence lengths randomly (some very short, some running on)
+   - Use fragments where natural
+   - Start sentences with And, But, So, Or when it flows
+   - Add filler words: honestly, actually, like, you know, I mean, basically
+   - Include personal asides and tangents
+   - Use casual phrasing and contractions everywhere
+   - Throw in rhetorical questions
+   
+3. VARY STRUCTURE:
+   - No consistent paragraph lengths
+   - Break conventional grammar rules when it sounds more natural
+   - Use dashes, ellipses, parentheses for asides
+   - Mix formal and casual language within the same piece
+   - Let ideas flow messily rather than in perfect order
+   
+4. ADD VOICE:
+   - Include personal observations
+   - Show uncertainty or hedging (maybe, probably, I think, seems like)
+   - Use qualifiers and softeners
+   - Add emphasis naturally (really, super, totally)
+   - Let personality come through
+
+Level ${level} intensity. `;
+
+            if (level <= 3) {
+                return basePrompt + "Keep it mostly clear but add natural variations and break AI patterns.";
+            } else if (level <= 6) {
+                return basePrompt + "Make it genuinely conversational with noticeable human quirks and imperfections.";
+            } else {
+                return basePrompt + "Go maximum natural human style. Make it impossible to detect as AI. Add tons of natural imperfections, casual language, varied structure, personal voice. Think how someone actually writes, not how AI writes.";
+            }
+        }
+
+        function postProcessText(text, level) {
+            let result = text;
+            
+            // Remove common AI phrases
+            const aiPhrases = [
+                /\bIn conclusion,?\b/gi,
+                /\bIn summary,?\b/gi,
+                /\bTo summarize,?\b/gi,
+                /\bIt is important to note that\b/gi,
+                /\bIt should be noted that\b/gi,
+                /\bNotably,?\b/gi,
+                /\bCrucially,?\b/gi,
+                /\bSignificantly,?\b/gi,
+                /\bUltimately,?\b/gi,
+                /\bdelve into\b/gi,
+                /\bdelves into\b/gi,
+                /\btestament to\b/gi,
+                /\bIt is worth noting\b/gi,
+                /\bserves as a reminder\b/gi
+            ];
+
+            for (let phrase of aiPhrases) {
+                result = result.replace(phrase, '');
+            }
+
+            // Add contractions aggressively
+            const contractions = [
+                [/\bI am\b/g, "I'm"],
+                [/\byou are\b/g, "you're"],
+                [/\bwe are\b/g, "we're"],
+                [/\bthey are\b/g, "they're"],
+                [/\bhe is\b/g, "he's"],
+                [/\bshe is\b/g, "she's"],
+                [/\bit is\b/g, "it's"],
+                [/\bthat is\b/g, "that's"],
+                [/\bwho is\b/g, "who's"],
+                [/\bwhat is\b/g, "what's"],
+                [/\bdo not\b/g, "don't"],
+                [/\bdoes not\b/g, "doesn't"],
+                [/\bdid not\b/g, "didn't"],
+                [/\bcannot\b/g, "can't"],
+                [/\bcould not\b/g, "couldn't"],
+                [/\bwould not\b/g, "wouldn't"],
+                [/\bshould not\b/g, "shouldn't"],
+                [/\bwill not\b/g, "won't"],
+                [/\bhave not\b/g, "haven't"],
+                [/\bhas not\b/g, "hasn't"],
+                [/\bhad not\b/g, "hadn't"],
+                [/\bis not\b/g, "isn't"],
+                [/\bwas not\b/g, "wasn't"],
+                [/\bwere not\b/g, "weren't"],
+                [/\bI would\b/g, "I'd"],
+                [/\byou would\b/g, "you'd"],
+                [/\bhe would\b/g, "he'd"],
+                [/\bshe would\b/g, "she'd"],
+                [/\bwe would\b/g, "we'd"],
+                [/\bthey would\b/g, "they'd"],
+                [/\bI have\b/g, "I've"],
+                [/\byou have\b/g, "you've"],
+                [/\bwe have\b/g, "we've"],
+                [/\bthey have\b/g, "they've"],
+                [/\bwho have\b/g, "who've"]
+            ];
+
+            if (level >= 3) {
+                for (let [pattern, replacement] of contractions) {
+                    result = result.replace(pattern, replacement);
+                }
+            }
+
+            // Add filler words at higher levels
+            if (level >= 5) {
+                const sentences = result.split(/\. (?=[A-Z])/);
+                result = sentences.map((s, i) => {
+                    const rand = Math.random();
+                    if (rand > 0.7 && i > 0) {
+                        const fillers = ['honestly', 'actually', 'you know', 'i mean', 'like', 'basically', 'really', 'probably'];
+                        const filler = fillers[Math.floor(Math.random() * fillers.length)];
+                        return filler + ', ' + s.charAt(0).toLowerCase() + s.slice(1);
+                    } else if (rand > 0.85 && i > 0) {
+                        const starts = ['and ', 'but ', 'so '];
+                        const start = starts[Math.floor(Math.random() * starts.length)];
+                        return start + s.charAt(0).toLowerCase() + s.slice(1);
+                    }
+                    return s;
+                }).join('. ');
+            }
+
+            // Vary punctuation at high levels
+            if (level >= 7) {
+                result = result.replace(/\. /g, () => {
+                    const rand = Math.random();
+                    if (rand > 0.85) return '... ';
+                    if (rand > 0.75) return ' - ';
+                    return '. ';
+                });
+
+                // Occasionally lowercase after periods for casual feel
+                result = result.replace(/\. ([A-Z])/g, (match, letter) => {
+                    if (Math.random() > 0.9) {
+                        return '. ' + letter.toLowerCase();
+                    }
+                    return match;
+                });
+            }
+
+            // Clean up extra spaces
+            result = result.replace(/ +/g, ' ').trim();
+            
+            return result;
+        }
+
+        function buildPrompt(userMsg, level = 5) {
+            let prompt = getSystemPrompt(level) + "\n\n";
+            
+            for (let msg of history) {
+                if (msg.role === 'user') {
+                    prompt += `Human: ${msg.content}\n\n`;
+                } else {
+                    prompt += `Assistant: ${msg.content}\n\n`;
+                }
+            }
+            
+            prompt += `Human: ${userMsg}\n\nAssistant:`;
+            return prompt;
+        }
+
+        function addMessage(role, content) {
+            const div = document.createElement('div');
+            div.className = `msg ${role}`;
+            div.textContent = content;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            input.value = '';
+            sendBtn.disabled = true;
+            addMessage('user', msg);
+
+            try {
+                const fullPrompt = buildPrompt(msg, 5);
+                const encodedPrompt = encodeURIComponent(fullPrompt);
+                const seed = Math.floor(Math.random() * 1000000);
+                
+                const url = `https://text.pollinations.ai/${encodedPrompt}?seed=${seed}&model=openai`;
+                
+                const res = await fetch(url);
+                const data = await res.text();
+                
+                try {
+                    const parsed = JSON.parse(data);
+                    if (parsed.refusal !== undefined && parsed.refusal !== null) {
+                        addMessage('assistant', 'ok so basically you put sum in thats bad');
+                        history.push({ role: 'user', content: msg });
+                        history.push({ role: 'assistant', content: 'ok so basically you put sum in thats bad' });
+                        sendBtn.disabled = false;
+                        input.focus();
+                        return;
+                    }
+                } catch (e) {}
+                
+                const humanized = postProcessText(data, 5);
+                
+                history.push({ role: 'user', content: msg });
+                history.push({ role: 'assistant', content: humanized });
+                
+                addMessage('assistant', humanized);
+
+            } catch (err) {
+                addMessage('assistant', 'sorry that didnt work');
+            }
+
+            sendBtn.disabled = false;
+            input.focus();
+        }
+
+        async function humanizeText() {
+            const text = textInput.value.trim();
+            if (!text) return;
+
+            humanizeBtn.disabled = true;
+            humanizedOutput.textContent = 'Processing...';
+
+            try {
+                const level = parseInt(humanizeLevel.value);
+                const prompt = getHumanizePrompt(level) + `\n\nOriginal text:\n${text}\n\nHumanized version:`;
+                const encodedPrompt = encodeURIComponent(prompt);
+                const seed = Math.floor(Math.random() * 1000000);
+                
+                const url = `https://text.pollinations.ai/${encodedPrompt}?seed=${seed}&model=openai`;
+                
+                const res = await fetch(url);
+                const data = await res.text();
+
+                try {
+                    const parsed = JSON.parse(data);
+                    if (parsed.refusal !== undefined && parsed.refusal !== null) {
+                        humanizedOutput.textContent = 'ok so basically you put sum in thats bad';
+                        humanizeBtn.disabled = false;
+                        return;
+                    }
+                } catch (e) {}
+                
+                const humanized = postProcessText(data, level);
+                humanizedOutput.textContent = humanized;
+
+            } catch (err) {
+                humanizedOutput.textContent = 'sorry that didnt work';
+            }
+
+            humanizeBtn.disabled = false;
+        }
+
+        sendBtn.onclick = sendMessage;
+        input.onkeypress = (e) => {
+            if (e.key === 'Enter') sendMessage();
+        };
+        humanizeBtn.onclick = humanizeText;
+    </script>
+</body>
+</html>
