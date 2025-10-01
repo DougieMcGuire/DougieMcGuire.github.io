@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dougie.wtf — Humanize</title>
+<style>
+  :root{
+    --bg:#0f1724; --card:#0b1220; --muted:#9aa4b2; --accent:#7dd3fc; --glass: rgba(255,255,255,0.03);
+    --radius:14px; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{background:linear-gradient(180deg,#061021 0%, #071424 100%); color:#e6eef6; display:flex; align-items:center; justify-content:center; padding:28px;}
+  .wrap{width:100%; max-width:980px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:16px; padding:20px; box-shadow:0 8px 30px rgba(2,6,23,0.8);}
+  header{display:flex; gap:12px; align-items:center; margin-bottom:12px;}
+  h1{font-size:18px; margin:0;}
+  p.lead{margin:0; color:var(--muted); font-size:13px;}
+  .grid{display:grid; grid-template-columns: 1fr 1fr; gap:12px;}
+  .full{grid-column:1/-1;}
+  textarea{width:100%; min-height:200px; resize:vertical; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:var(--card); color:inherit; font-size:14px; line-height:1.45;}
+  .card{background:var(--glass); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.03);}
+  label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px;}
+  .controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .btn{background:linear-gradient(90deg,var(--accent),#60a5fa); color:#022; padding:8px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:600;}
+  .btn.secondary{background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted);}
+  .small{font-size:13px; color:var(--muted);}
+  .output{white-space:pre-wrap; min-height:200px; padding:12px; border-radius:10px; background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.4)); border:1px solid rgba(255,255,255,0.03); font-size:15px;}
+  footer{display:flex; gap:10px; justify-content:space-between; align-items:center; margin-top:12px;}
+  .row{display:flex; gap:8px; align-items:center;}
+  .copybtn{padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:var(--muted); cursor:pointer;}
+  input[type="range"]{width:220px;}
+  .muted{color:var(--muted); font-size:12px;}
+  .hint{font-size:12px; color:var(--muted); margin-top:6px;}
+  @media (max-width:800px){
+    .grid{grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap" role="main" aria-labelledby="title">
+    <header>
+      <div>
+        <h1 id="title">dougie.wtf — Humanize (client-side)</h1>
+        <p class="lead">Make AI-ish text read like a real freshman wrote it — preserve formality if you want, add human quirks.</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card full">
+        <label for="input">Input text</label>
+        <textarea id="input" placeholder="Paste text here (or type)."></textarea>
+        <div class="hint">Tip: paste AI output, then press <strong>Humanize</strong>.</div>
+      </div>
+
+      <div class="card">
+        <label>Intensity <span id="intVal" class="small">0.5</span></label>
+        <input id="intensity" type="range" min="0" max="1" step="0.05" value="0.5" />
+        <div class="muted" style="margin-top:8px">Higher = more randomization & quirks. Lower = light, readable edits.</div>
+      </div>
+
+      <div class="card">
+        <label>Mode</label>
+        <div class="controls">
+          <label style="display:flex; gap:8px; align-items:center;">
+            <input id="formal" type="checkbox" checked /> <span class="small">Formal (keep semi-academic style)</span>
+          </label>
+          <label style="display:flex; gap:8px; align-items:center;">
+            <input id="keepSentences" type="checkbox" checked /> <span class="small">Preserve sentence boundaries</span>
+          </label>
+          <label style="display:flex; gap:8px; align-items:center;">
+            <input id="noProfanity" type="checkbox" checked /> <span class="small">Sanitize extreme slang/profanity</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card full">
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+          <button id="humanizeBtn" class="btn">Humanize</button>
+          <button id="clearBtn" class="btn secondary">Clear Output</button>
+          <button id="swapBtn" class="btn secondary">Swap in/out</button>
+          <div style="flex:1"></div>
+          <button id="downloadBtn" class="btn secondary">Download .txt</button>
+        </div>
+
+        <label>Output</label>
+        <div id="output" class="output" contenteditable="true" role="region" aria-live="polite"></div>
+
+        <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
+          <button id="copyBtn" class="copybtn">Copy</button>
+          <button id="undoBtn" class="copybtn">Undo</button>
+          <div style="flex:1"></div>
+          <span class="muted">You can edit output directly — it will preserve your manual edits when re-running humanizer.</span>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="small muted">Client-only tool — runs in your browser. Use responsibly.</div>
+      <div class="small muted">v1 • by dougie.wtf style</div>
+    </footer>
+  </div>
+
+<script>
+/*
+  Humanizer logic:
+  - Runs entirely client-side
+  - Controls:
+      intensity: 0..1 (aggressiveness)
+      formal: boolean (keep formal tone / less slang)
+      keepSentences: boolean (preserve sentence boundaries)
+      noProfanity: boolean (reduce extreme slang / profanity)
+  - Techniques used:
+      * replace em-dash / ellipses with simple equivalents
+      * insert filler phrases occasionally
+      * lowercase some internal words
+      * add misplaced commas to random words
+      * duplicate small phrases or restate briefly (redundancy)
+      * randomly drop "AI-like" punctuation patterns
+      * small spacing variance
+      * maintain readability when formal=true
+*/
+
+function rand() { return Math.random(); }
+function choice(arr) { return arr[Math.floor(rand()*arr.length)]; }
+
+const fillers = ["like", "you know", "I guess", "sort of", "kind of", "basically", "actually", "maybe", "uh"];
+const mildFillers = ["I think", "it seems", "in my opinion", "this suggests"];
+const softContractions = ["it's", "that's", "there's", "we're"];
+const profanityList = ["fuck","shit","bitch","nigger","cunt","fag"]; // will be sanitized if chosen
+
+function sanitizeProfanity(word){
+  // naive replace by first letter + ****
+  return word[0] + "*".repeat(Math.max(3, word.length-1));
+}
+
+function splitSentences(text){
+  // keep delimiters: .,?! and newline
+  const re = /([^.!?]+[.!?]?)/g;
+  let match, out=[];
+  while ((match = re.exec(text)) !== null) {
+    out.push(match[0].trim());
+  }
+  if (out.length===0 && text.trim().length) out.push(text.trim());
+  return out;
+}
+
+function humanizeText(original, opts){
+  if (!original || original.trim()==="") return "";
+
+  // 1) basic normalization of weird punctuation
+  let text = original.replace(/\u2014/g, " - ").replace(/\u2013/g," - ").replace(/\u2026/g, "..."); // — – …
+  text = text.replace(/\s+—\s+/g, " - ");
+  // collapse weird multiple hyphens
+  text = text.replace(/-{2,}/g,"-");
+
+  // Protect quoted blocks and code-like sections (simple heuristic)
+  const codeSpans = [];
+  text = text.replace(/`[^`]*`/g, m => { codeSpans.push(m); return `__CODE${codeSpans.length-1}__`; });
+  // Also protect URLs
+  const urls = [];
+  text = text.replace(/https?:\/\/\S+/g, m => { urls.push(m); return `__URL${urls.length-1}__`; });
+
+  // Break into sentences if requested
+  let sentences = opts.keepSentences ? splitSentences(text) : [text];
+
+  const intensity = Math.max(0, Math.min(1, opts.intensity));
+
+  // tune probabilities based on intensity and formalness
+  const fillerProb = 0.05 + intensity*0.25; // up to ~0.3
+  const lowercaseProb = 0.02 + intensity*0.12; // up to ~0.14
+  const commaProb = 0.03 + intensity*0.15; // up to ~0.18
+  const redundancyProb = 0.02 + intensity*0.10; // up to ~0.12
+  const randomDeleteProb = intensity * 0.04; // up to ~0.04
+  const spaceNoiseProb = 0.02 + intensity*0.08;
+
+  const outSentences = sentences.map((s, si) => {
+    // preserve leading capitalization if formal and if sentence-start
+    const words = s.split(/\s+/).filter(Boolean);
+    if (words.length===0) return s;
+
+    // Decide per-sentence how many tweaks to allow
+    let tweaksLeft = 1 + Math.floor(intensity * 5);
+
+    // handle simpler replacements: remove AI-esque markers like "[1]" or "(see above)"? We'll lightly strip reference bullets
+    let cleaned = s.replace(/\[\d+\]/g,'').replace(/\(\d+\)/g,'');
+
+    // Token-level processing
+    let newWords = [];
+    for (let i=0;i<words.length;i++){
+      let w = words[i];
+
+      // restore punctuation-only tokens
+      // strip trailing punctuation for safer transforms
+      const trailing = w.match(/[.!?,;:]+$/);
+      const trail = trailing ? trailing[0] : "";
+      let core = trailing ? w.slice(0, -trail.length) : w;
+
+      // strip leading punctuation
+      const leading = core.match(/^[("'“]+/);
+      const lead = leading ? leading[0] : "";
+      core = leading ? core.slice(lead.length) : core;
+
+      // Skip transformations for single-letter words
+      if (core.length <= 1) {
+        newWords.push(w);
+        continue;
+      }
+
+      // Sanitize profanity if requested
+      if (opts.noProfanity) {
+        const lower = core.toLowerCase();
+        if (profanityList.includes(lower)) {
+          core = sanitizeProfanity(core);
+        }
+      }
+
+      // Randomly lowercase internal words but avoid first word of sentence when formal
+      if (!opts.formal && rand() < lowercaseProb && i>0) {
+        core = core.toLowerCase();
+      } else if (opts.formal && rand() < (lowercaseProb*0.5) && i>0) {
+        // smaller chance in formal mode
+        if (rand() < 0.5) core = core.toLowerCase();
+      }
+
+      // Occasionally add a filler before the word
+      if (tweaksLeft>0 && rand() < fillerProb) {
+        const f = intensity > 0.6 ? choice(fillers) : choice(mildFillers);
+        // in formal mode we prefer mildFillers and add less often
+        if (!opts.formal || intensity < 0.7) newWords.push(f);
+        else if (rand() < 0.4) newWords.push(f);
+        tweaksLeft--;
+      }
+
+      // Occasionally insert a misplaced comma after the core (or before space)
+      let appendedComma = "";
+      if (tweaksLeft>0 && rand() < commaProb) {
+        // less likely on very short words or numeric tokens
+        if (!/^\d+$/.test(core) && core.length > 2) {
+          appendedComma = ",";
+          tweaksLeft--;
+        }
+      }
+
+      // Occasionally duplicate a short phrase (redundancy like student writing)
+      if (tweaksLeft>0 && rand() < redundancyProb && i > 0 && core.length > 2) {
+        const dup = core;
+        newWords.push(lead + core + trail + appendedComma);
+        // small chance to restate in simple rewording
+        if (rand() < 0.5) newWords.push("in other words");
+        newWords.push(dup);
+        tweaksLeft--;
+        continue;
+      }
+
+      // Randomly drop extremely "AI-like" bigrams like "In conclusion," (naive)
+      if (rand() < randomDeleteProb && core.length > 3 && core.toLowerCase() === "conclusion") {
+        // drop this word
+        tweaksLeft--;
+        continue;
+      }
+
+      // Reassemble
+      let out = lead + core + appendedComma + trail;
+      newWords.push(out);
+
+      // small chance to add a short pause filler after the word
+      if (tweaksLeft>0 && rand() < (fillerProb*0.2)) {
+        if (!opts.formal) newWords.push(choice(fillers));
+        tweaksLeft--;
+      }
+    }
+
+    // Randomly inject a short sentence fragment at the end (human digression)
+    if (rand() < (0.05 + intensity*0.1)) {
+      const frag = rand() < 0.6 ? choice(["I mean.", "you know.", "right?"]) : "It happens.";
+      // If formal, prefer "I think." or "This seems."
+      if (opts.formal) {
+        newWords.push("I think.");
+      } else {
+        newWords.push(frag);
+      }
+    }
+
+    // Join with slight spacing noise
+    let joined = newWords.join(" ");
+    if (rand() < spaceNoiseProb) {
+      // randomly add double space occasionally
+      joined = joined.replace(/\s+/g, m => (rand()<0.9 ? " " : "  "));
+    }
+
+    // Clean up: ensure first letter capitalization if formal
+    if (opts.formal) {
+      joined = joined.trim();
+      if (joined.length > 0) joined = joined[0].toUpperCase() + joined.slice(1);
+    }
+
+    return joined;
+  });
+
+  let output = outSentences.join(opts.keepSentences ? " " : "\n");
+
+  // final passes: remove repeated multi-spaces
+  output = output.replace(/\s{3,}/g, "  ").replace(/\s+\.\./g, " ..").replace(/ ,/g, ",");
+  // re-insert code spans and urls
+  output = output.replace(/__CODE(\d+)__/g, (_,n)=> codeSpans[Number(n)] || "");
+  output = output.replace(/__URL(\d+)__/g, (_,n)=> urls[Number(n)] || "");
+
+  // Minor post-filter to avoid too many punctuation clusters
+  output = output.replace(/([.,!?]){2,}/g, (m) => m[0]);
+
+  return output.trim();
+}
+
+// UI wiring
+document.addEventListener("DOMContentLoaded", ()=>{
+  const input = document.getElementById("input");
+  const output = document.getElementById("output");
+  const humanizeBtn = document.getElementById("humanizeBtn");
+  const intensity = document.getElementById("intensity");
+  const intVal = document.getElementById("intVal");
+  const formal = document.getElementById("formal");
+  const keepSentences = document.getElementById("keepSentences");
+  const noProfanity = document.getElementById("noProfanity");
+  const copyBtn = document.getElementById("copyBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const swapBtn = document.getElementById("swapBtn");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const undoBtn = document.getElementById("undoBtn");
+
+  let lastOutput = "";
+  let lastInput = "";
+
+  intensity.addEventListener("input", ()=> intVal.textContent = intensity.value);
+
+  humanizeBtn.addEventListener("click", ()=>{
+    lastInput = input.value;
+    const opts = {
+      intensity: parseFloat(intensity.value),
+      formal: formal.checked,
+      keep
