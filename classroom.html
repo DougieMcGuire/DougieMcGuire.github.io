@@ -163,173 +163,164 @@
         };
 
         function getSystemPrompt(level = 5) {
-            const levels = {
-                1: "Write naturally and conversationally. Use some casual language and contractions.",
-                3: "Write like youre texting someone smart. Be casual, use contractions, mix up how you start sentences. Real but clear.",
-                5: "Talk like a real person writing an essay or explanation. Use contractions everywhere, vary your sentences a lot, add personality. Sometimes throw in a you know or honestly or actually. Dont be too polished, let it flow naturally. Use some sentence fragments where it feels right. Start some sentences with And or But. Be authentic.",
-                7: "Write exactly how someone would if they were typing their thoughts naturally. Super casual, tons of contractions, fragments, starting with conjunctions, using filler words like honestly actually you know what i mean. Mix long and short sentences randomly. Add personal asides. Rephrase things mid thought. Use rhetorical questions sometimes. Let the writing breathe and feel imperfect.",
-                10: "Maximum human style. Write like someone genuinely typing out their thoughts in real time with zero AI polish. Use tons of contractions, fragments everywhere, run ons, sentences starting with And But Or So. Throw in filler words naturally like honestly tbh actually you know i mean. Use casual phrasing, sometimes drop punctuation where it feels natural, mix up capitalization occasionally if it fits the vibe. Add tangents, backtrack on thoughts, use dashes and ellipses. Personal voice throughout. Make it messy and real and totally human. No perfect structure or AI patterns. Think stream of consciousness but coherent enough to follow."
-            };
-
-            const exactLevel = parseInt(level);
-            if (levels[exactLevel]) return levels[exactLevel];
-            return levels[5];
+            return "You are helpful and knowledgeable. Respond naturally to questions and avoid repetitive patterns in your writing.";
         }
 
         function getHumanizePrompt(level) {
-            const basePrompt = `Rewrite this text to sound completely human written. Critical rules:
-
-1. ELIMINATE AI PATTERNS:
-   - No perfectly balanced sentences or parallel structures
-   - No overly smooth transitions
-   - No repeated sentence patterns (like starting multiple sentences the same way)
-   - No formulaic opening/closing statements
-   - Break up any rhythmic or sing-song quality
-   
-2. ADD HUMAN IMPERFECTIONS:
-   - Mix sentence lengths randomly (some very short, some running on)
-   - Use fragments where natural
-   - Start sentences with And, But, So, Or when it flows
-   - Add filler words: honestly, actually, like, you know, I mean, basically
-   - Include personal asides and tangents
-   - Use casual phrasing and contractions everywhere
-   - Throw in rhetorical questions
-   
-3. VARY STRUCTURE:
-   - No consistent paragraph lengths
-   - Break conventional grammar rules when it sounds more natural
-   - Use dashes, ellipses, parentheses for asides
-   - Mix formal and casual language within the same piece
-   - Let ideas flow messily rather than in perfect order
-   
-4. ADD VOICE:
-   - Include personal observations
-   - Show uncertainty or hedging (maybe, probably, I think, seems like)
-   - Use qualifiers and softeners
-   - Add emphasis naturally (really, super, totally)
-   - Let personality come through
-
-Level ${level} intensity. `;
-
-            if (level <= 3) {
-                return basePrompt + "Keep it mostly clear but add natural variations and break AI patterns.";
-            } else if (level <= 6) {
-                return basePrompt + "Make it genuinely conversational with noticeable human quirks and imperfections.";
-            } else {
-                return basePrompt + "Go maximum natural human style. Make it impossible to detect as AI. Add tons of natural imperfections, casual language, varied structure, personal voice. Think how someone actually writes, not how AI writes.";
-            }
+            return `Rewrite this text. Keep the same ideas and information but write it differently. Vary your sentence structure and avoid repetitive patterns. Use standard punctuation only.`;
         }
 
-        function postProcessText(text, level) {
+        function deepHumanize(text, level) {
             let result = text;
+
+            // Remove em dashes and long dashes
+            result = result.replace(/—/g, ' ');
+            result = result.replace(/–/g, ' ');
+            result = result.replace(/\u2014/g, ' ');
+            result = result.replace(/\u2013/g, ' ');
             
-            // Remove common AI phrases
-            const aiPhrases = [
-                /\bIn conclusion,?\b/gi,
-                /\bIn summary,?\b/gi,
-                /\bTo summarize,?\b/gi,
-                /\bIt is important to note that\b/gi,
-                /\bIt should be noted that\b/gi,
-                /\bNotably,?\b/gi,
-                /\bCrucially,?\b/gi,
-                /\bSignificantly,?\b/gi,
-                /\bUltimately,?\b/gi,
-                /\bdelve into\b/gi,
-                /\bdelves into\b/gi,
-                /\btestament to\b/gi,
-                /\bIt is worth noting\b/gi,
-                /\bserves as a reminder\b/gi
-            ];
+            // Remove ellipses at sentence ends sometimes
+            result = result.replace(/\.\.\.(\s+[A-Z])/g, (match, next) => {
+                if (Math.random() > 0.5) return '.' + next;
+                return match;
+            });
 
-            for (let phrase of aiPhrases) {
-                result = result.replace(phrase, '');
-            }
-
-            // Add contractions aggressively
-            const contractions = [
-                [/\bI am\b/g, "I'm"],
-                [/\byou are\b/g, "you're"],
-                [/\bwe are\b/g, "we're"],
-                [/\bthey are\b/g, "they're"],
-                [/\bhe is\b/g, "he's"],
-                [/\bshe is\b/g, "she's"],
-                [/\bit is\b/g, "it's"],
-                [/\bthat is\b/g, "that's"],
-                [/\bwho is\b/g, "who's"],
-                [/\bwhat is\b/g, "what's"],
-                [/\bdo not\b/g, "don't"],
-                [/\bdoes not\b/g, "doesn't"],
-                [/\bdid not\b/g, "didn't"],
-                [/\bcannot\b/g, "can't"],
-                [/\bcould not\b/g, "couldn't"],
-                [/\bwould not\b/g, "wouldn't"],
-                [/\bshould not\b/g, "shouldn't"],
-                [/\bwill not\b/g, "won't"],
-                [/\bhave not\b/g, "haven't"],
-                [/\bhas not\b/g, "hasn't"],
-                [/\bhad not\b/g, "hadn't"],
-                [/\bis not\b/g, "isn't"],
-                [/\bwas not\b/g, "wasn't"],
-                [/\bwere not\b/g, "weren't"],
-                [/\bI would\b/g, "I'd"],
+            // Aggressive contractions
+            const contractionMap = [
+                [/\b[Ii] am\b/g, "I'm"],
+                [/\b[Yy]ou are\b/g, "you're"],
+                [/\b[Ww]e are\b/g, "we're"],
+                [/\b[Tt]hey are\b/g, "they're"],
+                [/\b[Hh]e is\b/g, "he's"],
+                [/\b[Ss]he is\b/g, "she's"],
+                [/\b[Ii]t is\b/g, "it's"],
+                [/\b[Tt]hat is\b/g, "that's"],
+                [/\b[Ww]ho is\b/g, "who's"],
+                [/\b[Ww]hat is\b/g, "what's"],
+                [/\b[Dd]o not\b/g, "don't"],
+                [/\b[Dd]oes not\b/g, "doesn't"],
+                [/\b[Dd]id not\b/g, "didn't"],
+                [/\b[Cc]annot\b/g, "can't"],
+                [/\b[Cc]ould not\b/g, "couldn't"],
+                [/\b[Ww]ould not\b/g, "wouldn't"],
+                [/\b[Ss]hould not\b/g, "shouldn't"],
+                [/\b[Ww]ill not\b/g, "won't"],
+                [/\b[Hh]ave not\b/g, "haven't"],
+                [/\b[Hh]as not\b/g, "hasn't"],
+                [/\b[Hh]ad not\b/g, "hadn't"],
+                [/\b[Ii]s not\b/g, "isn't"],
+                [/\b[Ww]as not\b/g, "wasn't"],
+                [/\b[Ww]ere not\b/g, "weren't"],
+                [/\b[Ii] would\b/g, "I'd"],
                 [/\byou would\b/g, "you'd"],
                 [/\bhe would\b/g, "he'd"],
                 [/\bshe would\b/g, "she'd"],
                 [/\bwe would\b/g, "we'd"],
                 [/\bthey would\b/g, "they'd"],
-                [/\bI have\b/g, "I've"],
+                [/\b[Ii] have\b/g, "I've"],
                 [/\byou have\b/g, "you've"],
                 [/\bwe have\b/g, "we've"],
-                [/\bthey have\b/g, "they've"],
-                [/\bwho have\b/g, "who've"]
+                [/\bthey have\b/g, "they've"]
             ];
 
-            if (level >= 3) {
-                for (let [pattern, replacement] of contractions) {
-                    result = result.replace(pattern, replacement);
-                }
+            for (let [pattern, replacement] of contractionMap) {
+                result = result.replace(pattern, replacement);
             }
 
-            // Add filler words at higher levels
-            if (level >= 5) {
-                const sentences = result.split(/\. (?=[A-Z])/);
-                result = sentences.map((s, i) => {
-                    const rand = Math.random();
-                    if (rand > 0.7 && i > 0) {
-                        const fillers = ['honestly', 'actually', 'you know', 'i mean', 'like', 'basically', 'really', 'probably'];
-                        const filler = fillers[Math.floor(Math.random() * fillers.length)];
-                        return filler + ', ' + s.charAt(0).toLowerCase() + s.slice(1);
-                    } else if (rand > 0.85 && i > 0) {
-                        const starts = ['and ', 'but ', 'so '];
-                        const start = starts[Math.floor(Math.random() * starts.length)];
-                        return start + s.charAt(0).toLowerCase() + s.slice(1);
+            // Split into sentences
+            let sentences = result.split(/(?<=[.!?])\s+/);
+
+            // Process each sentence
+            sentences = sentences.map((sentence, idx) => {
+                let s = sentence;
+
+                // Add filler words at higher levels
+                if (level >= 5 && Math.random() > 0.65) {
+                    const fillers = ['honestly', 'actually', 'basically', 'really', 'probably', 'like', 'you know'];
+                    const filler = fillers[Math.floor(Math.random() * fillers.length)];
+                    if (!s.toLowerCase().startsWith(filler)) {
+                        s = filler + ' ' + s.charAt(0).toLowerCase() + s.slice(1);
                     }
-                    return s;
-                }).join('. ');
-            }
+                }
 
-            // Vary punctuation at high levels
-            if (level >= 7) {
-                result = result.replace(/\. /g, () => {
-                    const rand = Math.random();
-                    if (rand > 0.85) return '... ';
-                    if (rand > 0.75) return ' - ';
-                    return '. ';
-                });
+                // Remove some filler words randomly
+                if (Math.random() > 0.7) {
+                    s = s.replace(/\b(honestly|actually|basically|truly|really|quite|very|somewhat|rather),?\s/gi, '');
+                }
 
-                // Occasionally lowercase after periods for casual feel
-                result = result.replace(/\. ([A-Z])/g, (match, letter) => {
-                    if (Math.random() > 0.9) {
+                // Add conjunctions at sentence start
+                if (level >= 6 && idx > 0 && Math.random() > 0.75) {
+                    const conjunctions = ['And ', 'But ', 'So ', 'Or '];
+                    const conj = conjunctions[Math.floor(Math.random() * conjunctions.length)];
+                    if (!/^(And|But|So|Or)\s/i.test(s)) {
+                        s = conj + s.charAt(0).toLowerCase() + s.slice(1);
+                    }
+                }
+
+                // Introduce minor grammar issues
+                if (level >= 7 && Math.random() > 0.85) {
+                    // Missing comma before "and"
+                    s = s.replace(/, and /g, () => Math.random() > 0.5 ? ' and ' : ', and ');
+                    // Extra comma
+                    if (Math.random() > 0.7) {
+                        const words = s.split(' ');
+                        if (words.length > 5) {
+                            const pos = Math.floor(Math.random() * (words.length - 2)) + 2;
+                            words[pos] = words[pos] + ',';
+                            s = words.join(' ');
+                        }
+                    }
+                }
+
+                // Vary punctuation
+                if (level >= 8 && Math.random() > 0.8) {
+                    if (s.endsWith('.')) {
+                        const variations = ['.', '..', '...'];
+                        s = s.slice(0, -1) + variations[Math.floor(Math.random() * variations.length)];
+                    }
+                }
+
+                return s;
+            });
+
+            result = sentences.join(' ');
+
+            // Fix double spaces
+            result = result.replace(/  +/g, ' ');
+
+            // Random lowercase after period
+            if (level >= 8) {
+                result = result.replace(/\.\s+([A-Z])/g, (match, letter) => {
+                    if (Math.random() > 0.92) {
                         return '. ' + letter.toLowerCase();
                     }
                     return match;
                 });
             }
 
-            // Clean up extra spaces
-            result = result.replace(/ +/g, ' ').trim();
-            
-            return result;
+            // Remove overly formal transitions
+            result = result.replace(/\b(Furthermore|Moreover|Nevertheless|Nonetheless|Subsequently|Consequently|Therefore),?\s/gi, '');
+            result = result.replace(/\bIn conclusion,?\s/gi, '');
+            result = result.replace(/\bIn summary,?\s/gi, '');
+            result = result.replace(/\bTo summarize,?\s/gi, '');
+
+            // Break up parallel structures by adding variation
+            const parallelPatterns = [
+                /(\w+ing),\s(\w+ing),\s(and\s)?(\w+ing)/gi,
+                /\bHe (\w+)\.\s+He (\w+)\.\s+He (\w+)\./gi,
+                /\bShe (\w+)\.\s+She (\w+)\.\s+She (\w+)\./gi
+            ];
+
+            for (let pattern of parallelPatterns) {
+                if (pattern.test(result) && Math.random() > 0.6) {
+                    result = result.replace(pattern, (match) => {
+                        const fillers = ['also', 'then', 'plus'];
+                        return match.replace(/\.\s+/, '. ' + fillers[Math.floor(Math.random() * fillers.length)] + ' ');
+                    });
+                }
+            }
+
+            return result.trim();
         }
 
         function buildPrompt(userMsg, level = 5) {
@@ -385,7 +376,7 @@ Level ${level} intensity. `;
                     }
                 } catch (e) {}
                 
-                const humanized = postProcessText(data, 5);
+                const humanized = deepHumanize(data, 5);
                 
                 history.push({ role: 'user', content: msg });
                 history.push({ role: 'assistant', content: humanized });
@@ -409,7 +400,7 @@ Level ${level} intensity. `;
 
             try {
                 const level = parseInt(humanizeLevel.value);
-                const prompt = getHumanizePrompt(level) + `\n\nOriginal text:\n${text}\n\nHumanized version:`;
+                const prompt = getHumanizePrompt(level) + `\n\nText:\n${text}\n\nRewritten:`;
                 const encodedPrompt = encodeURIComponent(prompt);
                 const seed = Math.floor(Math.random() * 1000000);
                 
@@ -427,7 +418,7 @@ Level ${level} intensity. `;
                     }
                 } catch (e) {}
                 
-                const humanized = postProcessText(data, level);
+                const humanized = deepHumanize(data, level);
                 humanizedOutput.textContent = humanized;
 
             } catch (err) {
