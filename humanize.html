@@ -1,432 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Text Humanizer</title>
-    <style>
-        :root {
-            --primary-color: #4a6fa5;
-            --secondary-color: #6b8cbc;
-            --background-color: #f5f7fa;
-            --text-color: #333;
-            --border-color: #ddd;
-            --success-color: #28a745;
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: var(--background-color);
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-        }
-        
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--primary-color);
-        }
-        
-        .description {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #666;
-        }
-        
-        .input-section, .output-section {
-            margin-bottom: 30px;
-        }
-        
-        h2 {
-            margin-bottom: 15px;
-            color: var(--primary-color);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-        }
-        
-        textarea {
-            width: 100%;
-            min-height: 200px;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-family: inherit;
-            font-size: 16px;
-            resize: vertical;
-        }
-        
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 20px 0;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: var(--secondary-color);
-        }
-        
-        .stats {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .stat-item {
-            background-color: #f0f4f8;
-            padding: 8px 15px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .output-container {
-            position: relative;
-        }
-        
-        .copy-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: var(--success-color);
-        }
-        
-        .copy-btn:hover {
-            background-color: #218838;
-        }
-        
-        .techniques-list {
-            margin-top: 30px;
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 15px;
-        }
-        
-        .techniques-list h3 {
-            margin-bottom: 10px;
-        }
-        
-        .techniques-list ul {
-            list-style-type: none;
-            columns: 2;
-        }
-        
-        .techniques-list li {
-            margin-bottom: 5px;
-            padding-left: 15px;
-            position: relative;
-            break-inside: avoid;
-        }
-        
-        .techniques-list li:before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: var(--primary-color);
-        }
-        
-        @media (max-width: 768px) {
-            .techniques-list ul {
-                columns: 1;
-            }
-            
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .stats {
-                justify-content: center;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Humanizer Advanced</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f5f5f5;
+  }
+  h1 {
+    font-size: 24px;
+  }
+  textarea {
+    width: 100%;
+    height: 150px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    padding: 10px;
+  }
+  button {
+    padding: 10px 15px;
+    font-size: 16px;
+  }
+  #output {
+    margin-top: 20px;
+    white-space: pre-wrap;
+    background-color: #fff;
+    padding: 15px;
+    border: 1px solid #ccc;
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>AI Text Humanizer</h1>
-        <p class="description">Transform AI-generated text into human-like content that bypasses AI detection</p>
-        
-        <div class="input-section">
-            <h2>Input Text (AI-Generated)</h2>
-            <textarea id="inputText" placeholder="Paste your AI-generated text here..."></textarea>
-            
-            <div class="controls">
-                <button id="humanizeBtn">Humanize Text</button>
-                <div class="stats">
-                    <div class="stat-item">Words: <span id="wordCount">0</span></div>
-                    <div class="stat-item">Characters: <span id="charCount">0</span></div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="output-section">
-            <h2>Humanized Output</h2>
-            <div class="output-container">
-                <textarea id="outputText" placeholder="Humanized text will appear here..." readonly></textarea>
-                <button id="copyBtn" class="copy-btn">Copy Text</button>
-            </div>
-        </div>
-        
-        <div class="techniques-list">
-            <h3>Applied Humanization Techniques</h3>
-            <ul id="techniquesUsed">
-                <!-- Techniques will be listed here -->
-            </ul>
-        </div>
-    </div>
+<h1>AI Humanizer Advanced</h1>
+<textarea id="input" placeholder="Paste AI-generated text here"></textarea>
+<br>
+<button onclick="humanizeText()">Humanize Text</button>
+<div id="output"></div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const inputText = document.getElementById('inputText');
-            const outputText = document.getElementById('outputText');
-            const humanizeBtn = document.getElementById('humanizeBtn');
-            const copyBtn = document.getElementById('copyBtn');
-            const wordCount = document.getElementById('wordCount');
-            const charCount = document.getElementById('charCount');
-            const techniquesUsed = document.getElementById('techniquesUsed');
-            
-            // Update character and word count
-            inputText.addEventListener('input', function() {
-                const text = inputText.value;
-                charCount.textContent = text.length;
-                wordCount.textContent = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
-            });
-            
-            // Humanize text when button is clicked
-            humanizeBtn.addEventListener('click', function() {
-                const originalText = inputText.value;
-                if (!originalText.trim()) {
-                    alert('Please enter some text to humanize.');
-                    return;
-                }
-                
-                const humanizedText = humanizeText(originalText);
-                outputText.value = humanizedText;
-                
-                // Update techniques used
-                updateTechniquesList();
-            });
-            
-            // Copy output text
-            copyBtn.addEventListener('click', function() {
-                outputText.select();
-                document.execCommand('copy');
-                
-                // Visual feedback
-                const originalText = copyBtn.textContent;
-                copyBtn.textContent = 'Copied!';
-                setTimeout(() => {
-                    copyBtn.textContent = originalText;
-                }, 2000);
-            });
-            
-            // Humanization function
-            function humanizeText(text) {
-                let result = text;
-                const appliedTechniques = [];
-                
-                // Split into sentences
-                const sentences = result.split(/(?<=[.!?])\s+/);
-                
-                // Apply various humanization techniques
-                
-                // 1. Add personal anecdotes and opinions
-                if (sentences.length > 3) {
-                    const randomIndex = Math.floor(Math.random() * (sentences.length - 2)) + 1;
-                    sentences.splice(randomIndex, 0, "I remember when I first learned about this topic in school.");
-                    appliedTechniques.push("Add a brief personal anecdote");
-                }
-                
-                // 2. Add personal opinions
-                if (sentences.length > 2) {
-                    const opinionIndex = Math.floor(Math.random() * (sentences.length - 1)) + 1;
-                    sentences[opinionIndex] = "I think " + sentences[opinionIndex].toLowerCase();
-                    appliedTechniques.push("Include a short personal opinion sentence");
-                }
-                
-                // 3. Add uncertainty
-                if (sentences.length > 4) {
-                    const uncertaintyIndex = Math.floor(Math.random() * (sentences.length - 1)) + 1;
-                    sentences[uncertaintyIndex] = "I'm not sure, but " + sentences[uncertaintyIndex].toLowerCase();
-                    appliedTechniques.push("Mention a small uncertainty");
-                }
-                
-                // 4. Use filler words and conversational phrases
-                for (let i = 0; i < sentences.length; i++) {
-                    if (Math.random() < 0.1) { // 10% chance
-                        sentences[i] = "Well, " + sentences[i].toLowerCase();
-                        appliedTechniques.push("Begin sentences with conversational starters");
-                    }
-                    
-                    if (Math.random() < 0.08) { // 8% chance
-                        sentences[i] = sentences[i].replace(/\.$/, ", you know.");
-                        appliedTechniques.push("Insert filler words");
-                    }
-                    
-                    if (Math.random() < 0.07) { // 7% chance
-                        sentences[i] = sentences[i].replace(/\.$/, ", I guess.");
-                        appliedTechniques.push("Add 'I guess' to soften claims");
-                    }
-                }
-                
-                // 5. Vary sentence length and structure
-                const newSentences = [];
-                for (let i = 0; i < sentences.length; i++) {
-                    if (Math.random() < 0.15 && sentences[i].length > 20) { // 15% chance for long sentences
-                        // Split long sentence into two
-                        const parts = sentences[i].split(/[,;]/);
-                        if (parts.length > 1) {
-                            newSentences.push(parts[0] + ".");
-                            newSentences.push(parts.slice(1).join(",") + ".");
-                            appliedTechniques.push("Alternate short and long sentences");
-                        } else {
-                            newSentences.push(sentences[i]);
-                        }
-                    } else {
-                        newSentences.push(sentences[i]);
-                    }
-                    
-                    // Add sentence fragments occasionally
-                    if (Math.random() < 0.05) { // 5% chance
-                        newSentences.push("Which is interesting.");
-                        appliedTechniques.push("Insert sentence fragments as stylistic choice");
-                    }
-                }
-                
-                // 6. Add rhetorical questions
-                if (newSentences.length > 3 && Math.random() < 0.3) {
-                    const questionIndex = Math.floor(Math.random() * (newSentences.length - 1)) + 1;
-                    newSentences.splice(questionIndex, 0, "But what does this really mean?");
-                    appliedTechniques.push("Use rhetorical questions among statements");
-                }
-                
-                // 7. Add transitional phrases
-                for (let i = 1; i < newSentences.length; i++) {
-                    if (Math.random() < 0.1) { // 10% chance
-                        const transitions = ["That said, ", "However, ", "Meanwhile, ", "Interestingly, ", "Surprisingly, "];
-                        const transition = transitions[Math.floor(Math.random() * transitions.length)];
-                        newSentences[i] = transition + newSentences[i].toLowerCase();
-                        appliedTechniques.push("Place transitional starters");
-                    }
-                }
-                
-                // 8. Introduce minor errors and inconsistencies
-                for (let i = 0; i < newSentences.length; i++) {
-                    // Randomly lowercase sentence starters
-                    if (Math.random() < 0.03) { // 3% chance
-                        newSentences[i] = newSentences[i].charAt(0).toLowerCase() + newSentences[i].slice(1);
-                        appliedTechniques.push("Randomly lowercase sentence-initial words");
-                    }
-                    
-                    // Add occasional typos
-                    if (Math.random() < 0.02) { // 2% chance
-                        newSentences[i] = newSentences[i].replace(/\bthe\b/g, Math.random() < 0.5 ? "teh" : "the");
-                        appliedTechniques.push("Introduce single-character typos");
-                    }
-                    
-                    // Add double spaces occasionally
-                    if (Math.random() < 0.04) { // 4% chance
-                        newSentences[i] = newSentences[i].replace(/\s+/g, function(match) {
-                            return Math.random() < 0.1 ? "  " : " ";
-                        });
-                        appliedTechniques.push("Randomly insert double spaces between words");
-                    }
-                    
-                    // Omit commas occasionally
-                    if (Math.random() < 0.05) { // 5% chance
-                        newSentences[i] = newSentences[i].replace(/,/g, function(match) {
-                            return Math.random() < 0.2 ? "" : match;
-                        });
-                        appliedTechniques.push("Occasionally omit commas where they'd be expected");
-                    }
-                }
-                
-                // 9. Add parenthetical asides
-                if (newSentences.length > 2) {
-                    const asideIndex = Math.floor(Math.random() * (newSentences.length - 1)) + 1;
-                    newSentences[asideIndex] = newSentences[asideIndex].replace(/\.$/, " (based on my experience).");
-                    appliedTechniques.push("Add casual asides in parentheses");
-                }
-                
-                // 10. Use informal language and contractions
-                for (let i = 0; i < newSentences.length; i++) {
-                    newSentences[i] = newSentences[i]
-                        .replace(/\bdo not\b/gi, "don't")
-                        .replace(/\bcannot\b/gi, "can't")
-                        .replace(/\bwill not\b/gi, "won't")
-                        .replace(/\bit is\b/gi, "it's")
-                        .replace(/\bI am\b/gi, "I'm");
-                    appliedTechniques.push("Use informal contractions");
-                }
-                
-                // 11. Add hedging phrases
-                for (let i = 0; i < newSentences.length; i++) {
-                    if (Math.random() < 0.08 && !newSentences[i].startsWith("I think")) {
-                        newSentences[i] = "It seems " + newSentences[i].toLowerCase();
-                        appliedTechniques.push("Use hedging phrases");
-                    }
-                }
-                
-                // 12. End with a reflective question
-                if (newSentences.length > 2 && Math.random() < 0.4) {
-                    newSentences.push("What do you think about all this?");
-                    appliedTechniques.push("End with a reflective question");
-                }
-                
-                result = newSentences.join(" ");
-                
-                // Store applied techniques for display
-                window.appliedTechniques = [...new Set(appliedTechniques)]; // Remove duplicates
-                
-                return result;
-            }
-            
-            function updateTechniquesList() {
-                techniquesUsed.innerHTML = '';
-                if (window.appliedTechniques && window.appliedTechniques.length > 0) {
-                    window.appliedTechniques.forEach(technique => {
-                        const li = document.createElement('li');
-                        li.textContent = technique;
-                        techniquesUsed.appendChild(li);
-                    });
-                } else {
-                    techniquesUsed.innerHTML = '<li>No techniques applied yet</li>';
-                }
-            }
-            
-            // Initialize techniques list
-            updateTechniquesList();
-        });
-    </script>
+<script>
+function humanizeText() {
+  let text = document.getElementById('input').value;
+
+  // Remove em dashes
+  text = text.replace(/—/g, "");
+
+  // Word substitutions for "banned words"
+  const substitutions = {
+    "can": "could",
+    "could": "can",
+    "may": "might",
+    "just": "simply",
+    "really": "truly",
+    "actually": "in fact",
+    "that": "which",
+    "very": "extremely"
+    // add more substitutions as needed
+  };
+
+  for (let word in substitutions) {
+    let regex = new RegExp("\\b" + word + "\\b", "gi");
+    text = text.replace(regex, function(match) {
+      // Randomize capitalization
+      if (Math.random() < 0.3) match = match.toUpperCase();
+      return substitutions[word];
+    });
+  }
+
+  // Introduce random punctuation and comma randomness
+  text = text.split(" ").map(word => {
+    if (Math.random() < 0.1) word += ",";
+    if (Math.random() < 0.05) word = word.toUpperCase();
+    return word;
+  }).join(" ");
+
+  // Split sentences
+  let sentences = text.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 0);
+
+  // Randomly break long sentences
+  sentences = sentences.map(sentence => {
+    if (sentence.length > 120) {
+      let parts = sentence.match(/.{1,100}(?:\s|$)/g);
+      if (parts) sentence = parts.join(". ");
+    }
+    // Add random punctuation inside sentences
+    sentence = sentence.replace(/, /g, function() {
+      return Math.random() < 0.3 ? " " : ", ";
+    });
+    return sentence;
+  });
+
+  let humanized = sentences.join(". ") + ".";
+  document.getElementById('output').innerText = humanized;
+}
+</script>
 </body>
 </html>
