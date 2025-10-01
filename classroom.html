@@ -1,384 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Chat</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #f5f5f5;
-            display: flex;
-            height: 100vh;
-        }
-        .panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid #ddd;
-        }
-        .panel:last-child { border-right: none; }
-        .panel-header {
-            padding: 15px;
-            background: white;
-            border-bottom: 1px solid #e0e0e0;
-            font-weight: 600;
-        }
-        #chat {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .msg {
-            max-width: 70%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            line-height: 1.4;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-        }
-        .user {
-            align-self: flex-end;
-            background: #007aff;
-            color: white;
-        }
-        .assistant {
-            align-self: flex-start;
-            background: white;
-            color: black;
-            border: 1px solid #e0e0e0;
-        }
-        .input-area {
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #e0e0e0;
-        }
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 15px;
-            outline: none;
-            font-family: inherit;
-            margin-bottom: 10px;
-        }
-        textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #007aff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            margin-bottom: 10px;
-        }
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .slider-container {
-            margin-bottom: 15px;
-        }
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 13px;
-            color: #666;
-        }
-        input[type="range"] {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        #humanized-output {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            min-height: 150px;
-            white-space: pre-wrap;
-            line-height: 1.5;
-            flex: 1;
-            overflow-y: auto;
-            margin-bottom: 10px;
-        }
-        .humanizer-content {
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
-            flex: 1;
-            overflow: hidden;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Class Portal</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: Arial, sans-serif; background:#f4f6f8; display:flex; height:100vh; }
+.header { height:60px; background:#ffffff; display:flex; align-items:center; padding:0 20px; border-bottom:1px solid #ddd; justify-content:space-between; }
+.header-left { font-weight:700; color:#0b61d6; font-size:20px; }
+.header-right { font-size:14px; color:#555; }
+.container { display:flex; flex:1; overflow:hidden; }
+.panel { flex:1; display:flex; flex-direction:column; border-right:1px solid #ddd; background:#fff; }
+.panel:last-child { border-right:none; }
+.panel-header { padding:15px; font-weight:600; border-bottom:1px solid #eee; background:#f9f9f9; }
+.top-tabs { display:flex; gap:8px; margin-top:8px; }
+.tab { padding:6px 12px; background:#eef6ff; color:#0b61d6; border-radius:6px; font-weight:600; font-size:13px; }
+.chat-area { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:14px; }
+.msg { max-width:70%; padding:12px 16px; border-radius:16px; line-height:1.4; white-space:pre-wrap; word-wrap:break-word; }
+.user { align-self:flex-end; background:#0b61d6; color:white; }
+.assistant { align-self:flex-start; background:#f0f0f0; color:#111; }
+.input-area { padding:15px; background:#fff; border-top:1px solid #eee; }
+input[type=text], textarea { width:100%; padding:10px; border-radius:6px; border:1px solid #ccc; font-size:14px; margin-bottom:10px; }
+textarea { min-height:120px; resize:vertical; }
+button { width:100%; padding:10px; background:#0b61d6; color:white; border:none; border-radius:6px; cursor:pointer; font-size:14px; margin-bottom:10px; }
+button:disabled { opacity:0.5; cursor:not-allowed; }
+.right-panel { flex:1; display:flex; flex-direction:column; padding:15px; gap:12px; overflow:hidden; }
+.card { background:#fff; border:1px solid #eee; border-radius:8px; padding:12px; box-shadow:0 1px 0 rgba(0,0,0,0.05); display:flex; flex-direction:column; flex:1; overflow:hidden; }
+.slider-label { display:flex; justify-content:space-between; font-size:13px; color:#666; margin-bottom:5px; }
+#humanized-output { background:#f9f9f9; border:1px solid #eee; border-radius:6px; padding:12px; flex:1; overflow-y:auto; white-space:pre-wrap; line-height:1.4; }
+</style>
 </head>
 <body>
-    <div class="panel">
-        <div class="panel-header">Chat</div>
-        <div id="chat"></div>
-        <div class="input-area">
-            <input type="text" id="input" placeholder="Type a message..." />
-            <button id="send">Send</button>
-        </div>
+<div class="header">
+  <div class="header-left">Class Portal</div>
+  <div class="header-right">teacher@example.edu</div>
+</div>
+<div class="container">
+  <div class="panel">
+    <div class="panel-header">
+      Chat
+      <div class="top-tabs">
+        <div class="tab">Stream</div>
+        <div class="tab">Classwork</div>
+        <div class="tab">People</div>
+      </div>
     </div>
-
-    <div class="panel">
-        <div class="panel-header">Text Humanizer</div>
-        <div class="humanizer-content">
-            <div class="slider-container">
-                <div class="slider-label">
-                    <span>Humanization Level</span>
-                    <span id="level-value">5</span>
-                </div>
-                <input type="range" id="humanize-level" min="1" max="10" value="5">
-            </div>
-            <textarea id="text-input" placeholder="Paste text here to humanize..."></textarea>
-            <button id="humanize-btn">Humanize Text</button>
-            <div id="humanized-output"></div>
-        </div>
+    <div id="chat" class="chat-area"></div>
+    <div class="input-area">
+      <input type="text" id="input" placeholder="Type a message...">
+      <button id="send">Send</button>
     </div>
+  </div>
+  <div class="panel">
+    <div class="panel-header">Text Humanizer</div>
+    <div class="right-panel">
+      <div class="card">
+        <div class="slider-label">
+          <span>Humanization Level</span>
+          <span id="level-value">5</span>
+        </div>
+        <input type="range" id="humanize-level" min="1" max="10" value="5">
+        <textarea id="text-input" placeholder="Paste text here to humanize..."></textarea>
+        <button id="humanize-btn">Humanize Text</button>
+      </div>
+      <div class="card">
+        <div id="humanized-output"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// Keep your existing humanizer and chat code
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('send');
+const textInput = document.getElementById('text-input');
+const humanizeBtn = document.getElementById('humanize-btn');
+const humanizeLevel = document.getElementById('humanize-level');
+const levelValue = document.getElementById('level-value');
+const humanizedOutput = document.getElementById('humanized-output');
+let history = [];
 
-    <script>
-        const chat = document.getElementById('chat');
-        const input = document.getElementById('input');
-        const sendBtn = document.getElementById('send');
-        const textInput = document.getElementById('text-input');
-        const humanizeBtn = document.getElementById('humanize-btn');
-        const humanizeLevel = document.getElementById('humanize-level');
-        const levelValue = document.getElementById('level-value');
-        const humanizedOutput = document.getElementById('humanized-output');
-        let history = [];
+humanizeLevel.oninput = e => { levelValue.textContent = e.target.value; }
 
-        humanizeLevel.oninput = (e) => {
-            levelValue.textContent = e.target.value;
-        };
+function balancedHumanize(text, level) {
+  let result = String(text||"").replace(/—/g,"");
+  const subs={"can":"could","could":"can","may":"might","just":"simply","really":"truly","actually":"in fact","that":"which","very":"extremely"};
+  const conjunctions=["And","But","Or","So"];
+  result=result.split(" ").map(word=>{
+    let clean=word.replace(/[^a-zA-Z]/g,""),lower=clean.toLowerCase();
+    if(subs[lower]) word=word.replace(clean,subs[lower]);
+    if(level>=5&&Math.random()<0.07) word=word.charAt(0).toUpperCase()+word.slice(1).toLowerCase();
+    if(level>=8&&Math.random()<0.03&&word.length>3){let i=Math.floor(Math.random()*(word.length-1)); word=word.slice(0,i)+word[i+1]+word[i]+word.slice(i+2);}
+    if(level>=7&&Math.random()<0.02&&word.length>2) word+=word[word.length-1];
+    return word;
+  }).join(" ");
+  if(level>=4) result=result.replace(/, /g,()=>Math.random()<0.5?", ":" ");
+  let sentences=result.split(/[.!?]+/).map(s=>s.trim()).filter(Boolean);
+  sentences=sentences.map(s=>{
+    if(level>=6&&s.length>120&&Math.random()<0.5){let p=Math.floor(s.length/2); s=s.slice(0,p)+". "+s.slice(p);}
+    if(level>=5&&Math.random()<0.05) s="Well, "+s;
+    if(level>=6&&Math.random()<0.03) s=s+" you know";
+    if(level>=4&&Math.random()<0.05) s=conjunctions[Math.floor(Math.random()*conjunctions.length)]+" "+s;
+    return s;
+  });
+  result=sentences.join(". ")+".";
+  result=result.replace(/\s+/g,' ').replace(/\s+\./g,'.').replace(/\.{2,}/g,'.');
+  return result.trim();
+}
 
-        function getSystemPrompt(level = 5) {
-            return "You are a helpful assistant. Write clearly using simple language that an 8th grader would understand. Avoid complex vocabulary and keep sentences straightforward.";
-        }
+function addMessage(role,content){const div=document.createElement('div'); div.className='msg '+role; div.textContent=content; chat.appendChild(div); chat.scrollTop=chat.scrollHeight;}
 
-        function getHumanizePrompt(level) {
-            return `Rewrite this text using simple 8th grade level vocabulary. Keep the same information but make it easier to read and understand. Use common everyday words instead of complex terms.`;
-        }
+function buildPrompt(msg){let p="You are a helpful assistant. Write clearly using simple language that an 8th grader would understand. Keep sentences straightforward.\n\n"; for(let m of history) p+=(m.role==="user"?`Human: ${m.content}\n\n`:`Assistant: ${m.content}\n\n`); p+=`Human: ${msg}\n\nAssistant:`; return p;}
 
-        function balancedHumanize(text, level) {
-            let result = text;
+async function sendMessage(){const msg=input.value.trim(); if(!msg) return; input.value=''; sendBtn.disabled=true; addMessage('user',msg); try{const fullPrompt=buildPrompt(msg); const encoded=encodeURIComponent(fullPrompt); const seed=Math.floor(Math.random()*1e6); const url=`https://text.pollinations.ai/${encoded}?seed=${seed}&model=openai`; const res=await fetch(url); const data=await res.text(); const humanized=balancedHumanize(data,5); history.push({role:'user',content:msg}); history.push({role:'assistant',content:humanized}); addMessage('assistant',humanized);} catch(e){addMessage('assistant','sorry that didnt work');} sendBtn.disabled=false; input.focus();}
 
-            // Remove em dashes
-            result = result.replace(/—/g, "");
-            
-            // Word substitutions for natural variation
-            const subs = {
-                "can": "could",
-                "could": "can", 
-                "may": "might",
-                "just": "simply",
-                "really": "truly",
-                "actually": "in fact",
-                "that": "which",
-                "very": "extremely",
-                "demonstrates": "shows",
-                "utilizes": "uses",
-                "indicates": "suggests",
-                "illustrates": "shows",
-                "nevertheless": "but",
-                "furthermore": "also",
-                "moreover": "also",
-                "therefore": "so",
-                "thus": "so",
-                "hence": "so"
-            };
+async function humanizeText(){const text=textInput.value.trim(); if(!text) return; humanizeBtn.disabled=true; humanizedOutput.textContent='Processing...'; try{const level=parseInt(humanizeLevel.value); const humanized=balancedHumanize(text,level); humanizedOutput.textContent=humanized;}catch(e){humanizedOutput.textContent='sorry that didnt work';} humanizeBtn.disabled=false;}
 
-            const conjunctions = ["And", "But", "Or", "So"];
-
-            // Process word by word
-            result = result.split(" ").map(word => {
-                let clean = word.replace(/[^a-zA-Z]/g, "");
-                let lowerClean = clean.toLowerCase();
-                
-                // Apply substitutions
-                if (subs[lowerClean]) {
-                    word = word.replace(clean, subs[lowerClean]);
-                }
-
-                // Occasional capitalization changes (more at higher levels)
-                if (level >= 5 && Math.random() < 0.07) {
-                    word = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-                }
-
-                // Random small typos (only at high levels, keeps it readable)
-                if (level >= 8 && Math.random() < 0.03 && word.length > 3) {
-                    let i = Math.floor(Math.random() * (word.length - 1));
-                    word = word.slice(0, i) + word[i + 1] + word[i] + word.slice(i + 2);
-                }
-
-                // Rarely repeat letters at end (subtle humanization)
-                if (level >= 7 && Math.random() < 0.02 && word.length > 2) {
-                    word += word[word.length - 1];
-                }
-
-                return word;
-            }).join(" ");
-
-            // Randomly add/remove commas for natural flow
-            if (level >= 4) {
-                result = result.replace(/, /g, () => Math.random() < 0.5 ? ", " : " ");
-            }
-
-            // Split into sentences
-            let sentences = result.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 0);
-
-            sentences = sentences.map(s => {
-                // Break long sentences
-                if (level >= 6 && s.length > 120 && Math.random() < 0.5) {
-                    let p = Math.floor(s.length / 2);
-                    s = s.slice(0, p) + ". " + s.slice(p);
-                }
-
-                // Random fillers
-                if (level >= 5 && Math.random() < 0.05) s = "Well, " + s;
-                if (level >= 6 && Math.random() < 0.03) s = s + " you know";
-
-                // Occasionally add conjunction at start
-                if (level >= 4 && Math.random() < 0.05) {
-                    s = conjunctions[Math.floor(Math.random() * conjunctions.length)] + " " + s;
-                }
-
-                return s;
-            });
-
-            result = sentences.join(". ") + ".";
-
-            // Remove AI phrases
-            result = result.replace(/\b(In conclusion|In summary|To summarize|It is important to note that|Notably|Crucially|Significantly),?\s+/gi, '');
-
-            // Clean up spacing
-            result = result.replace(/\s+/g, ' ');
-            result = result.replace(/\s+\./g, '.');
-            result = result.replace(/\.+/g, '.');
-
-            return result.trim();
-        }
-
-        function buildPrompt(userMsg, level = 5) {
-            let prompt = getSystemPrompt(level) + "\n\n";
-            
-            for (let msg of history) {
-                if (msg.role === 'user') {
-                    prompt += `Human: ${msg.content}\n\n`;
-                } else {
-                    prompt += `Assistant: ${msg.content}\n\n`;
-                }
-            }
-            
-            prompt += `Human: ${userMsg}\n\nAssistant:`;
-            return prompt;
-        }
-
-        function addMessage(role, content) {
-            const div = document.createElement('div');
-            div.className = `msg ${role}`;
-            div.textContent = content;
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
-        }
-
-        async function sendMessage() {
-            const msg = input.value.trim();
-            if (!msg) return;
-
-            input.value = '';
-            sendBtn.disabled = true;
-            addMessage('user', msg);
-
-            try {
-                const fullPrompt = buildPrompt(msg, 5);
-                const encodedPrompt = encodeURIComponent(fullPrompt);
-                const seed = Math.floor(Math.random() * 1000000);
-                
-                const url = `https://text.pollinations.ai/${encodedPrompt}?seed=${seed}&model=openai`;
-                
-                const res = await fetch(url);
-                const data = await res.text();
-                
-                try {
-                    const parsed = JSON.parse(data);
-                    if (parsed.refusal !== undefined && parsed.refusal !== null) {
-                        addMessage('assistant', 'ok so basically you put sum in thats bad');
-                        history.push({ role: 'user', content: msg });
-                        history.push({ role: 'assistant', content: 'ok so basically you put sum in thats bad' });
-                        sendBtn.disabled = false;
-                        input.focus();
-                        return;
-                    }
-                } catch (e) {}
-                
-                const humanized = balancedHumanize(data, 5);
-                
-                history.push({ role: 'user', content: msg });
-                history.push({ role: 'assistant', content: humanized });
-                
-                addMessage('assistant', humanized);
-
-            } catch (err) {
-                addMessage('assistant', 'sorry that didnt work');
-            }
-
-            sendBtn.disabled = false;
-            input.focus();
-        }
-
-        async function humanizeText() {
-            const text = textInput.value.trim();
-            if (!text) return;
-
-            humanizeBtn.disabled = true;
-            humanizedOutput.textContent = 'Processing...';
-
-            try {
-                const level = parseInt(humanizeLevel.value);
-                const prompt = getHumanizePrompt(level) + `\n\nText:\n${text}\n\nRewritten:`;
-                const encodedPrompt = encodeURIComponent(prompt);
-                const seed = Math.floor(Math.random() * 1000000);
-                
-                const url = `https://text.pollinations.ai/${encodedPrompt}?seed=${seed}&model=openai`;
-                
-                const res = await fetch(url);
-                const data = await res.text();
-
-                try {
-                    const parsed = JSON.parse(data);
-                    if (parsed.refusal !== undefined && parsed.refusal !== null) {
-                        humanizedOutput.textContent = 'ok so basically you put sum in thats bad';
-                        humanizeBtn.disabled = false;
-                        return;
-                    }
-                } catch (e) {}
-                
-                const humanized = balancedHumanize(data, level);
-                humanizedOutput.textContent = humanized;
-
-            } catch (err) {
-                humanizedOutput.textContent = 'sorry that didnt work';
-            }
-
-            humanizeBtn.disabled = false;
-        }
-
-        sendBtn.onclick = sendMessage;
-        input.onkeypress = (e) => {
-            if (e.key === 'Enter') sendMessage();
-        };
-        humanizeBtn.onclick = humanizeText;
-    </script>
+sendBtn.onclick=sendMessage; input.onkeypress=e=>{if(e.key==='Enter') sendMessage();}; humanizeBtn.onclick=humanizeText;
+</script>
 </body>
 </html>
