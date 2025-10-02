@@ -5,84 +5,78 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Screen AI Helper</title>
 <style>
-  body { font-family: sans-serif; text-align: center; margin: 2rem; }
-  #aiResponse { margin-top: 1rem; font-weight: bold; white-space: pre-wrap; }
+body { font-family: sans-serif; text-align: center; margin: 2rem; }
+#aiResponse { margin-top: 1rem; font-weight: bold; white-space: pre-wrap; }
 </style>
 </head>
 <body>
+
 <h1>Screen AI Helper</h1>
-<button id="startBtn">Start Screen Share & AI</button>
+
+<input type="text" id="userText" placeholder="Optional text to include" style="width: 80%; padding: 0.5rem; margin-bottom: 1rem;">
+<br>
+<button id="shareBtn">Share & Analyze</button>
 <p id="status"></p>
 <p id="aiResponse">AI response will appear here...</p>
 <canvas id="screenshotCanvas" style="display:none;"></canvas>
 
 <script>
-const startBtn = document.getElementById('startBtn');
+const shareBtn = document.getElementById('shareBtn');
+const userText = document.getElementById('userText');
 const status = document.getElementById('status');
 const aiResponse = document.getElementById('aiResponse');
 const canvas = document.getElementById('screenshotCanvas');
 const ctx = canvas.getContext('2d');
 
-const API_KEY = 'G7mssh3Pay81qZfJ'; // Your Pollinations Kontekst API key
-
-let stream;
-let track;
-let captureInterval;
+// Your Pollinations API key
+const API_KEY = 'G7mssh3Pay81qZfJ';
 
 async function captureAndSend() {
     try {
+        status.textContent = 'Requesting screen share permission...';
+        // Ask user to share screen
+        const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        const track = stream.getVideoTracks()[0];
         const imageCapture = new ImageCapture(track);
         const bitmap = await imageCapture.grabFrame();
 
+        // Draw screenshot to canvas
         canvas.width = bitmap.width;
         canvas.height = bitmap.height;
         ctx.drawImage(bitmap, 0, 0);
 
+        // Convert canvas to Base64 PNG
         const dataUrl = canvas.toDataURL('image/png');
 
-        const response = await fetch('https://api.pollinations.ai/kontext', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + API_KEY
-            },
-            body: JSON.stringify({
-                prompt: "Describe what is happening in this screenshot.",
-                image: dataUrl
-            })
-        });
+        // Stop the track after capture
+        track.stop();
 
+        status.textContent = 'Sending screenshot to AI...';
+
+        // Encode optional user text
+        const text = encodeURIComponent(userText.value);
+
+        // Encode screenshot as Base64 without the prefix
+        const base64Image = encodeURIComponent(dataUrl.split(',')[1]);
+
+        // Pollinations expects GET requests
+        const url = `https://api.pollinations.ai/kontext?api_key=${API_KEY}&prompt=${text}&image=${base64Image}`;
+
+        const response = await fetch(url, { method: 'GET' });
         const result = await response.json();
+
         aiResponse.textContent = "AI says:\n" + result.answer;
+        status.textContent = 'Done!';
 
     } catch (err) {
         console.error(err);
-        status.textContent = "Error capturing screen or contacting AI: " + err.message;
+        status.textContent = 'Error: ' + err.message;
+        aiResponse.textContent = '';
     }
 }
 
-startBtn.addEventListener('click', async () => {
-    try {
-        status.textContent = "Requesting screen share permission...";
-        stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-        track = stream.getVideoTracks()[0];
-
-        status.textContent = "Screen sharing started! Capturing every 3 seconds...";
-        startBtn.disabled = true;
-
-        captureInterval = setInterval(captureAndSend, 3000);
-
-        // Stop sharing when tab closes or page unloads
-        window.addEventListener('beforeunload', () => {
-            clearInterval(captureInterval);
-            track.stop();
-        });
-
-    } catch (err) {
-        console.error(err);
-        status.textContent = "Screen share permission denied or error: " + err.message;
-    }
-});
+shareBtn.addEventListener('click', captureAndSend);
 </script>
+
 </body>
 </html>
