@@ -473,14 +473,31 @@
                     if (file && file.data) {
                         const path = file.path.toLowerCase();
                         
-                        if (path.includes('followers')) {
-                            instagramData.followers = file.data;
+                        // Handle followers files
+                        if (path.includes('followers') && !path.includes('following')) {
+                            if (!instagramData.followers) instagramData.followers = [];
+                            instagramData.followers.push(file.data);
                         }
+                        // Handle following files
                         if (path.includes('following')) {
-                            instagramData.following = file.data;
+                            if (!instagramData.following) instagramData.following = [];
+                            instagramData.following.push(file.data);
                         }
-                        if (path.includes('contacts')) {
+                        // Handle synced contacts
+                        if (path.includes('synced_contacts')) {
                             instagramData.contacts = file.data;
+                        }
+                        // Handle recently unfollowed
+                        if (path.includes('recently_unfollowed')) {
+                            instagramData.unfollowed = file.data;
+                        }
+                        // Handle pending follow requests
+                        if (path.includes('pending_follow')) {
+                            instagramData.pending = file.data;
+                        }
+                        // Handle blocked profiles
+                        if (path.includes('blocked_profiles')) {
+                            instagramData.blocked = file.data;
                         }
                         if (path.includes('messages') || path.includes('inbox')) {
                             if (!instagramData.messages) instagramData.messages = [];
