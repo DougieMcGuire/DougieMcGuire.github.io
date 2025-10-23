@@ -1,795 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instagram Data Analyzer</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #0a0a0a;
-            min-height: 100vh;
-            padding: 20px;
-            color: #fff;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
-            border-radius: 30px;
-            box-shadow: 0 20px 60px rgba(131, 58, 180, 0.4);
-        }
-
-        .header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-
-        .upload-section {
-            background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
-            border-radius: 25px;
-            padding: 50px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            text-align: center;
-            margin-bottom: 40px;
-            border: 1px solid #333;
-        }
-
-        .upload-area {
-            border: 3px dashed #833ab4;
-            border-radius: 20px;
-            padding: 80px 30px;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: rgba(131, 58, 180, 0.05);
-        }
-
-        .upload-area:hover {
-            border-color: #fd1d1d;
-            background: rgba(253, 29, 29, 0.05);
-            transform: translateY(-5px);
-        }
-
-        .upload-area.dragover {
-            background: rgba(252, 176, 69, 0.1);
-            border-color: #fcb045;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        .upload-icon {
-            font-size: 5em;
-            margin-bottom: 20px;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
-            color: white;
-            border: none;
-            padding: 18px 50px;
-            border-radius: 30px;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 20px;
-            font-weight: 600;
-            box-shadow: 0 10px 30px rgba(131, 58, 180, 0.4);
-        }
-
-        .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 40px rgba(131, 58, 180, 0.6);
-        }
-
-        .loading {
-            display: none;
-            margin-top: 30px;
-        }
-
-        .spinner {
-            border: 4px solid #333;
-            border-top: 4px solid #833ab4;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .results {
-            display: none;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .stat-card {
-            background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
-            border-radius: 20px;
-            padding: 35px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            text-align: center;
-            border: 1px solid #333;
-            transition: all 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 50px rgba(131, 58, 180, 0.3);
-            border-color: #833ab4;
-        }
-
-        .stat-number {
-            font-size: 3.5em;
-            font-weight: bold;
-            background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-        }
-
-        .stat-label {
-            color: #aaa;
-            font-size: 1.2em;
-            font-weight: 500;
-        }
-
-        .section {
-            background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
-            border-radius: 20px;
-            padding: 35px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            border: 1px solid #333;
-        }
-
-        .section h2 {
-            color: #fff;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #833ab4;
-            font-size: 1.8em;
-            font-weight: 600;
-        }
-
-        .sort-controls {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        .sort-btn {
-            padding: 12px 25px;
-            background: #2a2a2a;
-            border: 1px solid #444;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: #aaa;
-            font-weight: 500;
-        }
-
-        .sort-btn:hover {
-            background: #333;
-            border-color: #833ab4;
-            color: #fff;
-        }
-
-        .sort-btn.active {
-            background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
-            color: white;
-            border: none;
-        }
-
-        .profile-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            max-height: 800px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-
-        .profile-grid::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .profile-grid::-webkit-scrollbar-track {
-            background: #1a1a1a;
-            border-radius: 10px;
-        }
-
-        .profile-grid::-webkit-scrollbar-thumb {
-            background: #833ab4;
-            border-radius: 10px;
-        }
-
-        .profile-card {
-            background: #2a2a2a;
-            border-radius: 15px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transition: all 0.3s;
-            cursor: pointer;
-            border: 1px solid #333;
-        }
-
-        .profile-card:hover {
-            background: #333;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(131, 58, 180, 0.3);
-            border-color: #833ab4;
-        }
-
-        .profile-pic {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5em;
-            font-weight: bold;
-            flex-shrink: 0;
-            color: white;
-        }
-
-        .profile-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .profile-username {
-            font-weight: 600;
-            color: #fff;
-            font-size: 1.1em;
-            margin-bottom: 5px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .profile-meta {
-            color: #888;
-            font-size: 0.9em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .profile-badge {
-            background: rgba(131, 58, 180, 0.2);
-            padding: 3px 10px;
-            border-radius: 10px;
-            font-size: 0.75em;
-            color: #fcb045;
-            border: 1px solid rgba(252, 176, 69, 0.3);
-        }
-
-        .empty-state {
-            text-align: center;
-            color: #666;
-            padding: 60px;
-            font-size: 1.2em;
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 15px 20px;
-            background: #2a2a2a;
-            border: 1px solid #444;
-            border-radius: 15px;
-            color: #fff;
-            font-size: 1em;
-            margin-bottom: 20px;
-            transition: all 0.3s;
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: #833ab4;
-            box-shadow: 0 0 20px rgba(131, 58, 180, 0.3);
-        }
-
-        .search-box::placeholder {
-            color: #666;
-        }
-
-        .contact-card {
-            background: #2a2a2a;
-            border-radius: 15px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border: 1px solid #333;
-            transition: all 0.3s;
-        }
-
-        .contact-card:hover {
-            background: #333;
-            border-color: #444;
-        }
-
-        .contact-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3em;
-            flex-shrink: 0;
-        }
-
-        .contact-info {
-            flex: 1;
-        }
-
-        .contact-name {
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 5px;
-        }
-
-        .contact-details {
-            color: #888;
-            font-size: 0.9em;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Profile Viewer (Test)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fafafa;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    input {
+      padding: 10px 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 240px;
+      text-align: center;
+    }
+    button {
+      padding: 10px 16px;
+      font-size: 16px;
+      margin-left: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #0095f6;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0077cc;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 20px;
+      margin-top: 25px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+      border: 1px solid #eee;
+    }
+    .error {
+      color: red;
+      margin-top: 15px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📊 Instagram Insights Pro</h1>
-            <p>Deep dive into your Instagram data with style</p>
-        </div>
+  <h1>Instagram Profile Viewer (Static Test)</h1>
+  <div>
+    <input type="text" id="username" placeholder="Enter username..." />
+    <button id="searchBtn">Search</button>
+  </div>
 
-        <div class="upload-section">
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-icon">📦</div>
-                <h2 style="color: #fff; margin-bottom: 15px;">Drop your Instagram ZIP file here</h2>
-                <p style="color: #aaa; font-size: 1.1em;">or click to browse files</p>
-                <input type="file" id="fileInput" accept=".zip">
-            </div>
-            <div class="loading">
-                <div class="spinner"></div>
-                <p style="color: #aaa; margin-top: 20px; font-size: 1.1em;">Processing your data...</p>
-            </div>
-        </div>
+  <div id="output"></div>
 
-        <div class="results" id="results">
-            <div class="stats-grid" id="statsGrid"></div>
-            <div id="sections"></div>
-        </div>
-    </div>
+  <script>
+    document.getElementById("searchBtn").addEventListener("click", fetchUser);
+    document.getElementById("username").addEventListener("keydown", e => {
+      if (e.key === "Enter") fetchUser();
+    });
 
-    <script>
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const loading = document.querySelector('.loading');
-        const results = document.getElementById('results');
-        
-        let instagramData = {};
-        let currentSections = {};
+    async function fetchUser() {
+      const username = document.getElementById("username").value.trim();
+      const output = document.getElementById("output");
+      if (!username) {
+        output.innerHTML = "<p class='error'>Please enter a username.</p>";
+        return;
+      }
 
-        uploadArea.addEventListener('click', () => fileInput.click());
+      output.innerHTML = "<p>Loading...</p>";
 
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
+      try {
+        const res = await fetch(`https://www.instagram.com/web/search/topsearch/?query=${encodeURIComponent(username)}`);
+        if (!res.ok) throw new Error("Network error " + res.status);
+        const data = await res.json();
 
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const file = e.dataTransfer.files[0];
-            if (file && file.name.endsWith('.zip')) {
-                processZip(file);
-            }
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                processZip(file);
-            }
-        });
-
-        async function processZip(file) {
-            loading.style.display = 'block';
-            results.style.display = 'none';
-
-            try {
-                const zip = await JSZip.loadAsync(file);
-                
-                const filePromises = [];
-                
-                zip.forEach((relativePath, zipEntry) => {
-                    if (relativePath.endsWith('.json')) {
-                        filePromises.push(
-                            zipEntry.async('string').then(content => {
-                                try {
-                                    return { path: relativePath, data: JSON.parse(content) };
-                                } catch (e) {
-                                    console.error('Error parsing', relativePath, e);
-                                    return null;
-                                }
-                            })
-                        );
-                    }
-                });
-
-                const files = await Promise.all(filePromises);
-                
-                files.forEach(file => {
-                    if (file && file.data) {
-                        const path = file.path.toLowerCase();
-                        
-                        // Handle followers files
-                        if (path.includes('followers') && !path.includes('following')) {
-                            if (!instagramData.followers) instagramData.followers = [];
-                            instagramData.followers.push(file.data);
-                        }
-                        // Handle following files
-                        if (path.includes('following')) {
-                            if (!instagramData.following) instagramData.following = [];
-                            instagramData.following.push(file.data);
-                        }
-                        // Handle synced contacts
-                        if (path.includes('synced_contacts')) {
-                            instagramData.contacts = file.data;
-                        }
-                        // Handle recently unfollowed
-                        if (path.includes('recently_unfollowed')) {
-                            instagramData.unfollowed = file.data;
-                        }
-                        // Handle pending follow requests
-                        if (path.includes('pending_follow')) {
-                            instagramData.pending = file.data;
-                        }
-                        // Handle blocked profiles
-                        if (path.includes('blocked_profiles')) {
-                            instagramData.blocked = file.data;
-                        }
-                        if (path.includes('messages') || path.includes('inbox')) {
-                            if (!instagramData.messages) instagramData.messages = [];
-                            instagramData.messages.push(file.data);
-                        }
-                        if (path.includes('likes')) {
-                            instagramData.likes = file.data;
-                        }
-                        if (path.includes('comments')) {
-                            instagramData.comments = file.data;
-                        }
-                        if (path.includes('posts') || path.includes('content')) {
-                            instagramData.posts = file.data;
-                        }
-                        if (path.includes('stories')) {
-                            instagramData.stories = file.data;
-                        }
-                    }
-                });
-
-                displayResults();
-                
-            } catch (error) {
-                alert('Error processing ZIP file: ' + error.message);
-                console.error(error);
-            } finally {
-                loading.style.display = 'none';
-            }
+        if (!data.users || !data.users.length) {
+          output.innerHTML = "<p class='error'>No user found.</p>";
+          return;
         }
 
-        function displayResults() {
-            results.style.display = 'block';
-            const statsGrid = document.getElementById('statsGrid');
-            const sectionsDiv = document.getElementById('sections');
-            
-            statsGrid.innerHTML = '';
-            sectionsDiv.innerHTML = '';
+        const user = data.users[0].user;
+        const fullName = user.full_name || "N/A";
+        const userId = user.pk || "N/A";
+        const profilePic = user.profile_pic_url || "";
 
-            // Extract and process data
-            const followers = extractList(instagramData.followers);
-            const following = extractList(instagramData.following);
-            
-            // Process into proper format with timestamps
-            const followersList = followers.map(f => ({
-                username: f.string_list_data?.[0]?.value || f.value || f.username || f,
-                timestamp: f.string_list_data?.[0]?.timestamp || f.timestamp || null
-            }));
-
-            const followingList = following.map(f => ({
-                username: f.string_list_data?.[0]?.value || f.value || f.username || f,
-                timestamp: f.string_list_data?.[0]?.timestamp || f.timestamp || null
-            }));
-
-            const followersSet = new Set(followersList.map(f => f.username));
-            const followingSet = new Set(followingList.map(f => f.username));
-            
-            const notFollowingBack = followingList.filter(u => !followersSet.has(u.username));
-            const notFollowedBack = followersList.filter(u => !followingSet.has(u.username));
-
-            // Display stats
-            addStatCard(statsGrid, followersList.length, 'Followers', '👥');
-            addStatCard(statsGrid, followingList.length, 'Following', '➕');
-            addStatCard(statsGrid, notFollowingBack.length, "Don't Follow Back", '💔');
-            addStatCard(statsGrid, notFollowedBack.length, "Fans", '⭐');
-
-            // Store for sorting
-            currentSections = {
-                notFollowingBack,
-                notFollowedBack,
-                followersList,
-                followingList
-            };
-
-            // Display sections with profiles
-            if (notFollowingBack.length > 0) {
-                addProfileSection(sectionsDiv, "People You Follow Who Don't Follow Back 💔", 
-                    notFollowingBack, 'notFollowingBack');
-            }
-
-            if (notFollowedBack.length > 0) {
-                addProfileSection(sectionsDiv, "Your Fans (They Follow You) ⭐", 
-                    notFollowedBack, 'notFollowedBack');
-            }
-
-            if (followersList.length > 0) {
-                addProfileSection(sectionsDiv, 'All Followers 👥', 
-                    followersList, 'followersList');
-            }
-
-            if (followingList.length > 0) {
-                addProfileSection(sectionsDiv, 'All Following ➕', 
-                    followingList, 'followingList');
-            }
-
-            // Contacts
-            const contacts = extractList(instagramData.contacts);
-            if (contacts.length > 0) {
-                addStatCard(statsGrid, contacts.length, 'Synced Contacts', '📱');
-                addContactsSection(sectionsDiv, 'People You May Know 📱', contacts);
-            }
-        }
-
-        function extractList(data) {
-            if (!data) return [];
-            
-            if (Array.isArray(data)) {
-                return data;
-            }
-            
-            if (data.relationships_followers) return data.relationships_followers;
-            if (data.relationships_following) return data.relationships_following;
-            if (data.string_list_data) return data.string_list_data;
-            if (data.contacts) return data.contacts;
-            if (data.contact_list_data) return data.contact_list_data;
-            
-            for (let key in data) {
-                if (Array.isArray(data[key])) {
-                    return data[key];
-                }
-            }
-            
-            return [];
-        }
-
-        function addStatCard(container, number, label, emoji) {
-            const card = document.createElement('div');
-            card.className = 'stat-card';
-            card.innerHTML = `
-                <div class="stat-number">${number.toLocaleString()}</div>
-                <div class="stat-label">${emoji} ${label}</div>
-            `;
-            container.appendChild(card);
-        }
-
-        function addProfileSection(container, title, items, sectionId) {
-            const section = document.createElement('div');
-            section.className = 'section';
-            section.id = sectionId;
-            
-            let content = `<h2>${title}</h2>`;
-            
-            content += `
-                <input type="text" class="search-box" placeholder="🔍 Search usernames..." 
-                    onkeyup="filterProfiles('${sectionId}', this.value)">
-                <div class="sort-controls">
-                    <button class="sort-btn active" onclick="sortSection('${sectionId}', 'newest')">
-                        ⏰ Newest First
-                    </button>
-                    <button class="sort-btn" onclick="sortSection('${sectionId}', 'oldest')">
-                        📅 Oldest First
-                    </button>
-                    <button class="sort-btn" onclick="sortSection('${sectionId}', 'alpha')">
-                        🔤 A-Z
-                    </button>
-                </div>
-            `;
-            
-            content += `<div class="profile-grid" id="${sectionId}-grid">`;
-            
-            if (items.length === 0) {
-                content += '<div class="empty-state">No data found</div>';
-            } else {
-                items.forEach(item => {
-                    content += createProfileCard(item);
-                });
-            }
-            
-            content += '</div>';
-            
-            section.innerHTML = content;
-            container.appendChild(section);
-        }
-
-        function createProfileCard(item) {
-            const username = item.username || item.value || item;
-            const timestamp = item.timestamp ? new Date(item.timestamp * 1000) : null;
-            const initial = username.charAt(0).toUpperCase();
-            const timeStr = timestamp ? formatTimestamp(timestamp) : '';
-            
-            return `
-                <div class="profile-card" onclick="openInstagram('${username}')" data-username="${username.toLowerCase()}">
-                    <div class="profile-pic">${initial}</div>
-                    <div class="profile-info">
-                        <div class="profile-username">@${username}</div>
-                        <div class="profile-meta">
-                            ${timeStr ? `<span>${timeStr}</span>` : '<span class="profile-badge">No date</span>'}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function formatTimestamp(date) {
-            const now = new Date();
-            const diff = now - date;
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            
-            if (days === 0) return 'Today';
-            if (days === 1) return 'Yesterday';
-            if (days < 7) return `${days} days ago`;
-            if (days < 30) return `${Math.floor(days / 7)} weeks ago`;
-            if (days < 365) return `${Math.floor(days / 30)} months ago`;
-            return `${Math.floor(days / 365)} years ago`;
-        }
-
-        function openInstagram(username) {
-            window.open(`https://instagram.com/${username}`, '_blank');
-        }
-
-        function sortSection(sectionId, sortType) {
-            const section = document.getElementById(sectionId);
-            const buttons = section.querySelectorAll('.sort-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            let items = [...currentSections[sectionId]];
-            
-            if (sortType === 'newest') {
-                items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-            } else if (sortType === 'oldest') {
-                items.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-            } else if (sortType === 'alpha') {
-                items.sort((a, b) => a.username.localeCompare(b.username));
-            }
-            
-            const grid = document.getElementById(`${sectionId}-grid`);
-            grid.innerHTML = items.map(item => createProfileCard(item)).join('');
-        }
-
-        function filterProfiles(sectionId, searchTerm) {
-            const grid = document.getElementById(`${sectionId}-grid`);
-            const cards = grid.querySelectorAll('.profile-card');
-            const term = searchTerm.toLowerCase();
-            
-            cards.forEach(card => {
-                const username = card.getAttribute('data-username');
-                if (username.includes(term)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-
-        function addContactsSection(container, title, contacts) {
-            const section = document.createElement('div');
-            section.className = 'section';
-            
-            let content = `<h2>${title}</h2>`;
-            content += `<input type="text" class="search-box" placeholder="🔍 Search contacts..." onkeyup="filterContacts(this.value)">`;
-            content += `<div class="profile-grid" id="contacts-grid">`;
-            
-            contacts.forEach(contact => {
-                const name = contact.contact_info?.name || contact.first_name || contact.name || 'Unknown';
-                const email = contact.contact_info?.email || contact.email || '';
-                const phone = contact.contact_info?.phone_number || contact.phone_number || '';
-                const initial = name.charAt(0).toUpperCase();
-                
-                content += `
-                    <div class="contact-card" data-name="${name.toLowerCase()}">
-                        <div class="contact-icon">${initial}</div>
-                        <div class="contact-info">
-                            <div class="contact-name">${name}</div>
-                            <div class="contact-details">
-                                ${email || phone || 'No contact info'}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            content += '</div>';
-            section.innerHTML = content;
-            container.appendChild(section);
-        }
-
-        function filterContacts(searchTerm) {
-            const grid = document.getElementById('contacts-grid');
-            if (!grid) return;
-            
-            const cards = grid.querySelectorAll('.contact-card');
-            const term = searchTerm.toLowerCase();
-            
-            cards.forEach(card => {
-                const name = card.getAttribute('data-name');
-                if (name.includes(term)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-    </script>
+        output.innerHTML = `
+          <div class="card">
+            <img class="avatar" src="${profilePic}" alt="Profile Picture">
+            <h3>${user.username}</h3>
+            <p><strong>Name:</strong> ${fullName}</p>
+            <p><strong>User ID:</strong> ${userId}</p>
+            <a href="https://instagram.com/${user.username}" target="_blank">Open Profile</a>
+          </div>
+        `;
+      } catch (err) {
+        output.innerHTML = `
+          <p class="error">❌ Failed to fetch user data.<br>
+          Likely due to Instagram's CORS protection.<br><br>
+          <small>For local testing, run Chrome with:<br>
+          <code>--disable-web-security --user-data-dir="C:/ChromeDev"</code></small></p>
+        `;
+      }
+    }
+  </script>
 </body>
 </html>
