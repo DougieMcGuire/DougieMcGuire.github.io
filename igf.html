@@ -1,137 +1,98 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>IG Profile Viewer (static + proxy fallback)</title>
+<meta charset="UTF-8">
+<title>Instagram Data Viewer</title>
 <style>
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:36px;max-width:760px}
-  .row{display:flex;gap:8px;align-items:center}
-  input{padding:10px;border-radius:8px;border:1px solid #ccc;font-size:16px}
-  button{padding:10px 12px;border-radius:8px;border:0;background:#0095f6;color:#fff;cursor:pointer}
-  .card{margin-top:18px;padding:18px;border-radius:12px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.04)}
-  img.avatar{width:140px;height:140px;border-radius:50%;object-fit:cover;border:1px solid #eee}
-  pre{background:#f6f8fa;padding:10px;border-radius:8px;overflow:auto}
-  .hint{color:#666;font-size:13px;margin-top:8px}
-  .error{color:crimson}
+body { background:#0f0f0f; color:#fff; font-family:Inter,Arial,sans-serif; margin:0; padding:20px; }
+h1, h2 { margin:10px 0; }
+input { padding:10px; font-size:16px; }
+section { margin-bottom:30px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px; }
+.card { background:#181818; padding:10px; border-radius:10px; cursor:pointer; text-align:center; }
+.card p { margin:5px 0; }
+.card .timestamp { font-size:12px; color:#ccc; }
 </style>
 </head>
 <body>
-  <h1>IG Profile Viewer — static with CORS proxy fallback</h1>
-  <div class="row">
-    <input id="username" placeholder="enter username (e.g. stellaprebeck)"/>
-    <button id="btn">Lookup</button>
-  </div>
-  <div id="status" class="hint">Tries direct first, then public CORS proxies if needed.</div>
-  <div id="out"></div>
+<h1>Instagram Data Viewer (ZIP)</h1>
+<p>Select your Instagram ZIP file:</p>
+<input type="file" id="zipInput" accept=".zip"/>
+<div id="output"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
-const btn = document.getElementById('btn');
-const input = document.getElementById('username');
-const status = document.getElementById('status');
-const out = document.getElementById('out');
+const zipInput=document.getElementById('zipInput');
+const output=document.getElementById('output');
 
-const IG_ENDPOINT = (username) => `https://www.instagram.com/web/search/topsearch/?query=${encodeURIComponent(username)}`;
+zipInput.addEventListener('change', async e=>{
+    const file=e.target.files[0];
+    if(!file) return;
+    output.innerHTML='<p>Loading ZIP...</p>';
+    
+    const jszip=new JSZip();
+    const zip=await jszip.loadAsync(file);
+    const followers=[], unfollowers=[], contacts=[];
 
-// Public proxy list — tries in order if direct fetch fails
-const PROXIES = [
-  {name: 'AllOrigins', build: url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`},
-  {name: 'ThingProxy', build: url => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`},
-  // Add more proxies here if you have them
-];
-
-input.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
-btn.addEventListener('click', run);
-
-async function run(){
-  const username = input.value.trim();
-  out.innerHTML = '';
-  if (!username) { status.innerHTML = '<span class="error">Enter a username.</span>'; return; }
-
-  status.textContent = 'Trying direct fetch...';
-  const url = IG_ENDPOINT(username);
-
-  try {
-    const json = await tryFetchVariants(url);
-    renderResult(username, json);
-  } catch (err) {
-    out.innerHTML = `<p class="error">Failed: ${escapeHtml(String(err))}</p>
-      <p class="hint">If this persists you can: run Chrome with --disable-web-security (local testing), use your own server proxy, or add more proxies to the PROXIES list.</p>`;
-    status.textContent = 'All attempts failed.';
-  }
-}
-
-async function tryFetchVariants(url){
-  // 1) try direct fetch (may hit CORS)
-  try {
-    const r = await fetch(url, { credentials: 'omit' });
-    if (r.ok) {
-      const json = await r.json();
-      status.textContent = 'Direct fetch succeeded.';
-      return json;
-    } else {
-      throw new Error('Direct fetch returned ' + r.status);
+    for(const f of Object.values(zip.files)){
+        if(f.name.includes('followers') && f.name.endsWith('.json')){
+            const text=await f.async('text');
+            const data=JSON.parse(text);
+            data.forEach(entry=>{
+                if(entry.string_list_data){
+                    const u=entry.string_list_data[0];
+                    if(u?.value) followers.push({username:u.value, href:u.href, timestamp:u.timestamp});
+                }
+            });
+        } else if(f.name.includes('recently_unfollowed') && f.name.endsWith('.json')){
+            const text=await f.async('text');
+            const data=JSON.parse(text);
+            data.forEach(entry=>{
+                if(entry.string_list_data){
+                    const u=entry.string_list_data[0];
+                    if(u?.value) unfollowers.push({username:u.value, href:u.href, timestamp:u.timestamp});
+                }
+            });
+        } else if(f.name.includes('synced_contacts') && f.name.endsWith('.json')){
+            const text=await f.async('text');
+            const data=JSON.parse(text);
+            if(data.contacts_contact_info){
+                data.contacts_contact_info.forEach(c=>{
+                    const name=c.string_map_data?.['First Name']?.value||'';
+                    const info=c.string_map_data?.['Contact Information']?.value||'';
+                    contacts.push({name, info});
+                });
+            }
+        }
     }
-  } catch (err) {
-    // likely CORS or network error
-    console.warn('Direct fetch failed:', err);
-    status.textContent = 'Direct fetch failed; trying proxies...';
-  }
 
-  // 2) try proxies in sequence
-  let lastErr = null;
-  for (const p of PROXIES) {
-    const purl = p.build(url);
-    status.textContent = `Trying proxy: ${p.name}`;
-    try {
-      const r = await fetch(purl);
-      if (!r.ok) throw new Error(`${p.name} returned ${r.status}`);
-      const json = await r.json();
-      status.textContent = `Proxy ${p.name} succeeded.`;
-      return json;
-    } catch (err) {
-      console.warn(`${p.name} failed:`, err);
-      lastErr = err;
+    output.innerHTML='';
+    function makeSection(title, items, isUser=true){
+        const sec=document.createElement('section');
+        sec.innerHTML=`<h2>${title} (${items.length})</h2>`;
+        if(!items.length){sec.innerHTML+='<p>None</p>'; return sec;}
+        const grid=document.createElement('div');
+        grid.className='grid';
+        items.forEach(it=>{
+            const card=document.createElement('div');
+            card.className='card';
+            if(isUser){
+                card.innerHTML=`<p>@${it.username}</p>`+
+                               `<p class="timestamp">${it.timestamp?new Date(it.timestamp*1000).toLocaleString():''}</p>`;
+                card.onclick=()=>window.open(it.href,'_blank');
+            } else {
+                card.innerHTML=`<p>${it.name}</p><p class="timestamp">${it.info}</p>`;
+            }
+            grid.appendChild(card);
+        });
+        sec.appendChild(grid);
+        return sec;
     }
-  }
-  throw lastErr || new Error('All proxies failed');
-}
 
-function renderResult(requestedUsername, data) {
-  // expected shape: { users: [ { user: { ... } } ], ... }
-  const users = (data && data.users) ? data.users : null;
-  if (!users || users.length === 0) {
-    out.innerHTML = `<div class="card"><p class="error">No users found for "${escapeHtml(requestedUsername)}"</p><pre>${escapeHtml(JSON.stringify(data, null, 2))}</pre></div>`;
-    return;
-  }
-  const userObj = users[0].user || users[0];
-  const profile_pic_url = userObj.profile_pic_url || userObj.profile_pic_url_hd || '';
-  const full_name = userObj.full_name || '';
-  const pk = userObj.pk || userObj.id || userObj.pk_id || '';
-  const usernameReturned = userObj.username || '';
-
-  const usernameMatch = usernameReturned.toLowerCase() === requestedUsername.toLowerCase();
-
-  out.innerHTML = `
-    <div class="card" style="display:flex;gap:16px;align-items:center">
-      <div><img class="avatar" src="${escapeHtml(profile_pic_url)}" alt="avatar" onerror="this.style.opacity=.5; this.title='failed to load image'"></div>
-      <div style="flex:1;text-align:left">
-        <div><strong>${escapeHtml(usernameReturned)}</strong> ${usernameMatch ? '' : '<span class="error">(username mismatch)</span>'}</div>
-        <div style="margin-top:6px">Full name: <strong>${escapeHtml(full_name)}</strong></div>
-        <div style="margin-top:6px">User id (pk): <strong>${escapeHtml(pk)}</strong></div>
-        <div style="margin-top:10px"><a href="https://instagram.com/${encodeURIComponent(usernameReturned)}" target="_blank">Open profile</a></div>
-      </div>
-    </div>
-    <div style="margin-top:12px"><strong>Raw object (first user):</strong><pre>${escapeHtml(JSON.stringify(userObj, null, 2))}</pre></div>
-  `;
-  status.textContent = 'Done.';
-}
-
-// small helper to avoid XSS
-function escapeHtml(s){
-  if (s === null || s === undefined) return '';
-  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
-}
+    output.appendChild(makeSection('Followers', followers));
+    output.appendChild(makeSection('Recently Unfollowed', unfollowers));
+    output.appendChild(makeSection('Contacts', contacts, false));
+});
 </script>
 </body>
 </html>
