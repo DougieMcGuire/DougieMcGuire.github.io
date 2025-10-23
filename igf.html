@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instagram Unfollow / Data Visualizer</title>
+<title>Instagram Data Visualizer</title>
 <style>
     body { font-family: Arial, sans-serif; background: #0f0f0f; color: #fff; padding: 20px; }
     h1 { font-size: 28px; margin-bottom: 10px; }
@@ -34,62 +34,54 @@ zipInput.addEventListener('change', async (e) => {
 
     output.innerHTML = '<p>Loading zip...</p>';
 
-    const JSZipInstance = new JSZip();
-    const zip = await JSZipInstance.loadAsync(file);
+    const zip = await JSZip.loadAsync(file);
 
     const followers = [];
     const unfollowers = [];
     const contacts = [];
 
-    // Loop through files
     for(const fName in zip.files){
         const f = zip.files[fName];
 
-        // Followers
-        if(f.name.includes('followers') && f.name.endsWith('.json')){
+        if(f.name.endsWith('.json')){
             const text = await f.async('text');
             let data;
             try { data = JSON.parse(text); } catch(e){ continue; }
-            if(!Array.isArray(data)) continue;
-            data.forEach(entry=>{
-                if(entry.string_list_data && Array.isArray(entry.string_list_data)){
-                    entry.string_list_data.forEach(u=>{
+
+            // Followers
+            if(f.name.includes('followers')){
+                let arr = Array.isArray(data) ? data : data.edges || [];
+                arr.forEach(entry => {
+                    const items = entry.string_list_data || [];
+                    items.forEach(u=>{
                         if(u?.value) followers.push({username:u.value, href:u.href, timestamp:u.timestamp});
                     });
-                }
-            });
-        }
+                });
+            }
 
-        // Unfollowers
-        else if(f.name.includes('recently_unfollowed') && f.name.endsWith('.json')){
-            const text = await f.async('text');
-            let data;
-            try { data = JSON.parse(text); } catch(e){ continue; }
-            if(!Array.isArray(data)) continue;
-            data.forEach(entry=>{
-                if(entry.string_list_data && Array.isArray(entry.string_list_data)){
-                    entry.string_list_data.forEach(u=>{
+            // Unfollowers
+            else if(f.name.includes('recently_unfollowed')){
+                let arr = Array.isArray(data) ? data : [];
+                arr.forEach(entry=>{
+                    const items = entry.string_list_data || [];
+                    items.forEach(u=>{
                         if(u?.value) unfollowers.push({username:u.value, href:u.href, timestamp:u.timestamp});
                     });
-                }
-            });
-        }
+                });
+            }
 
-        // Contacts
-        else if(f.name.includes('contacts') && f.name.endsWith('.json')){
-            const text = await f.async('text');
-            let data;
-            try { data = JSON.parse(text); } catch(e){ continue; }
-            if(!data.contacts_contact_info) continue;
-            data.contacts_contact_info.forEach(c=>{
-                const first = c.string_map_data['First Name']?.value || '';
-                const info = c.string_map_data['Contact Information']?.value || '';
-                if(first || info) contacts.push({first, info});
-            });
+            // Contacts
+            else if(f.name.includes('contacts')){
+                const arr = data.contacts_contact_info || [];
+                arr.forEach(c=>{
+                    const first = c.string_map_data['First Name']?.value || '';
+                    const info = c.string_map_data['Contact Information']?.value || '';
+                    if(first || info) contacts.push({first, info});
+                });
+            }
         }
     }
 
-    // Display results
     let html = '';
 
     html += '<div class="section"><h2>Followers ('+followers.length+')</h2><div class="userList">';
