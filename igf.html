@@ -2,96 +2,115 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Instagram Data Viewer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instagram Unfollow / Data Visualizer</title>
 <style>
-body { background:#0f0f0f; color:#fff; font-family:Inter,Arial,sans-serif; margin:0; padding:20px; }
-h1, h2 { margin:10px 0; }
-input { padding:10px; font-size:16px; }
-section { margin-bottom:30px; }
-.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px; }
-.card { background:#181818; padding:10px; border-radius:10px; cursor:pointer; text-align:center; }
-.card p { margin:5px 0; }
-.card .timestamp { font-size:12px; color:#ccc; }
+    body { font-family: Arial, sans-serif; background: #0f0f0f; color: #fff; padding: 20px; }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    input[type=file] { padding: 10px; margin-bottom: 20px; }
+    .section { margin-top: 30px; }
+    .section h2 { margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; }
+    .userList { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 10px; }
+    .userCard { background: #181818; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; }
+    .userCard img { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 5px; object-fit: cover; }
+    .userCard a { color: #09f; text-decoration: none; word-break: break-word; text-align: center; }
+    .userCard a:hover { text-decoration: underline; }
+    .timestamp { font-size: 10px; color: #aaa; margin-top: 2px; }
 </style>
 </head>
 <body>
-<h1>Instagram Data Viewer (ZIP)</h1>
-<p>Select your Instagram ZIP file:</p>
-<input type="file" id="zipInput" accept=".zip"/>
+<h1>Instagram Data Visualizer</h1>
+<input type="file" id="zipInput" accept=".zip" />
 <div id="output"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
-const zipInput=document.getElementById('zipInput');
-const output=document.getElementById('output');
+const zipInput = document.getElementById('zipInput');
+const output = document.getElementById('output');
 
-zipInput.addEventListener('change', async e=>{
-    const file=e.target.files[0];
+zipInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
     if(!file) return;
-    output.innerHTML='<p>Loading ZIP...</p>';
-    
-    const jszip=new JSZip();
-    const zip=await jszip.loadAsync(file);
-    const followers=[], unfollowers=[], contacts=[];
 
-    for(const f of Object.values(zip.files)){
+    output.innerHTML = '<p>Loading zip...</p>';
+
+    const JSZipInstance = new JSZip();
+    const zip = await JSZipInstance.loadAsync(file);
+
+    const followers = [];
+    const unfollowers = [];
+    const contacts = [];
+
+    // Loop through files
+    for(const fName in zip.files){
+        const f = zip.files[fName];
+
+        // Followers
         if(f.name.includes('followers') && f.name.endsWith('.json')){
-            const text=await f.async('text');
-            const data=JSON.parse(text);
+            const text = await f.async('text');
+            let data;
+            try { data = JSON.parse(text); } catch(e){ continue; }
+            if(!Array.isArray(data)) continue;
             data.forEach(entry=>{
-                if(entry.string_list_data){
-                    const u=entry.string_list_data[0];
-                    if(u?.value) followers.push({username:u.value, href:u.href, timestamp:u.timestamp});
+                if(entry.string_list_data && Array.isArray(entry.string_list_data)){
+                    entry.string_list_data.forEach(u=>{
+                        if(u?.value) followers.push({username:u.value, href:u.href, timestamp:u.timestamp});
+                    });
                 }
             });
-        } else if(f.name.includes('recently_unfollowed') && f.name.endsWith('.json')){
-            const text=await f.async('text');
-            const data=JSON.parse(text);
+        }
+
+        // Unfollowers
+        else if(f.name.includes('recently_unfollowed') && f.name.endsWith('.json')){
+            const text = await f.async('text');
+            let data;
+            try { data = JSON.parse(text); } catch(e){ continue; }
+            if(!Array.isArray(data)) continue;
             data.forEach(entry=>{
-                if(entry.string_list_data){
-                    const u=entry.string_list_data[0];
-                    if(u?.value) unfollowers.push({username:u.value, href:u.href, timestamp:u.timestamp});
+                if(entry.string_list_data && Array.isArray(entry.string_list_data)){
+                    entry.string_list_data.forEach(u=>{
+                        if(u?.value) unfollowers.push({username:u.value, href:u.href, timestamp:u.timestamp});
+                    });
                 }
             });
-        } else if(f.name.includes('synced_contacts') && f.name.endsWith('.json')){
-            const text=await f.async('text');
-            const data=JSON.parse(text);
-            if(data.contacts_contact_info){
-                data.contacts_contact_info.forEach(c=>{
-                    const name=c.string_map_data?.['First Name']?.value||'';
-                    const info=c.string_map_data?.['Contact Information']?.value||'';
-                    contacts.push({name, info});
-                });
-            }
+        }
+
+        // Contacts
+        else if(f.name.includes('contacts') && f.name.endsWith('.json')){
+            const text = await f.async('text');
+            let data;
+            try { data = JSON.parse(text); } catch(e){ continue; }
+            if(!data.contacts_contact_info) continue;
+            data.contacts_contact_info.forEach(c=>{
+                const first = c.string_map_data['First Name']?.value || '';
+                const info = c.string_map_data['Contact Information']?.value || '';
+                if(first || info) contacts.push({first, info});
+            });
         }
     }
 
-    output.innerHTML='';
-    function makeSection(title, items, isUser=true){
-        const sec=document.createElement('section');
-        sec.innerHTML=`<h2>${title} (${items.length})</h2>`;
-        if(!items.length){sec.innerHTML+='<p>None</p>'; return sec;}
-        const grid=document.createElement('div');
-        grid.className='grid';
-        items.forEach(it=>{
-            const card=document.createElement('div');
-            card.className='card';
-            if(isUser){
-                card.innerHTML=`<p>@${it.username}</p>`+
-                               `<p class="timestamp">${it.timestamp?new Date(it.timestamp*1000).toLocaleString():''}</p>`;
-                card.onclick=()=>window.open(it.href,'_blank');
-            } else {
-                card.innerHTML=`<p>${it.name}</p><p class="timestamp">${it.info}</p>`;
-            }
-            grid.appendChild(card);
-        });
-        sec.appendChild(grid);
-        return sec;
-    }
+    // Display results
+    let html = '';
 
-    output.appendChild(makeSection('Followers', followers));
-    output.appendChild(makeSection('Recently Unfollowed', unfollowers));
-    output.appendChild(makeSection('Contacts', contacts, false));
+    html += '<div class="section"><h2>Followers ('+followers.length+')</h2><div class="userList">';
+    followers.forEach(u=>{
+        html += `<div class="userCard"><a href="${u.href}" target="_blank">${u.username}</a><div class="timestamp">${u.timestamp ? new Date(u.timestamp*1000).toLocaleString() : ''}</div></div>`;
+    });
+    html += '</div></div>';
+
+    html += '<div class="section"><h2>Unfollowers ('+unfollowers.length+')</h2><div class="userList">';
+    unfollowers.forEach(u=>{
+        html += `<div class="userCard"><a href="${u.href}" target="_blank">${u.username}</a><div class="timestamp">${u.timestamp ? new Date(u.timestamp*1000).toLocaleString() : ''}</div></div>`;
+    });
+    html += '</div></div>';
+
+    html += '<div class="section"><h2>Contacts ('+contacts.length+')</h2><div class="userList">';
+    contacts.forEach(c=>{
+        html += `<div class="userCard"><div>${c.first}</div><div>${c.info}</div></div>`;
+    });
+    html += '</div></div>';
+
+    output.innerHTML = html;
 });
 </script>
 </body>
