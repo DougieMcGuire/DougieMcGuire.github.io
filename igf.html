@@ -1,125 +1,137 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Instagram Profile Viewer (Test)</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fafafa;
-      color: #222;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px 20px;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    input {
-      padding: 10px 12px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      width: 240px;
-      text-align: center;
-    }
-    button {
-      padding: 10px 16px;
-      font-size: 16px;
-      margin-left: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #0095f6;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0077cc;
-    }
-    .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      padding: 20px;
-      margin-top: 25px;
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-    }
-    .avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 10px;
-      border: 1px solid #eee;
-    }
-    .error {
-      color: red;
-      margin-top: 15px;
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>IG Profile Viewer (static + proxy fallback)</title>
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:36px;max-width:760px}
+  .row{display:flex;gap:8px;align-items:center}
+  input{padding:10px;border-radius:8px;border:1px solid #ccc;font-size:16px}
+  button{padding:10px 12px;border-radius:8px;border:0;background:#0095f6;color:#fff;cursor:pointer}
+  .card{margin-top:18px;padding:18px;border-radius:12px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+  img.avatar{width:140px;height:140px;border-radius:50%;object-fit:cover;border:1px solid #eee}
+  pre{background:#f6f8fa;padding:10px;border-radius:8px;overflow:auto}
+  .hint{color:#666;font-size:13px;margin-top:8px}
+  .error{color:crimson}
+</style>
 </head>
 <body>
-  <h1>Instagram Profile Viewer (Static Test)</h1>
-  <div>
-    <input type="text" id="username" placeholder="Enter username..." />
-    <button id="searchBtn">Search</button>
+  <h1>IG Profile Viewer — static with CORS proxy fallback</h1>
+  <div class="row">
+    <input id="username" placeholder="enter username (e.g. stellaprebeck)"/>
+    <button id="btn">Lookup</button>
   </div>
+  <div id="status" class="hint">Tries direct first, then public CORS proxies if needed.</div>
+  <div id="out"></div>
 
-  <div id="output"></div>
+<script>
+const btn = document.getElementById('btn');
+const input = document.getElementById('username');
+const status = document.getElementById('status');
+const out = document.getElementById('out');
 
-  <script>
-    document.getElementById("searchBtn").addEventListener("click", fetchUser);
-    document.getElementById("username").addEventListener("keydown", e => {
-      if (e.key === "Enter") fetchUser();
-    });
+const IG_ENDPOINT = (username) => `https://www.instagram.com/web/search/topsearch/?query=${encodeURIComponent(username)}`;
 
-    async function fetchUser() {
-      const username = document.getElementById("username").value.trim();
-      const output = document.getElementById("output");
-      if (!username) {
-        output.innerHTML = "<p class='error'>Please enter a username.</p>";
-        return;
-      }
+// Public proxy list — tries in order if direct fetch fails
+const PROXIES = [
+  {name: 'AllOrigins', build: url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`},
+  {name: 'ThingProxy', build: url => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`},
+  // Add more proxies here if you have them
+];
 
-      output.innerHTML = "<p>Loading...</p>";
+input.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+btn.addEventListener('click', run);
 
-      try {
-        const res = await fetch(`https://www.instagram.com/web/search/topsearch/?query=${encodeURIComponent(username)}`);
-        if (!res.ok) throw new Error("Network error " + res.status);
-        const data = await res.json();
+async function run(){
+  const username = input.value.trim();
+  out.innerHTML = '';
+  if (!username) { status.innerHTML = '<span class="error">Enter a username.</span>'; return; }
 
-        if (!data.users || !data.users.length) {
-          output.innerHTML = "<p class='error'>No user found.</p>";
-          return;
-        }
+  status.textContent = 'Trying direct fetch...';
+  const url = IG_ENDPOINT(username);
 
-        const user = data.users[0].user;
-        const fullName = user.full_name || "N/A";
-        const userId = user.pk || "N/A";
-        const profilePic = user.profile_pic_url || "";
+  try {
+    const json = await tryFetchVariants(url);
+    renderResult(username, json);
+  } catch (err) {
+    out.innerHTML = `<p class="error">Failed: ${escapeHtml(String(err))}</p>
+      <p class="hint">If this persists you can: run Chrome with --disable-web-security (local testing), use your own server proxy, or add more proxies to the PROXIES list.</p>`;
+    status.textContent = 'All attempts failed.';
+  }
+}
 
-        output.innerHTML = `
-          <div class="card">
-            <img class="avatar" src="${profilePic}" alt="Profile Picture">
-            <h3>${user.username}</h3>
-            <p><strong>Name:</strong> ${fullName}</p>
-            <p><strong>User ID:</strong> ${userId}</p>
-            <a href="https://instagram.com/${user.username}" target="_blank">Open Profile</a>
-          </div>
-        `;
-      } catch (err) {
-        output.innerHTML = `
-          <p class="error">❌ Failed to fetch user data.<br>
-          Likely due to Instagram's CORS protection.<br><br>
-          <small>For local testing, run Chrome with:<br>
-          <code>--disable-web-security --user-data-dir="C:/ChromeDev"</code></small></p>
-        `;
-      }
+async function tryFetchVariants(url){
+  // 1) try direct fetch (may hit CORS)
+  try {
+    const r = await fetch(url, { credentials: 'omit' });
+    if (r.ok) {
+      const json = await r.json();
+      status.textContent = 'Direct fetch succeeded.';
+      return json;
+    } else {
+      throw new Error('Direct fetch returned ' + r.status);
     }
-  </script>
+  } catch (err) {
+    // likely CORS or network error
+    console.warn('Direct fetch failed:', err);
+    status.textContent = 'Direct fetch failed; trying proxies...';
+  }
+
+  // 2) try proxies in sequence
+  let lastErr = null;
+  for (const p of PROXIES) {
+    const purl = p.build(url);
+    status.textContent = `Trying proxy: ${p.name}`;
+    try {
+      const r = await fetch(purl);
+      if (!r.ok) throw new Error(`${p.name} returned ${r.status}`);
+      const json = await r.json();
+      status.textContent = `Proxy ${p.name} succeeded.`;
+      return json;
+    } catch (err) {
+      console.warn(`${p.name} failed:`, err);
+      lastErr = err;
+    }
+  }
+  throw lastErr || new Error('All proxies failed');
+}
+
+function renderResult(requestedUsername, data) {
+  // expected shape: { users: [ { user: { ... } } ], ... }
+  const users = (data && data.users) ? data.users : null;
+  if (!users || users.length === 0) {
+    out.innerHTML = `<div class="card"><p class="error">No users found for "${escapeHtml(requestedUsername)}"</p><pre>${escapeHtml(JSON.stringify(data, null, 2))}</pre></div>`;
+    return;
+  }
+  const userObj = users[0].user || users[0];
+  const profile_pic_url = userObj.profile_pic_url || userObj.profile_pic_url_hd || '';
+  const full_name = userObj.full_name || '';
+  const pk = userObj.pk || userObj.id || userObj.pk_id || '';
+  const usernameReturned = userObj.username || '';
+
+  const usernameMatch = usernameReturned.toLowerCase() === requestedUsername.toLowerCase();
+
+  out.innerHTML = `
+    <div class="card" style="display:flex;gap:16px;align-items:center">
+      <div><img class="avatar" src="${escapeHtml(profile_pic_url)}" alt="avatar" onerror="this.style.opacity=.5; this.title='failed to load image'"></div>
+      <div style="flex:1;text-align:left">
+        <div><strong>${escapeHtml(usernameReturned)}</strong> ${usernameMatch ? '' : '<span class="error">(username mismatch)</span>'}</div>
+        <div style="margin-top:6px">Full name: <strong>${escapeHtml(full_name)}</strong></div>
+        <div style="margin-top:6px">User id (pk): <strong>${escapeHtml(pk)}</strong></div>
+        <div style="margin-top:10px"><a href="https://instagram.com/${encodeURIComponent(usernameReturned)}" target="_blank">Open profile</a></div>
+      </div>
+    </div>
+    <div style="margin-top:12px"><strong>Raw object (first user):</strong><pre>${escapeHtml(JSON.stringify(userObj, null, 2))}</pre></div>
+  `;
+  status.textContent = 'Done.';
+}
+
+// small helper to avoid XSS
+function escapeHtml(s){
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+}
+</script>
 </body>
 </html>
