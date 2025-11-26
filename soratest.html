@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Sora Lossless Extractor</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #loader { display: none; }
+    iframe { display: none; }
+    textarea { width: 100%; height: 100px; }
+  </style>
+</head>
+<body>
+
+<h1>Sora Lossless Video Extractor</h1>
+
+<input id="inputUrl" type="text" placeholder="Paste Sora project link">
+<button onclick="extract()">Extract Lossless</button>
+
+<p id="loader">Loading…</p>
+
+<textarea id="output"></textarea>
+
+<iframe id="scraper"></iframe>
+
+<script>
+async function extract() {
+  const url = document.getElementById("inputUrl").value.trim()
+  const iframe = document.getElementById("scraper")
+  const output = document.getElementById("output")
+  const loader = document.getElementById("loader")
+
+  output.value = ""
+  loader.style.display = "block"
+
+  iframe.src = url
+
+  iframe.onload = () => {
+    setTimeout(() => {
+      try {
+        const doc = iframe.contentDocument
+        const text = doc.documentElement.innerHTML
+
+        const matches = text.match(/https?:\/\/[^\s"'<>]+/g) || []
+        
+        // Azure signed parameters = lossless
+        const lossless = matches.find(u =>
+          u.includes("videos.openai.com") &&
+          u.includes("sig=") &&
+          u.includes("se=") &&
+          u.includes("sv=")
+        )
+
+        loader.style.display = "none"
+        output.value = lossless || "No lossless link found."
+      } catch (e) {
+        loader.style.display = "none"
+        output.value = "Error: browser blocked scraping (CORS)"
+      }
+    }, 2000) // Wait for dynamic JS to execute
+  }
+}
+</script>
+
+</body>
+</html>
