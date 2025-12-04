@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ultra-Compact Quiz URL Demo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+<style>
+body { font-family: sans-serif; margin: 2em; }
+input { width: 100%; margin-bottom: 0.5em; }
+.question { border: 1px solid #ccc; padding: 0.5em; margin-bottom: 1em; }
+</style>
+</head>
+<body>
+
+<h1>Ultra-Compact Quiz URL Demo</h1>
+
+<div id="quiz-container"></div>
+<button onclick="addQuestion()">Add Question</button>
+<button onclick="updateURL()">Generate URL</button>
+
+<h2>Generated URL</h2>
+<textarea id="generated-url" readonly style="width:100%;"></textarea>
+
+<script>
+const container = document.getElementById('quiz-container');
+
+// Helper functions
+function strToBytes(str){
+    return new TextEncoder().encode(str);
+}
+function bytesToStr(bytes){
+    return new TextDecoder().decode(bytes);
+}
+function bytesToBase64url(bytes){
+    let binary = '';
+    for(let i=0;i<bytes.length;i++) binary += String.fromCharCode(bytes[i]);
+    let b64 = btoa(binary);
+    return b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function base64urlToBytes(str){
+    str = str.replace(/-/g,'+').replace(/_/g,'/');
+    while(str.length % 4) str += '=';
+    const binary = atob(str);
+    const bytes = new Uint8Array(binary.length);
+    for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+    return bytes;
+}
+
+// Quiz functions
+function addQuestion(q='', a1='', a2='', a3='', correct=0){
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.innerHTML = `
+        <input class="q" placeholder="Question" value="${q}"><br>
+        <input class="a" placeholder="Answer 1" value="${a1}"><br>
+        <input class="a" placeholder="Answer 2" value="${a2}"><br>
+        <input class="a" placeholder="Answer 3" value="${a3}"><br>
+        <input class="c" type="number" placeholder="Correct (0-2)" value="${correct}" min="0" max="2"><br>
+        <button onclick="this.parentElement.remove(); updateURL();">Remove</button>
+    `;
+    container.appendChild(div);
+}
+
+function getQuizData(){
+    return Array.from(container.children).map(div=>{
+        const q = div.querySelector('.q').value;
+        const a = Array.from(div.querySelectorAll('.a')).map(i=>i.value);
+        const c = parseInt(div.querySelector('.c').value);
+        return {q,a,c};
+    });
+}
+
+// Encode quiz compactly using LZ + Base64url
+function encodeQuiz(quiz){
+    const json = JSON.stringify(quiz);
+    const compressed = LZString.compressToUint8Array(json);
+    return bytesToBase64url(compressed);
+}
+
+function decodeQuiz(str){
+    const bytes = base64urlToBytes(str);
+    const json = LZString.decompressFromUint8Array(bytes);
+    return JSON.parse(json);
+}
+
+// Update URL using /q?=
+function updateURL(){
+    const data = getQuizData();
+    const code = encodeQuiz(data);
+    const url = window.location.origin + '/q?=' + code;
+    document.getElementById('generated-url').value = url;
+    history.replaceState(null,'','/q?=' + code);
+}
+
+// Load from URL
+function loadQuiz(){
+    const params = new URLSearchParams(window.location.search);
+    const d = params.get(''); // For /q?=CODE, the param name is empty
+    if(d){
+        try{
+            const quiz = decodeQuiz(d);
+            quiz.forEach(q=>addQuestion(q.q,q.a[0],q.a[1],q.a[2],q.c));
+        }catch(e){ console.error(e); }
+    } else {
+        addQuestion("2+2?","3","4","5",1);
+        addQuestion("Capital of France?","Paris","Rome","Berlin",0);
+    }
+}
+
+loadQuiz();
+</script>
+
+</body>
+</html>
