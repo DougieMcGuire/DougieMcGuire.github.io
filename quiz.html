@@ -2,17 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Quiz URL Demo</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+<title>Compact Quiz URL Demo</title>
 <style>
   body { font-family: sans-serif; margin: 2em; }
-  input, textarea { width: 100%; margin-bottom: 0.5em; }
-  .question { margin-bottom: 1em; padding: 0.5em; border: 1px solid #ccc; }
+  input { width: 100%; margin-bottom: 0.5em; }
 </style>
 </head>
 <body>
 
-<h1>Quiz URL Demo</h1>
+<h1>Compact Quiz URL Demo</h1>
 
 <div id="quiz-container"></div>
 <button onclick="addQuestion()">Add Question</button>
@@ -24,59 +22,113 @@
 <script>
 const container = document.getElementById('quiz-container');
 
+// Helper functions
+function strToBytes(str) {
+    const encoder = new TextEncoder();
+    return encoder.encode(str);
+}
+function bytesToStr(bytes) {
+    const decoder = new TextDecoder();
+    return decoder.decode(bytes);
+}
+function bytesToBase64url(bytes) {
+    let str = btoa(String.fromCharCode(...bytes));
+    return str.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function base64urlToBytes(str) {
+    str = str.replace(/-/g,'+').replace(/_/g,'/');
+    while(str.length % 4) str += '=';
+    const binary = atob(str);
+    return Uint8Array.from(binary, c=>c.charCodeAt(0));
+}
+
+// Quiz logic
 function addQuestion(q='', a1='', a2='', a3='', correct=0) {
     const div = document.createElement('div');
-    div.className = 'question';
     div.innerHTML = `
-        <label>Question: <input type="text" class="q" value="${q}"></label><br>
-        <label>Answer 1: <input type="text" class="a" value="${a1}"></label><br>
-        <label>Answer 2: <input type="text" class="a" value="${a2}"></label><br>
-        <label>Answer 3: <input type="text" class="a" value="${a3}"></label><br>
-        <label>Correct Answer (0-2): <input type="number" class="c" value="${correct}" min="0" max="2"></label><br>
+        <input class="q" placeholder="Question" value="${q}"><br>
+        <input class="a" placeholder="Answer 1" value="${a1}"><br>
+        <input class="a" placeholder="Answer 2" value="${a2}"><br>
+        <input class="a" placeholder="Answer 3" value="${a3}"><br>
+        <input class="c" type="number" placeholder="Correct (0-2)" value="${correct}" min="0" max="2"><br>
         <button onclick="this.parentElement.remove(); updateURL();">Remove</button>
+        <hr>
     `;
     container.appendChild(div);
 }
 
 function getQuizData() {
-    const questions = [];
-    document.querySelectorAll('.question').forEach(qDiv => {
-        const qText = qDiv.querySelector('.q').value;
-        const answers = Array.from(qDiv.querySelectorAll('.a')).map(i => i.value);
-        const correct = parseInt(qDiv.querySelector('.c').value);
-        questions.push({q: qText, a: answers, c: correct});
+    return Array.from(container.children).map(div=>{
+        const q = div.querySelector('.q').value;
+        const a = Array.from(div.querySelectorAll('.a')).map(i=>i.value);
+        const c = parseInt(div.querySelector('.c').value);
+        return {q,a,c};
     });
-    return questions;
 }
 
+// Encode quiz compactly
+function encodeQuiz(quiz) {
+    const bytes = [];
+    bytes.push(quiz.length); // number of questions
+    quiz.forEach(q=>{
+        const qBytes = strToBytes(q.q);
+        bytes.push(qBytes.length);
+        bytes.push(...qBytes);
+        q.a.forEach(ans=>{
+            const aBytes = strToBytes(ans);
+            bytes.push(aBytes.length);
+            bytes.push(...aBytes);
+        });
+        bytes.push(q.c);
+    });
+    return bytesToBase64url(Uint8Array.from(bytes));
+}
+
+// Decode quiz
+function decodeQuiz(str) {
+    const bytes = base64urlToBytes(str);
+    const quiz = [];
+    let i = 0;
+    const numQ = bytes[i++]; 
+    for(let qIdx=0;qIdx<numQ;qIdx++){
+        const qLen = bytes[i++]; 
+        const qText = bytesToStr(bytes.slice(i,i+qLen)); i+=qLen;
+        const answers = [];
+        for(let j=0;j<3;j++){
+            const aLen = bytes[i++];
+            answers.push(bytesToStr(bytes.slice(i,i+aLen))); i+=aLen;
+        }
+        const c = bytes[i++];
+        quiz.push({q:qText,a:answers,c:c});
+    }
+    return quiz;
+}
+
+// Update URL
 function updateURL() {
-    const data = JSON.stringify(getQuizData());
-    const compressed = LZString.compressToEncodedURIComponent(data);
-    const url = window.location.origin + window.location.pathname + '?d=' + compressed;
+    const data = getQuizData();
+    const code = encodeQuiz(data);
+    const url = window.location.origin + window.location.pathname + '?d=' + code;
     document.getElementById('generated-url').value = url;
-    history.replaceState(null, '', '?d=' + compressed);
+    history.replaceState(null,'','?d='+code);
 }
 
-// Load quiz from URL if available
-function loadQuizFromURL() {
+// Load from URL
+function loadQuiz() {
     const params = new URLSearchParams(window.location.search);
     const d = params.get('d');
-    if(d) {
-        try {
-            const json = LZString.decompressFromEncodedURIComponent(d);
-            const quiz = JSON.parse(json);
-            quiz.forEach(q => addQuestion(q.q, q.a[0], q.a[1], q.a[2], q.c));
-        } catch(e) {
-            console.error('Failed to load quiz from URL', e);
-        }
+    if(d){
+        try{
+            const quiz = decodeQuiz(d);
+            quiz.forEach(q=>addQuestion(q.q,q.a[0],q.a[1],q.a[2],q.c));
+        }catch(e){ console.error(e); }
     } else {
-        // Default sample quiz
-        addQuestion("2 + 2?", "3", "4", "5", 1);
-        addQuestion("Capital of France?", "Paris", "Rome", "Berlin", 0);
+        addQuestion("2+2?","3","4","5",1);
+        addQuestion("Capital of France?","Paris","Rome","Berlin",0);
     }
 }
 
-loadQuizFromURL();
+loadQuiz();
 </script>
 
 </body>
