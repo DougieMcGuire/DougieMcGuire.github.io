@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Claude Chat — Quick HTML</title>
+  <style>
+    :root{
+      --bg:#f6f7fb; --card:#ffffff; --muted:#6b7280; --accent:#0366d6;
+    }
+    *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+    body{margin:0;background:var(--bg);color:#0f172a;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
+    .app{width:100%;max-width:920px;background:var(--card);border-radius:12px;box-shadow:0 6px 30px rgba(2,6,23,0.08);overflow:hidden;display:flex;flex-direction:column}
+    header{padding:18px 20px;border-bottom:1px solid #eef2f7;display:flex;gap:12px;align-items:center}
+    header h1{font-size:18px;margin:0}
+    .controls{display:flex;gap:8px;margin-left:auto;align-items:center}
+    .controls button{padding:6px 10px;border-radius:8px;border:1px solid #e6eefc;background:#fff;cursor:pointer}
+    .topbar{display:grid;grid-template-columns:1fr 200px;gap:10px;padding:14px 20px;border-bottom:1px solid #eef2f7}
+    .topbar input, .topbar select {width:100%;padding:8px;border:1px solid #e6e9ef;border-radius:8px;font-size:14px}
+    .muted{font-size:12px;color:var(--muted);margin-top:6px;padding:0 20px 12px}
+    .chat{padding:18px;display:flex;flex-direction:column;gap:12px;min-height:360px;max-height:58vh;overflow:auto;background:linear-gradient(180deg,#fff, #fbfcff 40%)}
+    .msg{max-width:78%;padding:12px 14px;border-radius:12px;white-space:pre-wrap;word-wrap:break-word}
+    .user{margin-left:auto;background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+    .assistant{margin-right:auto;background:#f1f5f9;color:#041024;border-bottom-left-radius:4px}
+    footer{padding:14px 18px;border-top:1px solid #eef2f7;display:flex;gap:8px;align-items:flex-end}
+    textarea#input{flex:1;min-height:56px;max-height:160px;padding:10px;border:1px solid #e6e9ef;border-radius:10px;resize:vertical;font-size:14px}
+    button.primary{background:var(--accent);color:#fff;padding:10px 14px;border-radius:10px;border:0;cursor:pointer}
+    button.secondary{background:#fff;border:1px solid #e6e9ef;padding:8px 12px;border-radius:10px;cursor:pointer}
+    .small{font-size:12px;color:var(--muted)}
+    .error{color:#b91c1c;font-size:13px}
+    .key-row{display:flex;gap:8px}
+    label.small{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+  </style>
+</head>
+<body>
+
+  <div class="app" role="application">
+    <header>
+      <h1>Claude Chat — quick HTML</h1>
+      <div class="controls">
+        <button id="clearBtn" title="Clear conversation">Clear</button>
+        <button id="exportBtn" title="Export conversation (JSON)">Export</button>
+      </div>
+    </header>
+
+    <div class="topbar">
+      <div>
+        <label class="small">Claude API key</label>
+        <div class="key-row">
+          <input id="apiKey" placeholder="Enter your Claude / Anthropic API key" type="password" />
+          <button id="showKeyBtn" class="secondary" title="Show/Hide">Show</button>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <input id="model" placeholder="Model (e.g. claude-2.1)" value="claude-2.1" />
+          <input id="baseUrl" placeholder="Optional base URL (proxy)" value="" />
+        </div>
+      </div>
+
+      <div>
+        <label class="small">Quick settings</label>
+        <select id="streamMode">
+          <option value="no">Normal response</option>
+          <option value="try_stream">Attempt streaming (may not work from browser)</option>
+        </select>
+        <div class="muted">Key is saved locally in localStorage only.</div>
+      </div>
+    </div>
+
+    <div id="chat" class="chat" aria-live="polite"></div>
+
+    <footer>
+      <textarea id="input" placeholder="Type a message to Claude..."></textarea>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button id="sendBtn" class="primary">Send</button>
+        <button id="stopBtn" class="secondary" disabled>Stop</button>
+      </div>
+    </footer>
+
+    <div style="padding:12px 18px;border-top:1px solid #eef2f7;background:#fff;">
+      <div class="small">Note: direct browser calls may be blocked by CORS. If you see a CORS error, set <strong>Base URL</strong> to your server-side proxy that forwards requests to <code>https://api.anthropic.com/v1/messages</code>.</div>
+    </div>
+  </div>
+
+  <script>
+    // Simple browser-based Claude chat (single-file)
+    // - Saves key and messages to localStorage
+    // - Sends POST to Anthropic /v1/messages with header "x-api-key"
+    // - If CORS blocks, set baseUrl to a proxy endpoint you control that forwards the request
+
+    const el = id => document.getElementById(id);
+    const chatEl = el('chat');
+    const apiKeyEl = el('apiKey');
+    const modelEl = el('model');
+    const baseUrlEl = el('baseUrl');
+    const inputEl = el('input');
+    const sendBtn = el('sendBtn');
+    const stopBtn = el('stopBtn');
+    const clearBtn = el('clearBtn');
+    const exportBtn = el('exportBtn');
+    const showKeyBtn = el('showKeyBtn');
+
+    let controller = null;
+    let inFlight = false;
+
+    // load state
+    apiKeyEl.value = localStorage.getItem('claude_api_key') || '';
+    modelEl.value = localStorage.getItem('claude_model') || 'claude-2.1';
+    baseUrlEl.value = localStorage.getItem('claude_base_url') || '';
+    const stored = localStorage.getItem('claude_messages');
+    let messages = stored ? JSON.parse(stored) : [];
+
+    function saveState() {
+      localStorage.setItem('claude_api_key', apiKeyEl.value);
+      localStorage.setItem('claude_model', modelEl.value);
+      localStorage.setItem('claude_base_url', baseUrlEl.value);
+      localStorage.setItem('claude_messages', JSON.stringify(messages));
+    }
+
+    function render() {
+      chatEl.innerHTML = '';
+      messages.forEach(m => {
+        const d = document.createElement('div');
+        d.className = 'msg ' + (m.role === 'user' ? 'user' : 'assistant');
+        d.textContent = m.content;
+        chatEl.appendChild(d);
+      });
+      // scroll to bottom
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    render();
+
+    showKeyBtn.addEventListener('click', () => {
+      if (apiKeyEl.type === 'password') {
+        apiKeyEl.type = 'text';
+        showKeyBtn.textContent = 'Hide';
+      } else {
+        apiKeyEl.type = 'password';
+        showKeyBtn.textContent = 'Show';
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      if (!confirm('Clear the conversation?')) return;
+      messages = [];
+      saveState();
+      render();
+    });
+
+    exportBtn.addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(messages, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'claude-conversation.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    sendBtn.addEventListener('click', () => sendMessage());
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        sendMessage();
+      }
+    });
+
+    stopBtn.addEventListener('click', () => {
+      if (controller) controller.abort();
+      stopBtn.disabled = true;
+    });
+
+    async function sendMessage() {
+      if (inFlight) return;
+      const key = apiKeyEl.value.trim();
+      if (!key) return alert('Enter your API key first.');
+      const model = modelEl.value.trim() || 'claude-2.1';
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      // push user message
+      messages.push({role:'user', content:text, ts: Date.now()});
+      saveState();
+      render();
+      inputEl.value = '';
+      inputEl.focus();
+
+      // placeholder assistant message
+      const placeholder = {role:'assistant', content:'…', ts: Date.now()};
+      messages.push(placeholder);
+      saveState();
+      render();
+
+      inFlight = true;
+      sendBtn.disabled = true;
+      stopBtn.disabled = false;
+      controller = new AbortController();
+
+      try {
+        const endpoint = (baseUrlEl.value || 'https://api.anthropic.com') + '/v1/messages';
+        const payload = {
+          model,
+          messages: messages.filter(m => m.role === 'user' || m.role === 'assistant').map(m => ({role: m.role, content: m.content})),
+          // you can add more params e.g. max_tokens_to_sample etc.
+        };
+
+        const resp = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': key
+          },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+
+        if (!resp.ok) {
+          const txt = await resp.text();
+          throw new Error(`API error ${resp.status}: ${txt}`);
+        }
+
+        const data = await resp.json();
+
+        // Attempt multiple ways to extract assistant text (different Claude endpoints have slightly different shapes)
+        let assistantText = '';
+
+        // Common shapes:
+        if (typeof data?.completion === 'string') assistantText = data.completion;
+        else if (data?.message?.content?.parts) assistantText = data.message.content.parts.join('\n\n');
+        else if (Array.isArray(data?.output) && data.output.length && data.output[0]?.content?.length) {
+          // new messages style: output[0].content is an array of blocks
+          const parts = data.output[0].content.flatMap(c => c?.text ? [c.text] : (c?.parts || []));
+          assistantText = parts.join('\n\n');
+        } else if (typeof data?.content === 'string') assistantText = data.content;
+        else assistantText = JSON.stringify(data);
+
+        // replace last placeholder
+        for (let i = messages.length - 1; i >= 0; i--) {
+          if (messages[i].role === 'assistant' && messages[i].content === '…') {
+            messages[i].content = assistantText;
+            break;
+          }
+        }
+
+        saveState();
+        render();
+
+      } catch (err) {
+        // find last placeholder and replace with error
+        for (let i = messages.length - 1; i >= 0; i--) {
+          if (messages[i].role === 'assistant' && messages[i].content === '…') {
+            messages[i].content = 'Error: ' + (err.message || String(err));
+            break;
+          }
+        }
+        saveState();
+        render();
+      } finally {
+        inFlight = false;
+        sendBtn.disabled = false;
+        stopBtn.disabled = true;
+        controller = null;
+      }
+    }
+
+    // Save key/model changes quickly
+    [apiKeyEl, modelEl, baseUrlEl].forEach(inp=>{
+      inp.addEventListener('change', saveState);
+      inp.addEventListener('input', saveState);
+    });
+
+  </script>
+</body>
+</html>
