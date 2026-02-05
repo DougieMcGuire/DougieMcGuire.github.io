@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Dopamine Playground</title>
+<style>
+  body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: #111;
+    color: #fff;
+    margin: 0;
+  }
+  button {
+    padding: 20px 40px;
+    margin: 15px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  button:active {
+    transform: scale(0.9);
+  }
+  .reward {
+    margin-top: 20px;
+    font-size: 24px;
+    color: #0f0;
+    animation: pop 0.3s ease forwards;
+  }
+  @keyframes pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Interactive Dopamine Test</h1>
+
+<button id="tapButton">Tap for Reward</button>
+<button id="spinButton">Spin the Wheel</button>
+<button id="randomButton">Random Surprise</button>
+
+<div id="rewardText" class="reward"></div>
+
+<script>
+// Helper: trigger vibration if supported
+function vibrate(pattern=100) {
+  if (navigator.vibrate) {
+    navigator.vibrate(pattern);
+  }
+}
+
+// Tap button: instant points reward
+const tapButton = document.getElementById('tapButton');
+tapButton.addEventListener('click', () => {
+  vibrate(50);
+  showReward(`+${Math.floor(Math.random() * 10) + 1} points!`);
+});
+
+// Spin button: variable reward
+const spinButton = document.getElementById('spinButton');
+spinButton.addEventListener('click', () => {
+  vibrate([50,30,50]);
+  const rewards = ['✨Rare Item!','💎Big Points!','🎉Congrats!','👍Nice!'];
+  const reward = rewards[Math.floor(Math.random()*rewards.length)];
+  showReward(reward);
+});
+
+// Random surprise button
+const randomButton = document.getElementById('randomButton');
+randomButton.addEventListener('click', () => {
+  vibrate([30,20,30,20,30]);
+  const effects = [
+    'You found a secret!',
+    'Lucky day!',
+    '💥 Jackpot!',
+    '👀 Surprise!',
+    'Points x2!'
+  ];
+  const effect = effects[Math.floor(Math.random()*effects.length)];
+  showReward(effect);
+});
+
+// Show reward text with animation
+function showReward(text) {
+  const rewardDiv = document.getElementById('rewardText');
+  rewardDiv.textContent = text;
+  rewardDiv.style.animation = 'none';
+  void rewardDiv.offsetWidth; // trigger reflow
+  rewardDiv.style.animation = 'pop 0.3s ease forwards';
+}
+</script>
+
+</body>
+</html>
