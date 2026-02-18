@@ -1,0 +1,138 @@
+:root {
+  --bg: #F2EBD9;
+  --card: #EDE5CF;
+  --tan-dark: #C4AD8A;
+  --tan-darker: #A08C6E;
+  --ink: #2A2018;
+  --ink-light: #6B5740;
+  --nav-bg: #E4D9BF;
+  --nav-border: #C4AD8A;
+  --bar-bg: #D5C8AD;
+  --radius: 16px;
+  --side-nav-w: 82px;
+  --green: #5EB85E;
+  --red: #C43820;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+
+body {
+  background: var(--bg);
+  font-family: 'Nunito', sans-serif;
+  color: var(--ink);
+  display: flex;
+  flex-direction: row;
+}
+
+/* ─── DOODLE BG ─── */
+.doodle-bg {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0; overflow: hidden;
+}
+.doodle-bg svg {
+  position: absolute; opacity: 0.045;
+  fill: none; stroke: var(--ink);
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ─── SIDE NAV (desktop 640+) ─── */
+nav {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: var(--side-nav-w);
+  background: var(--nav-bg);
+  border-right: 2px solid var(--nav-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 100;
+}
+
+.nav-btn {
+  width: 60px;
+  padding: 12px 6px 10px;
+  background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 5px;
+  color: var(--ink-light);
+  font-family: 'Patrick Hand', cursive;
+  font-size: 11px; letter-spacing: 0.3px;
+  border-radius: 14px;
+  transition: background 0.15s, color 0.15s;
+  text-decoration: none;
+}
+.nav-btn svg {
+  width: 24px; height: 24px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  transition: transform 0.2s;
+}
+.nav-btn.active { color: var(--ink); background: var(--card); }
+.nav-btn.active svg { transform: scale(1.1); }
+
+.nav-divider {
+  width: 36px; height: 1.5px;
+  background: var(--nav-border); border-radius: 2px;
+  margin: 4px 0;
+}
+
+/* ─── BOTTOM NAV (mobile <640) ─── */
+@media (max-width: 639px) {
+  body { flex-direction: column; }
+  nav {
+    position: fixed;
+    top: auto; left: 0; right: 0; bottom: 0;
+    width: 100%; height: 62px;
+    flex-direction: row;
+    justify-content: center;
+    border-right: none;
+    border-top: 2px solid var(--nav-border);
+  }
+  .nav-btn { width: auto; padding: 8px 30px; flex-direction: column; }
+  .nav-divider { width: 1.5px; height: 30px; margin: 0 6px; }
+}
+
+/* ─── APP SHELL ─── */
+#app {
+  position: relative; z-index: 1;
+  margin-left: var(--side-nav-w);
+  flex: 1; height: 100vh;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+@media (max-width: 639px) {
+  #app { margin-left: 0; padding-bottom: 62px; }
+}
+
+/* ─── ANIMS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.a0 { animation: fadeUp 0.4s ease both; }
+.a1 { animation: fadeUp 0.4s 0.07s ease both; }
+.a2 { animation: fadeUp 0.4s 0.14s ease both; }
+.a3 { animation: fadeUp 0.4s 0.21s ease both; }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--tan-dark); border-radius: 4px; }
+
+/* ─── CATEGORY COLORS ─── */
+.cat-ps  { --cat-color: #D96A28; --cat-light: #F09560; }
+.cat-mem { --cat-color: #8A5BAF; --cat-light: #B48FD4; }
+.cat-pr  { --cat-color: #C43820; --cat-light: #E86858; }
+.cat-cs  { --cat-color: #2A96B8; --cat-light: #65C4DA; }
+.cat-ma  { --cat-color: #4AAA4A; --cat-light: #82CC82; }
+.cat-ei  { --cat-color: #C44878; --cat-light: #E888A8; }
+
+.bar-ps  { background: linear-gradient(90deg, #D96A28, #F09560); }
+.bar-mem { background: linear-gradient(90deg, #8A5BAF, #B48FD4); }
+.bar-pr  { background: linear-gradient(90deg, #C43820, #E86858); }
+.bar-cs  { background: linear-gradient(90deg, #2A96B8, #65C4DA); }
+.bar-ma  { background: linear-gradient(90deg, #4AAA4A, #82CC82); }
+.bar-ei  { background: linear-gradient(90deg, #C44878, #E888A8); }
