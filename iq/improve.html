@@ -46,11 +46,10 @@
       font-size: 12px;
       text-decoration: none;
       border-radius: 14px;
-      transition: all 0.2s;
     }
     .nav-btn svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
     .nav-btn.active { color: var(--ink); background: var(--card); }
-    .nav-divider { width: 2px; height: 30px; background: var(--tan); border-radius: 2px; }
+    .nav-divider { width: 2px; height: 30px; background: var(--tan); }
 
     main {
       flex: 1;
@@ -62,8 +61,7 @@
     main::-webkit-scrollbar { display: none; }
 
     .slide {
-      min-height: 100%;
-      height: 100%;
+      min-height: 100%; height: 100%;
       scroll-snap-align: start;
       scroll-snap-stop: always;
       display: flex;
@@ -85,6 +83,13 @@
       align-items: center;
       gap: 14px;
       box-shadow: 0 6px 30px rgba(0,0,0,0.08);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .card.pop { animation: cardPop 0.4s ease; }
+    @keyframes cardPop {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.03); box-shadow: 0 0 30px rgba(94,184,94,0.4); }
+      100% { transform: scale(1); }
     }
 
     .category {
@@ -182,10 +187,37 @@
       transition: all 0.15s;
     }
     .opt:active { transform: scale(0.97); }
-    .opt.correct { background: var(--green); border-color: #4a9a4a; color: #fff; }
-    .opt.wrong { background: var(--red); border-color: #b33; color: #fff; }
+    .opt.correct { 
+      background: var(--green) !important;
+      border-color: #4a9a4a !important;
+      color: #fff !important;
+      animation: correctBounce 0.4s ease;
+    }
+    @keyframes correctBounce {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+    .opt.wrong { 
+      background: var(--red) !important;
+      border-color: #b33 !important;
+      color: #fff !important;
+      animation: wrongShake 0.4s ease;
+    }
+    @keyframes wrongShake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
     .opt.dim { opacity: 0.4; }
-    .opt.reveal { background: var(--green); border-color: #4a9a4a; color: #fff; opacity: 1 !important; }
+    .opt.reveal { 
+      background: var(--green) !important;
+      border-color: #4a9a4a !important;
+      color: #fff !important;
+      opacity: 1 !important;
+    }
 
     .explain {
       background: rgba(0,0,0,0.04);
@@ -197,7 +229,11 @@
       line-height: 1.4;
       display: none;
     }
-    .explain.show { display: block; }
+    .explain.show { display: block; animation: fadeSlide 0.3s ease; }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     .scroll-hint {
       margin-top: 14px;
@@ -226,54 +262,99 @@
       gap: 16px;
       z-index: 50;
     }
-    .stat-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    .stats-bar.bump { animation: bump 0.3s ease; }
+    @keyframes bump { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+    .stat-item { display: flex; flex-direction: column; align-items: center; }
     .stat-val {
       font-family: 'Verdana', sans-serif;
       font-size: 18px;
       font-weight: 700;
+      transition: color 0.3s, transform 0.3s;
     }
-    .stat-label {
-      font-family: 'Patrick Hand', cursive;
-      font-size: 10px;
-      color: var(--ink-light);
-    }
+    .stat-val.up { color: var(--green); transform: scale(1.2); }
+    .stat-label { font-family: 'Patrick Hand', cursive; font-size: 10px; color: var(--ink-light); }
 
     .streak-popup {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      inset: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0,0,0,0.5);
       z-index: 200;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s;
     }
     .streak-popup.show { opacity: 1; }
-    .streak-popup .flame { font-size: 72px; animation: pulse 0.5s infinite; }
-    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+    .streak-popup .flame { font-size: 80px; animation: flameDance 0.4s infinite; }
+    @keyframes flameDance { 
+      0%,100% { transform: scale(1) rotate(-5deg); }
+      50% { transform: scale(1.15) rotate(5deg); }
+    }
     .streak-popup .num {
       font-family: 'Verdana', sans-serif;
-      font-size: 48px;
+      font-size: 56px;
       font-weight: 700;
       color: #fff;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      text-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
     .streak-popup .txt {
       font-family: 'Patrick Hand', cursive;
-      font-size: 20px;
+      font-size: 22px;
       color: #fff;
     }
 
-    .modal {
+    .flash { 
+      position: fixed; inset: 0;
+      background: radial-gradient(circle, rgba(94,184,94,0.35) 0%, transparent 70%);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 150;
+    }
+    .flash.show { animation: flashAnim 0.3s ease; }
+    @keyframes flashAnim { 0%{opacity:1} 100%{opacity:0} }
+
+    .confetti {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 160;
+      overflow: hidden;
+    }
+    .confetti-piece {
+      position: absolute;
+      width: 10px; height: 10px;
+      opacity: 0;
+    }
+    .confetti-piece.fall { animation: confettiFall 1.2s ease-out forwards; }
+    @keyframes confettiFall {
+      0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+    }
+
+    .xp-float {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 45%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Verdana', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--green);
+      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 170;
+    }
+    .xp-float.show { animation: xpFloat 1s ease-out forwards; }
+    @keyframes xpFloat {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+      30% { transform: translate(-50%, -80%) scale(1.3); }
+      100% { opacity: 0; transform: translate(-50%, -150%) scale(1); }
+    }
+
+    .modal {
+      position: fixed; inset: 0;
       background: rgba(0,0,0,0.6);
       display: none;
       align-items: center;
@@ -291,26 +372,11 @@
       text-align: center;
     }
     .modal-emoji { font-size: 56px; margin-bottom: 16px; }
-    .modal-title {
-      font-family: 'Patrick Hand', cursive;
-      font-size: 26px;
-      margin-bottom: 12px;
-    }
-    .modal-text {
-      font-size: 14px;
-      color: var(--ink-light);
-      line-height: 1.5;
-      margin-bottom: 20px;
-    }
-    .age-num {
-      font-family: 'Verdana', sans-serif;
-      font-size: 48px;
-      font-weight: 700;
-      margin: 16px 0;
-    }
+    .modal-title { font-family: 'Patrick Hand', cursive; font-size: 26px; margin-bottom: 12px; }
+    .modal-text { font-size: 14px; color: var(--ink-light); line-height: 1.5; margin-bottom: 20px; }
+    .age-num { font-family: 'Verdana', sans-serif; font-size: 48px; font-weight: 700; margin: 16px 0; }
     .age-slider {
-      width: 100%;
-      height: 8px;
+      width: 100%; height: 8px;
       -webkit-appearance: none;
       background: var(--bar-bg);
       border-radius: 4px;
@@ -335,11 +401,90 @@
       font-size: 18px;
       cursor: pointer;
     }
+
+    /* Word Search */
+    .ws-timer {
+      width: 100%; height: 8px;
+      background: var(--bar-bg);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .ws-timer-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), #4AAA4A);
+      transition: width 0.1s linear;
+    }
+    .ws-timer-fill.warn { background: linear-gradient(90deg, #E5A835, #D96A28); }
+    .ws-timer-fill.danger { background: linear-gradient(90deg, var(--red), #b33); }
+    .ws-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      width: 100%;
+      max-width: 220px;
+      margin: 8px 0;
+    }
+    .ws-cell {
+      aspect-ratio: 1;
+      background: var(--bg);
+      border: 2px solid var(--tan);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Verdana', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s;
+    }
+    .ws-cell.sel { background: var(--tan); color: #fff; }
+    .ws-cell.found { background: var(--green); border-color: #4a9a4a; color: #fff; }
+    .ws-found {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 6px;
+      min-height: 24px;
+    }
+    .ws-word {
+      background: var(--green);
+      color: #fff;
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      animation: wordPop 0.3s ease;
+    }
+    @keyframes wordPop {
+      0% { transform: scale(0); }
+      60% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    .ws-start {
+      background: var(--ink);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 28px;
+      font-family: 'Patrick Hand', cursive;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .ws-score {
+      font-family: 'Verdana', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
 
-<div class="stats-bar">
+<div class="stats-bar" id="stats-bar">
   <div class="stat-item">
     <span class="stat-val" id="iq-val">--</span>
     <span class="stat-label">IQ</span>
@@ -367,8 +512,12 @@
 <div class="streak-popup" id="streak-popup">
   <div class="flame">🔥</div>
   <div class="num" id="streak-num">5</div>
-  <div class="txt">Streak!</div>
+  <div class="txt">STREAK!</div>
 </div>
+
+<div class="flash" id="flash"></div>
+<div class="confetti" id="confetti"></div>
+<div class="xp-float" id="xp-float">+1</div>
 
 <div class="modal" id="onboard-modal">
   <div class="modal-box">
@@ -392,9 +541,14 @@ const streakNum = document.getElementById('streak-num');
 const onboardModal = document.getElementById('onboard-modal');
 const ageSlider = document.getElementById('age-slider');
 const ageDisplay = document.getElementById('age-display');
+const flash = document.getElementById('flash');
+const confetti = document.getElementById('confetti');
+const xpFloat = document.getElementById('xp-float');
+const statsBar = document.getElementById('stats-bar');
 
 let totalSlides = 0;
 let answerTime = 0;
+let lastIQ = null;
 
 function init() {
   if (IQData.needsOnboarding()) {
@@ -415,11 +569,11 @@ function startApp() {
 function loadQuestions() {
   const data = IQData.load();
   QuestionGenerator.setAge(data.age);
+  lastIQ = data.iq;
   updateUI();
   
   for (let i = 0; i < 5; i++) addSlide();
   
-  // Multiple methods to ensure infinite scroll works
   feed.addEventListener('scroll', checkAddMore, { passive: true });
   feed.addEventListener('touchend', checkAddMore, { passive: true });
   setInterval(checkAddMore, 300);
@@ -438,31 +592,23 @@ function loadQuestions() {
 function checkAddMore() {
   const h = feed.clientHeight;
   if (h === 0) return;
-  const scrollPos = feed.scrollTop;
-  const currentIdx = Math.round(scrollPos / h);
-  
-  // Always keep at least 5 slides ahead
-  while (totalSlides < currentIdx + 6) {
-    addSlide();
-  }
+  const currentIdx = Math.round(feed.scrollTop / h);
+  while (totalSlides < currentIdx + 6) addSlide();
 }
 
 function addSlide() {
   const q = QuestionGenerator.generate();
-  const idx = totalSlides;
-  totalSlides++;
+  const idx = totalSlides++;
   
   const div = document.createElement('div');
   div.className = 'slide';
-  div.innerHTML = renderQ(q, idx);
+  div.innerHTML = q.visual === 'wordSearch' ? renderWS(q, idx) : renderQ(q, idx);
   feed.appendChild(div);
-  
   answerTime = Date.now();
 }
 
 function renderQ(q, idx) {
   let visual = '';
-  
   if (q.visual === 'sequence' || q.visual === 'letterSequence') {
     visual = `<div class="sequence">${q.sequence.map(n => `<span>${n}</span><span class="dot">·</span>`).join('')}<span class="blank">?</span></div>`;
   } else if (q.visual === 'matrix') {
@@ -472,15 +618,15 @@ function renderQ(q, idx) {
   }
   
   const long = q.options.some(o => o.length > 28);
-  const escapeAttr = s => s.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  const esc = s => s.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   
   return `
-    <div class="card">
+    <div class="card" id="card-${idx}">
       <div class="category">${q.categoryLabel}</div>
       <div class="question">${q.question}</div>
       ${visual}
-      <div class="options${long ? ' single' : ''}" data-idx="${idx}" data-ans="${escapeAttr(q.answer)}" data-cat="${q.category}" data-diff="${q.difficulty}">
-        ${q.options.map(o => `<button class="opt" data-v="${escapeAttr(o)}">${o}</button>`).join('')}
+      <div class="options${long ? ' single' : ''}" data-idx="${idx}" data-ans="${esc(q.answer)}" data-cat="${q.category}" data-diff="${q.difficulty}">
+        ${q.options.map(o => `<button class="opt" data-v="${esc(o)}">${o}</button>`).join('')}
       </div>
       <div class="explain" id="exp-${idx}">${q.explanation || ''}</div>
     </div>
@@ -491,9 +637,92 @@ function renderQ(q, idx) {
   `;
 }
 
+function renderWS(q, idx) {
+  return `
+    <div class="card" id="card-${idx}">
+      <div class="category">${q.categoryLabel}</div>
+      <div class="question">${q.question}</div>
+      <div class="ws-timer"><div class="ws-timer-fill" id="wst-${idx}"></div></div>
+      <div class="ws-score">Found: <span id="wsc-${idx}">0</span>/${q.totalWords}</div>
+      <div class="ws-grid" id="wsg-${idx}" data-idx="${idx}" data-words='${JSON.stringify(q.words)}' data-cat="${q.category}" data-diff="${q.difficulty}">
+        ${q.grid.map((l, i) => `<div class="ws-cell" data-i="${i}">${l}</div>`).join('')}
+      </div>
+      <div class="ws-found" id="wsf-${idx}"></div>
+      <button class="ws-start" id="wsb-${idx}" onclick="startWS(${idx})">TAP TO START</button>
+      <div class="explain" id="exp-${idx}"></div>
+    </div>
+    <div class="scroll-hint" id="hint-${idx}">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      Swipe for next
+    </div>
+  `;
+}
+
+// Word Search
+let wsData = {};
+
+function startWS(idx) {
+  document.getElementById(`wsb-${idx}`).style.display = 'none';
+  const grid = document.getElementById(`wsg-${idx}`);
+  const words = JSON.parse(grid.dataset.words);
+  
+  wsData[idx] = { found: [], timer: null, timeLeft: 12000 };
+  
+  const timerEl = document.getElementById(`wst-${idx}`);
+  wsData[idx].timer = setInterval(() => {
+    wsData[idx].timeLeft -= 100;
+    const pct = (wsData[idx].timeLeft / 12000) * 100;
+    timerEl.style.width = pct + '%';
+    timerEl.classList.toggle('warn', pct < 50 && pct >= 25);
+    timerEl.classList.toggle('danger', pct < 25);
+    if (wsData[idx].timeLeft <= 0) endWS(idx);
+  }, 100);
+  
+  grid.querySelectorAll('.ws-cell').forEach(c => {
+    c.onclick = () => clickWSCell(idx, c, words);
+  });
+}
+
+function clickWSCell(idx, cell, words) {
+  if (cell.classList.contains('found')) return;
+  cell.classList.toggle('sel');
+  
+  const grid = document.getElementById(`wsg-${idx}`);
+  const sel = [...grid.querySelectorAll('.ws-cell.sel')];
+  const word = sel.map(c => c.textContent).join('');
+  const rev = word.split('').reverse().join('');
+  
+  const match = words.find(w => w === word || w === rev);
+  if (match && !wsData[idx].found.includes(match)) {
+    wsData[idx].found.push(match);
+    sel.forEach(c => { c.classList.remove('sel'); c.classList.add('found'); });
+    document.getElementById(`wsc-${idx}`).textContent = wsData[idx].found.length;
+    document.getElementById(`wsf-${idx}`).innerHTML += `<span class="ws-word">${match}</span>`;
+    doCorrectFX();
+    if (wsData[idx].found.length >= words.length) endWS(idx, true);
+  }
+}
+
+function endWS(idx, allFound = false) {
+  clearInterval(wsData[idx].timer);
+  const grid = document.getElementById(`wsg-${idx}`);
+  const words = JSON.parse(grid.dataset.words);
+  const found = wsData[idx].found.length;
+  const score = found / words.length;
+  
+  IQData.recordAnswer(grid.dataset.cat, score >= 0.5, parseFloat(grid.dataset.diff) * Math.max(0.5, score));
+  if (allFound) doBigCorrectFX();
+  updateUI();
+  
+  const exp = document.getElementById(`exp-${idx}`);
+  exp.textContent = allFound ? `Perfect! All ${found} words found!` : `Found ${found}/${words.length} words`;
+  setTimeout(() => exp.classList.add('show'), 200);
+  setTimeout(() => document.getElementById(`hint-${idx}`)?.classList.add('show'), 500);
+}
+
+// Answer clicks
 document.addEventListener('click', function(e) {
   if (!e.target.classList.contains('opt')) return;
-  
   const btn = e.target;
   const opts = btn.parentElement;
   if (opts.dataset.done) return;
@@ -502,10 +731,7 @@ document.addEventListener('click', function(e) {
   const idx = parseInt(opts.dataset.idx);
   const correct = opts.dataset.ans;
   const val = btn.dataset.v;
-  const cat = opts.dataset.cat;
-  const diff = parseFloat(opts.dataset.diff);
   const isCorrect = val === correct;
-  const time = Date.now() - answerTime;
   
   opts.querySelectorAll('.opt').forEach(o => {
     if (o.dataset.v === correct) o.classList.add(isCorrect ? 'correct' : 'reveal');
@@ -514,30 +740,77 @@ document.addEventListener('click', function(e) {
     o.style.pointerEvents = 'none';
   });
   
-  const data = IQData.recordAnswer(cat, isCorrect, diff, time);
+  const data = IQData.recordAnswer(opts.dataset.cat, isCorrect, parseFloat(opts.dataset.diff), Date.now() - answerTime);
   
-  const exp = document.getElementById(`exp-${idx}`);
-  if (exp) setTimeout(() => exp.classList.add('show'), 200);
+  if (isCorrect) {
+    doCorrectFX();
+    document.getElementById(`card-${idx}`)?.classList.add('pop');
+    if (data.iq && lastIQ && data.iq > lastIQ) showXP('+' + (data.iq - lastIQ) + ' IQ');
+    lastIQ = data.iq;
+  }
+  
+  setTimeout(() => document.getElementById(`exp-${idx}`)?.classList.add('show'), 200);
   
   if (isCorrect && data.streak > 0 && data.streak % 5 === 0) {
-    streakNum.textContent = data.streak;
-    streakPopup.classList.add('show');
-    setTimeout(() => streakPopup.classList.remove('show'), 2000);
+    setTimeout(() => {
+      streakNum.textContent = data.streak;
+      streakPopup.classList.add('show');
+      spawnConfetti(30);
+      setTimeout(() => streakPopup.classList.remove('show'), 2500);
+    }, 300);
   }
   
   updateUI();
-  
-  setTimeout(() => {
-    const hint = document.getElementById(`hint-${idx}`);
-    if (hint) hint.classList.add('show');
-  }, 400);
-  
+  setTimeout(() => document.getElementById(`hint-${idx}`)?.classList.add('show'), 400);
   answerTime = Date.now();
 });
 
+function doCorrectFX() {
+  flash.classList.add('show');
+  setTimeout(() => flash.classList.remove('show'), 300);
+  statsBar.classList.add('bump');
+  setTimeout(() => statsBar.classList.remove('bump'), 300);
+  spawnConfetti(10);
+}
+
+function doBigCorrectFX() {
+  flash.classList.add('show');
+  setTimeout(() => flash.classList.remove('show'), 400);
+  spawnConfetti(30);
+}
+
+function spawnConfetti(n) {
+  const colors = ['#5EB85E', '#FFD700', '#FF6B6B', '#4ECDC4', '#A855F7', '#F59E0B'];
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.top = '-10px';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    p.style.animationDelay = Math.random() * 0.2 + 's';
+    confetti.appendChild(p);
+    setTimeout(() => p.classList.add('fall'), 10);
+    setTimeout(() => p.remove(), 1500);
+  }
+}
+
+function showXP(txt) {
+  xpFloat.textContent = txt;
+  xpFloat.classList.add('show');
+  setTimeout(() => xpFloat.classList.remove('show'), 1000);
+}
+
 function updateUI() {
   const data = IQData.load();
-  iqVal.textContent = data.iq || '--';
+  const newIQ = data.iq || '--';
+  if (iqVal.textContent !== String(newIQ)) {
+    iqVal.textContent = newIQ;
+    if (data.iq && lastIQ && data.iq > lastIQ) {
+      iqVal.classList.add('up');
+      setTimeout(() => iqVal.classList.remove('up'), 500);
+    }
+  }
   streakVal.textContent = data.streak;
 }
 
