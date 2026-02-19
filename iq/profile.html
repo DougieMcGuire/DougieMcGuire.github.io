@@ -27,7 +27,6 @@
     }
     body { display: flex; flex-direction: column; }
 
-    /* Nav */
     nav {
       position: fixed; bottom: 0; left: 0; right: 0;
       height: 70px;
@@ -46,29 +45,26 @@
       font-size: 12px;
       text-decoration: none;
       border-radius: 14px;
-      transition: all 0.2s;
     }
     .nav-btn svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
     .nav-btn.active { color: var(--ink); background: var(--card); }
     .nav-divider { width: 2px; height: 30px; background: var(--tan); border-radius: 2px; }
 
-    /* Main */
     main {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 20px 90px;
+      padding: 16px 16px 80px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-    /* Header */
     .header {
       width: 100%;
-      max-width: 400px;
+      max-width: 380px;
       display: flex;
       justify-content: flex-end;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
     .share-btn {
       background: var(--card);
@@ -85,16 +81,15 @@
     }
     .share-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-    /* Avatar */
     .avatar-wrap {
       position: relative;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
     .avatar {
-      width: 100px; height: 100px;
+      width: 90px; height: 90px;
       border-radius: 50%;
       background: var(--card);
-      border: 4px solid var(--tan);
+      border: 3px solid var(--tan);
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -102,11 +97,11 @@
       cursor: pointer;
     }
     .avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
-    .avatar svg { width: 48px; height: 48px; stroke: var(--tan-dark); fill: none; stroke-width: 1.5; }
+    .avatar svg { width: 44px; height: 44px; stroke: var(--tan-dark); fill: none; stroke-width: 1.5; }
     .avatar-edit {
       position: absolute;
       bottom: 0; right: 0;
-      width: 28px; height: 28px;
+      width: 26px; height: 26px;
       background: var(--ink);
       border-radius: 50%;
       border: 2px solid var(--card);
@@ -115,46 +110,45 @@
       justify-content: center;
       cursor: pointer;
     }
-    .avatar-edit svg { width: 12px; height: 12px; stroke: #fff; fill: none; stroke-width: 2; }
+    .avatar-edit svg { width: 11px; height: 11px; stroke: #fff; fill: none; stroke-width: 2; }
     #avatar-input { display: none; }
 
-    /* IQ */
     .iq-display {
       text-align: center;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .iq-num {
       font-family: 'Verdana', sans-serif;
-      font-size: 64px;
+      font-size: 56px;
       font-weight: 700;
       line-height: 1;
     }
     .iq-label {
-      font-family: 'Patrick Hand', cursive;
+      font-family: 'Verdana', sans-serif;
       font-size: 14px;
       color: var(--ink-light);
-      letter-spacing: 2px;
+      letter-spacing: 4px;
+      margin-top: 2px;
     }
     .pct-badge {
       background: var(--tan-dark);
       color: #F5EDD8;
       font-family: 'Patrick Hand', cursive;
-      font-size: 13px;
-      padding: 5px 14px;
-      border-radius: 20px;
-      margin-top: 8px;
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 16px;
+      margin-top: 6px;
       display: inline-block;
     }
 
-    /* Quick Stats */
     .quick-stats {
       display: flex;
-      gap: 20px;
-      margin-top: 16px;
+      gap: 16px;
+      margin-top: 12px;
       background: var(--card);
       border: 2px solid var(--tan);
-      border-radius: 16px;
-      padding: 12px 24px;
+      border-radius: 14px;
+      padding: 10px 20px;
     }
     .quick-stat {
       display: flex;
@@ -163,67 +157,65 @@
     }
     .quick-stat-val {
       font-family: 'Verdana', sans-serif;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
     }
     .quick-stat-lbl {
       font-family: 'Patrick Hand', cursive;
-      font-size: 11px;
+      font-size: 10px;
       color: var(--ink-light);
     }
 
-    /* Section */
     .section-title {
       font-family: 'Patrick Hand', cursive;
-      font-size: 14px;
+      font-size: 13px;
       color: var(--ink-light);
       letter-spacing: 2px;
       text-transform: uppercase;
-      margin: 20px 0 12px;
+      margin: 16px 0 10px;
       width: 100%;
-      max-width: 400px;
+      max-width: 380px;
     }
 
-    /* Stats Grid */
     .stats-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 8px;
       width: 100%;
-      max-width: 400px;
+      max-width: 380px;
     }
     .stat-card {
       background: var(--card);
       border: 1.5px solid var(--tan);
-      border-radius: 14px;
-      padding: 10px 12px;
+      border-radius: 12px;
+      padding: 8px 10px;
     }
     .stat-name {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 800;
       color: var(--ink-light);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
     .stat-bar-bg {
       background: var(--bar-bg);
-      border-radius: 6px;
-      height: 24px;
+      border-radius: 5px;
+      height: 22px;
       overflow: hidden;
     }
     .stat-bar {
       height: 100%;
-      border-radius: 6px;
+      border-radius: 5px;
       display: flex;
       align-items: center;
-      padding-left: 8px;
-      min-width: 28px;
+      padding-left: 7px;
+      min-width: 26px;
       transition: width 0.6s ease;
     }
     .stat-bar span {
       font-family: 'Verdana', sans-serif;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: #fff;
     }
@@ -236,20 +228,18 @@
     .bar-ei { background: linear-gradient(90deg, #C44878, #E888A8); }
     .bar-sa { background: linear-gradient(90deg, #059669, #34D399); }
 
-    /* Reset */
     .reset-btn {
-      margin-top: 24px;
+      margin-top: 20px;
       background: none;
       border: none;
       font-family: 'Patrick Hand', cursive;
-      font-size: 13px;
+      font-size: 12px;
       color: var(--ink-light);
       cursor: pointer;
-      opacity: 0.6;
+      opacity: 0.5;
     }
     .reset-btn:hover { opacity: 1; color: var(--red); }
 
-    /* Share Modal */
     .modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -258,31 +248,31 @@
       align-items: center;
       justify-content: center;
       z-index: 200;
-      padding: 20px;
+      padding: 16px;
     }
     .modal.show { display: flex; }
     .modal-box {
       background: var(--bg);
       border-radius: 20px;
-      padding: 24px;
+      padding: 20px;
       width: 100%;
-      max-width: 380px;
+      max-width: 360px;
       position: relative;
     }
     .modal-close {
       position: absolute;
-      top: 12px; right: 12px;
+      top: 10px; right: 10px;
       background: none;
       border: none;
       cursor: pointer;
       opacity: 0.5;
     }
-    .modal-close svg { width: 20px; height: 20px; stroke: var(--ink); stroke-width: 2; }
+    .modal-close svg { width: 18px; height: 18px; stroke: var(--ink); stroke-width: 2; }
     .modal-title {
       font-family: 'Patrick Hand', cursive;
-      font-size: 20px;
+      font-size: 18px;
       text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
     .share-preview {
       background: var(--card);
@@ -293,27 +283,26 @@
     .share-preview canvas { width: 100%; display: block; }
     .share-btns {
       display: flex;
-      gap: 10px;
-      margin-top: 16px;
+      gap: 8px;
+      margin-top: 14px;
     }
     .share-btns button {
       flex: 1;
       background: var(--card);
       border: 2px solid var(--tan);
-      border-radius: 12px;
-      padding: 12px;
+      border-radius: 10px;
+      padding: 10px;
       font-family: 'Patrick Hand', cursive;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 5px;
     }
-    .share-btns button svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .share-btns button svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
     .share-btns button.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
 
-    /* Toast */
     .toast {
       position: fixed;
       bottom: 90px;
@@ -355,7 +344,7 @@
 
   <div class="iq-display">
     <div class="iq-num" id="iq-num">--</div>
-    <div class="iq-label" id="iq-label">IQ</div>
+    <div class="iq-label">IQ</div>
   </div>
   <div class="pct-badge" id="pct-badge" style="display:none;"></div>
 
@@ -413,41 +402,34 @@
 function loadProfile() {
   const data = IQData.load();
   
-  // IQ
   const iqNum = document.getElementById('iq-num');
-  const iqLabel = document.getElementById('iq-label');
   const pctBadge = document.getElementById('pct-badge');
   
   if (data.iq) {
     iqNum.textContent = data.iq;
-    iqLabel.textContent = getIQLabel(data.iq);
     const pct = iqToPercentile(data.iq);
     pctBadge.textContent = 'Top ' + formatPercentile(pct);
     pctBadge.style.display = 'inline-block';
   } else {
     iqNum.textContent = '--';
-    iqLabel.textContent = 'Answer questions to calculate';
     pctBadge.style.display = 'none';
   }
   
-  // Quick stats
   document.getElementById('q-answered').textContent = data.questionsAnswered;
   document.getElementById('q-accuracy').textContent = IQData.getAccuracy() + '%';
   document.getElementById('q-streak').textContent = data.bestStreak;
   
-  // Avatar
   if (data.profilePic) {
     document.getElementById('avatar-img').src = data.profilePic;
     document.getElementById('avatar-img').style.display = 'block';
     document.getElementById('avatar-icon').style.display = 'none';
   }
   
-  // Stats
   const grid = document.getElementById('stats-grid');
   grid.innerHTML = '';
   
   const cats = [
-    { key: 'patternRecognition', name: 'Pattern Recog.', bar: 'pr' },
+    { key: 'patternRecognition', name: 'Pattern', bar: 'pr' },
     { key: 'problemSolving', name: 'Problem Solving', bar: 'ps' },
     { key: 'mentalAgility', name: 'Mental Agility', bar: 'ma' },
     { key: 'memory', name: 'Memory', bar: 'mem' },
@@ -470,7 +452,6 @@ function loadProfile() {
     grid.appendChild(card);
   });
   
-  // Animate bars
   setTimeout(() => {
     document.querySelectorAll('.stat-bar').forEach(bar => {
       const val = parseInt(bar.querySelector('span').textContent);
@@ -491,9 +472,7 @@ function uploadAvatar(input) {
       canvas.width = canvas.height = 200;
       const ctx = canvas.getContext('2d');
       const min = Math.min(img.width, img.height);
-      const sx = (img.width - min) / 2;
-      const sy = (img.height - min) / 2;
-      ctx.drawImage(img, sx, sy, min, min, 0, 0, 200, 200);
+      ctx.drawImage(img, (img.width - min) / 2, (img.height - min) / 2, min, min, 0, 0, 200, 200);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
       IQData.setProfilePic(dataUrl);
       document.getElementById('avatar-img').src = dataUrl;
@@ -520,138 +499,192 @@ function closeShare() {
 function genShareImg() {
   const data = IQData.load();
   const canvas = document.createElement('canvas');
-  canvas.width = 500;
-  canvas.height = 600;
+  const W = 540, H = 720;
+  canvas.width = W;
+  canvas.height = H;
   const ctx = canvas.getContext('2d');
   
-  // BG
+  // Background
   ctx.fillStyle = '#F2EBD9';
-  ctx.fillRect(0, 0, 500, 600);
+  ctx.fillRect(0, 0, W, H);
   
-  // Card
+  // Main card
   ctx.fillStyle = '#EDE5CF';
-  roundRect(ctx, 20, 20, 460, 560, 20);
-  ctx.fill();
-  ctx.strokeStyle = '#C4AD8A';
-  ctx.lineWidth = 2;
-  roundRect(ctx, 20, 20, 460, 560, 20);
-  ctx.stroke();
-  
-  // Avatar circle
-  ctx.fillStyle = '#D5C8AD';
-  ctx.beginPath();
-  ctx.arc(250, 80, 40, 0, Math.PI * 2);
+  roundRect(ctx, 30, 30, W - 60, H - 60, 32);
   ctx.fill();
   ctx.strokeStyle = '#C4AD8A';
   ctx.lineWidth = 3;
+  roundRect(ctx, 30, 30, W - 60, H - 60, 32);
   ctx.stroke();
   
-  // If has profile pic
+  // Decorative circles
+  ctx.fillStyle = 'rgba(196,173,138,0.15)';
+  ctx.beginPath();
+  ctx.arc(80, 100, 60, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(W - 80, H - 120, 80, 0, Math.PI * 2);
+  ctx.fill();
+  
+  const drawContent = () => {
+    // IQ Score - Big and Bold
+    ctx.font = '700 96px Verdana';
+    ctx.fillStyle = '#2A2018';
+    ctx.textAlign = 'center';
+    ctx.fillText(data.iq || '--', W/2, 200);
+    
+    ctx.font = '700 18px Verdana';
+    ctx.fillStyle = '#A08C6E';
+    ctx.fillText('IQ', W/2, 230);
+    
+    // Percentile badge
+    if (data.iq) {
+      const pct = iqToPercentile(data.iq);
+      ctx.fillStyle = '#2A2018';
+      roundRect(ctx, W/2 - 80, 250, 160, 36, 18);
+      ctx.fill();
+      ctx.font = '600 15px Nunito';
+      ctx.fillStyle = '#F5EDD8';
+      ctx.fillText('Top ' + formatPercentile(pct), W/2, 274);
+    }
+    
+    // Divider line
+    ctx.strokeStyle = '#C4AD8A';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(70, 310);
+    ctx.lineTo(W - 70, 310);
+    ctx.stroke();
+    
+    // Stats boxes
+    const boxY = 330;
+    const boxW = 130;
+    const boxGap = 20;
+    const startX = (W - (boxW * 3 + boxGap * 2)) / 2;
+    
+    const statBoxes = [
+      { val: data.questionsAnswered, label: 'Answered' },
+      { val: IQData.getAccuracy() + '%', label: 'Accuracy' },
+      { val: data.bestStreak + '🔥', label: 'Best Streak' }
+    ];
+    
+    statBoxes.forEach((s, i) => {
+      const x = startX + i * (boxW + boxGap);
+      ctx.fillStyle = '#D5C8AD';
+      roundRect(ctx, x, boxY, boxW, 70, 12);
+      ctx.fill();
+      
+      ctx.font = '700 26px Verdana';
+      ctx.fillStyle = '#2A2018';
+      ctx.fillText(s.val, x + boxW/2, boxY + 35);
+      
+      ctx.font = '400 11px Patrick Hand';
+      ctx.fillStyle = '#6B5740';
+      ctx.fillText(s.label, x + boxW/2, boxY + 55);
+    });
+    
+    // Abilities section
+    ctx.font = '600 12px Patrick Hand';
+    ctx.fillStyle = '#A08C6E';
+    ctx.textAlign = 'left';
+    ctx.fillText('ABILITIES', 70, 440);
+    
+    // Stats bars
+    const stats = [
+      { name: 'Pattern Recognition', color: '#C43820', key: 'patternRecognition' },
+      { name: 'Problem Solving', color: '#D96A28', key: 'problemSolving' },
+      { name: 'Mental Agility', color: '#4AAA4A', key: 'mentalAgility' },
+      { name: 'Memory', color: '#8A5BAF', key: 'memory' },
+      { name: 'Verbal Reasoning', color: '#6366F1', key: 'verbalReasoning' },
+      { name: 'Common Sense', color: '#2A96B8', key: 'commonSense' }
+    ];
+    
+    let y = 460;
+    const barMaxW = W - 140;
+    
+    stats.forEach(s => {
+      const val = IQData.getStatPercent(s.key);
+      
+      ctx.font = '700 10px Nunito';
+      ctx.fillStyle = '#6B5740';
+      ctx.textAlign = 'left';
+      ctx.fillText(s.name.toUpperCase(), 70, y);
+      
+      // Bar background
+      ctx.fillStyle = '#D5C8AD';
+      roundRect(ctx, 70, y + 6, barMaxW, 24, 6);
+      ctx.fill();
+      
+      // Bar fill with gradient
+      const barW = Math.max(40, (val / 100) * barMaxW);
+      const grad = ctx.createLinearGradient(70, 0, 70 + barW, 0);
+      grad.addColorStop(0, s.color);
+      grad.addColorStop(1, s.color + '99');
+      ctx.fillStyle = grad;
+      roundRect(ctx, 70, y + 6, barW, 24, 6);
+      ctx.fill();
+      
+      // Value
+      ctx.font = '700 12px Verdana';
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'left';
+      ctx.fillText(val, 78, y + 22);
+      
+      y += 38;
+    });
+    
+    // Footer branding
+    ctx.font = '600 16px Patrick Hand';
+    ctx.fillStyle = '#A08C6E';
+    ctx.textAlign = 'center';
+    ctx.fillText('🧠 IQ Profile', W/2, H - 55);
+    
+    shareCanvas = canvas;
+    const preview = document.getElementById('share-preview');
+    preview.innerHTML = '';
+    preview.appendChild(canvas);
+  };
+  
+  // Avatar
   if (data.profilePic) {
     const img = new Image();
     img.onload = () => {
       ctx.save();
       ctx.beginPath();
-      ctx.arc(250, 80, 38, 0, Math.PI * 2);
+      ctx.arc(W/2, 85, 45, 0, Math.PI * 2);
       ctx.clip();
-      ctx.drawImage(img, 212, 42, 76, 76);
+      ctx.drawImage(img, W/2 - 45, 40, 90, 90);
       ctx.restore();
-      finishShare(ctx, data, canvas);
+      ctx.strokeStyle = '#C4AD8A';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(W/2, 85, 45, 0, Math.PI * 2);
+      ctx.stroke();
+      drawContent();
     };
     img.src = data.profilePic;
   } else {
-    finishShare(ctx, data, canvas);
-  }
-}
-
-function finishShare(ctx, data, canvas) {
-  // IQ
-  ctx.font = '700 56px Verdana';
-  ctx.fillStyle = '#2A2018';
-  ctx.textAlign = 'center';
-  ctx.fillText(data.iq || '--', 250, 175);
-  
-  ctx.font = '400 14px Patrick Hand';
-  ctx.fillStyle = '#6B5740';
-  ctx.fillText(data.iq ? getIQLabel(data.iq) : 'IQ', 250, 200);
-  
-  // Percentile
-  if (data.iq) {
-    const pct = iqToPercentile(data.iq);
-    ctx.fillStyle = '#A08C6E';
-    roundRect(ctx, 175, 215, 150, 26, 13);
-    ctx.fill();
-    ctx.font = '400 12px Patrick Hand';
-    ctx.fillStyle = '#F5EDD8';
-    ctx.fillText('Top ' + formatPercentile(pct), 250, 233);
-  }
-  
-  // Stats row
-  ctx.font = '700 18px Verdana';
-  ctx.fillStyle = '#2A2018';
-  ctx.fillText(data.questionsAnswered, 120, 280);
-  ctx.fillText(IQData.getAccuracy() + '%', 250, 280);
-  ctx.fillText(data.bestStreak, 380, 280);
-  
-  ctx.font = '400 10px Patrick Hand';
-  ctx.fillStyle = '#6B5740';
-  ctx.fillText('Answered', 120, 298);
-  ctx.fillText('Accuracy', 250, 298);
-  ctx.fillText('Best Streak', 380, 298);
-  
-  // Divider
-  ctx.strokeStyle = '#C4AD8A';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(60, 320);
-  ctx.lineTo(440, 320);
-  ctx.stroke();
-  
-  // Stats bars
-  const stats = [
-    { name: 'Pattern Recognition', color: '#C43820', key: 'patternRecognition' },
-    { name: 'Problem Solving', color: '#D96A28', key: 'problemSolving' },
-    { name: 'Mental Agility', color: '#4AAA4A', key: 'mentalAgility' },
-    { name: 'Memory', color: '#8A5BAF', key: 'memory' },
-    { name: 'Verbal', color: '#6366F1', key: 'verbalReasoning' },
-    { name: 'Common Sense', color: '#2A96B8', key: 'commonSense' }
-  ];
-  
-  let y = 345;
-  stats.forEach(s => {
-    const val = IQData.getStatPercent(s.key);
-    
-    ctx.font = '700 9px Nunito';
-    ctx.fillStyle = '#6B5740';
-    ctx.textAlign = 'left';
-    ctx.fillText(s.name.toUpperCase(), 50, y);
-    
+    // Default avatar circle
     ctx.fillStyle = '#D5C8AD';
-    roundRect(ctx, 50, y + 5, 400, 20, 5);
+    ctx.beginPath();
+    ctx.arc(W/2, 85, 45, 0, Math.PI * 2);
     ctx.fill();
+    ctx.strokeStyle = '#C4AD8A';
+    ctx.lineWidth = 4;
+    ctx.stroke();
     
-    ctx.fillStyle = s.color;
-    roundRect(ctx, 50, y + 5, Math.max(30, val * 4), 20, 5);
-    ctx.fill();
+    // Person icon
+    ctx.strokeStyle = '#A08C6E';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(W/2, 75, 15, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(W/2, 115, 25, Math.PI, 0, true);
+    ctx.stroke();
     
-    ctx.font = '700 11px Verdana';
-    ctx.fillStyle = '#fff';
-    ctx.textAlign = 'left';
-    ctx.fillText(val, 56, y + 19);
-    
-    y += 38;
-  });
-  
-  // Footer
-  ctx.font = '400 12px Patrick Hand';
-  ctx.fillStyle = '#A08C6E';
-  ctx.textAlign = 'center';
-  ctx.fillText('IQ Profile', 250, 575);
-  
-  shareCanvas = canvas;
-  const preview = document.getElementById('share-preview');
-  preview.innerHTML = '';
-  preview.appendChild(canvas);
+    drawContent();
+  }
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -685,7 +718,7 @@ function downloadImg() {
   link.download = 'iq-profile.png';
   link.href = shareCanvas.toDataURL('image/png');
   link.click();
-  toast('Downloaded!');
+  toast('Saved!');
 }
 
 function resetData() {
