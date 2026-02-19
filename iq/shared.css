@@ -163,14 +163,7 @@ nav {
 .bar-vr  { background: linear-gradient(90deg, #6366F1, #A5B4FC); }
 .bar-sa  { background: linear-gradient(90deg, #059669, #34D399); }
 
-.cat-ps  { --cat-color: #D96A28; }
-.cat-mem { --cat-color: #8A5BAF; }
-.cat-pr  { --cat-color: #C43820; }
-.cat-cs  { --cat-color: #2A96B8; }
-.cat-ma  { --cat-color: #4AAA4A; }
-.cat-ei  { --cat-color: #C44878; }
-.cat-vr  { --cat-color: #6366F1; }
-.cat-sa  { --cat-color: #059669; }
+/* ─── CATEGORY BAR COLORS ─── */
 
 /* ─── BUTTON STYLES ─── */
 .btn {
