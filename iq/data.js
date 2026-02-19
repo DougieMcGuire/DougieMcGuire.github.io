@@ -26,7 +26,6 @@ const IQData = {
       const saved = localStorage.getItem(this.KEY);
       if (saved) {
         const data = JSON.parse(saved);
-        // Merge with defaults
         const merged = { ...this.defaults, ...data };
         merged.stats = { ...this.defaults.stats };
         if (data.stats) {
@@ -60,7 +59,7 @@ const IQData = {
     return this.load().age === null;
   },
 
-  recordAnswer(category, isCorrect, difficulty, responseTime) {
+  recordAnswer(category, isCorrect, difficulty) {
     const data = this.load();
     const stat = data.stats[category];
     if (!stat) return data;
@@ -75,7 +74,6 @@ const IQData = {
       data.streak = 0;
     }
     
-    // ELO update
     const k = 32 * difficulty;
     const expected = 1 / (1 + Math.pow(10, (1000 - stat.rating) / 400));
     stat.rating = Math.max(400, Math.min(1600, stat.rating + k * ((isCorrect ? 1 : 0) - expected)));
@@ -137,7 +135,6 @@ const IQData = {
   }
 };
 
-// Helpers
 function erf(x) {
   const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
   const s = x < 0 ? -1 : 1; x = Math.abs(x);
@@ -156,15 +153,4 @@ function formatPercentile(p) {
   if (p >= 1) return p.toFixed(1) + '%';
   if (p >= 0.1) return p.toFixed(2) + '%';
   return p.toFixed(3) + '%';
-}
-
-function getIQLabel(iq) {
-  if (!iq) return 'Unknown';
-  if (iq >= 145) return 'Genius';
-  if (iq >= 130) return 'Very Superior';
-  if (iq >= 120) return 'Superior';
-  if (iq >= 110) return 'High Average';
-  if (iq >= 90) return 'Average';
-  if (iq >= 80) return 'Low Average';
-  return 'Below Average';
 }
