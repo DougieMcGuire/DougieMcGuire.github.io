@@ -11,11 +11,17 @@
   --radius: 16px;
   --side-nav-w: 82px;
   --green: #5EB85E;
-  --red: #C43820;
+  --red: #D64545;
+  --gold: #E5A835;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { width: 100%; height: 100%; overflow: hidden; }
+html, body { 
+  width: 100%; 
+  height: 100%; 
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
 
 body {
   background: var(--bg);
@@ -31,12 +37,12 @@ body {
   pointer-events: none; z-index: 0; overflow: hidden;
 }
 .doodle-bg svg {
-  position: absolute; opacity: 0.045;
+  position: absolute; opacity: 0.04;
   fill: none; stroke: var(--ink);
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
 
-/* ─── SIDE NAV (desktop 640+) ─── */
+/* ─── SIDE NAV ─── */
 nav {
   position: fixed;
   left: 0; top: 0; bottom: 0;
@@ -61,7 +67,7 @@ nav {
   font-family: 'Patrick Hand', cursive;
   font-size: 11px; letter-spacing: 0.3px;
   border-radius: 14px;
-  transition: background 0.15s, color 0.15s;
+  transition: all 0.2s;
   text-decoration: none;
 }
 .nav-btn svg {
@@ -70,6 +76,7 @@ nav {
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
   transition: transform 0.2s;
 }
+.nav-btn:hover { background: rgba(196,173,138,0.3); }
 .nav-btn.active { color: var(--ink); background: var(--card); }
 .nav-btn.active svg { transform: scale(1.1); }
 
@@ -79,20 +86,21 @@ nav {
   margin: 4px 0;
 }
 
-/* ─── BOTTOM NAV (mobile <640) ─── */
+/* ─── BOTTOM NAV (mobile) ─── */
 @media (max-width: 639px) {
   body { flex-direction: column; }
   nav {
     position: fixed;
     top: auto; left: 0; right: 0; bottom: 0;
-    width: 100%; height: 62px;
+    width: 100%; height: 66px;
     flex-direction: row;
     justify-content: center;
     border-right: none;
     border-top: 2px solid var(--nav-border);
+    padding-bottom: env(safe-area-inset-bottom);
   }
-  .nav-btn { width: auto; padding: 8px 30px; flex-direction: column; }
-  .nav-divider { width: 1.5px; height: 30px; margin: 0 6px; }
+  .nav-btn { width: auto; padding: 10px 32px; flex-direction: column; }
+  .nav-divider { width: 1.5px; height: 30px; margin: 0 8px; }
 }
 
 /* ─── APP SHELL ─── */
@@ -104,7 +112,7 @@ nav {
   display: flex; flex-direction: column;
 }
 @media (max-width: 639px) {
-  #app { margin-left: 0; padding-bottom: 62px; }
+  #app { margin-left: 0; padding-bottom: 66px; }
 }
 
 /* ─── ANIMS ─── */
@@ -112,10 +120,33 @@ nav {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(229,168,53,0.5); }
+  50% { box-shadow: 0 0 20px rgba(229,168,53,0.8); }
+}
+
 .a0 { animation: fadeUp 0.4s ease both; }
 .a1 { animation: fadeUp 0.4s 0.07s ease both; }
 .a2 { animation: fadeUp 0.4s 0.14s ease both; }
 .a3 { animation: fadeUp 0.4s 0.21s ease both; }
+.a4 { animation: fadeUp 0.4s 0.28s ease both; }
 
 /* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar { width: 4px; }
@@ -123,16 +154,209 @@ nav {
 ::-webkit-scrollbar-thumb { background: var(--tan-dark); border-radius: 4px; }
 
 /* ─── CATEGORY COLORS ─── */
-.cat-ps  { --cat-color: #D96A28; --cat-light: #F09560; }
-.cat-mem { --cat-color: #8A5BAF; --cat-light: #B48FD4; }
-.cat-pr  { --cat-color: #C43820; --cat-light: #E86858; }
-.cat-cs  { --cat-color: #2A96B8; --cat-light: #65C4DA; }
-.cat-ma  { --cat-color: #4AAA4A; --cat-light: #82CC82; }
-.cat-ei  { --cat-color: #C44878; --cat-light: #E888A8; }
-
 .bar-ps  { background: linear-gradient(90deg, #D96A28, #F09560); }
 .bar-mem { background: linear-gradient(90deg, #8A5BAF, #B48FD4); }
 .bar-pr  { background: linear-gradient(90deg, #C43820, #E86858); }
 .bar-cs  { background: linear-gradient(90deg, #2A96B8, #65C4DA); }
 .bar-ma  { background: linear-gradient(90deg, #4AAA4A, #82CC82); }
 .bar-ei  { background: linear-gradient(90deg, #C44878, #E888A8); }
+.bar-vr  { background: linear-gradient(90deg, #6366F1, #A5B4FC); }
+.bar-sa  { background: linear-gradient(90deg, #059669, #34D399); }
+
+.cat-ps  { --cat-color: #D96A28; }
+.cat-mem { --cat-color: #8A5BAF; }
+.cat-pr  { --cat-color: #C43820; }
+.cat-cs  { --cat-color: #2A96B8; }
+.cat-ma  { --cat-color: #4AAA4A; }
+.cat-ei  { --cat-color: #C44878; }
+.cat-vr  { --cat-color: #6366F1; }
+.cat-sa  { --cat-color: #059669; }
+
+/* ─── BUTTON STYLES ─── */
+.btn {
+  background: var(--card);
+  border: 2px solid var(--tan-dark);
+  border-radius: 40px;
+  padding: 10px 20px;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 14px; 
+  color: var(--ink);
+  cursor: pointer;
+  display: flex; 
+  align-items: center; 
+  gap: 8px;
+  transition: all 0.15s;
+}
+.btn:hover { 
+  background: var(--tan-dark); 
+  color: #fff; 
+  transform: scale(1.03); 
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn.primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.btn.primary:hover {
+  background: #3a3028;
+}
+.btn svg {
+  width: 16px; height: 16px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2;
+}
+
+/* ─── MODAL ─── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal-content {
+  background: var(--bg);
+  border-radius: 24px;
+  padding: 28px;
+  max-width: 420px;
+  width: 100%;
+  position: relative;
+  animation: fadeUp 0.3s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.modal-close:hover { opacity: 1; }
+.modal-close svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.modal-title {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 24px;
+  color: var(--ink);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* ─── STREAK FLAME ─── */
+.streak-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2000;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.streak-popup.show {
+  opacity: 1;
+}
+.streak-flame {
+  font-size: 80px;
+  animation: bounce 0.5s ease infinite;
+  filter: drop-shadow(0 4px 12px rgba(229,168,53,0.5));
+}
+.streak-number {
+  font-family: 'Verdana', sans-serif;
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.streak-label {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 18px;
+  color: var(--ink);
+  opacity: 0.8;
+}
+
+/* ─── INPUT STYLES ─── */
+input[type="text"],
+input[type="number"] {
+  background: var(--card);
+  border: 2px solid var(--tan-dark);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px;
+  color: var(--ink);
+  width: 100%;
+  transition: border-color 0.2s;
+}
+input:focus {
+  outline: none;
+  border-color: var(--ink);
+}
+
+/* ─── RANGE SLIDER ─── */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  background: var(--bar-bg);
+  border-radius: 4px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  background: var(--ink);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid var(--card);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 40px;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 15px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 3000;
+  pointer-events: none;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
