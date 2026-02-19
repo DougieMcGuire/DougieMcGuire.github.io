@@ -50,7 +50,11 @@ const QuestionGenerator = {
       this.seriesComplete,
       this.codeBreak,
       this.visualPattern,
-      this.emotionalIQ
+      this.emotionalIQ,
+      this.wordSearch,
+      this.memory,
+      this.quickMath,
+      this.estimation
     ];
     
     const q = types[this.rand(0, types.length - 1)].call(this);
@@ -242,7 +246,7 @@ const QuestionGenerator = {
       category: 'verbalReasoning',
       categoryLabel: 'Analogy',
       difficulty: 1.2,
-      question: `${i.a} → ${i.b}  as  ${i.c} → ?`,
+      question: `${i.a} is to ${i.b}, as ${i.c} is to _____`,
       answer: i.ans,
       options: this.shuffle([i.ans, ...i.wrong.slice(0, 3)]),
       explanation: i.exp,
@@ -395,11 +399,14 @@ const QuestionGenerator = {
 
   spatial() {
     const puzzles = [
-      { q: 'Rotate ▲ 180°', start: '▲', ans: '▼', wrong: ['◀', '▶', '▲'], exp: 'Rotating 180° flips it upside down' },
-      { q: 'Mirror ◀ horizontally', start: '◀', ans: '▶', wrong: ['▲', '▼', '◀'], exp: 'Horizontal mirror flips left to right' },
-      { q: 'Rotate ▶ 90° clockwise', start: '▶', ans: '▼', wrong: ['▲', '◀', '▶'], exp: '90° clockwise: right becomes down' },
-      { q: 'Mirror ▲ vertically', start: '▲', ans: '▼', wrong: ['◀', '▶', '▲'], exp: 'Vertical mirror flips top to bottom' },
-      { q: 'Rotate ◀ 270° clockwise', start: '◀', ans: '▼', wrong: ['▲', '▶', '◀'], exp: '270° clockwise = 90° counter-clockwise' }
+      { q: 'Rotate 180°', start: '▲', ans: '▼', wrong: ['◄', '►', '▲'], exp: 'Rotating 180° flips it upside down' },
+      { q: 'Mirror horizontally', start: '◄', ans: '►', wrong: ['▲', '▼', '◄'], exp: 'Horizontal mirror flips left to right' },
+      { q: 'Rotate 90° clockwise', start: '►', ans: '▼', wrong: ['▲', '◄', '►'], exp: '90° clockwise: right becomes down' },
+      { q: 'Mirror vertically', start: '▲', ans: '▼', wrong: ['◄', '►', '▲'], exp: 'Vertical mirror flips top to bottom' },
+      { q: 'Rotate 90° counter-clockwise', start: '▲', ans: '◄', wrong: ['▼', '►', '▲'], exp: '90° counter-clockwise: up becomes left' },
+      { q: 'Rotate 270° clockwise', start: '◄', ans: '▼', wrong: ['▲', '►', '◄'], exp: '270° clockwise = 90° counter-clockwise' },
+      { q: 'Rotate 90° clockwise', start: '▼', ans: '◄', wrong: ['▲', '►', '▼'], exp: '90° clockwise: down becomes left' },
+      { q: 'Mirror horizontally', start: '▲', ans: '▲', wrong: ['▼', '◄', '►'], exp: 'Horizontal mirror of up arrow stays up' }
     ];
     
     const p = puzzles[this.rand(0, puzzles.length - 1)];
@@ -556,7 +563,9 @@ const QuestionGenerator = {
       { q: 'A coworker takes credit for your idea. You should:', ans: 'Address it privately with them', wrong: ['Yell at them publicly', 'Ignore it forever', 'Spread rumors'], exp: 'Direct private communication resolves conflicts best' },
       { q: 'You made a mistake at work. Best approach?', ans: 'Admit it and help fix it', wrong: ['Blame someone else', 'Hope no one notices', 'Make excuses'], exp: 'Taking responsibility builds trust' },
       { q: 'Someone cuts in line in front of you. You should:', ans: 'Politely point it out', wrong: ['Start yelling', 'Push them', 'Leave immediately'], exp: 'Calm assertiveness is most effective' },
-      { q: 'Your friend got a promotion you wanted. You:', ans: 'Congratulate them genuinely', wrong: ['Ignore them', 'Complain to others', 'Quit your job'], exp: 'Supporting others strengthens relationships' }
+      { q: 'Your friend got a promotion you wanted. You:', ans: 'Congratulate them genuinely', wrong: ['Ignore them', 'Complain to others', 'Quit your job'], exp: 'Supporting others strengthens relationships' },
+      { q: 'A stranger is crying on the bus. You:', ans: 'Offer a tissue or ask if they\'re okay', wrong: ['Stare at them', 'Laugh', 'Move seats loudly'], exp: 'Small gestures of kindness matter' },
+      { q: 'Your partner forgot your anniversary. You:', ans: 'Express feelings calmly later', wrong: ['Give silent treatment', 'Post about it online', 'Break up immediately'], exp: 'Calm communication prevents escalation' }
     ];
     
     const s = scenarios[this.rand(0, scenarios.length - 1)];
@@ -571,6 +580,167 @@ const QuestionGenerator = {
       options: this.shuffle([s.ans, ...s.wrong]),
       explanation: s.exp,
       visual: 'options'
+    };
+  },
+
+  wordSearch() {
+    const puzzles = [
+      { words: ['CAT', 'DOG', 'BAT'], grid: 'CATXODOGBATXX', fill: 'RLMQPZWNYSHVK' },
+      { words: ['SUN', 'SKY', 'DAY'], grid: 'SUNXXSKYDAYXX', fill: 'BFRLMQZWNPHVK' },
+      { words: ['RED', 'BIG', 'RUN'], grid: 'REDXXBIGRUNXX', fill: 'FLMQPZWNYSTHK' },
+      { words: ['TOP', 'POP', 'HOP'], grid: 'TOPXXPOPHOPXX', fill: 'RLMQBZWNYSEVK' },
+      { words: ['HAT', 'RAT', 'MAT'], grid: 'HATXXRATMATXX', fill: 'FLQPBZWNYSOEK' }
+    ];
+    
+    const p = puzzles[this.rand(0, puzzles.length - 1)];
+    
+    // Create 5x5 grid with words hidden
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let grid = [];
+    
+    // Simple grid: place words and fill rest randomly
+    const allWords = p.words.join('');
+    const fillLetters = p.fill;
+    let wordIdx = 0;
+    let fillIdx = 0;
+    
+    for (let i = 0; i < 25; i++) {
+      if (i < 3) grid.push(p.words[0][i]); // First word row 1
+      else if (i >= 5 && i < 8) grid.push(p.words[1][i - 5]); // Second word row 2
+      else if (i >= 10 && i < 13) grid.push(p.words[2][i - 10]); // Third word row 3
+      else grid.push(fillLetters[fillIdx++ % fillLetters.length]);
+    }
+    
+    return {
+      type: 'wordSearch',
+      category: 'mentalAgility',
+      categoryLabel: 'Word Hunt',
+      difficulty: 1.3,
+      question: `Find ${p.words.length} words in 12 seconds!`,
+      words: p.words,
+      totalWords: p.words.length,
+      grid: grid,
+      explanation: `Words: ${p.words.join(', ')}`,
+      visual: 'wordSearch'
+    };
+  },
+
+  memory() {
+    const items = [
+      { q: 'Which number was NOT in this sequence: 3, 7, 2, 9, 5?', ans: '4', wrong: ['3', '7', '5'], exp: '4 was not in the sequence' },
+      { q: 'If APPLE = 1, BANANA = 2, what is CHERRY?', ans: '3', wrong: ['1', '2', '4'], exp: 'Sequential assignment: CHERRY = 3' },
+      { q: 'Complete: RED, ORANGE, YELLOW, ___', ans: 'GREEN', wrong: ['BLUE', 'PURPLE', 'PINK'], exp: 'Rainbow order: ROYGBIV' },
+      { q: 'What day comes after Wednesday?', ans: 'Thursday', wrong: ['Tuesday', 'Friday', 'Monday'], exp: 'Days of the week sequence' },
+      { q: 'In 24-hour time, what is 3 PM?', ans: '15:00', wrong: ['13:00', '14:00', '16:00'], exp: '3 PM = 12 + 3 = 15:00' },
+      { q: 'How many months have 31 days?', ans: '7', wrong: ['5', '6', '8'], exp: 'Jan, Mar, May, Jul, Aug, Oct, Dec = 7' }
+    ];
+    
+    const i = items[this.rand(0, items.length - 1)];
+    
+    return {
+      type: 'memory',
+      category: 'memory',
+      categoryLabel: 'Memory',
+      difficulty: 1.1,
+      question: i.q,
+      answer: i.ans,
+      options: this.shuffle([i.ans, ...i.wrong]),
+      explanation: i.exp,
+      visual: 'options'
+    };
+  },
+
+  quickMath() {
+    const ops = [
+      () => {
+        const a = this.rand(11, 25), b = this.rand(11, 25);
+        return { q: `${a} + ${b}`, ans: a + b };
+      },
+      () => {
+        const a = this.rand(30, 60), b = this.rand(10, 25);
+        return { q: `${a} - ${b}`, ans: a - b };
+      },
+      () => {
+        const a = this.rand(6, 12), b = this.rand(6, 12);
+        return { q: `${a} × ${b}`, ans: a * b };
+      },
+      () => {
+        const b = this.rand(3, 9);
+        const ans = this.rand(5, 12);
+        return { q: `${b * ans} ÷ ${b}`, ans: ans };
+      }
+    ];
+    
+    const p = ops[this.rand(0, ops.length - 1)]();
+    
+    return {
+      type: 'quickMath',
+      category: 'mentalAgility',
+      categoryLabel: 'Quick Math',
+      difficulty: 1.2,
+      question: `Solve: ${p.q} = ?`,
+      answer: String(p.ans),
+      options: this.genOpts(p.ans, 4).map(String),
+      explanation: `${p.q} = ${p.ans}`,
+      visual: 'options'
+    };
+  },
+
+  estimation() {
+    const items = [
+      { q: 'Roughly how many seconds in an hour?', ans: '3,600', wrong: ['360', '600', '36,000'], exp: '60 seconds × 60 minutes = 3,600' },
+      { q: 'About how many days in a year?', ans: '365', wrong: ['300', '400', '350'], exp: 'A year has 365 days (366 in leap year)' },
+      { q: 'Approximately 15% of 200 is:', ans: '30', wrong: ['20', '25', '40'], exp: '15% of 200 = 0.15 × 200 = 30' },
+      { q: 'What is 7 × 8 closest to?', ans: '56', wrong: ['48', '63', '54'], exp: '7 × 8 = 56 exactly' },
+      { q: 'About how many weeks in a year?', ans: '52', wrong: ['48', '50', '54'], exp: '365 ÷ 7 ≈ 52 weeks' }
+    ];
+    
+    const i = items[this.rand(0, items.length - 1)];
+    
+    return {
+      type: 'estimation',
+      category: 'mentalAgility',
+      categoryLabel: 'Estimation',
+      difficulty: 1.0,
+      question: i.q,
+      answer: i.ans,
+      options: this.shuffle([i.ans, ...i.wrong]),
+      explanation: i.exp,
+      visual: 'options'
+    };
+  },
+
+  wordSearch() {
+    const sets = [
+      { words: ['CAT', 'DOG', 'BIRD'], letters: 'CATBDOGIRDBIRDA' },
+      { words: ['SUN', 'MOON', 'STAR'], letters: 'SUNSTARMOONXYZQ' },
+      { words: ['RED', 'BLUE', 'GREEN'], letters: 'REDBLUEGREENPQX' },
+      { words: ['ONE', 'TWO', 'THREE'], letters: 'ONETWOTHREEXYZP' },
+      { words: ['APPLE', 'PEAR'], letters: 'APPLEPEARMXYZQR' },
+      { words: ['FISH', 'CRAB', 'SEAL'], letters: 'FISHCRABSEALXYZ' },
+      { words: ['BOOK', 'PAGE', 'READ'], letters: 'BOOKPAGEREADXYZ' },
+      { words: ['RAIN', 'SNOW', 'WIND'], letters: 'RAINSNOWWINDXYZ' }
+    ];
+    
+    const s = sets[this.rand(0, sets.length - 1)];
+    const grid = s.letters.split('').slice(0, 25);
+    
+    for (let i = grid.length - 1; i > 15; i--) {
+      const j = this.rand(15, i);
+      [grid[i], grid[j]] = [grid[j], grid[i]];
+    }
+    
+    return {
+      type: 'wordSearch',
+      category: 'mentalAgility',
+      categoryLabel: 'Word Hunt',
+      difficulty: 1.3,
+      question: 'Find all the hidden words!',
+      words: s.words,
+      totalWords: s.words.length,
+      grid: grid,
+      explanation: '',
+      visual: 'wordSearch'
     };
   }
 };
