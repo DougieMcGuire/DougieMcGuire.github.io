@@ -1,25 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Improve | IQ Profile</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>IQ Profile</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="shared.css">
   <style>
-    .feed-wrap {
+    :root {
+      --bg: #F2EBD9;
+      --card: #EDE5CF;
+      --tan: #C4AD8A;
+      --tan-dark: #A08C6E;
+      --ink: #2A2018;
+      --ink-light: #6B5740;
+      --bar-bg: #D5C8AD;
+      --green: #5EB85E;
+      --red: #D64545;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { 
+      width: 100%; height: 100%; 
+      overflow: hidden;
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    body { display: flex; flex-direction: column; }
+
+    /* Nav */
+    nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: 70px;
+      background: #E4D9BF;
+      border-top: 2px solid var(--tan);
+      display: flex; justify-content: center; align-items: center; gap: 8px;
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-btn {
+      padding: 10px 36px;
+      background: none; border: none;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      color: var(--ink-light);
+      font-family: 'Patrick Hand', cursive;
+      font-size: 12px;
+      text-decoration: none;
+      border-radius: 14px;
+      transition: all 0.2s;
+    }
+    .nav-btn svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .nav-btn.active { color: var(--ink); background: var(--card); }
+    .nav-divider { width: 2px; height: 30px; background: var(--tan); border-radius: 2px; }
+
+    /* Main */
+    main {
       flex: 1;
+      padding-bottom: 70px;
       overflow-y: auto;
       scroll-snap-type: y mandatory;
       -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
-      scroll-behavior: smooth;
     }
-    .feed-wrap::-webkit-scrollbar { display: none; }
 
-    .feed-slide {
-      height: 100%;
+    /* Question Slide */
+    .slide {
       min-height: 100%;
       scroll-snap-align: start;
       scroll-snap-stop: always;
@@ -28,551 +72,402 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      position: relative;
     }
 
-    .q-card {
+    .card {
       background: var(--card);
-      border: 2.5px solid var(--tan-dark);
-      border-radius: 28px;
-      width: min(400px, calc(100vw - 32px));
-      min-height: min(400px, calc(100vh - 200px));
-      max-height: calc(100vh - 140px);
+      border: 2px solid var(--tan);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 380px;
+      padding: 24px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 24px 20px;
-      gap: 14px;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.08);
-      position: relative;
-      overflow: hidden;
+      gap: 16px;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.08);
     }
 
-    .q-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.4) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .q-category {
+    .category {
       font-family: 'Patrick Hand', cursive;
       font-size: 11px;
       letter-spacing: 2px;
       text-transform: uppercase;
-      padding: 5px 14px;
+      padding: 4px 14px;
       border-radius: 20px;
-      border: 1.5px solid;
+      border: 1.5px solid var(--tan);
+      color: var(--tan-dark);
+      background: rgba(196,173,138,0.15);
     }
-    .q-category.cat-ps  { color: #D96A28; background: rgba(217,106,40,0.12); border-color: #D96A28; }
-    .q-category.cat-mem { color: #8A5BAF; background: rgba(138,91,175,0.12); border-color: #8A5BAF; }
-    .q-category.cat-pr  { color: #C43820; background: rgba(196,56,32,0.12); border-color: #C43820; }
-    .q-category.cat-cs  { color: #2A96B8; background: rgba(42,150,184,0.12); border-color: #2A96B8; }
-    .q-category.cat-ma  { color: #4AAA4A; background: rgba(74,170,74,0.12); border-color: #4AAA4A; }
-    .q-category.cat-ei  { color: #C44878; background: rgba(196,72,120,0.12); border-color: #C44878; }
-    .q-category.cat-vr  { color: #6366F1; background: rgba(99,102,241,0.12); border-color: #6366F1; }
-    .q-category.cat-sa  { color: #059669; background: rgba(5,150,105,0.12); border-color: #059669; }
 
-    .q-text {
-      font-family: 'Nunito', sans-serif;
-      font-size: clamp(15px, 3.2vw, 17px);
+    .question {
+      font-size: 16px;
       font-weight: 700;
-      color: var(--ink);
       text-align: center;
-      line-height: 1.45;
-      max-width: 95%;
+      line-height: 1.5;
     }
 
-    .q-sequence {
+    .sequence {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      font-family: 'Verdana', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
       flex-wrap: wrap;
       justify-content: center;
-      font-family: 'Verdana', sans-serif;
-      font-size: clamp(20px, 5vw, 28px);
-      font-weight: 700;
-      color: var(--ink);
-      margin: 6px 0;
     }
-    .q-sequence .sep {
-      color: var(--tan-darker);
-      font-weight: 400;
-      opacity: 0.6;
-    }
-    .q-sequence .blank {
-      color: var(--tan-dark);
+    .sequence .dot { color: var(--tan); }
+    .sequence .blank {
       background: var(--bar-bg);
-      padding: 4px 14px;
-      border-radius: 10px;
-      border: 2px dashed var(--tan-dark);
+      padding: 4px 12px;
+      border-radius: 8px;
+      border: 2px dashed var(--tan);
+      color: var(--tan-dark);
     }
 
-    .q-matrix {
+    .matrix {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 5px;
-      width: min(160px, 38vw);
+      gap: 6px;
+      width: 150px;
     }
-    .q-cell {
-      aspect-ratio: 1/1;
+    .matrix-cell {
+      aspect-ratio: 1;
       background: var(--bar-bg);
       border-radius: 8px;
-      border: 1.5px solid var(--tan-dark);
-      display: flex; align-items: center; justify-content: center;
+      border: 1.5px solid var(--tan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-family: 'Verdana', sans-serif;
-      font-size: clamp(14px, 3vw, 18px);
+      font-size: 16px;
       font-weight: 700;
-      color: var(--ink);
     }
-    .q-cell.blank {
-      background: rgba(164,140,110,0.1);
+    .matrix-cell.blank {
+      background: rgba(196,173,138,0.2);
       border-style: dashed;
+      font-size: 20px;
       color: var(--tan-dark);
-      font-size: clamp(18px, 4vw, 24px);
     }
 
-    .q-spatial-display {
-      font-size: 64px;
-      margin: 12px 0;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-    }
-
-    .q-options {
+    .options {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      gap: 10px;
       width: 100%;
-      margin-top: 8px;
     }
-    .q-options.single-col {
-      grid-template-columns: 1fr;
-    }
-    .q-opt {
+    .options.single { grid-template-columns: 1fr; }
+
+    .opt {
       background: var(--bg);
-      border: 2px solid var(--tan-dark);
+      border: 2px solid var(--tan);
       border-radius: 12px;
-      padding: 12px 10px;
+      padding: 12px;
       font-family: 'Nunito', sans-serif;
-      font-size: clamp(12px, 2.5vw, 14px);
+      font-size: 14px;
       font-weight: 700;
       color: var(--ink);
       cursor: pointer;
       text-align: center;
       transition: all 0.15s;
-      line-height: 1.3;
     }
-    .q-opt:hover:not(.answered) { 
-      background: var(--tan-dark); 
-      color: #fff; 
-      transform: scale(1.02); 
-    }
-    .q-opt:active:not(.answered) {
-      transform: scale(0.98);
-    }
-    .q-opt.correct { 
-      background: var(--green); 
-      border-color: #4AAA4A; 
-      color: #fff; 
-      animation: pulse 0.3s ease;
-    }
-    .q-opt.wrong { 
-      background: var(--red); 
-      border-color: #a03030; 
-      color: #fff;
-      animation: shake 0.3s ease;
-    }
-    .q-opt.answered {
-      pointer-events: none;
-    }
-    .q-opt.dim {
-      opacity: 0.4;
-    }
-    .q-opt.show-correct {
-      background: var(--green);
-      border-color: #4AAA4A;
-      color: #fff;
-      opacity: 1 !important;
-    }
+    .opt:active { transform: scale(0.97); }
+    .opt.correct { background: var(--green); border-color: #4a9a4a; color: #fff; }
+    .opt.wrong { background: var(--red); border-color: #b33; color: #fff; }
+    .opt.dim { opacity: 0.4; }
+    .opt.reveal { background: var(--green); border-color: #4a9a4a; color: #fff; opacity: 1; }
 
-    .q-explanation {
-      background: rgba(42,32,24,0.06);
-      border-radius: 12px;
+    .explain {
+      background: rgba(0,0,0,0.04);
+      border-radius: 10px;
       padding: 10px 14px;
-      font-family: 'Nunito', sans-serif;
       font-size: 12px;
       color: var(--ink-light);
       text-align: center;
       line-height: 1.4;
-      max-width: 100%;
-      opacity: 0;
-      max-height: 0;
-      overflow: hidden;
-      transition: all 0.3s ease;
+      display: none;
     }
-    .q-explanation.show {
-      opacity: 1;
-      max-height: 100px;
-      margin-top: 8px;
-    }
+    .explain.show { display: block; }
 
     .scroll-hint {
-      margin-top: 14px;
+      margin-top: 16px;
+      font-family: 'Patrick Hand', cursive;
+      font-size: 13px;
+      color: var(--ink-light);
+      opacity: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      opacity: 0;
-      transition: opacity 0.4s;
-      font-family: 'Patrick Hand', cursive;
-      font-size: 13px;
-      color: var(--ink-light);
+      transition: opacity 0.3s;
     }
     .scroll-hint.show { opacity: 0.6; }
-    .scroll-hint svg {
-      width: 22px; height: 22px;
-      stroke: var(--ink-light); fill: none;
-      stroke-width: 2;
-      animation: bounce 1.5s ease-in-out infinite;
-    }
+    .scroll-hint svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; animation: bounce 1.5s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
 
-    .stats-mini {
+    /* Stats Mini */
+    .stats-bar {
       position: fixed;
-      top: 12px;
-      right: 16px;
+      top: 12px; right: 12px;
       background: var(--card);
-      border: 2px solid var(--tan-dark);
-      border-radius: 20px;
-      padding: 8px 16px;
+      border: 2px solid var(--tan);
+      border-radius: 16px;
+      padding: 8px 14px;
       display: flex;
-      gap: 18px;
+      gap: 16px;
       z-index: 50;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
-    .stats-mini-item {
+    .stat-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 1px;
     }
-    .stats-mini-val {
+    .stat-val {
       font-family: 'Verdana', sans-serif;
       font-size: 18px;
       font-weight: 700;
-      color: var(--ink);
     }
-    .stats-mini-val.calculating {
-      font-size: 14px;
-      color: var(--ink-light);
-    }
-    .stats-mini-label {
+    .stat-label {
       font-family: 'Patrick Hand', cursive;
       font-size: 10px;
       color: var(--ink-light);
     }
 
-    .onboarding-content {
+    /* Streak Popup */
+    .streak-popup {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 24px;
-      text-align: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.3);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
     }
-    .onboarding-emoji {
-      font-size: 64px;
-    }
-    .onboarding-title {
-      font-family: 'Patrick Hand', cursive;
-      font-size: 28px;
-      color: var(--ink);
-    }
-    .onboarding-text {
-      font-family: 'Nunito', sans-serif;
-      font-size: 15px;
-      color: var(--ink-light);
-      line-height: 1.5;
-    }
-    .age-display {
+    .streak-popup.show { opacity: 1; }
+    .streak-popup .flame { font-size: 72px; }
+    .streak-popup .num {
       font-family: 'Verdana', sans-serif;
       font-size: 48px;
       font-weight: 700;
-      color: var(--ink);
-      margin: 10px 0;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+    .streak-popup .txt {
+      font-family: 'Patrick Hand', cursive;
+      font-size: 20px;
+      color: #fff;
+    }
+
+    /* Onboarding */
+    .modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      padding: 20px;
+    }
+    .modal.show { display: flex; }
+    .modal-box {
+      background: var(--bg);
+      border-radius: 24px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+    .modal-emoji { font-size: 56px; margin-bottom: 16px; }
+    .modal-title {
+      font-family: 'Patrick Hand', cursive;
+      font-size: 26px;
+      margin-bottom: 12px;
+    }
+    .modal-text {
+      font-size: 14px;
+      color: var(--ink-light);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .age-num {
+      font-family: 'Verdana', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      margin: 16px 0;
     }
     .age-slider {
       width: 100%;
-      margin: 10px 0;
+      height: 8px;
+      -webkit-appearance: none;
+      background: var(--bar-bg);
+      border-radius: 4px;
+      outline: none;
+      margin-bottom: 24px;
     }
-    .onboarding-btn {
-      margin-top: 10px;
+    .age-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 28px; height: 28px;
+      background: var(--ink);
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid var(--card);
+    }
+    .btn {
+      background: var(--ink);
+      color: #fff;
+      border: none;
+      border-radius: 30px;
       padding: 14px 40px;
-      font-size: 16px;
-    }
-
-    @media (max-width: 639px) {
-      .stats-mini {
-        top: 8px;
-        right: 8px;
-        padding: 6px 12px;
-        gap: 14px;
-      }
-      .stats-mini-val { font-size: 16px; }
+      font-family: 'Patrick Hand', cursive;
+      font-size: 18px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-<div class="doodle-bg">
-  <svg style="left:5%;top:8%;width:120px;height:120px;" viewBox="0 0 100 100">
-    <path d="M50 80 C30 80 15 65 15 50 C15 35 28 28 38 30 C40 20 50 15 60 20 C70 10 85 18 85 32 C92 36 90 50 82 55 C80 68 65 80 50 80Z"/>
-  </svg>
-  <svg style="right:6%;top:12%;width:80px;height:90px;" viewBox="0 0 80 90">
-    <circle cx="40" cy="32" r="16"/>
-    <path d="M32 48 L32 56 Q32 60 40 60 Q48 60 48 56 L48 48"/>
-  </svg>
-  <svg style="left:8%;bottom:25%;width:70px;height:70px;" viewBox="0 0 80 80">
-    <path d="M10 10 L35 10 C35 10 33 15 33 20 C33 25 38 25 40 20 C42 15 40 10 40 10 L65 10 L65 35 C65 35 60 33 55 33 C50 33 50 38 55 40 C60 42 65 40 65 40 L65 65 L40 65 C40 65 42 60 40 55 C38 50 33 50 33 55 C33 60 35 65 35 65 L10 65 L10 40 C10 40 15 42 20 40 C25 38 25 33 20 33 C15 33 10 35 10 35Z"/>
-  </svg>
-  <svg style="right:4%;bottom:18%;width:50px;height:75px;" viewBox="0 0 52 82">
-    <text x="3" y="62" font-family="serif" font-size="58" stroke="currentColor" fill="none" stroke-width="1.4">?</text>
-  </svg>
+<div class="stats-bar">
+  <div class="stat-item">
+    <span class="stat-val" id="iq-val">--</span>
+    <span class="stat-label">IQ</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-val" id="streak-val">0</span>
+    <span class="stat-label">🔥</span>
+  </div>
 </div>
+
+<main id="feed"></main>
 
 <nav>
   <a class="nav-btn active" href="improve.html">
-    <svg viewBox="0 0 24 24">
-      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-      <polyline points="17 6 23 6 23 12"/>
-    </svg>
+    <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
     Improve
   </a>
   <div class="nav-divider"></div>
   <a class="nav-btn" href="profile.html">
-    <svg viewBox="0 0 24 24">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-      <circle cx="12" cy="7" r="4"/>
-    </svg>
+    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     Profile
   </a>
 </nav>
 
-<div class="stats-mini" id="stats-mini">
-  <div class="stats-mini-item">
-    <span class="stats-mini-val" id="mini-iq">--</span>
-    <span class="stats-mini-label">IQ</span>
-  </div>
-  <div class="stats-mini-item">
-    <span class="stats-mini-val" id="mini-streak">0</span>
-    <span class="stats-mini-label">🔥</span>
-  </div>
-</div>
-
-<div id="app">
-  <div class="feed-wrap" id="feed"></div>
-</div>
-
-<!-- Streak Popup -->
 <div class="streak-popup" id="streak-popup">
-  <div class="streak-flame">🔥</div>
-  <div class="streak-number" id="streak-number">5</div>
-  <div class="streak-label">Streak!</div>
+  <div class="flame">🔥</div>
+  <div class="num" id="streak-num">5</div>
+  <div class="txt">Streak!</div>
 </div>
 
-<!-- Onboarding Modal -->
-<div class="modal-overlay" id="onboarding-modal">
-  <div class="modal-content">
-    <div class="onboarding-content">
-      <div class="onboarding-emoji">🧠</div>
-      <div class="onboarding-title">Welcome to IQ Profile</div>
-      <div class="onboarding-text">
-        Train your brain with personalized challenges.<br>
-        First, tell us your age so we can tailor the difficulty.
-      </div>
-      <div class="age-display" id="age-display">25</div>
-      <input type="range" class="age-slider" id="age-slider" min="5" max="90" value="25">
-      <button class="btn primary onboarding-btn" onclick="completeOnboarding()">
-        Let's Go!
-      </button>
-    </div>
+<div class="modal" id="onboard-modal">
+  <div class="modal-box">
+    <div class="modal-emoji">🧠</div>
+    <div class="modal-title">Welcome to IQ Profile</div>
+    <div class="modal-text">Train your brain with personalized challenges.<br>First, tell us your age to tailor difficulty.</div>
+    <div class="age-num" id="age-display">25</div>
+    <input type="range" class="age-slider" id="age-slider" min="8" max="80" value="25">
+    <button class="btn" onclick="startApp()">Let's Go!</button>
   </div>
 </div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
 
 <script src="data.js"></script>
 <script src="questions.js"></script>
 <script>
 const feed = document.getElementById('feed');
-const miniIQ = document.getElementById('mini-iq');
-const miniStreak = document.getElementById('mini-streak');
+const iqVal = document.getElementById('iq-val');
+const streakVal = document.getElementById('streak-val');
 const streakPopup = document.getElementById('streak-popup');
-const streakNumber = document.getElementById('streak-number');
-const onboardingModal = document.getElementById('onboarding-modal');
+const streakNum = document.getElementById('streak-num');
+const onboardModal = document.getElementById('onboard-modal');
 const ageSlider = document.getElementById('age-slider');
 const ageDisplay = document.getElementById('age-display');
 
 let slides = [];
-let currentSlide = 0;
-let answerStartTime = 0;
+let answerTime = 0;
 
 // Init
 function init() {
-  // Check onboarding
   if (IQData.needsOnboarding()) {
-    onboardingModal.classList.add('show');
+    onboardModal.classList.add('show');
   } else {
-    startApp();
+    loadQuestions();
   }
   
-  // Age slider
-  ageSlider.addEventListener('input', () => {
-    ageDisplay.textContent = ageSlider.value;
-  });
-}
-
-function completeOnboarding() {
-  const age = parseInt(ageSlider.value);
-  IQData.setAge(age);
-  onboardingModal.classList.remove('show');
-  startApp();
+  ageSlider.oninput = () => ageDisplay.textContent = ageSlider.value;
+  
+  // Wheel scroll fix
+  feed.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const dir = e.deltaY > 0 ? 1 : -1;
+    const h = feed.clientHeight;
+    const curr = Math.round(feed.scrollTop / h);
+    const next = Math.max(0, Math.min(slides.length - 1, curr + dir));
+    feed.scrollTo({ top: next * h, behavior: 'smooth' });
+  }, { passive: false });
 }
 
 function startApp() {
+  IQData.setAge(parseInt(ageSlider.value));
+  onboardModal.classList.remove('show');
+  QuestionGenerator.setAge(parseInt(ageSlider.value));
+  loadQuestions();
+}
+
+function loadQuestions() {
   const data = IQData.load();
   QuestionGenerator.setAge(data.age);
-  updateStats();
+  updateUI();
   
-  // Generate initial slides
-  for (let i = 0; i < 5; i++) {
-    addSlide();
-  }
+  for (let i = 0; i < 5; i++) addSlide();
   
-  // Better scroll handling
-  feed.addEventListener('scroll', handleScroll, { passive: true });
-  feed.addEventListener('wheel', handleWheel, { passive: false });
-  
-  // Touch handling for mobile
-  let touchStartY = 0;
-  feed.addEventListener('touchstart', (e) => {
-    touchStartY = e.touches[0].clientY;
-  }, { passive: true });
-}
-
-function handleScroll() {
-  const slideH = feed.clientHeight;
-  const idx = Math.round(feed.scrollTop / slideH);
-  
-  if (idx !== currentSlide) {
-    currentSlide = idx;
-    
-    if (idx >= slides.length - 3) {
-      for (let i = 0; i < 3; i++) {
-        addSlide();
-      }
+  feed.onscroll = () => {
+    const h = feed.clientHeight;
+    const idx = Math.round(feed.scrollTop / h);
+    if (idx >= slides.length - 2) {
+      for (let i = 0; i < 3; i++) addSlide();
     }
-  }
-}
-
-// Better mouse wheel scrolling
-function handleWheel(e) {
-  e.preventDefault();
-  
-  const slideH = feed.clientHeight;
-  const direction = e.deltaY > 0 ? 1 : -1;
-  const targetSlide = Math.max(0, Math.min(slides.length - 1, currentSlide + direction));
-  
-  if (targetSlide !== currentSlide) {
-    feed.scrollTo({
-      top: targetSlide * slideH,
-      behavior: 'smooth'
-    });
-  }
+  };
 }
 
 function addSlide() {
   const q = QuestionGenerator.generate();
-  const slideIdx = slides.length;
+  const idx = slides.length;
   
-  const slide = document.createElement('div');
-  slide.className = 'feed-slide';
-  slide.innerHTML = renderQuestion(q, slideIdx);
+  const div = document.createElement('div');
+  div.className = 'slide';
+  div.innerHTML = renderQ(q, idx);
+  feed.appendChild(div);
+  slides.push({ q, answered: false });
   
-  feed.appendChild(slide);
-  slides.push({ element: slide, question: q, answered: false });
-  
-  // Reset answer timer
-  answerStartTime = Date.now();
+  answerTime = Date.now();
 }
 
-function renderQuestion(q, idx) {
-  const catClass = 'cat-' + (CATEGORIES[q.category]?.cssClass || 'ps');
+function renderQ(q, idx) {
+  let visual = '';
   
-  let content = '';
-  
-  switch (q.visual) {
-    case 'sequence':
-      content = `
-        <div class="q-sequence">
-          ${q.sequence.map((n, i) => `<span>${n}</span>${i < q.sequence.length - 1 ? '<span class="sep">·</span>' : ''}`).join('')}
-          <span class="sep">·</span>
-          <span class="blank">?</span>
-        </div>
-      `;
-      break;
-      
-    case 'letterSequence':
-      content = `
-        <div class="q-sequence">
-          ${q.sequence.map((l, i) => `<span>${l}</span>${i < q.sequence.length - 1 ? '<span class="sep">·</span>' : ''}`).join('')}
-          <span class="sep">·</span>
-          <span class="blank">?</span>
-        </div>
-      `;
-      break;
-      
-    case 'matrix':
-      content = `
-        <div class="q-matrix">
-          ${q.grid.map(cell => `<div class="q-cell${cell === '?' ? ' blank' : ''}">${cell}</div>`).join('')}
-        </div>
-      `;
-      break;
-      
-    case 'spatial':
-      content = `<div class="q-spatial-display">${q.startShape}</div>`;
-      break;
-      
-    case 'analogy':
-      // Question text contains the analogy
-      break;
-      
-    case 'emotional':
-    case 'options':
-    default:
-      break;
+  if (q.visual === 'sequence' || q.visual === 'letterSequence') {
+    visual = `<div class="sequence">${q.sequence.map(n => `<span>${n}</span><span class="dot">·</span>`).join('')}<span class="blank">?</span></div>`;
+  } else if (q.visual === 'matrix') {
+    visual = `<div class="matrix">${q.grid.map(c => `<div class="matrix-cell${c === '?' ? ' blank' : ''}">${c}</div>`).join('')}</div>`;
+  } else if (q.visual === 'spatial') {
+    visual = `<div style="font-size:56px;margin:12px 0;">${q.startShape}</div>`;
   }
-
-  const isLongOptions = q.options.some(o => o.length > 28);
-  const optionsClass = isLongOptions ? 'q-options single-col' : 'q-options';
   
-  const optionsHTML = `
-    <div class="${optionsClass}" data-idx="${idx}" data-answer="${q.answer}" data-cat="${q.category}" data-diff="${q.difficulty}">
-      ${q.options.map(opt => `
-        <button class="q-opt" data-val="${opt}" onclick="handleAnswer(this)">${opt}</button>
-      `).join('')}
-    </div>
-  `;
-
+  const long = q.options.some(o => o.length > 25);
+  
   return `
-    <div class="q-card">
-      <div class="q-category ${catClass}">${q.categoryLabel}</div>
-      <div class="q-text">${q.question}</div>
-      ${content}
-      ${optionsHTML}
-      <div class="q-explanation" id="explain-${idx}">${q.explanation || ''}</div>
+    <div class="card">
+      <div class="category">${q.categoryLabel}</div>
+      <div class="question">${q.question}</div>
+      ${visual}
+      <div class="options${long ? ' single' : ''}" data-idx="${idx}" data-ans="${q.answer}" data-cat="${q.category}" data-diff="${q.difficulty}">
+        ${q.options.map(o => `<button class="opt" onclick="answer(this,'${o.replace(/'/g, "\\'")}')">${o}</button>`).join('')}
+      </div>
+      <div class="explain" id="exp-${idx}">${q.explanation || ''}</div>
     </div>
     <div class="scroll-hint" id="hint-${idx}">
       <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
@@ -581,85 +476,58 @@ function renderQuestion(q, idx) {
   `;
 }
 
-function handleAnswer(btn) {
-  const opts = btn.closest('.q-options');
-  if (opts.dataset.locked) return;
-  opts.dataset.locked = '1';
-
+function answer(btn, val) {
+  const opts = btn.parentElement;
+  if (opts.dataset.done) return;
+  opts.dataset.done = '1';
+  
   const idx = parseInt(opts.dataset.idx);
-  const correct = opts.dataset.answer;
-  const category = opts.dataset.cat;
-  const difficulty = parseFloat(opts.dataset.diff);
-  const isCorrect = btn.dataset.val === correct;
-  const responseTime = Date.now() - answerStartTime;
-
-  // Visual feedback
-  opts.querySelectorAll('.q-opt').forEach(o => {
-    o.classList.add('answered');
-    if (o.dataset.val === correct) {
-      o.classList.add(isCorrect ? 'correct' : 'show-correct');
-    } else if (o === btn && !isCorrect) {
-      o.classList.add('wrong');
-    } else {
-      o.classList.add('dim');
-    }
+  const correct = opts.dataset.ans;
+  const cat = opts.dataset.cat;
+  const diff = parseFloat(opts.dataset.diff);
+  const isCorrect = val === correct;
+  const time = Date.now() - answerTime;
+  
+  // Mark buttons
+  opts.querySelectorAll('.opt').forEach(o => {
+    const v = o.textContent;
+    if (v === correct) o.classList.add(isCorrect ? 'correct' : 'reveal');
+    else if (o === btn) o.classList.add('wrong');
+    else o.classList.add('dim');
+    o.style.pointerEvents = 'none';
   });
-
-  // Update stats
-  const data = IQData.recordAnswer(category, isCorrect, difficulty, responseTime);
+  
+  // Record
+  const data = IQData.recordAnswer(cat, isCorrect, diff, time);
   
   // Show explanation
-  const explainEl = document.getElementById(`explain-${idx}`);
-  if (explainEl) {
-    setTimeout(() => explainEl.classList.add('show'), 300);
-  }
-
-  // Check streak milestone
+  const exp = document.getElementById(`exp-${idx}`);
+  if (exp) setTimeout(() => exp.classList.add('show'), 200);
+  
+  // Streak popup
   if (isCorrect && data.streak > 0 && data.streak % 5 === 0) {
-    showStreakPopup(data.streak);
+    streakNum.textContent = data.streak;
+    streakPopup.classList.add('show');
+    setTimeout(() => streakPopup.classList.remove('show'), 2000);
   }
-
-  // Update UI
-  updateStats();
-
-  // Show scroll hint
+  
+  // UI
+  updateUI();
+  
+  // Hint
   setTimeout(() => {
     const hint = document.getElementById(`hint-${idx}`);
     if (hint) hint.classList.add('show');
-  }, 600);
-
+  }, 400);
+  
   slides[idx].answered = true;
-  answerStartTime = Date.now();
+  answerTime = Date.now();
 }
 
-function updateStats() {
+function updateUI() {
   const data = IQData.load();
-  
-  if (data.iq) {
-    miniIQ.textContent = data.iq;
-    miniIQ.classList.remove('calculating');
-  } else {
-    miniIQ.textContent = '...';
-    miniIQ.classList.add('calculating');
-  }
-  
-  miniStreak.textContent = data.streak;
-}
-
-function showStreakPopup(streak) {
-  streakNumber.textContent = streak;
-  streakPopup.classList.add('show');
-  
-  setTimeout(() => {
-    streakPopup.classList.remove('show');
-  }, 2500);
-}
-
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2500);
+  iqVal.textContent = data.iq || '--';
+  streakVal.textContent = data.streak;
 }
 
 init();
