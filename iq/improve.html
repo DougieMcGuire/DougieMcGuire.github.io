@@ -28,7 +28,6 @@
     }
     body { display: flex; flex-direction: column; }
 
-    /* Nav */
     nav {
       position: fixed; bottom: 0; left: 0; right: 0;
       height: 70px;
@@ -53,7 +52,6 @@
     .nav-btn.active { color: var(--ink); background: var(--card); }
     .nav-divider { width: 2px; height: 30px; background: var(--tan); border-radius: 2px; }
 
-    /* Main */
     main {
       flex: 1;
       padding-bottom: 70px;
@@ -61,17 +59,18 @@
       scroll-snap-type: y mandatory;
       -webkit-overflow-scrolling: touch;
     }
+    main::-webkit-scrollbar { display: none; }
 
-    /* Question Slide */
     .slide {
       min-height: 100%;
+      height: 100%;
       scroll-snap-align: start;
       scroll-snap-stop: always;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 16px;
     }
 
     .card {
@@ -79,12 +78,12 @@
       border: 2px solid var(--tan);
       border-radius: 24px;
       width: 100%;
-      max-width: 380px;
-      padding: 24px 20px;
+      max-width: 360px;
+      padding: 22px 18px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       box-shadow: 0 6px 30px rgba(0,0,0,0.08);
     }
 
@@ -101,23 +100,24 @@
     }
 
     .question {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       text-align: center;
-      line-height: 1.5;
+      line-height: 1.45;
     }
 
     .sequence {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       font-family: 'Verdana', sans-serif;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       flex-wrap: wrap;
       justify-content: center;
+      margin: 4px 0;
     }
-    .sequence .dot { color: var(--tan); }
+    .sequence .dot { color: var(--tan); opacity: 0.6; }
     .sequence .blank {
       background: var(--bar-bg);
       padding: 4px 12px;
@@ -129,8 +129,8 @@
     .matrix {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      width: 150px;
+      gap: 5px;
+      width: 140px;
     }
     .matrix-cell {
       aspect-ratio: 1;
@@ -141,20 +141,29 @@
       align-items: center;
       justify-content: center;
       font-family: 'Verdana', sans-serif;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
     }
     .matrix-cell.blank {
       background: rgba(196,173,138,0.2);
       border-style: dashed;
-      font-size: 20px;
+      font-size: 18px;
       color: var(--tan-dark);
+    }
+
+    .visual-box {
+      font-size: 48px;
+      margin: 8px 0;
+      padding: 12px 24px;
+      background: var(--bar-bg);
+      border-radius: 12px;
+      border: 2px solid var(--tan);
     }
 
     .options {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 8px;
       width: 100%;
     }
     .options.single { grid-template-columns: 1fr; }
@@ -163,9 +172,9 @@
       background: var(--bg);
       border: 2px solid var(--tan);
       border-radius: 12px;
-      padding: 12px;
+      padding: 11px 8px;
       font-family: 'Nunito', sans-serif;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--ink);
       cursor: pointer;
@@ -176,13 +185,13 @@
     .opt.correct { background: var(--green); border-color: #4a9a4a; color: #fff; }
     .opt.wrong { background: var(--red); border-color: #b33; color: #fff; }
     .opt.dim { opacity: 0.4; }
-    .opt.reveal { background: var(--green); border-color: #4a9a4a; color: #fff; opacity: 1; }
+    .opt.reveal { background: var(--green); border-color: #4a9a4a; color: #fff; opacity: 1 !important; }
 
     .explain {
       background: rgba(0,0,0,0.04);
       border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 12px;
+      padding: 10px 12px;
+      font-size: 11px;
       color: var(--ink-light);
       text-align: center;
       line-height: 1.4;
@@ -191,7 +200,7 @@
     .explain.show { display: block; }
 
     .scroll-hint {
-      margin-top: 16px;
+      margin-top: 14px;
       font-family: 'Patrick Hand', cursive;
       font-size: 13px;
       color: var(--ink-light);
@@ -206,7 +215,6 @@
     .scroll-hint svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; animation: bounce 1.5s infinite; }
     @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
 
-    /* Stats Mini */
     .stats-bar {
       position: fixed;
       top: 12px; right: 12px;
@@ -234,7 +242,6 @@
       color: var(--ink-light);
     }
 
-    /* Streak Popup */
     .streak-popup {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -242,14 +249,15 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.4);
       z-index: 200;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s;
     }
     .streak-popup.show { opacity: 1; }
-    .streak-popup .flame { font-size: 72px; }
+    .streak-popup .flame { font-size: 72px; animation: pulse 0.5s infinite; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
     .streak-popup .num {
       font-family: 'Verdana', sans-serif;
       font-size: 48px;
@@ -263,7 +271,6 @@
       color: #fff;
     }
 
-    /* Onboarding */
     .modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -280,7 +287,7 @@
       border-radius: 24px;
       padding: 32px 24px;
       width: 100%;
-      max-width: 360px;
+      max-width: 340px;
       text-align: center;
     }
     .modal-emoji { font-size: 56px; margin-bottom: 16px; }
@@ -386,28 +393,16 @@ const onboardModal = document.getElementById('onboard-modal');
 const ageSlider = document.getElementById('age-slider');
 const ageDisplay = document.getElementById('age-display');
 
-let slides = [];
+let totalSlides = 0;
 let answerTime = 0;
 
-// Init
 function init() {
   if (IQData.needsOnboarding()) {
     onboardModal.classList.add('show');
   } else {
     loadQuestions();
   }
-  
   ageSlider.oninput = () => ageDisplay.textContent = ageSlider.value;
-  
-  // Wheel scroll fix
-  feed.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    const dir = e.deltaY > 0 ? 1 : -1;
-    const h = feed.clientHeight;
-    const curr = Math.round(feed.scrollTop / h);
-    const next = Math.max(0, Math.min(slides.length - 1, curr + dir));
-    feed.scrollTo({ top: next * h, behavior: 'smooth' });
-  }, { passive: false });
 }
 
 function startApp() {
@@ -424,24 +419,43 @@ function loadQuestions() {
   
   for (let i = 0; i < 5; i++) addSlide();
   
-  feed.onscroll = () => {
+  // Multiple methods to ensure infinite scroll works
+  feed.addEventListener('scroll', checkAddMore, { passive: true });
+  feed.addEventListener('touchend', checkAddMore, { passive: true });
+  setInterval(checkAddMore, 300);
+  
+  feed.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const dir = e.deltaY > 0 ? 1 : -1;
     const h = feed.clientHeight;
-    const idx = Math.round(feed.scrollTop / h);
-    if (idx >= slides.length - 2) {
-      for (let i = 0; i < 3; i++) addSlide();
-    }
-  };
+    const curr = Math.round(feed.scrollTop / h);
+    const next = Math.max(0, Math.min(totalSlides - 1, curr + dir));
+    feed.scrollTo({ top: next * h, behavior: 'smooth' });
+    setTimeout(checkAddMore, 100);
+  }, { passive: false });
+}
+
+function checkAddMore() {
+  const h = feed.clientHeight;
+  if (h === 0) return;
+  const scrollPos = feed.scrollTop;
+  const currentIdx = Math.round(scrollPos / h);
+  
+  // Always keep at least 5 slides ahead
+  while (totalSlides < currentIdx + 6) {
+    addSlide();
+  }
 }
 
 function addSlide() {
   const q = QuestionGenerator.generate();
-  const idx = slides.length;
+  const idx = totalSlides;
+  totalSlides++;
   
   const div = document.createElement('div');
   div.className = 'slide';
   div.innerHTML = renderQ(q, idx);
   feed.appendChild(div);
-  slides.push({ q, answered: false });
   
   answerTime = Date.now();
 }
@@ -454,18 +468,19 @@ function renderQ(q, idx) {
   } else if (q.visual === 'matrix') {
     visual = `<div class="matrix">${q.grid.map(c => `<div class="matrix-cell${c === '?' ? ' blank' : ''}">${c}</div>`).join('')}</div>`;
   } else if (q.visual === 'spatial') {
-    visual = `<div style="font-size:56px;margin:12px 0;">${q.startShape}</div>`;
+    visual = `<div class="visual-box">${q.startShape}</div>`;
   }
   
-  const long = q.options.some(o => o.length > 25);
+  const long = q.options.some(o => o.length > 28);
+  const escapeAttr = s => s.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   
   return `
     <div class="card">
       <div class="category">${q.categoryLabel}</div>
       <div class="question">${q.question}</div>
       ${visual}
-      <div class="options${long ? ' single' : ''}" data-idx="${idx}" data-ans="${q.answer}" data-cat="${q.category}" data-diff="${q.difficulty}">
-        ${q.options.map(o => `<button class="opt" onclick="answer(this,'${o.replace(/'/g, "\\'")}')">${o}</button>`).join('')}
+      <div class="options${long ? ' single' : ''}" data-idx="${idx}" data-ans="${escapeAttr(q.answer)}" data-cat="${q.category}" data-diff="${q.difficulty}">
+        ${q.options.map(o => `<button class="opt" data-v="${escapeAttr(o)}">${o}</button>`).join('')}
       </div>
       <div class="explain" id="exp-${idx}">${q.explanation || ''}</div>
     </div>
@@ -476,53 +491,49 @@ function renderQ(q, idx) {
   `;
 }
 
-function answer(btn, val) {
+document.addEventListener('click', function(e) {
+  if (!e.target.classList.contains('opt')) return;
+  
+  const btn = e.target;
   const opts = btn.parentElement;
   if (opts.dataset.done) return;
   opts.dataset.done = '1';
   
   const idx = parseInt(opts.dataset.idx);
   const correct = opts.dataset.ans;
+  const val = btn.dataset.v;
   const cat = opts.dataset.cat;
   const diff = parseFloat(opts.dataset.diff);
   const isCorrect = val === correct;
   const time = Date.now() - answerTime;
   
-  // Mark buttons
   opts.querySelectorAll('.opt').forEach(o => {
-    const v = o.textContent;
-    if (v === correct) o.classList.add(isCorrect ? 'correct' : 'reveal');
+    if (o.dataset.v === correct) o.classList.add(isCorrect ? 'correct' : 'reveal');
     else if (o === btn) o.classList.add('wrong');
     else o.classList.add('dim');
     o.style.pointerEvents = 'none';
   });
   
-  // Record
   const data = IQData.recordAnswer(cat, isCorrect, diff, time);
   
-  // Show explanation
   const exp = document.getElementById(`exp-${idx}`);
   if (exp) setTimeout(() => exp.classList.add('show'), 200);
   
-  // Streak popup
   if (isCorrect && data.streak > 0 && data.streak % 5 === 0) {
     streakNum.textContent = data.streak;
     streakPopup.classList.add('show');
     setTimeout(() => streakPopup.classList.remove('show'), 2000);
   }
   
-  // UI
   updateUI();
   
-  // Hint
   setTimeout(() => {
     const hint = document.getElementById(`hint-${idx}`);
     if (hint) hint.classList.add('show');
   }, 400);
   
-  slides[idx].answered = true;
   answerTime = Date.now();
-}
+});
 
 function updateUI() {
   const data = IQData.load();
