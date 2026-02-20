@@ -1,20 +1,11 @@
 const QuestionGenerator = {
   age: 25,
-  recent: [],
+  usedHashes: new Set(),
 
   setAge(a) { this.age = a || 25; },
-
-  getDiff() {
-    if (this.age < 12) return 'easy';
-    if (this.age < 16) return 'medium';
-    if (this.age < 55) return 'hard';
-    return 'medium';
-  },
-
-  rand(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  },
-
+  
+  rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; },
+  
   shuffle(arr) {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -24,222 +15,229 @@ const QuestionGenerator = {
     return a;
   },
 
-  genOpts(correct, n) {
-    const opts = [correct];
-    const range = Math.max(5, Math.abs(correct) * 0.4);
-    while (opts.length < n) {
-      let c = correct + this.rand(-Math.ceil(range), Math.ceil(range));
-      if (c > 0 && !opts.includes(c) && c !== correct) opts.push(c);
+  numOpts(correct, count = 4) {
+    const opts = new Set([correct]);
+    const range = Math.max(5, Math.abs(correct) * 0.5);
+    while (opts.size < count) {
+      const delta = this.rand(1, Math.ceil(range)) * (Math.random() > 0.5 ? 1 : -1);
+      const v = correct + delta;
+      if (v > 0 && v !== correct) opts.add(v);
     }
-    return this.shuffle(opts);
+    return this.shuffle([...opts]);
   },
 
   generate() {
-    const types = [
-      this.numberSeq,
-      this.matrix,
-      this.oddOne,
-      this.analogy,
-      this.math,
-      this.logic,
-      this.verbal,
-      this.letterSeq,
-      this.spatial,
-      this.missingNumber,
-      this.wordMeaning,
-      this.seriesComplete,
-      this.codeBreak,
-      this.visualPattern,
-      this.emotionalIQ,
-      this.wordSearch,
-      this.memory,
-      this.quickMath,
-      this.estimation
-    ];
+    // Weighted random - word search appears ~1/12
+    const r = Math.random();
+    let q;
     
-    const q = types[this.rand(0, types.length - 1)].call(this);
+    if (r < 0.08) q = this.wordSearch();
+    else if (r < 0.16) q = this.numberSeq();
+    else if (r < 0.24) q = this.matrix();
+    else if (r < 0.32) q = this.analogy();
+    else if (r < 0.40) q = this.math();
+    else if (r < 0.48) q = this.oddOne();
+    else if (r < 0.56) q = this.logic();
+    else if (r < 0.64) q = this.verbal();
+    else if (r < 0.72) q = this.letterSeq();
+    else if (r < 0.80) q = this.spatial();
+    else if (r < 0.88) q = this.codeBreak();
+    else q = this.visualPattern();
     
-    const hash = q.type + q.answer;
-    if (this.recent.includes(hash)) return this.generate();
-    this.recent.push(hash);
-    if (this.recent.length > 30) this.recent.shift();
+    // Ensure unique
+    const hash = q.type + '-' + q.question + '-' + q.answer;
+    if (this.usedHashes.has(hash)) {
+      return this.generate();
+    }
+    this.usedHashes.add(hash);
+    
+    // Keep set from getting too large
+    if (this.usedHashes.size > 500) {
+      const arr = [...this.usedHashes];
+      this.usedHashes = new Set(arr.slice(-200));
+    }
     
     return q;
   },
 
+  // NUMBER SEQUENCES - Procedurally generated, infinite variety
   numberSeq() {
-    const diff = this.getDiff();
-    const patterns = [
-      // Addition
-      () => {
-        const add = diff === 'easy' ? this.rand(2, 5) : this.rand(3, 9);
-        const start = this.rand(1, 15);
-        const seq = []; let v = start;
-        for (let i = 0; i < 5; i++) { seq.push(v); v += add; }
-        return { seq: seq.slice(0, 4), ans: seq[4], exp: `Add ${add} each time. ${seq[3]} + ${add} = ${seq[4]}` };
-      },
-      // Multiplication
-      () => {
-        const mult = diff === 'easy' ? 2 : this.rand(2, 4);
+    const type = this.rand(0, 7);
+    let seq, ans, exp;
+    
+    switch(type) {
+      case 0: { // Add constant
+        const add = this.rand(2, 12);
+        const start = this.rand(1, 30);
+        seq = [start, start + add, start + add*2, start + add*3];
+        ans = start + add*4;
+        exp = `Adding ${add} each time`;
+        break;
+      }
+      case 1: { // Subtract constant
+        const sub = this.rand(2, 8);
+        const start = this.rand(40, 80);
+        seq = [start, start - sub, start - sub*2, start - sub*3];
+        ans = start - sub*4;
+        exp = `Subtracting ${sub} each time`;
+        break;
+      }
+      case 2: { // Multiply
+        const mult = this.rand(2, 4);
         const start = this.rand(1, 5);
-        const seq = []; let v = start;
-        for (let i = 0; i < 5; i++) { seq.push(v); v *= mult; }
-        return { seq: seq.slice(0, 4), ans: seq[4], exp: `Multiply by ${mult}. ${seq[3]} × ${mult} = ${seq[4]}` };
-      },
-      // Squares
-      () => {
-        const off = this.rand(1, 4);
-        const seq = [];
-        for (let i = 1; i <= 5; i++) seq.push((i + off) ** 2);
-        return { seq: seq.slice(0, 4), ans: seq[4], exp: `Perfect squares: ${off+1}², ${off+2}²... = ${seq[4]}` };
-      },
-      // Fibonacci-like
-      () => {
-        const a = this.rand(1, 4), b = this.rand(2, 5);
-        const seq = [a, b];
-        for (let i = 2; i < 6; i++) seq.push(seq[i-1] + seq[i-2]);
-        return { seq: seq.slice(0, 5), ans: seq[5], exp: `Each = sum of previous two. ${seq[3]} + ${seq[4]} = ${seq[5]}` };
-      },
-      // Subtract
-      () => {
-        const sub = this.rand(3, 7);
-        const start = this.rand(40, 60);
-        const seq = []; let v = start;
-        for (let i = 0; i < 5; i++) { seq.push(v); v -= sub; }
-        return { seq: seq.slice(0, 4), ans: seq[4], exp: `Subtract ${sub} each time. ${seq[3]} - ${sub} = ${seq[4]}` };
-      },
-      // Double then add
-      () => {
+        seq = [start, start*mult, start*mult**2, start*mult**3];
+        ans = start*mult**4;
+        exp = `Multiplying by ${mult} each time`;
+        break;
+      }
+      case 3: { // Squares
+        const off = this.rand(0, 5);
+        seq = [(1+off)**2, (2+off)**2, (3+off)**2, (4+off)**2];
+        ans = (5+off)**2;
+        exp = `Perfect squares: ${1+off}², ${2+off}², ${3+off}²...`;
+        break;
+      }
+      case 4: { // Fibonacci-like
+        const a = this.rand(1, 5), b = this.rand(2, 6);
+        seq = [a, b, a+b, a+b+b];
+        seq[3] = seq[1] + seq[2];
+        ans = seq[2] + seq[3];
+        exp = `Each number = sum of previous two`;
+        break;
+      }
+      case 5: { // Increasing gaps
+        const start = this.rand(1, 5);
+        seq = [start, start+1, start+3, start+6];
+        ans = start + 10;
+        exp = `Gaps increase: +1, +2, +3, +4`;
+        break;
+      }
+      case 6: { // Double then add
         const add = this.rand(1, 3);
         const start = this.rand(1, 4);
-        const seq = [start];
-        for (let i = 1; i < 5; i++) seq.push(seq[i-1] * 2 + add);
-        return { seq: seq.slice(0, 4), ans: seq[4], exp: `Double and add ${add}. (${seq[3]} × 2) + ${add} = ${seq[4]}` };
+        seq = [start];
+        for (let i = 1; i < 4; i++) seq.push(seq[i-1] * 2 + add);
+        ans = seq[3] * 2 + add;
+        exp = `Double and add ${add}`;
+        break;
       }
-    ];
-    
-    const p = patterns[this.rand(0, patterns.length - 1)]();
+      default: { // Cubes
+        const off = this.rand(0, 2);
+        seq = [(1+off)**3, (2+off)**3];
+        if (seq[1] < 100) {
+          seq.push((3+off)**3, (4+off)**3);
+          ans = (5+off)**3;
+        } else {
+          seq = [1, 8, 27, 64];
+          ans = 125;
+        }
+        exp = `Perfect cubes: 1³, 2³, 3³...`;
+      }
+    }
     
     return {
       type: 'numberSeq',
       category: 'patternRecognition',
       categoryLabel: 'Number Sequence',
-      difficulty: diff === 'hard' ? 1.3 : 1,
+      difficulty: 1.2,
       question: 'What comes next?',
-      sequence: p.seq,
-      answer: String(p.ans),
-      options: this.genOpts(p.ans, 4).map(String),
-      explanation: p.exp,
+      sequence: seq,
+      answer: String(ans),
+      options: this.numOpts(ans).map(String),
+      explanation: exp,
       visual: 'sequence'
     };
   },
 
+  // MATRIX - 3x3 grid puzzles
   matrix() {
-    const patterns = [
-      // Row multiply
-      () => {
-        const m = this.rand(2, 3);
-        const rows = [];
-        for (let r = 0; r < 3; r++) {
-          const b = this.rand(2, 5) + r;
-          rows.push([b, b * m, b * m * m]);
-        }
-        const ans = rows[2][2];
-        const exp = `Each row × ${m}. ${rows[2][0]} × ${m} × ${m} = ${ans}`;
-        rows[2][2] = '?';
-        return { grid: rows.flat(), ans, exp };
-      },
-      // Row sum
-      () => {
-        const sum = this.rand(15, 24);
-        const makeRow = () => {
-          const a = this.rand(2, 7), b = this.rand(2, 7);
-          return [a, b, sum - a - b];
-        };
-        const r1 = makeRow(), r2 = makeRow();
-        const c1 = this.rand(2, 7), c2 = this.rand(2, 7);
-        const ans = sum - c1 - c2;
-        return { grid: [...r1, ...r2, c1, c2, '?'], ans, exp: `Each row sums to ${sum}. ${c1} + ${c2} + ? = ${sum}` };
-      },
-      // Column pattern
-      () => {
-        const adds = [this.rand(2, 4), this.rand(2, 4), this.rand(2, 4)];
-        const row1 = [this.rand(1, 5), this.rand(1, 5), this.rand(1, 5)];
-        const row2 = row1.map((v, i) => v + adds[i]);
-        const row3 = row2.map((v, i) => v + adds[i]);
-        const ans = row3[2];
-        const exp = `Each column adds ${adds[2]}. ${row2[2]} + ${adds[2]} = ${ans}`;
-        row3[2] = '?';
-        return { grid: [...row1, ...row2, ...row3], ans, exp };
-      }
-    ];
+    const type = this.rand(0, 3);
+    let grid, ans, exp;
     
-    const p = patterns[this.rand(0, patterns.length - 1)]();
+    switch(type) {
+      case 0: { // Row sums equal
+        const sum = this.rand(12, 24);
+        const r1 = [this.rand(2, 6), this.rand(2, 6)]; r1.push(sum - r1[0] - r1[1]);
+        const r2 = [this.rand(2, 6), this.rand(2, 6)]; r2.push(sum - r2[0] - r2[1]);
+        const r3 = [this.rand(2, 6), this.rand(2, 6)];
+        ans = sum - r3[0] - r3[1];
+        grid = [...r1, ...r2, r3[0], r3[1], '?'];
+        exp = `Each row sums to ${sum}`;
+        break;
+      }
+      case 1: { // Column pattern - add constant
+        const adds = [this.rand(2, 5), this.rand(2, 5), this.rand(2, 5)];
+        const r1 = [this.rand(1, 5), this.rand(1, 5), this.rand(1, 5)];
+        const r2 = r1.map((v, i) => v + adds[i]);
+        const r3 = r2.map((v, i) => v + adds[i]);
+        ans = r3[2];
+        grid = [...r1, ...r2, r3[0], r3[1], '?'];
+        exp = `Each column adds ${adds[2]}`;
+        break;
+      }
+      case 2: { // Multiply across rows
+        const mult = this.rand(2, 3);
+        const r1 = [this.rand(2, 4)]; r1.push(r1[0] * mult, r1[1] * mult);
+        const r2 = [this.rand(2, 4)]; r2.push(r2[0] * mult, r2[1] * mult);
+        const r3 = [this.rand(2, 4)]; r3.push(r3[0] * mult);
+        ans = r3[1] * mult;
+        grid = [...r1, ...r2, r3[0], r3[1], '?'];
+        exp = `Each row multiplies by ${mult}`;
+        break;
+      }
+      default: { // Diagonal pattern
+        const d = this.rand(2, 4);
+        grid = [this.rand(2, 5), '·', '·', '·', grid[0] + d, '·', '·', '·', '?'];
+        grid[1] = this.rand(1, 5); grid[2] = this.rand(1, 5);
+        grid[3] = this.rand(1, 5); grid[5] = this.rand(1, 5);
+        grid[6] = this.rand(1, 5); grid[7] = this.rand(1, 5);
+        grid[4] = grid[0] + d;
+        ans = grid[4] + d;
+        exp = `Diagonal increases by ${d}`;
+      }
+    }
     
     return {
       type: 'matrix',
       category: 'patternRecognition',
       categoryLabel: 'Matrix Pattern',
-      difficulty: 1.2,
+      difficulty: 1.3,
       question: 'Find the missing number',
-      grid: p.grid,
-      answer: String(p.ans),
-      options: this.genOpts(p.ans, 4).map(String),
-      explanation: p.exp,
+      grid: grid,
+      answer: String(ans),
+      options: this.numOpts(ans).map(String),
+      explanation: exp,
       visual: 'matrix'
     };
   },
 
-  oddOne() {
-    const sets = [
-      { items: ['Apple', 'Banana', 'Carrot', 'Orange'], odd: 'Carrot', exp: 'Carrot is a vegetable; the rest are fruits' },
-      { items: ['Dog', 'Cat', 'Goldfish', 'Hamster'], odd: 'Goldfish', exp: 'Goldfish lives in water; the rest are land pets' },
-      { items: ['Red', 'Blue', 'Triangle', 'Green'], odd: 'Triangle', exp: 'Triangle is a shape; the rest are colors' },
-      { items: ['Piano', 'Guitar', 'Violin', 'Drums'], odd: 'Drums', exp: 'Drums are percussion; the rest have strings/keys' },
-      { items: ['Mars', 'Venus', 'Moon', 'Jupiter'], odd: 'Moon', exp: 'Moon is a satellite; the rest are planets' },
-      { items: ['Dolphin', 'Shark', 'Whale', 'Seal'], odd: 'Shark', exp: 'Shark is a fish; the rest are mammals' },
-      { items: ['Car', 'Bicycle', 'Boat', 'Motorcycle'], odd: 'Boat', exp: 'Boat travels on water; the rest on roads' },
-      { items: ['Hammer', 'Ruler', 'Protractor', 'Compass'], odd: 'Hammer', exp: 'Hammer is for building; the rest measure/draw' },
-      { items: ['Python', 'Java', 'Spanish', 'Ruby'], odd: 'Spanish', exp: 'Spanish is a human language; the rest are programming languages' },
-      { items: ['Gold', 'Silver', 'Diamond', 'Copper'], odd: 'Diamond', exp: 'Diamond is a gemstone; the rest are metals' },
-      { items: ['Eagle', 'Penguin', 'Sparrow', 'Hawk'], odd: 'Penguin', exp: 'Penguin cannot fly; the rest can' },
-      { items: ['Chair', 'Table', 'Lamp', 'Desk'], odd: 'Lamp', exp: 'Lamp provides light; the rest are furniture surfaces' },
-      { items: ['Soccer', 'Tennis', 'Golf', 'Basketball'], odd: 'Golf', exp: 'Golf is not a team sport; the rest can be' },
-      { items: ['Shirt', 'Pants', 'Watch', 'Jacket'], odd: 'Watch', exp: 'Watch is an accessory; the rest are clothing' }
-    ];
-    
-    const s = sets[this.rand(0, sets.length - 1)];
-    
-    return {
-      type: 'oddOne',
-      category: 'commonSense',
-      categoryLabel: 'Odd One Out',
-      difficulty: 1,
-      question: 'Which one doesn\'t belong?',
-      answer: s.odd,
-      options: this.shuffle(s.items),
-      explanation: s.exp,
-      visual: 'options'
-    };
-  },
-
+  // ANALOGIES - Fixed format "X is to Y, as Z is to _____"
   analogy() {
-    const items = [
-      { a: 'Hot', b: 'Cold', c: 'Up', ans: 'Down', wrong: ['Left', 'High', 'Over'], exp: 'Opposites: Hot↔Cold, Up↔Down' },
-      { a: 'Puppy', b: 'Dog', c: 'Kitten', ans: 'Cat', wrong: ['Mouse', 'Tiger', 'Pet'], exp: 'Young→Adult: Puppy→Dog, Kitten→Cat' },
-      { a: 'Bird', b: 'Nest', c: 'Bee', ans: 'Hive', wrong: ['Honey', 'Flower', 'Garden'], exp: 'Animal→Home: Bird→Nest, Bee→Hive' },
-      { a: 'Eye', b: 'See', c: 'Ear', ans: 'Hear', wrong: ['Sound', 'Music', 'Listen'], exp: 'Organ→Function: Eye→See, Ear→Hear' },
-      { a: 'Fish', b: 'Swim', c: 'Bird', ans: 'Fly', wrong: ['Feather', 'Sing', 'Wing'], exp: 'Animal→Movement: Fish→Swim, Bird→Fly' },
-      { a: 'Author', b: 'Book', c: 'Chef', ans: 'Meal', wrong: ['Kitchen', 'Food', 'Recipe'], exp: 'Creator→Creation: Author→Book, Chef→Meal' },
-      { a: 'Car', b: 'Garage', c: 'Plane', ans: 'Hangar', wrong: ['Airport', 'Sky', 'Runway'], exp: 'Vehicle→Storage: Car→Garage, Plane→Hangar' },
-      { a: 'Finger', b: 'Hand', c: 'Toe', ans: 'Foot', wrong: ['Leg', 'Shoe', 'Nail'], exp: 'Part→Whole: Finger→Hand, Toe→Foot' },
-      { a: 'Teacher', b: 'School', c: 'Doctor', ans: 'Hospital', wrong: ['Patient', 'Medicine', 'Nurse'], exp: 'Professional→Workplace' },
-      { a: 'Pen', b: 'Write', c: 'Knife', ans: 'Cut', wrong: ['Sharp', 'Kitchen', 'Slice'], exp: 'Tool→Action: Pen→Write, Knife→Cut' },
-      { a: 'Day', b: 'Night', c: 'Summer', ans: 'Winter', wrong: ['Cold', 'Fall', 'Snow'], exp: 'Opposites in cycles: Day↔Night, Summer↔Winter' },
-      { a: 'Bread', b: 'Bakery', c: 'Medicine', ans: 'Pharmacy', wrong: ['Doctor', 'Hospital', 'Pill'], exp: 'Product→Store: Bread→Bakery, Medicine→Pharmacy' }
+    const all = [
+      { a: 'Hot', b: 'Cold', c: 'Light', ans: 'Dark', wrong: ['Bright', 'Heavy', 'Warm'] },
+      { a: 'Puppy', b: 'Dog', c: 'Kitten', ans: 'Cat', wrong: ['Mouse', 'Tiger', 'Pet'] },
+      { a: 'Bird', b: 'Nest', c: 'Bee', ans: 'Hive', wrong: ['Honey', 'Flower', 'Garden'] },
+      { a: 'Eye', b: 'See', c: 'Ear', ans: 'Hear', wrong: ['Sound', 'Music', 'Nose'] },
+      { a: 'Fish', b: 'Swim', c: 'Bird', ans: 'Fly', wrong: ['Feather', 'Sing', 'Wing'] },
+      { a: 'Author', b: 'Book', c: 'Chef', ans: 'Meal', wrong: ['Kitchen', 'Food', 'Recipe'] },
+      { a: 'Car', b: 'Garage', c: 'Plane', ans: 'Hangar', wrong: ['Airport', 'Sky', 'Runway'] },
+      { a: 'Finger', b: 'Hand', c: 'Toe', ans: 'Foot', wrong: ['Leg', 'Shoe', 'Nail'] },
+      { a: 'Teacher', b: 'School', c: 'Doctor', ans: 'Hospital', wrong: ['Patient', 'Medicine', 'Nurse'] },
+      { a: 'Pen', b: 'Write', c: 'Knife', ans: 'Cut', wrong: ['Sharp', 'Kitchen', 'Blade'] },
+      { a: 'Day', b: 'Night', c: 'Summer', ans: 'Winter', wrong: ['Cold', 'Fall', 'Snow'] },
+      { a: 'Bread', b: 'Bakery', c: 'Medicine', ans: 'Pharmacy', wrong: ['Doctor', 'Hospital', 'Pill'] },
+      { a: 'King', b: 'Queen', c: 'Prince', ans: 'Princess', wrong: ['Knight', 'Castle', 'Royal'] },
+      { a: 'Cow', b: 'Milk', c: 'Chicken', ans: 'Egg', wrong: ['Feather', 'Farm', 'Meat'] },
+      { a: 'Rain', b: 'Wet', c: 'Sun', ans: 'Dry', wrong: ['Hot', 'Light', 'Yellow'] },
+      { a: 'Foot', b: 'Shoe', c: 'Hand', ans: 'Glove', wrong: ['Finger', 'Ring', 'Arm'] },
+      { a: 'Canvas', b: 'Painter', c: 'Stage', ans: 'Actor', wrong: ['Theater', 'Play', 'Curtain'] },
+      { a: 'Hungry', b: 'Eat', c: 'Tired', ans: 'Sleep', wrong: ['Bed', 'Rest', 'Night'] },
+      { a: 'Grass', b: 'Green', c: 'Sky', ans: 'Blue', wrong: ['Cloud', 'High', 'Air'] },
+      { a: 'Lock', b: 'Key', c: 'Question', ans: 'Answer', wrong: ['Ask', 'Problem', 'Test'] }
     ];
     
-    const i = items[this.rand(0, items.length - 1)];
+    const i = all[this.rand(0, all.length - 1)];
+    const exp = `${i.a} relates to ${i.b} the same way ${i.c} relates to ${i.ans}`;
     
     return {
       type: 'analogy',
@@ -248,140 +246,247 @@ const QuestionGenerator = {
       difficulty: 1.2,
       question: `${i.a} is to ${i.b}, as ${i.c} is to _____`,
       answer: i.ans,
-      options: this.shuffle([i.ans, ...i.wrong.slice(0, 3)]),
-      explanation: i.exp,
+      options: this.shuffle([i.ans, ...i.wrong]),
+      explanation: exp,
       visual: 'options'
     };
   },
 
+  // MATH - Mental arithmetic
   math() {
-    const diff = this.getDiff();
-    const puzzles = [
-      // Addition
-      () => {
-        const a = this.rand(12, 45), b = this.rand(8, 35);
-        return { q: `${a} + ${b} = ?`, ans: a + b, exp: `${a} + ${b} = ${a + b}` };
-      },
-      // Subtraction
-      () => {
-        const a = this.rand(30, 80), b = this.rand(10, 29);
-        return { q: `${a} - ${b} = ?`, ans: a - b, exp: `${a} - ${b} = ${a - b}` };
-      },
-      // Multiplication
-      () => {
-        const a = this.rand(4, 12), b = this.rand(3, 9);
-        return { q: `${a} × ${b} = ?`, ans: a * b, exp: `${a} × ${b} = ${a * b}` };
-      },
-      // Percentage
-      () => {
+    const type = this.rand(0, 8);
+    let q, ans, exp;
+    
+    switch(type) {
+      case 0: { // Addition
+        const a = this.rand(12, 78), b = this.rand(8, 45);
+        q = `${a} + ${b} = ?`;
+        ans = a + b;
+        exp = `${a} + ${b} = ${ans}`;
+        break;
+      }
+      case 1: { // Subtraction
+        const a = this.rand(40, 99), b = this.rand(10, 39);
+        q = `${a} - ${b} = ?`;
+        ans = a - b;
+        exp = `${a} - ${b} = ${ans}`;
+        break;
+      }
+      case 2: { // Multiplication
+        const a = this.rand(3, 12), b = this.rand(3, 12);
+        q = `${a} × ${b} = ?`;
+        ans = a * b;
+        exp = `${a} × ${b} = ${ans}`;
+        break;
+      }
+      case 3: { // Division
+        const b = this.rand(2, 12);
+        ans = this.rand(3, 12);
+        const a = b * ans;
+        q = `${a} ÷ ${b} = ?`;
+        exp = `${a} ÷ ${b} = ${ans}`;
+        break;
+      }
+      case 4: { // Percentage
         const base = this.rand(2, 10) * 20;
         const pct = [10, 20, 25, 50][this.rand(0, 3)];
-        const ans = (base * pct) / 100;
-        return { q: `${pct}% of ${base} = ?`, ans, exp: `${pct}% of ${base} = ${ans}` };
-      },
-      // Square
-      () => {
-        const n = this.rand(4, 12);
-        return { q: `${n}² = ?`, ans: n * n, exp: `${n} × ${n} = ${n * n}` };
-      },
-      // Division
-      () => {
-        const b = this.rand(2, 9);
-        const ans = this.rand(5, 15);
-        const a = b * ans;
-        return { q: `${a} ÷ ${b} = ?`, ans, exp: `${a} ÷ ${b} = ${ans}` };
-      },
-      // Word problem
-      () => {
-        const price = this.rand(3, 8);
-        const qty = this.rand(4, 9);
-        const total = price * qty;
-        return { q: `${qty} items at $${price} each = ?`, ans: total, exp: `${qty} × $${price} = $${total}` };
+        ans = (base * pct) / 100;
+        q = `${pct}% of ${base} = ?`;
+        exp = `${pct}% of ${base} = ${ans}`;
+        break;
       }
-    ];
-    
-    const p = puzzles[this.rand(0, puzzles.length - 1)]();
+      case 5: { // Square
+        const n = this.rand(4, 12);
+        ans = n * n;
+        q = `${n}² = ?`;
+        exp = `${n} × ${n} = ${ans}`;
+        break;
+      }
+      case 6: { // Missing number add
+        const a = this.rand(5, 25), b = this.rand(5, 25);
+        ans = a;
+        q = `? + ${b} = ${a + b}`;
+        exp = `${a + b} - ${b} = ${a}`;
+        break;
+      }
+      case 7: { // Word problem
+        const price = this.rand(3, 12);
+        const qty = this.rand(3, 9);
+        ans = price * qty;
+        q = `${qty} items at $${price} each = ?`;
+        exp = `${qty} × $${price} = $${ans}`;
+        break;
+      }
+      default: { // Double digit multiply
+        const a = this.rand(11, 19), b = this.rand(2, 6);
+        ans = a * b;
+        q = `${a} × ${b} = ?`;
+        exp = `${a} × ${b} = ${ans}`;
+      }
+    }
     
     return {
       type: 'math',
       category: 'mentalAgility',
       categoryLabel: 'Mental Math',
-      difficulty: diff === 'hard' ? 1.3 : 1,
-      question: p.q,
-      answer: String(p.ans),
-      options: this.genOpts(p.ans, 4).map(String),
-      explanation: p.exp,
+      difficulty: 1.1,
+      question: q,
+      answer: String(ans),
+      options: this.numOpts(ans).map(String),
+      explanation: exp,
       visual: 'options'
     };
   },
 
-  logic() {
-    const items = [
-      { q: 'Tom is taller than Sam. Sam is taller than Mike. Who is shortest?', ans: 'Mike', wrong: ['Tom', 'Sam', 'Cannot tell'], exp: 'Tom > Sam > Mike in height' },
-      { q: 'All cats have whiskers. Fluffy is a cat. Therefore:', ans: 'Fluffy has whiskers', wrong: ['Fluffy might not', 'Cats are fluffy', 'Unknown'], exp: 'If all cats have whiskers and Fluffy is a cat, Fluffy has whiskers' },
-      { q: 'If it rains, the grass gets wet. The grass is wet. Did it definitely rain?', ans: 'Not necessarily', wrong: ['Yes', 'No', 'Always'], exp: 'The grass could be wet from sprinklers or dew' },
-      { q: 'No birds are fish. Some pets are birds. Therefore:', ans: 'Some pets are not fish', wrong: ['All pets are birds', 'No pets are fish', 'Birds are pets'], exp: 'The birds that are pets cannot be fish' },
-      { q: 'A is older than B. C is younger than B. Who is youngest?', ans: 'C', wrong: ['A', 'B', 'Cannot tell'], exp: 'A > B > C in age, so C is youngest' },
-      { q: 'All squares are rectangles. All rectangles have 4 sides. Therefore:', ans: 'All squares have 4 sides', wrong: ['All rectangles are squares', 'Some squares have 3 sides', 'Cannot tell'], exp: 'Squares are rectangles, rectangles have 4 sides' },
-      { q: 'If P then Q. P is true. What can we conclude?', ans: 'Q is true', wrong: ['Q is false', 'P is false', 'Cannot tell'], exp: 'If P implies Q and P is true, then Q must be true' },
-      { q: 'Red is darker than yellow. Blue is darker than red. Which is lightest?', ans: 'Yellow', wrong: ['Red', 'Blue', 'Cannot tell'], exp: 'Blue > Red > Yellow in darkness, so Yellow is lightest' }
+  // ODD ONE OUT
+  oddOne() {
+    const sets = [
+      { items: ['Apple', 'Banana', 'Carrot', 'Orange'], odd: 'Carrot', exp: 'Carrot is a vegetable' },
+      { items: ['Dog', 'Cat', 'Goldfish', 'Hamster'], odd: 'Goldfish', exp: 'Goldfish lives in water' },
+      { items: ['Red', 'Blue', 'Triangle', 'Green'], odd: 'Triangle', exp: 'Triangle is a shape, not a color' },
+      { items: ['Piano', 'Guitar', 'Violin', 'Drums'], odd: 'Drums', exp: 'Drums are percussion' },
+      { items: ['Mars', 'Venus', 'Moon', 'Jupiter'], odd: 'Moon', exp: 'Moon is a satellite' },
+      { items: ['Dolphin', 'Shark', 'Whale', 'Seal'], odd: 'Shark', exp: 'Shark is a fish, others are mammals' },
+      { items: ['Car', 'Bicycle', 'Boat', 'Motorcycle'], odd: 'Boat', exp: 'Boat travels on water' },
+      { items: ['Python', 'Java', 'Spanish', 'Ruby'], odd: 'Spanish', exp: 'Spanish is a human language' },
+      { items: ['Gold', 'Silver', 'Diamond', 'Copper'], odd: 'Diamond', exp: 'Diamond is a gemstone' },
+      { items: ['Eagle', 'Penguin', 'Sparrow', 'Hawk'], odd: 'Penguin', exp: 'Penguin cannot fly' },
+      { items: ['Chair', 'Table', 'Lamp', 'Desk'], odd: 'Lamp', exp: 'Lamp provides light' },
+      { items: ['Soccer', 'Tennis', 'Golf', 'Basketball'], odd: 'Golf', exp: 'Golf is not a team sport' },
+      { items: ['Shirt', 'Pants', 'Watch', 'Jacket'], odd: 'Watch', exp: 'Watch is an accessory' },
+      { items: ['London', 'Paris', 'Europe', 'Tokyo'], odd: 'Europe', exp: 'Europe is a continent' },
+      { items: ['Coffee', 'Tea', 'Juice', 'Bread'], odd: 'Bread', exp: 'Bread is not a drink' },
+      { items: ['Run', 'Jump', 'Walk', 'Think'], odd: 'Think', exp: 'Think is not physical movement' },
+      { items: ['January', 'Monday', 'March', 'April'], odd: 'Monday', exp: 'Monday is a day, not a month' },
+      { items: ['Hammer', 'Screwdriver', 'Banana', 'Wrench'], odd: 'Banana', exp: 'Banana is food, not a tool' }
     ];
     
-    const i = items[this.rand(0, items.length - 1)];
+    const s = sets[this.rand(0, sets.length - 1)];
+    
+    return {
+      type: 'oddOne',
+      category: 'commonSense',
+      categoryLabel: 'Odd One Out',
+      difficulty: 1.0,
+      question: 'Which one doesn\'t belong?',
+      answer: s.odd,
+      options: this.shuffle(s.items),
+      explanation: s.exp,
+      visual: 'options'
+    };
+  },
+
+  // LOGIC PUZZLES
+  logic() {
+    const all = [
+      { q: 'Tom is taller than Sam. Sam is taller than Mike. Who is shortest?', ans: 'Mike', wrong: ['Tom', 'Sam', 'Cannot tell'] },
+      { q: 'All cats have whiskers. Fluffy is a cat. Therefore:', ans: 'Fluffy has whiskers', wrong: ['Fluffy might not', 'All pets have whiskers', 'Unknown'] },
+      { q: 'If it rains, the grass gets wet. The grass is wet. Did it definitely rain?', ans: 'Not necessarily', wrong: ['Yes', 'No', 'Always'] },
+      { q: 'A is older than B. C is younger than B. Who is youngest?', ans: 'C', wrong: ['A', 'B', 'Cannot tell'] },
+      { q: 'All dogs bark. Max barks. Is Max a dog?', ans: 'Not necessarily', wrong: ['Yes', 'No', 'Definitely'] },
+      { q: 'Red is darker than yellow. Blue is darker than red. Which is lightest?', ans: 'Yellow', wrong: ['Red', 'Blue', 'Cannot tell'] },
+      { q: 'If P then Q. P is true. What can we say about Q?', ans: 'Q is true', wrong: ['Q is false', 'Q might be false', 'Nothing'] },
+      { q: 'Some birds can fly. Penguins are birds. Can penguins fly?', ans: 'Not necessarily', wrong: ['Yes', 'No birds can', 'All can'] },
+      { q: 'Anna is taller than Beth but shorter than Carol. Who is in the middle?', ans: 'Anna', wrong: ['Beth', 'Carol', 'Cannot tell'] },
+      { q: 'All squares are rectangles. All rectangles have 4 sides. Squares have:', ans: '4 sides', wrong: ['3 sides', '5 sides', 'Unknown'] }
+    ];
+    
+    const l = all[this.rand(0, all.length - 1)];
     
     return {
       type: 'logic',
       category: 'problemSolving',
       categoryLabel: 'Logic',
       difficulty: 1.3,
-      question: i.q,
-      answer: i.ans,
-      options: this.shuffle([i.ans, ...i.wrong]),
-      explanation: i.exp,
+      question: l.q,
+      answer: l.ans,
+      options: this.shuffle([l.ans, ...l.wrong]),
+      explanation: `Logical deduction leads to: ${l.ans}`,
       visual: 'options'
     };
   },
 
+  // VERBAL REASONING
   verbal() {
-    const items = [
-      { q: 'What is the opposite of "ancient"?', ans: 'Modern', wrong: ['Old', 'Historic', 'Antique'], exp: 'Ancient means very old; modern means new/current' },
-      { q: 'Which word means the same as "rapid"?', ans: 'Fast', wrong: ['Slow', 'Steady', 'Calm'], exp: 'Rapid and fast both mean quick' },
-      { q: 'BOOK, COOK, LOOK, ___', ans: 'HOOK', wrong: ['TOOK', 'NOOK', 'BROOK'], exp: 'Words rhyming with -OOK' },
-      { q: 'What is the opposite of "expand"?', ans: 'Contract', wrong: ['Grow', 'Extend', 'Increase'], exp: 'Expand means grow larger; contract means shrink' },
-      { q: 'Which word means "to make easier"?', ans: 'Simplify', wrong: ['Complicate', 'Confuse', 'Elaborate'], exp: 'Simplify means to make simpler or easier' },
-      { q: 'CAT, HAT, BAT, ___', ans: 'RAT', wrong: ['DOG', 'MAT', 'SAT'], exp: 'Three-letter words ending in -AT' },
-      { q: 'What is a synonym for "enormous"?', ans: 'Huge', wrong: ['Tiny', 'Small', 'Little'], exp: 'Enormous and huge both mean very large' },
-      { q: 'What is the opposite of "temporary"?', ans: 'Permanent', wrong: ['Brief', 'Short', 'Fleeting'], exp: 'Temporary is short-term; permanent is lasting' }
+    const all = [
+      { q: 'What is the opposite of "ancient"?', ans: 'Modern', wrong: ['Old', 'Historic', 'Antique'] },
+      { q: 'Which word means the same as "rapid"?', ans: 'Fast', wrong: ['Slow', 'Steady', 'Calm'] },
+      { q: 'What is the opposite of "expand"?', ans: 'Contract', wrong: ['Grow', 'Extend', 'Increase'] },
+      { q: 'Which word means "to make easier"?', ans: 'Simplify', wrong: ['Complicate', 'Confuse', 'Elaborate'] },
+      { q: 'What is a synonym for "enormous"?', ans: 'Huge', wrong: ['Tiny', 'Small', 'Average'] },
+      { q: 'What is the opposite of "temporary"?', ans: 'Permanent', wrong: ['Brief', 'Short', 'Quick'] },
+      { q: 'Which word means "very happy"?', ans: 'Ecstatic', wrong: ['Sad', 'Angry', 'Bored'] },
+      { q: 'What is the opposite of "difficult"?', ans: 'Easy', wrong: ['Hard', 'Complex', 'Tough'] },
+      { q: 'Which word means "to predict"?', ans: 'Forecast', wrong: ['Remember', 'Forget', 'Regret'] },
+      { q: 'What is the opposite of "victory"?', ans: 'Defeat', wrong: ['Win', 'Success', 'Triumph'] },
+      { q: 'Which word means "quiet"?', ans: 'Silent', wrong: ['Loud', 'Noisy', 'Booming'] },
+      { q: 'What is a synonym for "smart"?', ans: 'Intelligent', wrong: ['Stupid', 'Slow', 'Dull'] }
     ];
     
-    const i = items[this.rand(0, items.length - 1)];
+    const v = all[this.rand(0, all.length - 1)];
     
     return {
       type: 'verbal',
       category: 'verbalReasoning',
-      categoryLabel: 'Verbal',
+      categoryLabel: 'Vocabulary',
       difficulty: 1.1,
-      question: i.q,
-      answer: i.ans,
-      options: this.shuffle([i.ans, ...i.wrong.slice(0, 3)]),
-      explanation: i.exp,
+      question: v.q,
+      answer: v.ans,
+      options: this.shuffle([v.ans, ...v.wrong]),
+      explanation: `${v.ans} is the correct answer`,
       visual: 'options'
     };
   },
 
+  // LETTER SEQUENCES
   letterSeq() {
-    const patterns = [
-      { seq: ['A', 'C', 'E', 'G'], ans: 'I', exp: 'Skip one letter: A, C, E, G, I' },
-      { seq: ['Z', 'X', 'V', 'T'], ans: 'R', exp: 'Backwards, skip one: Z, X, V, T, R' },
-      { seq: ['B', 'D', 'F', 'H'], ans: 'J', exp: 'Every other letter: B, D, F, H, J' },
-      { seq: ['A', 'B', 'D', 'G'], ans: 'K', exp: 'Gaps increase: +1, +2, +3, +4' },
-      { seq: ['M', 'N', 'O', 'P'], ans: 'Q', exp: 'Consecutive letters: M, N, O, P, Q' },
-      { seq: ['A', 'Z', 'B', 'Y'], ans: 'C', exp: 'Alternating from start and end of alphabet' },
-      { seq: ['J', 'F', 'M', 'A'], ans: 'M', exp: 'First letters of months: Jan, Feb, Mar, Apr, May' }
-    ];
+    const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const type = this.rand(0, 5);
+    let seq, ans, exp;
     
-    const p = patterns[this.rand(0, patterns.length - 1)];
-    const wrong = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter(l => l !== p.ans);
+    switch(type) {
+      case 0: { // Skip one
+        const start = this.rand(0, 15);
+        seq = [alpha[start], alpha[start+2], alpha[start+4], alpha[start+6]];
+        ans = alpha[start+8];
+        exp = 'Skip one letter each time';
+        break;
+      }
+      case 1: { // Consecutive
+        const start = this.rand(0, 20);
+        seq = [alpha[start], alpha[start+1], alpha[start+2], alpha[start+3]];
+        ans = alpha[start+4];
+        exp = 'Consecutive letters';
+        break;
+      }
+      case 2: { // Backwards
+        const start = this.rand(10, 25);
+        seq = [alpha[start], alpha[start-1], alpha[start-2], alpha[start-3]];
+        ans = alpha[start-4];
+        exp = 'Going backwards through alphabet';
+        break;
+      }
+      case 3: { // Skip two
+        const start = this.rand(0, 10);
+        seq = [alpha[start], alpha[start+3], alpha[start+6], alpha[start+9]];
+        ans = alpha[start+12];
+        exp = 'Skip two letters each time';
+        break;
+      }
+      case 4: { // Increasing gaps
+        seq = ['A', 'B', 'D', 'G'];
+        ans = 'K';
+        exp = 'Gaps increase: +1, +2, +3, +4';
+        break;
+      }
+      default: { // Vowels
+        seq = ['A', 'E', 'I', 'O'];
+        ans = 'U';
+        exp = 'Vowels in order';
+      }
+    }
+    
+    const wrong = alpha.split('').filter(l => l !== ans);
     
     return {
       type: 'letterSeq',
@@ -389,24 +494,25 @@ const QuestionGenerator = {
       categoryLabel: 'Letter Pattern',
       difficulty: 1.1,
       question: 'What letter comes next?',
-      sequence: p.seq,
-      answer: p.ans,
-      options: this.shuffle([p.ans, ...this.shuffle(wrong).slice(0, 3)]),
-      explanation: p.exp,
+      sequence: seq,
+      answer: ans,
+      options: this.shuffle([ans, ...this.shuffle(wrong).slice(0, 3)]),
+      explanation: exp,
       visual: 'letterSequence'
     };
   },
 
+  // SPATIAL - No blue backgrounds, just text symbols
   spatial() {
     const puzzles = [
-      { q: 'Rotate 180°', start: '▲', ans: '▼', wrong: ['◄', '►', '▲'], exp: 'Rotating 180° flips it upside down' },
-      { q: 'Mirror horizontally', start: '◄', ans: '►', wrong: ['▲', '▼', '◄'], exp: 'Horizontal mirror flips left to right' },
-      { q: 'Rotate 90° clockwise', start: '►', ans: '▼', wrong: ['▲', '◄', '►'], exp: '90° clockwise: right becomes down' },
-      { q: 'Mirror vertically', start: '▲', ans: '▼', wrong: ['◄', '►', '▲'], exp: 'Vertical mirror flips top to bottom' },
-      { q: 'Rotate 90° counter-clockwise', start: '▲', ans: '◄', wrong: ['▼', '►', '▲'], exp: '90° counter-clockwise: up becomes left' },
-      { q: 'Rotate 270° clockwise', start: '◄', ans: '▼', wrong: ['▲', '►', '◄'], exp: '270° clockwise = 90° counter-clockwise' },
-      { q: 'Rotate 90° clockwise', start: '▼', ans: '◄', wrong: ['▲', '►', '▼'], exp: '90° clockwise: down becomes left' },
-      { q: 'Mirror horizontally', start: '▲', ans: '▲', wrong: ['▼', '◄', '►'], exp: 'Horizontal mirror of up arrow stays up' }
+      { q: 'Rotate ▲ by 180 degrees', ans: '▼', wrong: ['▲', '◄', '►'], exp: '180° rotation flips it upside down' },
+      { q: 'Mirror ◄ horizontally', ans: '►', wrong: ['▲', '▼', '◄'], exp: 'Horizontal mirror flips left to right' },
+      { q: 'Rotate ► by 90° clockwise', ans: '▼', wrong: ['▲', '◄', '►'], exp: '90° clockwise: right becomes down' },
+      { q: 'Mirror ▲ vertically', ans: '▼', wrong: ['◄', '►', '▲'], exp: 'Vertical mirror flips top to bottom' },
+      { q: 'Rotate ▼ by 90° counter-clockwise', ans: '►', wrong: ['▲', '◄', '▼'], exp: 'Counter-clockwise: down becomes right' },
+      { q: 'What is ◄ rotated 180°?', ans: '►', wrong: ['▲', '▼', '◄'], exp: '180° rotation reverses direction' },
+      { q: 'Mirror ► vertically', ans: '►', wrong: ['▲', '▼', '◄'], exp: 'Vertical mirror keeps left-right same' },
+      { q: 'Rotate ▲ by 270° clockwise', ans: '◄', wrong: ['►', '▼', '▲'], exp: '270° clockwise = 90° counter-clockwise' }
     ];
     
     const p = puzzles[this.rand(0, puzzles.length - 1)];
@@ -417,7 +523,7 @@ const QuestionGenerator = {
       categoryLabel: 'Spatial',
       difficulty: 1.2,
       question: p.q,
-      startShape: p.start,
+      startShape: p.q.includes('▲') ? '▲' : p.q.includes('▼') ? '▼' : p.q.includes('◄') ? '◄' : '►',
       answer: p.ans,
       options: this.shuffle([p.ans, ...p.wrong]),
       explanation: p.exp,
@@ -425,129 +531,25 @@ const QuestionGenerator = {
     };
   },
 
-  missingNumber() {
+  // CODE BREAKING
+  codeBreak() {
     const puzzles = [
-      () => {
-        const a = this.rand(2, 8), b = this.rand(2, 8);
-        const sum = a + b;
-        return { q: `? + ${b} = ${sum}`, ans: a, exp: `${sum} - ${b} = ${a}` };
-      },
-      () => {
-        const a = this.rand(3, 9), b = this.rand(2, 6);
-        const prod = a * b;
-        return { q: `${a} × ? = ${prod}`, ans: b, exp: `${prod} ÷ ${a} = ${b}` };
-      },
-      () => {
-        const a = this.rand(20, 50), b = this.rand(5, 15);
-        const diff = a - b;
-        return { q: `${a} - ? = ${diff}`, ans: b, exp: `${a} - ${diff} = ${b}` };
-      }
-    ];
-    
-    const p = puzzles[this.rand(0, puzzles.length - 1)]();
-    
-    return {
-      type: 'missingNum',
-      category: 'mentalAgility',
-      categoryLabel: 'Find the Number',
-      difficulty: 1.1,
-      question: p.q,
-      answer: String(p.ans),
-      options: this.genOpts(p.ans, 4).map(String),
-      explanation: p.exp,
-      visual: 'options'
-    };
-  },
-
-  wordMeaning() {
-    const items = [
-      { q: 'What does "benevolent" mean?', ans: 'Kind and generous', wrong: ['Angry', 'Confused', 'Tired'], exp: 'Benevolent means well-meaning and kind' },
-      { q: 'What does "scarce" mean?', ans: 'Rare or limited', wrong: ['Abundant', 'Common', 'Plentiful'], exp: 'Scarce means in short supply' },
-      { q: 'What does "diligent" mean?', ans: 'Hardworking', wrong: ['Lazy', 'Careless', 'Slow'], exp: 'Diligent means showing care and effort' },
-      { q: 'What does "peculiar" mean?', ans: 'Strange or unusual', wrong: ['Normal', 'Common', 'Regular'], exp: 'Peculiar means odd or different' },
-      { q: 'What does "tranquil" mean?', ans: 'Calm and peaceful', wrong: ['Noisy', 'Chaotic', 'Busy'], exp: 'Tranquil means free from disturbance' }
-    ];
-    
-    const i = items[this.rand(0, items.length - 1)];
-    
-    return {
-      type: 'wordMeaning',
-      category: 'verbalReasoning',
-      categoryLabel: 'Vocabulary',
-      difficulty: 1.2,
-      question: i.q,
-      answer: i.ans,
-      options: this.shuffle([i.ans, ...i.wrong]),
-      explanation: i.exp,
-      visual: 'options'
-    };
-  },
-
-  seriesComplete() {
-    const puzzles = [
-      { seq: [2, 4, 8, 16], ans: 32, exp: 'Each number doubles: 16 × 2 = 32' },
-      { seq: [1, 4, 9, 16], ans: 25, exp: 'Perfect squares: 1², 2², 3², 4², 5² = 25' },
-      { seq: [3, 6, 12, 24], ans: 48, exp: 'Each number doubles: 24 × 2 = 48' },
-      { seq: [100, 90, 80, 70], ans: 60, exp: 'Subtract 10 each time: 70 - 10 = 60' },
-      { seq: [1, 3, 6, 10], ans: 15, exp: 'Triangular numbers: +2, +3, +4, +5' },
-      { seq: [2, 6, 18, 54], ans: 162, exp: 'Multiply by 3: 54 × 3 = 162' }
+      { q: 'If A=1, B=2, C=3... What is C+A+B?', ans: '6', wrong: ['3', '9', '12'], exp: 'C(3) + A(1) + B(2) = 6' },
+      { q: 'If ★=5 and ●=3, what is ★+●+★?', ans: '13', wrong: ['11', '15', '8'], exp: '5 + 3 + 5 = 13' },
+      { q: 'If ◆+◆=10 and ◆+●=12, what is ●?', ans: '7', wrong: ['5', '6', '8'], exp: '◆=5, so 5+●=12, ●=7' },
+      { q: 'If X=2 and Y=X+3, what is Y?', ans: '5', wrong: ['3', '6', '4'], exp: 'Y = 2 + 3 = 5' },
+      { q: 'If ▲=4 and ■=▲×2, what is ■?', ans: '8', wrong: ['6', '10', '12'], exp: '■ = 4 × 2 = 8' },
+      { q: 'If 🔴=7 and 🔵=🔴-2, what is 🔵?', ans: '5', wrong: ['9', '4', '6'], exp: '🔵 = 7 - 2 = 5' },
+      { q: 'If A=1, B=2... what is D+E?', ans: '9', wrong: ['7', '8', '10'], exp: 'D(4) + E(5) = 9' },
+      { q: 'If ★×★=16, what is ★?', ans: '4', wrong: ['2', '8', '6'], exp: '4 × 4 = 16' }
     ];
     
     const p = puzzles[this.rand(0, puzzles.length - 1)];
     
     return {
-      type: 'seriesComplete',
-      category: 'patternRecognition',
-      categoryLabel: 'Complete the Series',
-      difficulty: 1.2,
-      question: 'What comes next?',
-      sequence: p.seq,
-      answer: String(p.ans),
-      options: this.genOpts(p.ans, 4).map(String),
-      explanation: p.exp,
-      visual: 'sequence'
-    };
-  },
-
-  codeBreak() {
-    const codes = [
-      { code: 'If A=1, B=2, C=3... What is CAB?', ans: '6', wrong: ['3', '9', '12'], exp: 'C(3) + A(1) + B(2) = 6' },
-      { code: 'If CAT = 24, DOG = ?', ans: '26', wrong: ['24', '22', '28'], exp: 'C(3)+A(1)+T(20)=24, D(4)+O(15)+G(7)=26' },
-      { code: 'RED : 27 :: BLUE : ?', ans: '40', wrong: ['35', '45', '38'], exp: 'R(18)+E(5)+D(4)=27, B(2)+L(12)+U(21)+E(5)=40' },
-      { code: 'If 🌟 = 5 and 🌙 = 3, what is 🌟🌙🌟?', ans: '13', wrong: ['11', '15', '8'], exp: '5 + 3 + 5 = 13' },
-      { code: 'If ◆ + ◆ = 10 and ◆ + ● = 12, what is ●?', ans: '7', wrong: ['5', '6', '8'], exp: '◆=5, so 5+●=12, ●=7' }
-    ];
-    
-    const c = codes[this.rand(0, codes.length - 1)];
-    
-    return {
       type: 'codeBreak',
       category: 'problemSolving',
       categoryLabel: 'Code Breaker',
-      difficulty: 1.4,
-      question: c.code,
-      answer: c.ans,
-      options: this.shuffle([c.ans, ...c.wrong]),
-      explanation: c.exp,
-      visual: 'options'
-    };
-  },
-
-  visualPattern() {
-    const patterns = [
-      { q: 'What comes next: ○ ○● ○●● ?', ans: '○●●●', wrong: ['●●●●', '○○●●', '○●○●'], exp: 'Adding one ● each time' },
-      { q: '■□■ → □■□ → ?', ans: '■□■', wrong: ['□□□', '■■■', '□■■'], exp: 'Pattern alternates' },
-      { q: '↑ → ↓ → ?', ans: '←', wrong: ['↑', '→', '↓'], exp: 'Rotating 90° clockwise each time' },
-      { q: '★ ★★ ★★★ ★★★★ ?', ans: '★★★★★', wrong: ['★★★★', '★★★', '★★★★★★'], exp: 'Adding one star each time' },
-      { q: '◇◇ ◈◈ ◇◇◇ ◈◈◈ ?', ans: '◇◇◇◇', wrong: ['◈◈◈◈', '◇◈◇◈', '◇◇'], exp: 'Alternating shape, increasing count' }
-    ];
-    
-    const p = patterns[this.rand(0, patterns.length - 1)];
-    
-    return {
-      type: 'visualPattern',
-      category: 'patternRecognition',
-      categoryLabel: 'Visual Pattern',
       difficulty: 1.3,
       question: p.q,
       answer: p.ans,
@@ -557,176 +559,59 @@ const QuestionGenerator = {
     };
   },
 
-  emotionalIQ() {
-    const scenarios = [
-      { q: 'Your friend seems upset but says "I\'m fine." Best response?', ans: 'Give space but stay available', wrong: ['Keep pushing to talk', 'Walk away', 'Tell others about it'], exp: 'Respecting boundaries while showing support' },
-      { q: 'A coworker takes credit for your idea. You should:', ans: 'Address it privately with them', wrong: ['Yell at them publicly', 'Ignore it forever', 'Spread rumors'], exp: 'Direct private communication resolves conflicts best' },
-      { q: 'You made a mistake at work. Best approach?', ans: 'Admit it and help fix it', wrong: ['Blame someone else', 'Hope no one notices', 'Make excuses'], exp: 'Taking responsibility builds trust' },
-      { q: 'Someone cuts in line in front of you. You should:', ans: 'Politely point it out', wrong: ['Start yelling', 'Push them', 'Leave immediately'], exp: 'Calm assertiveness is most effective' },
-      { q: 'Your friend got a promotion you wanted. You:', ans: 'Congratulate them genuinely', wrong: ['Ignore them', 'Complain to others', 'Quit your job'], exp: 'Supporting others strengthens relationships' },
-      { q: 'A stranger is crying on the bus. You:', ans: 'Offer a tissue or ask if they\'re okay', wrong: ['Stare at them', 'Laugh', 'Move seats loudly'], exp: 'Small gestures of kindness matter' },
-      { q: 'Your partner forgot your anniversary. You:', ans: 'Express feelings calmly later', wrong: ['Give silent treatment', 'Post about it online', 'Break up immediately'], exp: 'Calm communication prevents escalation' }
-    ];
-    
-    const s = scenarios[this.rand(0, scenarios.length - 1)];
-    
-    return {
-      type: 'emotional',
-      category: 'emotionalIntelligence',
-      categoryLabel: 'Social IQ',
-      difficulty: 1.1,
-      question: s.q,
-      answer: s.ans,
-      options: this.shuffle([s.ans, ...s.wrong]),
-      explanation: s.exp,
-      visual: 'options'
-    };
-  },
-
-  wordSearch() {
+  // VISUAL PATTERNS
+  visualPattern() {
     const puzzles = [
-      { words: ['CAT', 'DOG', 'BAT'], grid: 'CATXODOGBATXX', fill: 'RLMQPZWNYSHVK' },
-      { words: ['SUN', 'SKY', 'DAY'], grid: 'SUNXXSKYDAYXX', fill: 'BFRLMQZWNPHVK' },
-      { words: ['RED', 'BIG', 'RUN'], grid: 'REDXXBIGRUNXX', fill: 'FLMQPZWNYSTHK' },
-      { words: ['TOP', 'POP', 'HOP'], grid: 'TOPXXPOPHOPXX', fill: 'RLMQBZWNYSEVK' },
-      { words: ['HAT', 'RAT', 'MAT'], grid: 'HATXXRATMATXX', fill: 'FLQPBZWNYSOEK' }
+      { q: '○ ○● ○●● → ?', ans: '○●●●', wrong: ['●●●●', '○○●●', '○●○●'], exp: 'Adding one ● each time' },
+      { q: '★ ★★ ★★★ → ?', ans: '★★★★', wrong: ['★★★', '★★', '★★★★★'], exp: 'Adding one star each time' },
+      { q: '▲▼ ▼▲ ▲▼ → ?', ans: '▼▲', wrong: ['▲▲', '▼▼', '▲▼'], exp: 'Pattern alternates' },
+      { q: '● ●● ●●● ●●●● → ?', ans: '●●●●●', wrong: ['●●●●', '●●●', '●●'], exp: 'Adding one circle each time' },
+      { q: '◆ ◇ ◆ ◇ → ?', ans: '◆', wrong: ['◇', '◆◇', '◇◆'], exp: 'Alternating filled and empty' },
+      { q: '→ ↓ ← ↑ → ?', ans: '↓', wrong: ['←', '↑', '→'], exp: 'Rotating 90° clockwise' },
+      { q: '■□ ■■□ ■■■□ → ?', ans: '■■■■□', wrong: ['■■■□', '□□□□', '■□■□'], exp: 'Adding one ■ before □' }
     ];
     
     const p = puzzles[this.rand(0, puzzles.length - 1)];
     
-    // Create 5x5 grid with words hidden
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let grid = [];
+    return {
+      type: 'visualPattern',
+      category: 'patternRecognition',
+      categoryLabel: 'Visual Pattern',
+      difficulty: 1.2,
+      question: p.q,
+      answer: p.ans,
+      options: this.shuffle([p.ans, ...p.wrong]),
+      explanation: p.exp,
+      visual: 'options'
+    };
+  },
+
+  // WORD SEARCH - Now guaranteed to appear
+  wordSearch() {
+    const wordSets = [
+      { words: ['CAT', 'DOG', 'RAT'], fill: 'XYZQWPLMN' },
+      { words: ['SUN', 'MOON', 'STAR'], fill: 'XYZQWPLMN' },
+      { words: ['RED', 'BLUE'], fill: 'XYZQWPLMNGTR' },
+      { words: ['ONE', 'TWO', 'SIX'], fill: 'XYZQWPLMN' },
+      { words: ['FISH', 'CRAB'], fill: 'XYZQWPLMNGTS' },
+      { words: ['RAIN', 'SNOW'], fill: 'XYZQWPLMNGTS' },
+      { words: ['BOOK', 'READ'], fill: 'XYZQWPLMNGTS' },
+      { words: ['TREE', 'LEAF'], fill: 'XYZQWPLMNGTS' }
+    ];
     
-    // Simple grid: place words and fill rest randomly
-    const allWords = p.words.join('');
-    const fillLetters = p.fill;
-    let wordIdx = 0;
-    let fillIdx = 0;
+    const set = wordSets[this.rand(0, wordSets.length - 1)];
     
-    for (let i = 0; i < 25; i++) {
-      if (i < 3) grid.push(p.words[0][i]); // First word row 1
-      else if (i >= 5 && i < 8) grid.push(p.words[1][i - 5]); // Second word row 2
-      else if (i >= 10 && i < 13) grid.push(p.words[2][i - 10]); // Third word row 3
-      else grid.push(fillLetters[fillIdx++ % fillLetters.length]);
+    // Build grid with words embedded
+    let letters = set.words.join('');
+    const needed = 25 - letters.length;
+    for (let i = 0; i < needed; i++) {
+      letters += set.fill[this.rand(0, set.fill.length - 1)];
     }
     
-    return {
-      type: 'wordSearch',
-      category: 'mentalAgility',
-      categoryLabel: 'Word Hunt',
-      difficulty: 1.3,
-      question: `Find ${p.words.length} words in 12 seconds!`,
-      words: p.words,
-      totalWords: p.words.length,
-      grid: grid,
-      explanation: `Words: ${p.words.join(', ')}`,
-      visual: 'wordSearch'
-    };
-  },
-
-  memory() {
-    const items = [
-      { q: 'Which number was NOT in this sequence: 3, 7, 2, 9, 5?', ans: '4', wrong: ['3', '7', '5'], exp: '4 was not in the sequence' },
-      { q: 'If APPLE = 1, BANANA = 2, what is CHERRY?', ans: '3', wrong: ['1', '2', '4'], exp: 'Sequential assignment: CHERRY = 3' },
-      { q: 'Complete: RED, ORANGE, YELLOW, ___', ans: 'GREEN', wrong: ['BLUE', 'PURPLE', 'PINK'], exp: 'Rainbow order: ROYGBIV' },
-      { q: 'What day comes after Wednesday?', ans: 'Thursday', wrong: ['Tuesday', 'Friday', 'Monday'], exp: 'Days of the week sequence' },
-      { q: 'In 24-hour time, what is 3 PM?', ans: '15:00', wrong: ['13:00', '14:00', '16:00'], exp: '3 PM = 12 + 3 = 15:00' },
-      { q: 'How many months have 31 days?', ans: '7', wrong: ['5', '6', '8'], exp: 'Jan, Mar, May, Jul, Aug, Oct, Dec = 7' }
-    ];
-    
-    const i = items[this.rand(0, items.length - 1)];
-    
-    return {
-      type: 'memory',
-      category: 'memory',
-      categoryLabel: 'Memory',
-      difficulty: 1.1,
-      question: i.q,
-      answer: i.ans,
-      options: this.shuffle([i.ans, ...i.wrong]),
-      explanation: i.exp,
-      visual: 'options'
-    };
-  },
-
-  quickMath() {
-    const ops = [
-      () => {
-        const a = this.rand(11, 25), b = this.rand(11, 25);
-        return { q: `${a} + ${b}`, ans: a + b };
-      },
-      () => {
-        const a = this.rand(30, 60), b = this.rand(10, 25);
-        return { q: `${a} - ${b}`, ans: a - b };
-      },
-      () => {
-        const a = this.rand(6, 12), b = this.rand(6, 12);
-        return { q: `${a} × ${b}`, ans: a * b };
-      },
-      () => {
-        const b = this.rand(3, 9);
-        const ans = this.rand(5, 12);
-        return { q: `${b * ans} ÷ ${b}`, ans: ans };
-      }
-    ];
-    
-    const p = ops[this.rand(0, ops.length - 1)]();
-    
-    return {
-      type: 'quickMath',
-      category: 'mentalAgility',
-      categoryLabel: 'Quick Math',
-      difficulty: 1.2,
-      question: `Solve: ${p.q} = ?`,
-      answer: String(p.ans),
-      options: this.genOpts(p.ans, 4).map(String),
-      explanation: `${p.q} = ${p.ans}`,
-      visual: 'options'
-    };
-  },
-
-  estimation() {
-    const items = [
-      { q: 'Roughly how many seconds in an hour?', ans: '3,600', wrong: ['360', '600', '36,000'], exp: '60 seconds × 60 minutes = 3,600' },
-      { q: 'About how many days in a year?', ans: '365', wrong: ['300', '400', '350'], exp: 'A year has 365 days (366 in leap year)' },
-      { q: 'Approximately 15% of 200 is:', ans: '30', wrong: ['20', '25', '40'], exp: '15% of 200 = 0.15 × 200 = 30' },
-      { q: 'What is 7 × 8 closest to?', ans: '56', wrong: ['48', '63', '54'], exp: '7 × 8 = 56 exactly' },
-      { q: 'About how many weeks in a year?', ans: '52', wrong: ['48', '50', '54'], exp: '365 ÷ 7 ≈ 52 weeks' }
-    ];
-    
-    const i = items[this.rand(0, items.length - 1)];
-    
-    return {
-      type: 'estimation',
-      category: 'mentalAgility',
-      categoryLabel: 'Estimation',
-      difficulty: 1.0,
-      question: i.q,
-      answer: i.ans,
-      options: this.shuffle([i.ans, ...i.wrong]),
-      explanation: i.exp,
-      visual: 'options'
-    };
-  },
-
-  wordSearch() {
-    const sets = [
-      { words: ['CAT', 'DOG', 'BIRD'], letters: 'CATBDOGIRDBIRDA' },
-      { words: ['SUN', 'MOON', 'STAR'], letters: 'SUNSTARMOONXYZQ' },
-      { words: ['RED', 'BLUE', 'GREEN'], letters: 'REDBLUEGREENPQX' },
-      { words: ['ONE', 'TWO', 'THREE'], letters: 'ONETWOTHREEXYZP' },
-      { words: ['APPLE', 'PEAR'], letters: 'APPLEPEARMXYZQR' },
-      { words: ['FISH', 'CRAB', 'SEAL'], letters: 'FISHCRABSEALXYZ' },
-      { words: ['BOOK', 'PAGE', 'READ'], letters: 'BOOKPAGEREADXYZ' },
-      { words: ['RAIN', 'SNOW', 'WIND'], letters: 'RAINSNOWWINDXYZ' }
-    ];
-    
-    const s = sets[this.rand(0, sets.length - 1)];
-    const grid = s.letters.split('').slice(0, 25);
-    
-    for (let i = grid.length - 1; i > 15; i--) {
-      const j = this.rand(15, i);
+    // Shuffle the letters array but keep some structure
+    const grid = letters.split('');
+    for (let i = grid.length - 1; i > 10; i--) {
+      const j = this.rand(10, i);
       [grid[i], grid[j]] = [grid[j], grid[i]];
     }
     
@@ -734,10 +619,10 @@ const QuestionGenerator = {
       type: 'wordSearch',
       category: 'mentalAgility',
       categoryLabel: 'Word Hunt',
-      difficulty: 1.3,
-      question: 'Find all the hidden words!',
-      words: s.words,
-      totalWords: s.words.length,
+      difficulty: 1.4,
+      question: `Find: ${set.words.join(', ')}`,
+      words: set.words,
+      totalWords: set.words.length,
       grid: grid,
       explanation: '',
       visual: 'wordSearch'
