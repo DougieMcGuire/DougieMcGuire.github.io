@@ -1,46 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebHaptics Vanilla Demo</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align:center; padding:50px; }
-    button { font-size:18px; margin:10px; padding:12px 20px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web-Haptics Playground</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align:center; margin-top:80px; background:#121212; color:white; }
+  button { font-size:18px; margin:12px; padding:14px 24px; border-radius:8px; border:none; background:#0078ff; color:white; cursor:pointer; touch-action:manipulation; transition:transform 0.05s ease-out; }
+  button:active { transform:scale(0.96); }
+</style>
 </head>
 <body>
 
-  <h1>Web Haptics Demo</h1>
-  <button id="success">Success</button>
-  <button id="error">Error</button>
-  <button id="buzz">Buzz</button>
-  <button id="custom">Custom</button>
+<h1>Web-Haptics Test</h1>
+<button id="success">Success</button>
+<button id="error">Error</button>
+<button id="buzz">Buzz</button>
+<button id="custom">Custom</button>
 
-  <script type="module">
-    // import the library from a CDN
-    import { WebHaptics } from "https://esm.sh/web-haptics";
+<script type="module">
+import { WebHaptics } from "https://esm.sh/web-haptics";
 
-    const haptics = new WebHaptics();
+// ✅ Create a single global instance, debug mode shows hidden checkbox
+const haptics = new WebHaptics({ debug:true });
 
-    document.getElementById("success").addEventListener("pointerdown", () => {
-      haptics.trigger("success");
-    });
+// Utility to attach pointerdown event
+function bindHaptic(id, pattern) {
+  const btn = document.getElementById(id);
+  btn.addEventListener('pointerdown', () => {
+    haptics.trigger(pattern);
+  });
+}
 
-    document.getElementById("error").addEventListener("pointerdown", () => {
-      haptics.trigger("error");
-    });
-
-    document.getElementById("buzz").addEventListener("pointerdown", () => {
-      haptics.trigger("buzz");
-    });
-
-    document.getElementById("custom").addEventListener("pointerdown", () => {
-      // alternate on/off 80ms vibrate, 40ms pause
-      haptics.trigger([80, 40, 80]);
-    });
-
-  </script>
+// Bind buttons to patterns
+bindHaptic('success', 'success');
+bindHaptic('error', 'error');
+bindHaptic('buzz', 'buzz');
+bindHaptic('custom', [80,50,80]); // custom pattern
+</script>
 
 </body>
 </html>
