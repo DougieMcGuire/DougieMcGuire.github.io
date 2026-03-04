@@ -3,61 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Web-Haptics Playground</title>
+<title>iOS Switch Haptic Test</title>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align:center; margin-top:50px; }
   button { font-size:18px; margin:12px; padding:12px 24px; border-radius:8px; border:none; background:#0078ff; color:white; cursor:pointer; }
-  /* hide the switch completely */
   #hapticSwitch { position:absolute; opacity:0; width:0; height:0; pointer-events:none; }
 </style>
 </head>
 <body>
 
-<h1>Web-Haptics Playground</h1>
+<h1>iOS Switch Haptic Test</h1>
 
+<!-- The magic iOS switch input -->
 <input type="checkbox" id="hapticSwitch" switch>
 <label id="hapticLabel" for="hapticSwitch"></label>
 
-<button id="light">Light Tap</button>
-<button id="medium">Medium Tap</button>
-<button id="heavy">Heavy Tap</button>
+<button id="tap">Trigger Haptic</button>
 
 <script>
-  // Core Haptic Logic
-  function triggerHaptic(patternDuration = 50, intensity = 1) {
-    // Android / vibrate-capable devices
-    if (navigator.vibrate) {
-      const cycles = Math.max(1, Math.round(intensity * 3));
-      const pattern = Array(cycles).fill([patternDuration, 30]).flat();
-      navigator.vibrate(pattern);
-      return;
-    }
+  const checkbox = document.getElementById('hapticSwitch');
+  const label = document.getElementById('hapticLabel');
 
-    // iOS fallback: toggle hidden switch
-    const checkbox = document.getElementById('hapticSwitch');
-    const label = document.getElementById('hapticLabel');
-    // toggle checkbox quickly to trigger haptic
-    const toggles = Math.max(1, Math.round(intensity * 3));
-    let count = 0;
-    const toggleLoop = () => {
-      checkbox.checked = !checkbox.checked;
-      label.click();
-      count++;
-      if (count < toggles) {
-        requestAnimationFrame(toggleLoop);
-      }
-    };
-    requestAnimationFrame(toggleLoop);
-  }
-
-  document.getElementById('light').addEventListener('pointerdown', () => {
-    triggerHaptic(40, 0.3);
-  });
-  document.getElementById('medium').addEventListener('pointerdown', () => {
-    triggerHaptic(70, 0.6);
-  });
-  document.getElementById('heavy').addEventListener('pointerdown', () => {
-    triggerHaptic(120, 1);
+  document.getElementById('tap').addEventListener('pointerdown', () => {
+    // Toggle the switch to trigger haptic
+    checkbox.checked = !checkbox.checked;
+    label.click(); // fires the native haptic
   });
 </script>
 
