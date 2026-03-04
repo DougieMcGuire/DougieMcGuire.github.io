@@ -1,72 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Haptic Test Page</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      background: #121212;
-      color: white;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    button {
-      margin: 10px;
-      padding: 15px 25px;
-      font-size: 18px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .light { background: #4CAF50; }
-    .medium { background: #2196F3; }
-    .heavy { background: #f44336; }
-    .selection { background: #FF9800; }
-    button:active { opacity: 0.8; }
-  </style>
+  <title>Web Haptics Test</title>
 </head>
 <body>
-  <h1>Web Haptic Feedback Demo</h1>
+  <button id="light">Light Impact</button>
 
-  <button class="light">Light Impact</button>
-  <button class="medium">Medium Impact</button>
-  <button class="heavy">Heavy Impact</button>
-  <button class="selection">Selection Change</button>
+  <script type="module">
+    import Haptics from "https://esm.sh/web-haptics";
 
-  <!-- Load Haptics Library -->
-  <script src="https://haptics.lochie.me/haptics.min.js"></script>
-  <script>
-    // Grab buttons
-    const btnLight = document.querySelector(".light");
-    const btnMedium = document.querySelector(".medium");
-    const btnHeavy = document.querySelector(".heavy");
-    const btnSelection = document.querySelector(".selection");
+    const haptics = new Haptics();
 
-    // Add event listeners
-    btnLight.addEventListener("click", () => {
+    document.getElementById("light").addEventListener("pointerdown", () => {
       haptics.impactLight();
-    });
-
-    btnMedium.addEventListener("click", () => {
-      haptics.impactMedium();
-    });
-
-    btnHeavy.addEventListener("click", () => {
-      haptics.impactHeavy();
-    });
-
-    btnSelection.addEventListener("click", () => {
-      haptics.selection();
     });
   </script>
 </body>
