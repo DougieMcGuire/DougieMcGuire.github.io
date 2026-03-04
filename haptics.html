@@ -3,129 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web Haptics Playground</title>
+  <title>WebHaptics Vanilla Demo</title>
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      text-align: center;
-      margin-top: 100px;
-      background: #121212;
-      color: white;
-    }
-    button {
-      margin: 12px;
-      padding: 14px 24px;
-      font-size: 18px;
-      border-radius: 8px;
-      border: none;
-      background: #0078ff;
-      color: white;
-      cursor: pointer;
-      touch-action: manipulation;
-      user-select: none;
-      transition: transform 0.05s ease-out;
-    }
-    button:active {
-      transform: scale(0.96);
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align:center; padding:50px; }
+    button { font-size:18px; margin:10px; padding:12px 20px; }
   </style>
 </head>
 <body>
-  <h1>Web Haptics Playground</h1>
-  <button id="light">Light Haptic</button>
-  <button id="medium">Medium Haptic</button>
-  <button id="heavy">Heavy Haptic</button>
 
-  <script>
-    // ---------------------------
-    // Haptic Playground Core
-    // ---------------------------
-    class PlaygroundHaptics {
-      constructor() {
-        // Create hidden checkbox for iOS native feedback
-        this.checkbox = document.createElement('input');
-        this.checkbox.type = 'checkbox';
-        this.checkbox.style.position = 'absolute';
-        this.checkbox.style.opacity = 0;
-        document.body.appendChild(this.checkbox);
-      }
+  <h1>Web Haptics Demo</h1>
+  <button id="success">Success</button>
+  <button id="error">Error</button>
+  <button id="buzz">Buzz</button>
+  <button id="custom">Custom</button>
 
-      /**
-       * Trigger a PWM-based haptic pattern
-       * @param {number} duration ms
-       * @param {number} intensity 0-1
-       */
-      trigger(duration = 50, intensity = 0.5) {
-        // If navigator.vibrate exists (Android), use it
-        if (navigator.vibrate) {
-          const pattern = this._modulate(duration, intensity);
-          navigator.vibrate(pattern);
-        }
+  <script type="module">
+    // import the library from a CDN
+    import { WebHaptics } from "https://esm.sh/web-haptics";
 
-        // Always try iOS fallback using checkbox toggle
-        this._iosPWM(duration, intensity);
-      }
+    const haptics = new WebHaptics();
 
-      // Convert duration + intensity to PWM pattern
-      _modulate(duration, intensity) {
-        const TOGGLE_MIN = 16;
-        const TOGGLE_MAX = 184;
-        const PWM_CYCLE = 20;
-        const pattern = [];
-        let elapsed = 0;
-
-        while (elapsed < duration) {
-          const onTime = Math.max(1, Math.round(PWM_CYCLE * intensity));
-          const offTime = PWM_CYCLE - onTime;
-          if (elapsed + onTime > duration) {
-            pattern.push(duration - elapsed);
-            break;
-          }
-          pattern.push(onTime, offTime);
-          elapsed += PWM_CYCLE;
-        }
-        return pattern;
-      }
-
-      // iOS fallback: toggle hidden checkbox
-      _iosPWM(duration, intensity) {
-        const TOGGLE_MIN = 16;
-        const TOGGLE_MAX = 184;
-        const PWM_CYCLE = 20;
-        const start = performance.now();
-        let lastToggle = start;
-
-        const loop = (time) => {
-          const elapsed = time - start;
-          if (elapsed >= duration) return;
-
-          const toggleInterval = TOGGLE_MIN + (1 - intensity) * TOGGLE_MAX;
-          if (time - lastToggle >= toggleInterval) {
-            this.checkbox.click(); // trigger native micro-feedback
-            lastToggle = time;
-          }
-          requestAnimationFrame(loop);
-        };
-        requestAnimationFrame(loop);
-      }
-    }
-
-    // ---------------------------
-    // Playground
-    // ---------------------------
-    const haptics = new PlaygroundHaptics();
-
-    document.getElementById('light').addEventListener('pointerdown', () => {
-      haptics.trigger(50, 0.3); // light short buzz
+    document.getElementById("success").addEventListener("pointerdown", () => {
+      haptics.trigger("success");
     });
 
-    document.getElementById('medium').addEventListener('pointerdown', () => {
-      haptics.trigger(100, 0.6); // medium pulse
+    document.getElementById("error").addEventListener("pointerdown", () => {
+      haptics.trigger("error");
     });
 
-    document.getElementById('heavy').addEventListener('pointerdown', () => {
-      haptics.trigger(200, 1); // heavy long vibration
+    document.getElementById("buzz").addEventListener("pointerdown", () => {
+      haptics.trigger("buzz");
     });
+
+    document.getElementById("custom").addEventListener("pointerdown", () => {
+      // alternate on/off 80ms vibrate, 40ms pause
+      haptics.trigger([80, 40, 80]);
+    });
+
   </script>
+
 </body>
 </html>
