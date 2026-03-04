@@ -3,28 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Web-Haptics CDN Test</title>
+<title>Web-Haptics Playground</title>
 <style>
-  button { margin:12px; padding:14px 22px; font-size:18px; border-radius:8px; background:#0078ff; color:white; border:none; cursor:pointer; }
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align:center; margin-top:50px; }
+  button { font-size:18px; margin:12px; padding:12px 24px; border-radius:8px; border:none; background:#0078ff; color:white; cursor:pointer; }
+  /* hide the switch completely */
+  #hapticSwitch { position:absolute; opacity:0; width:0; height:0; pointer-events:none; }
 </style>
 </head>
 <body>
 
-<h1>Web-Haptics CDN Demo</h1>
-<button id="successBtn">Success</button>
-<button id="errorBtn">Error</button>
+<h1>Web-Haptics Playground</h1>
 
-<script type="module">
-  import { WebHaptics } from "https://esm.sh/web-haptics";
+<input type="checkbox" id="hapticSwitch" switch>
+<label id="hapticLabel" for="hapticSwitch"></label>
 
-  const haptics = new WebHaptics({ debug:true });
+<button id="light">Light Tap</button>
+<button id="medium">Medium Tap</button>
+<button id="heavy">Heavy Tap</button>
 
-  document.getElementById("successBtn").addEventListener("pointerdown", () => {
-    haptics.trigger("success");
+<script>
+  // Core Haptic Logic
+  function triggerHaptic(patternDuration = 50, intensity = 1) {
+    // Android / vibrate-capable devices
+    if (navigator.vibrate) {
+      const cycles = Math.max(1, Math.round(intensity * 3));
+      const pattern = Array(cycles).fill([patternDuration, 30]).flat();
+      navigator.vibrate(pattern);
+      return;
+    }
+
+    // iOS fallback: toggle hidden switch
+    const checkbox = document.getElementById('hapticSwitch');
+    const label = document.getElementById('hapticLabel');
+    // toggle checkbox quickly to trigger haptic
+    const toggles = Math.max(1, Math.round(intensity * 3));
+    let count = 0;
+    const toggleLoop = () => {
+      checkbox.checked = !checkbox.checked;
+      label.click();
+      count++;
+      if (count < toggles) {
+        requestAnimationFrame(toggleLoop);
+      }
+    };
+    requestAnimationFrame(toggleLoop);
+  }
+
+  document.getElementById('light').addEventListener('pointerdown', () => {
+    triggerHaptic(40, 0.3);
   });
-
-  document.getElementById("errorBtn").addEventListener("pointerdown", () => {
-    haptics.trigger("error");
+  document.getElementById('medium').addEventListener('pointerdown', () => {
+    triggerHaptic(70, 0.6);
+  });
+  document.getElementById('heavy').addEventListener('pointerdown', () => {
+    triggerHaptic(120, 1);
   });
 </script>
 
