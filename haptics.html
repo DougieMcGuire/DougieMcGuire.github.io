@@ -3,32 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iOS Switch Haptic Test</title>
+<title>Tactus Haptics Playground</title>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align:center; margin-top:50px; }
   button { font-size:18px; margin:12px; padding:12px 24px; border-radius:8px; border:none; background:#0078ff; color:white; cursor:pointer; }
-  #hapticSwitch { position:absolute; opacity:0; width:0; height:0; pointer-events:none; }
 </style>
 </head>
 <body>
 
-<h1>iOS Switch Haptic Test</h1>
-
-<!-- The magic iOS switch input -->
-<input type="checkbox" id="hapticSwitch" switch>
-<label id="hapticLabel" for="hapticSwitch"></label>
-
-<button id="tap">Trigger Haptic</button>
+<h1>Tactus Haptic Test</h1>
+<button id="light">Light Tap</button>
+<button id="medium">Medium Tap</button>
+<button id="heavy">Heavy Tap</button>
 
 <script>
-  const checkbox = document.getElementById('hapticSwitch');
-  const label = document.getElementById('hapticLabel');
+  // Minimal Tactus implementation
+  var Tactus = (function(e) {
+    "use strict";
+    const t = "___haptic-switch___";
+    let n = null, o = null, i = false;
 
-  document.getElementById('tap').addEventListener('pointerdown', () => {
-    // Toggle the switch to trigger haptic
-    checkbox.checked = !checkbox.checked;
-    label.click(); // fires the native haptic
-  });
+    function a() {
+      // Only initialize once
+      if(o && n) return;
+      i = /iPad|iPhone|iPod/.test(navigator.userAgent)
+          || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      n = document.querySelector(`#${t}`);
+      o = document.querySelector(`label[for="${t}"]`);
+      if(!n) {
+        n = document.createElement("input");
+        n.type = "checkbox";
+        n.id = t;
+        n.setAttribute("switch", "");
+        n.style.display = "none";
+        document.body.appendChild(n);
+      }
+      if(!o) {
+        o = document.createElement("label");
+        o.htmlFor = t;
+        o.style.display = "none";
+        document.body.appendChild(o);
+      }
+    }
+
+    if(typeof window !== "undefined") {
+      if(document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", a, {once:true});
+      } else { a(); }
+    }
+
+    e.triggerHaptic = function(duration=10) {
+      if(typeof window !== "undefined") {
+        if(i) { // iOS
+          n && o || a();
+          o && o.click();
+        } else if(navigator.vibrate) { // Android
+          navigator.vibrate(duration);
+        } else {
+          o && o.click();
+        }
+      }
+    };
+
+    return e;
+  })({});
+
+  // Bind buttons
+  document.getElementById("light").addEventListener("pointerdown", () => { Tactus.triggerHaptic(20); });
+  document.getElementById("medium").addEventListener("pointerdown", () => { Tactus.triggerHaptic(50); });
+  document.getElementById("heavy").addEventListener("pointerdown", () => { Tactus.triggerHaptic(100); });
+
 </script>
 
 </body>
