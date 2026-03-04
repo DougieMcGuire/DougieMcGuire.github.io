@@ -3,38 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Web Haptics Real Test</title>
+<title>Web-Haptics CDN Test</title>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align:center; margin-top:60px; }
   button { margin:12px; padding:14px 22px; font-size:18px; border-radius:8px; background:#0078ff; color:white; border:none; cursor:pointer; }
-  /* hide real checkbox completely */
-  #hapticSwitch { position:absolute; opacity:0; pointer-events:none; width:0; height:0; }
 </style>
 </head>
 <body>
 
-<h1>Real iOS Haptic Test</h1>
+<h1>Web-Haptics CDN Demo</h1>
+<button id="successBtn">Success</button>
+<button id="errorBtn">Error</button>
 
-<!-- REAL form control -->
-<input type="checkbox" id="hapticSwitch">
-<label id="hapticLabel" for="hapticSwitch"></label>
+<script type="module">
+  import { WebHaptics } from "https://esm.sh/web-haptics";
 
-<button id="btn1">Light Tap</button>
-<button id="btn2">Medium Tap</button>
-<button id="btn3">Heavy Tap</button>
+  const haptics = new WebHaptics({ debug:true });
 
-<script>
-  // Helper to trigger native UI feedback
-  function triggerHaptic() {
-    // toggle the checkbox
-    const cb = document.getElementById("hapticSwitch");
-    cb.checked = !cb.checked;
-    document.getElementById("hapticLabel").click();
-  }
+  document.getElementById("successBtn").addEventListener("pointerdown", () => {
+    haptics.trigger("success");
+  });
 
-  document.getElementById("btn1").addEventListener("pointerdown", triggerHaptic);
-  document.getElementById("btn2").addEventListener("pointerdown", triggerHaptic);
-  document.getElementById("btn3").addEventListener("pointerdown", triggerHaptic);
+  document.getElementById("errorBtn").addEventListener("pointerdown", () => {
+    haptics.trigger("error");
+  });
 </script>
 
 </body>
