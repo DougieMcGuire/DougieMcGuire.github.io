@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tactus Haptics Playground</title>
+<title>Web-Haptics Static Demo</title>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align:center; margin-top:50px; }
   button { font-size:18px; margin:12px; padding:12px 24px; border-radius:8px; border:none; background:#0078ff; color:white; cursor:pointer; }
@@ -11,68 +11,32 @@
 </head>
 <body>
 
-<h1>Tactus Haptic Test</h1>
-<button id="light">Light Tap</button>
-<button id="medium">Medium Tap</button>
-<button id="heavy">Heavy Tap</button>
+<h1>Web-Haptics Static Demo</h1>
+<button id="successBtn">Success</button>
+<button id="errorBtn">Error</button>
+<button id="buzzBtn">Buzz</button>
+<button id="customBtn">Custom</button>
 
-<script>
-  // Minimal Tactus implementation
-  var Tactus = (function(e) {
-    "use strict";
-    const t = "___haptic-switch___";
-    let n = null, o = null, i = false;
+<script type="module">
+import { WebHaptics } from "https://esm.sh/web-haptics";
 
-    function a() {
-      // Only initialize once
-      if(o && n) return;
-      i = /iPad|iPhone|iPod/.test(navigator.userAgent)
-          || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      n = document.querySelector(`#${t}`);
-      o = document.querySelector(`label[for="${t}"]`);
-      if(!n) {
-        n = document.createElement("input");
-        n.type = "checkbox";
-        n.id = t;
-        n.setAttribute("switch", "");
-        n.style.display = "none";
-        document.body.appendChild(n);
-      }
-      if(!o) {
-        o = document.createElement("label");
-        o.htmlFor = t;
-        o.style.display = "none";
-        document.body.appendChild(o);
-      }
-    }
+// ✅ Create a single global instance
+const haptics = new WebHaptics({ debug:true });
 
-    if(typeof window !== "undefined") {
-      if(document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", a, {once:true});
-      } else { a(); }
-    }
-
-    e.triggerHaptic = function(duration=10) {
-      if(typeof window !== "undefined") {
-        if(i) { // iOS
-          n && o || a();
-          o && o.click();
-        } else if(navigator.vibrate) { // Android
-          navigator.vibrate(duration);
-        } else {
-          o && o.click();
-        }
-      }
-    };
-
-    return e;
-  })({});
-
-  // Bind buttons
-  document.getElementById("light").addEventListener("pointerdown", () => { Tactus.triggerHaptic(20); });
-  document.getElementById("medium").addEventListener("pointerdown", () => { Tactus.triggerHaptic(50); });
-  document.getElementById("heavy").addEventListener("pointerdown", () => { Tactus.triggerHaptic(100); });
-
+// Bind buttons to patterns
+document.getElementById("successBtn").addEventListener("pointerdown", () => {
+    haptics.trigger("success");
+});
+document.getElementById("errorBtn").addEventListener("pointerdown", () => {
+    haptics.trigger("error");
+});
+document.getElementById("buzzBtn").addEventListener("pointerdown", () => {
+    haptics.trigger("buzz");
+});
+document.getElementById("customBtn").addEventListener("pointerdown", () => {
+    // Custom pattern: [vibrate 80ms, pause 50ms, vibrate 80ms]
+    haptics.trigger([80, 50, 80]);
+});
 </script>
 
 </body>
