@@ -575,7 +575,7 @@ function cardInner(c){
   if(c.type==='step')return `<div class="cbig pop">${ICON[c.icon]({s:46,w:2.2})}</div><div class="ctitle">${c.title}</div><div class="cdetail">${c.detail}</div>${c.tip?`<div class="cfeel">${ICON.flame({s:18})}<div>${c.tip}</div></div>`:''}`;
   if(c.type==='exercise'){const e=c.ex;const pr=parseReps(e.r);const how=getHow(e.n);
     const timed=/sec|min/i.test(pr.reps);
-    const media=e.vid?`<div class="vembed" id="vt" data-vid="${e.vid}"><iframe id="vif" src="https://www.youtube-nocookie.com/embed/${e.vid}?playsinline=1&rel=0&modestbranding=1" title="form demo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><div class="vfallback" id="vfb"><div class="pc pulse">${ICON.play({s:24})}</div><div class="vl">Tap to watch the form on YouTube</div></div></div>`:`<a class="vsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.q)}" target="_blank" rel="noopener">${ICON.play({s:18})} Watch a form demo</a>`;
+    const media=e.vid?`<div class="vembed"><iframe src="https://www.youtube.com/embed/${e.vid}?playsinline=1&rel=0" title="form demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><a class="vsearch" href="https://www.youtube.com/watch?v=${e.vid}" target="_blank" rel="noopener" style="margin-top:6px">${ICON.play({s:16})} Open in YouTube if it won't play</a>`:`<a class="vsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.q)}" target="_blank" rel="noopener">${ICON.play({s:18})} Watch a form demo</a>`;
     let pills=`<div class="statpills"><div class="statpill"><b>${pr.sets}</b> sets</div><div class="statpill"><b>${pr.reps}</b>${timed?'':' reps'}</div><div class="statpill"><b>60–90s</b> rest</div></div>`;
     let steps=`<div class="exsec">${ICON.move({s:13})} How to do it</div><div class="howlist">`+how.map((s,k)=>`<div class="howstep"><div class="hownum">${k+1}</div><div class="howtxt">${s}</div></div>`).join('')+`</div>`;
     let feel=`<div class="exfeel">${ICON.flame({s:17})}<div><b>Should feel like:</b> ${e.feel}</div></div>`;
@@ -599,14 +599,6 @@ function cardInner(c){
 function wireCard(c){
   if(c.type==='checklist')sheet.querySelectorAll('.citem').forEach(el=>el.onclick=()=>{Haptics.go('toggle');el.classList.toggle('on');V.data.checks[el.dataset.k]=el.classList.contains('on');});
   if(c.type==='exercise'){
-    if(c.ex.vid){
-      const vt=document.getElementById('vt'),vif=document.getElementById('vif'),vfb=document.getElementById('vfb');
-      // assume blocked until the iframe proves it loaded; if blocked, show tap-to-open fallback
-      let loaded=false;
-      if(vif){vif.addEventListener('load',()=>{loaded=true;if(vfb)vfb.style.display='none';});}
-      setTimeout(()=>{if(!loaded&&vfb)vfb.style.display='flex';},2500);
-      if(vt)vt.addEventListener('click',e=>{if(vfb&&vfb.style.display!=='none'){Haptics.go('light');window.open('https://www.youtube.com/watch?v='+vt.dataset.vid,'_blank','noopener');}});
-    }
     sheet.querySelectorAll('.setitem').forEach(el=>el.onclick=()=>{Haptics.go('success');el.classList.toggle('on');V.data.checks[el.dataset.set]=el.classList.contains('on');});
   }
   if(c.type==='rate'){const r=document.getElementById('rate');r.querySelectorAll('button').forEach(b=>b.onclick=()=>{Haptics.go('light');V.data[c.grp]=+b.dataset.v;r.querySelectorAll('button').forEach(x=>x.classList.toggle('sel',x===b));});}
