@@ -30,22 +30,22 @@
   #gate button:active{transform:translateY(3px);border-bottom-width:3px;}
   #gateErr{color:var(--red-d);font-size:13px;height:18px;margin-top:12px;font-weight:800;}
 
-  /* HEADER (clean) */
-  .top{padding:16px 18px 14px;background:var(--bg);z-index:10;}
+  /* HEADER (minimal) */
+  .top{padding:14px 16px 12px;background:var(--bg);z-index:10;}
   .toprow{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
-  .logo{font-family:'Baloo 2';font-weight:800;font-size:28px;letter-spacing:1px;display:flex;align-items:center;gap:9px;}
-  .logo b{color:var(--season);-webkit-text-stroke:1.5px var(--season-deep);}
-  .logo .sdot{width:30px;height:30px;border-radius:9px;background:var(--season-soft);color:var(--season-ink);display:flex;align-items:center;justify-content:center;}
-  .hright{display:flex;align-items:center;gap:9px;}
-  .chip{display:flex;align-items:center;gap:5px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:6px 12px;font-family:'Baloo 2';font-size:15px;}
+  .logo{font-family:'Baloo 2';font-weight:800;font-size:24px;letter-spacing:1.5px;display:flex;align-items:center;gap:9px;color:var(--ink);}
+  .logo b{color:var(--season-deep);-webkit-text-stroke:0;}
+  .logo .sdot{color:var(--muted);display:flex;align-items:center;}
+  .hright{display:flex;align-items:center;gap:8px;}
+  .chip{display:flex;align-items:center;gap:5px;color:var(--muted);border-radius:999px;padding:5px 4px;font-family:'Baloo 2';font-size:15px;}
   .chip.fire{color:var(--orange);}
-  .gear{width:38px;height:38px;border-radius:11px;border:2px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;}
-  .gear:active{transform:scale(.94);}
+  .gear{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;}
+  .gear:active{transform:scale(.92);}
   .pbarwrap{display:flex;align-items:center;gap:11px;}
-  .pmeta{font-size:12px;color:var(--muted);font-weight:800;white-space:nowrap;}
+  .pmeta{font-size:11px;color:var(--muted);font-weight:800;white-space:nowrap;text-transform:uppercase;letter-spacing:.5px;}
   .pmeta b{color:var(--ink);font-family:'Baloo 2';font-size:14px;}
-  .ptrack{flex:1;height:10px;background:var(--line);border-radius:6px;overflow:hidden;}
-  .pfillh{height:100%;background:linear-gradient(90deg,var(--season),var(--season-deep));border-radius:6px;transition:width .4s;}
+  .ptrack{flex:1;height:12px;background:var(--line);border-radius:7px;overflow:hidden;}
+  .pfillh{height:100%;background:linear-gradient(90deg,var(--season),var(--season-deep));border-radius:7px;transition:width .4s;}
   .penalty{margin-top:12px;background:#ffe9e2;border:2px solid var(--orange);border-bottom:4px solid #d8501f;border-radius:13px;padding:9px 12px;display:none;align-items:center;justify-content:space-between;gap:10px;}
   .penalty.show{display:flex;}
   .penalty .pt{font-size:12.5px;color:#b8431c;font-weight:800;display:flex;align-items:center;gap:6px;}
@@ -54,11 +54,11 @@
   /* VERTICAL SERPENTINE PATH */
   .pathwrap{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;border-top:2px solid var(--line);}
   .pathwrap::-webkit-scrollbar{display:none;}
-  .track{padding:30px 0 60px;display:flex;flex-direction:column;align-items:center;}
+  .track{padding:26px 0 70px;display:flex;flex-direction:column;align-items:center;}
   .seasonband{width:100%;text-align:center;margin:18px 0;display:flex;align-items:center;justify-content:center;gap:11px;}
   .seasonband .ln{height:3px;width:42px;background:var(--line);border-radius:3px;}
   .seasonband .lbl{font-family:'Baloo 2';font-weight:800;text-transform:uppercase;letter-spacing:2px;font-size:13px;display:flex;align-items:center;gap:7px;}
-  .row{width:100%;display:flex;justify-content:center;margin:7px 0;}
+  .row{width:100%;display:flex;justify-content:center;margin:9px 0;}
   .node{display:flex;flex-direction:column;align-items:center;gap:5px;}
   .btn{width:70px;height:70px;border-radius:50%;border:none;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;transition:transform .08s;color:#fff;}
   .btn:active{transform:translateY(3px) scale(.97);}
@@ -183,13 +183,13 @@
 <div class="app" id="app" style="display:none">
   <div class="top">
     <div class="toprow">
-      <div class="logo"><span class="sdot" id="sdot"></span>S<b>Z</b>N</div>
+      <div class="logo"><span class="sdot" id="sdot"></span>SZN</div>
       <div class="hright"><div class="chip fire" id="streakChip"></div><div class="gear" id="gearBtn"></div></div>
     </div>
     <div class="pbarwrap">
       <div class="pmeta">Day <b id="hDay">1</b></div>
       <div class="ptrack"><div class="pfillh" id="hFill"></div></div>
-      <div class="pmeta"><b id="hLeft">620</b> to 18</div>
+      <div class="pmeta"><b id="hLeft">620</b> left</div>
     </div>
     <div class="penalty" id="penalty"><div class="pt" id="penaltyText"></div><button id="payBtn">Did 'em</button></div>
   </div>
@@ -236,14 +236,22 @@ const Haptics=(()=>{const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent),cv
   return{go(t='light'){const p=P[t]||P.light;if(isIOS)lay(p.i);else if(cv)navigator.vibrate(p.a);}};})();
 
 /* ===== FIREBASE ===== */
-const FIREBASE_CONFIG=null; // <-- paste firebaseConfig here for cloud sync
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyCoseKg-VAzqN7g0FCuVcsG6q_ZaqeyC18",
+  authDomain:"sznnnn.firebaseapp.com",
+  projectId:"sznnnn",
+  storageBucket:"sznnnn.firebasestorage.app",
+  messagingSenderId:"837035544329",
+  appId:"1:837035544329:web:1aa65f8f243f87f8800dd8",
+  measurementId:"G-40KQWZ64VR"
+};
 let fb={ready:false};
 async function initFirebase(){if(!FIREBASE_CONFIG)return;try{
-  const {initializeApp}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
-  const {getFirestore,doc,getDoc,setDoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  const {initializeApp}=await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js');
+  const {getFirestore,doc,getDoc,setDoc}=await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js');
   const app=initializeApp(FIREBASE_CONFIG);fb.db=getFirestore(app);fb.doc=doc;fb.get=getDoc;fb.set=setDoc;fb.ready=true;
   const snap=await fb.get(fb.doc(fb.db,'szn','state'));if(snap.exists())Object.assign(state,snap.data());
-  document.getElementById('fbnote').textContent='Synced to Firebase';boot();}catch(e){console.warn('FB off',e);}}
+  document.getElementById('fbnote').textContent='Synced to the cloud \u2713';boot();}catch(e){console.warn('FB off',e);document.getElementById('fbnote').textContent='Cloud sync error \u2014 running on-device';}}
 
 /* ===== PLAN ===== */
 const TOTAL_DAYS=620,RESET_DAYS=28,SUPP_DAY=30;
@@ -286,13 +294,13 @@ function getDay(i){const date=new Date(startD);date.setDate(date.getDate()+i);
 /* ===== STATE ===== */
 let state={startDate:null,prog:{},gym:false,penaltyPaidUpTo:-1,suppAck:false,doses:{},wakeTarget:270};
 const todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
-const parseKey=k=>{const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d);};
+const parseKey=k=>{const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d,12,0,0);};
 try{const s=localStorage.getItem('szn');if(s)Object.assign(state,JSON.parse(s));}catch(e){}
 if(!state.startDate)state.startDate=todayKey();
 if(!state.prog)state.prog={};if(!state.wakeTarget)state.wakeTarget=270;
 let startD=parseKey(state.startDate);
 function save(){try{localStorage.setItem('szn',JSON.stringify(state));}catch(e){}if(fb.ready){try{fb.set(fb.doc(fb.db,'szn','state'),state);}catch(e){}}}
-const currentIndex=()=>Math.round((parseKey(todayKey())-startD)/86400000);
+const currentIndex=()=>{const t=parseKey(todayKey());return Math.round((t-startD)/86400000);};
 const pastNoon=()=>new Date().getHours()>=12;
 const prog=i=>state.prog[i]||{};
 const dayFull=i=>!!(prog(i).md&&prog(i).nd);
@@ -309,7 +317,7 @@ function setSeasonVars(s){const o=SEASONS[s];document.documentElement.style.setP
 function boot(){startD=parseKey(state.startDate);renderTop();renderPath();}
 function renderTop(){
   const ci=currentIndex(),today=getDay(Math.max(0,Math.min(ci,TOTAL_DAYS-1))),s=SEASONS[today.season];setSeasonVars(today.season);
-  document.getElementById('sdot').innerHTML=`<span style="color:${s.ink}">${ICON[s.icon]({s:18,w:2.6})}</span>`;
+  document.getElementById('sdot').innerHTML=ICON[s.icon]({s:18,w:2.6});
   document.getElementById('hDay').textContent=ci+1;
   document.getElementById('hLeft').textContent=Math.max(0,TOTAL_DAYS-ci-1);
   document.getElementById('hFill').style.width=((ci+1)/TOTAL_DAYS*100)+'%';
@@ -472,7 +480,7 @@ function wireCard(c){
 function onCardBtn(c){
   if(c.type==='rate'&&!V.data[c.grp]){Haptics.go('error');toast('Pick a number first');return;}
   if(c.type==='suppack')state.suppAck=true;
-  if(c.type==='morningdone'){const p=state.prog[V.d.i]||{};p.md=true;p.mi=V.cards.length;p.data=V.data;state.prog[V.d.i]=p;save();Haptics.go('levelUp');closeDay();return;}
+  if(c.type==='morningdone'){const p=state.prog[V.d.i]||{};p.md=true;p.mi=V.cards.length;p.data=V.data;p.morningAt=Date.now();state.prog[V.d.i]=p;save();Haptics.go('levelUp');closeDay();return;}
   if(c.type==='finish'){const p=state.prog[V.d.i]||{};p.nd=true;p.ni=V.cards.length;p.data=V.data;p.completedAt=Date.now();state.prog[V.d.i]=p;save();Haptics.go('levelUp');
     sheet.innerHTML=topbar(V.d)+`<div class="donewrap"><div class="cbig" style="background:var(--green);color:#fff">${ICON.trophy({s:54})}</div><div class="big">Day ${V.d.i+1} done</div><p>Both sessions locked. Rest up — you need it.</p></div><div class="action"><button class="bigbtn" id="cbtn">Back to the path</button></div>`;
     document.getElementById('backBtn').onclick=closeDay;document.getElementById('cbtn').onclick=()=>{Haptics.go('medium');closeDay();};return;}
