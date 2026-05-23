@@ -117,6 +117,7 @@
   .cstep{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:1px;margin:6px 0 14px;display:flex;align-items:center;gap:8px;}
   .cstep .tag{background:var(--season-soft);color:var(--season-ink);padding:3px 9px;border-radius:999px;}
   .cwrap{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:8px;padding-bottom:16px;}
+  .cwrap.top{justify-content:flex-start;padding-top:4px;}
   .cbig{width:96px;height:96px;border-radius:28px;background:var(--season-soft);color:var(--season-ink);display:flex;align-items:center;justify-content:center;margin-bottom:6px;box-shadow:0 6px 0 rgba(0,0,0,.05);}
   .ctitle{font-family:'Baloo 2';font-size:30px;line-height:1.05;}
   .cdetail{font-size:15px;color:var(--muted);font-weight:800;max-width:330px;line-height:1.45;}
@@ -161,13 +162,28 @@
   .bigbtn{transition:transform .1s, filter .15s;}
   .bigbtn:active{transform:translateY(4px) scale(.99);border-bottom-width:2px;filter:brightness(1.03);}
 
-  /* exercise set tracker */
-  .exnum{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
-  .setlabel{font-size:11px;color:var(--muted);font-weight:800;margin-top:4px;}
-  .setdots{display:flex;gap:9px;margin:4px 0 2px;}
-  .setdot{width:46px;height:46px;border-radius:14px;border:2.5px solid var(--line);border-bottom-width:5px;background:var(--card);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-size:18px;color:var(--muted);cursor:pointer;transition:transform .12s, background .15s, color .15s, border-color .15s;}
-  .setdot:active{transform:translateY(2px) scale(.95);}
-  .setdot.done{background:var(--green);border-color:var(--green-d);color:#fff;animation:popin .4s cubic-bezier(.34,1.56,.64,1);}
+  /* exercise screen (left-aligned, detailed) */
+  .exfull{width:100%;align-self:stretch;text-align:left;display:flex;flex-direction:column;gap:13px;padding-bottom:8px;}
+  .exnum{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;}
+  .exname{font-family:'Baloo 2';font-size:30px;line-height:1;}
+  .statpills{display:flex;gap:8px;flex-wrap:wrap;}
+  .statpill{background:var(--season-soft);color:var(--season-ink);border-radius:11px;padding:8px 13px;font-size:13px;font-weight:800;}
+  .statpill b{font-family:'Baloo 2';font-size:16px;margin-right:3px;}
+  .exsec{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:7px;margin-top:2px;}
+  .howlist{display:flex;flex-direction:column;gap:9px;}
+  .howstep{display:flex;gap:11px;align-items:flex-start;}
+  .hownum{width:26px;height:26px;border-radius:8px;background:var(--ink);color:var(--bg);font-family:'Baloo 2';font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .howtxt{font-size:14.5px;font-weight:700;line-height:1.4;padding-top:1px;}
+  .exfeel{background:var(--season-soft);color:var(--season-ink);border-radius:13px;padding:12px 14px;font-size:13.5px;font-weight:800;line-height:1.4;display:flex;gap:9px;}
+  .exfeel svg{flex-shrink:0;margin-top:1px;}
+  .setlist{display:flex;flex-direction:column;gap:9px;}
+  .setitem{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--card);border:2px solid var(--line);border-bottom:4px solid var(--line);border-radius:14px;cursor:pointer;transition:transform .1s, background .15s, border-color .15s;}
+  .setitem:active{transform:scale(.98);}
+  .setitem.on{border-color:var(--green);background:#f3fbf1;}
+  .setitem.on .cbox{background:var(--green);border-color:var(--green);color:#fff;animation:popin .4s cubic-bezier(.34,1.56,.64,1);}
+  .setitem .si{display:flex;align-items:baseline;gap:8px;}
+  .setitem .si b{font-family:'Baloo 2';font-size:16px;}
+  .setitem .si span{font-size:13px;color:var(--muted);font-weight:800;}
 
   /* learning timer */
   .timer{position:relative;width:200px;height:200px;margin:6px 0;}
@@ -335,6 +351,28 @@ const LEARN={
  Money:['Learn what an LLC is + the main business structures','Income vs expenses — how the books work','How business taxes work (just the concepts)','Sales tax: what it is and when it applies','Write your "what I\'ll set up at 18" cheat sheet','Watch a founder break down their real numbers'],
 };
 const LEARN_ORDER=['Marketing','Sales','Copywriting','Money'];
+const HOWTO={
+ 'Push-ups':['Hands a little wider than your shoulders, body in one straight line head-to-heels','Brace your abs and squeeze your glutes so you don\'t sag','Lower until your chest nearly touches the floor','Push back up to full lockout — breathe OUT as you push'],
+ 'Wide push-ups':['Set your hands wider than normal, fingers turned slightly out','Keep your body dead straight, core tight','Lower your chest between your hands','Press up — you\'ll feel it more across the chest'],
+ 'Diamond push-ups':['Hands together under your chest, thumbs + index fingers forming a diamond','Body straight, core braced','Lower your chest down to your hands','Push up keeping your elbows tucked close to your sides'],
+ 'Pike push-ups':['Get into a downward-dog: hips high, body in an upside-down V','Lower the top of your head toward the floor','Keep your elbows tracking forward, not flaring out','Press back up to the starting V'],
+ 'Chair dips':['Hands on the edge of a chair or bed behind you, fingers pointing forward','Slide your hips off the edge, legs out in front','Bend your elbows to about 90°, keeping them pointing back','Press through your palms back up to straight arms'],
+ 'Shoulder taps':['Start in a high plank, hands under your shoulders','Set your feet a bit wide for balance','Without rocking your hips, tap your opposite shoulder','Alternate hands — slow and controlled, hips stay still'],
+ '1-arm dumbbell rows':['Put one knee and hand on a chair, other foot on the floor, back flat','Let the dumbbell hang straight down in your free hand','Pull your elbow up toward your hip, squeezing your back','Lower it all the way down under control — no jerking'],
+ 'Towel / door rows':['Loop a towel around a sturdy door handle, grip an end in each hand','Lean back with straight arms, feet planted close to the door','Pull your chest toward the door, squeezing your shoulder blades','Lower back slowly until your arms are straight'],
+ 'Dumbbell curls':['Stand tall, dumbbell at your side, palm facing forward','Curl up bending ONLY at the elbow — no swinging or leaning back','Squeeze your bicep hard at the top','Lower all the way down, slow and controlled'],
+ 'Dumbbell curls (slow)':['Stand tall, palm forward, dumbbell at your side','Curl up with no swing','Take a full 3 seconds to lower it back down','Keep constant tension — don\'t rest at the bottom'],
+ 'Wrist curls':['Sit and rest your forearm on your thigh, palm up, dumbbell in hand','Let the weight roll down to your fingertips','Curl it back up using only your wrist','Lower slow — small range, all forearm'],
+ 'Supermans':['Lie face down, arms reaching out in front of you','Lift your arms, chest, and legs off the floor at the same time','Squeeze your lower back and glutes at the top','Hold for a second, then lower under control'],
+ 'Bodyweight squats':['Feet about shoulder-width, toes turned slightly out','Push your hips back and down like sitting into a chair','Keep your chest up and your heels flat on the floor','Go to at least thighs-parallel, then drive up through your heels'],
+ 'Reverse lunges':['Stand tall, step one foot straight back','Lower until both knees hit about 90°, back knee near the floor','Keep your front heel down and your torso upright','Push through your front heel to stand back up'],
+ 'Glute bridges':['Lie on your back, knees bent, feet flat on the floor','Drive through your heels and lift your hips up','Squeeze your glutes HARD at the top','Lower slowly — don\'t let your butt fully rest between reps'],
+ 'Plank':['Forearms on the floor, elbows directly under your shoulders','Body in one straight line, toes tucked under','Brace your abs and squeeze your glutes — no sagging or piking','Breathe steadily and hold for the full time'],
+ 'Leg raises':['Lie flat, tuck your hands under your lower back for support','Keep your legs straight and lift them up to about 90°','Lower them slowly without letting your back arch off the floor','Stop just above the floor, then raise again'],
+};
+const HOW_DEFAULT=['Watch the form demo above first so you know the movement','Move slow and controlled — no swinging, bouncing, or rushing','Full range of motion on every single rep','Stop a rep or two before total failure while your form\'s still clean'];
+const getHow=n=>HOWTO[n]||HOWTO[n.replace(/\s*\(.*\)/,'')]||HOW_DEFAULT;
+function parseReps(r){const m=r.match(/^(\d+)\s*(?:sets?\s*)?[×x]\s*(.+)$/i);return m?{sets:+m[1],reps:m[2].trim()}:{sets:3,reps:r};}
 function sleepTarget(i){const start=8*60,end=state.wakeTarget||270,step=30,per=4;let wake=start-Math.floor(i/per)*step;if(wake<end)wake=end;const bed=((wake-510)%1440+1440)%1440;return{wake,bed,resetting:wake>end};}
 const fmt=m=>{let h=Math.floor(m/60),mm=m%60;const ap=h>=12?'pm':'am';h=h%12||12;return h+(mm?':'+String(mm).padStart(2,'0'):'')+ap;};
 function getDay(i){const date=new Date(startD);date.setDate(date.getDate()+i);
@@ -503,7 +541,7 @@ function saveProg(){const i=V.d.i,p=state.prog[i]||{};if(V.session==='morning')p
 function renderCard(dir){setSheet('full');const c=V.cards[V.idx],d=V.d,total=V.cards.length;
   const pct=Math.round((V.idx/total)*100);
   let h=topbar(d,`<div class="pbar"><div class="pfill" style="width:${pct}%"></div></div>`);
-  h+=`<div class="cardview${dir==='back'?' back':''}" id="cv"><div class="cstep"><span class="tag">${V.session==='morning'?'Morning':'Night'}</span> Step ${Math.min(V.idx+1,total)} of ${total}</div><div class="cwrap">`+cardInner(c)+`</div></div>`;
+  h+=`<div class="cardview${dir==='back'?' back':''}" id="cv"><div class="cstep"><span class="tag">${V.session==='morning'?'Morning':'Night'}</span> Step ${Math.min(V.idx+1,total)} of ${total}</div><div class="cwrap${c.type==='exercise'?' top':''}">`+cardInner(c)+`</div></div>`;
   let label='Done',cls=V.session==='night'?'night':'';
   if(c.type==='info')label=c.btn||'Continue';
   else if(c.type==='step')label='Continue';
@@ -529,11 +567,16 @@ function cardInner(c){
   if(c.type==='checklist'){let h=`<div class="cbig">${ICON[c.icon]({s:46,w:2.2})}</div><div class="ctitle">${c.title}</div><div class="clist">`;c.items.forEach(it=>{const on=V.data.checks[c.title+it.k];h+=`<div class="citem ${on?'on':''}" data-k="${c.title+it.k}"><div class="cbox">${ICON.check({s:17})}</div><div><div class="it">${it.it}</div>${it.is?`<div class="is">${it.is}</div>`:''}</div></div>`;});h+=`</div>`;if(c.note)h+=`<div class="cfeel" style="margin-top:12px">${ICON.flame({s:18})}<div>${c.note}</div></div>`;return h;}
   if(c.type==='exercise'){const e=c.ex;const media=e.vid?`<div class="vthumb" id="vt" data-vid="${e.vid}"><img src="https://img.youtube.com/vi/${e.vid}/hqdefault.jpg" onerror="this.style.display='none'"><div class="pov"><div class="pc">${ICON.play({s:24})}</div><div class="vl">Tap to watch the form on YouTube</div></div></div>`:`<a class="vsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.q)}" target="_blank" rel="noopener">${ICON.play({s:18})} Watch a form demo</a>`;return `<div class="ctitle">${e.n}</div><div class="creps">${e.r}</div>${media}<div class="cfeel">${ICON.flame({s:18})}<div><b>Should feel like:</b> ${e.feel}</div></div>`;}
   if(c.type==='step')return `<div class="cbig pop">${ICON[c.icon]({s:46,w:2.2})}</div><div class="ctitle">${c.title}</div><div class="cdetail">${c.detail}</div>${c.tip?`<div class="cfeel">${ICON.flame({s:18})}<div>${c.tip}</div></div>`:''}`;
-  if(c.type==='exercise'){const e=c.ex;
-    const media=e.vid?`<div class="vthumb" id="vt" data-vid="${e.vid}"><img src="https://img.youtube.com/vi/${e.vid}/hqdefault.jpg" onerror="this.style.display='none'"><div class="pov"><div class="pc pulse">${ICON.play({s:24})}</div><div class="vl">Tap to watch the form on YouTube</div></div></div>`:`<a class="vsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.q)}" target="_blank" rel="noopener">${ICON.play({s:18})} Watch a form demo</a>`;
-    const setCount=parseInt((e.r.match(/^\s*(\d+)/)||[])[1])||3;
-    let dots=`<div class="setdots" id="setdots">`;for(let s=0;s<setCount;s++)dots+=`<div class="setdot" data-s="${s}">${s+1}</div>`;dots+=`</div>`;
-    return `<div class="exnum">Exercise ${c.n} of ${c.of}</div><div class="ctitle">${e.n}</div><div class="creps">${e.r}</div>${media}<div class="setlabel">Tap each set as you finish · rest 60–90s</div>${dots}<div class="cfeel">${ICON.flame({s:18})}<div><b>Should feel like:</b> ${e.feel}</div></div>`;}
+  if(c.type==='exercise'){const e=c.ex;const pr=parseReps(e.r);const how=getHow(e.n);
+    const timed=/sec|min/i.test(pr.reps);
+    const media=e.vid?`<div class="vthumb" id="vt" data-vid="${e.vid}"><img src="https://img.youtube.com/vi/${e.vid}/hqdefault.jpg" onerror="this.style.display='none'"><div class="pov"><div class="pc pulse">${ICON.play({s:24})}</div><div class="vl">Tap to watch the form</div></div></div>`:`<a class="vsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.q)}" target="_blank" rel="noopener">${ICON.play({s:18})} Watch a form demo</a>`;
+    let pills=`<div class="statpills"><div class="statpill"><b>${pr.sets}</b> sets</div><div class="statpill"><b>${pr.reps}</b>${timed?'':' reps'}</div><div class="statpill"><b>60–90s</b> rest</div></div>`;
+    let steps=`<div class="exsec">${ICON.move({s:13})} How to do it</div><div class="howlist">`+how.map((s,k)=>`<div class="howstep"><div class="hownum">${k+1}</div><div class="howtxt">${s}</div></div>`).join('')+`</div>`;
+    let feel=`<div class="exfeel">${ICON.flame({s:17})}<div><b>Should feel like:</b> ${e.feel}</div></div>`;
+    let sets=`<div class="exsec">${ICON.check({s:13})} Your sets — tap each as you finish</div><div class="setlist">`;
+    for(let s=0;s<pr.sets;s++){const on=V.data.checks['set'+c.n+'_'+s];sets+=`<div class="setitem ${on?'on':''}" data-set="set${c.n}_${s}"><div class="cbox">${ICON.check({s:16})}</div><div class="si"><b>Set ${s+1}</b><span>${pr.reps}${timed?'':' reps'}</span></div></div>`;}
+    sets+=`</div>`;
+    return `<div class="exfull"><div class="exnum">Exercise ${c.n} of ${c.of}</div><div class="exname">${e.n}</div>${pills}${media}${steps}${feel}${sets}</div>`;}
   if(c.type==='rate')return `<div class="cbig pop">${ICON.flame({s:46,w:2.2})}</div><div class="ctitle">${c.title}</div><div class="rate" id="rate">${[1,2,3,4,5].map(n=>`<button data-v="${n}" class="${V.data[c.grp]===n?'sel':''}">${n}</button>`).join('')}</div><div class="ratelabels"><span>${c.labels[0]}</span><span>${c.labels[1]}</span></div>`;
   if(c.type==='timer'){const mins=c.mins||60;
     return `<div class="ctitle" style="font-size:26px">${c.theme}</div><div class="cdetail" style="color:var(--ink);font-size:16px;max-width:340px">${c.task}</div>
@@ -551,7 +594,7 @@ function wireCard(c){
   if(c.type==='checklist')sheet.querySelectorAll('.citem').forEach(el=>el.onclick=()=>{Haptics.go('toggle');el.classList.toggle('on');V.data.checks[el.dataset.k]=el.classList.contains('on');});
   if(c.type==='exercise'){
     if(c.ex.vid){const vt=document.getElementById('vt');if(vt)vt.onclick=()=>{Haptics.go('light');window.open('https://www.youtube.com/watch?v='+vt.dataset.vid,'_blank','noopener');};}
-    sheet.querySelectorAll('.setdot').forEach(el=>el.onclick=()=>{Haptics.go('success');el.classList.toggle('done');});
+    sheet.querySelectorAll('.setitem').forEach(el=>el.onclick=()=>{Haptics.go('success');el.classList.toggle('on');V.data.checks[el.dataset.set]=el.classList.contains('on');});
   }
   if(c.type==='rate'){const r=document.getElementById('rate');r.querySelectorAll('button').forEach(b=>b.onclick=()=>{Haptics.go('light');V.data[c.grp]=+b.dataset.v;r.querySelectorAll('button').forEach(x=>x.classList.toggle('sel',x===b));});}
   if(c.type==='timer')wireTimer(c);
