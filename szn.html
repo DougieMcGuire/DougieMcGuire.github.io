@@ -378,10 +378,12 @@ const fmt=m=>{let h=Math.floor(m/60),mm=m%60;const ap=h>=12?'pm':'am';h=h%12||12
 function getDay(i){const date=new Date(startD);date.setDate(date.getDate()+i);
   const dow=date.getDay(),season=seasonFor(date),week=Math.floor(i/7),level=Math.floor(week/2)+1,sleep=sleepTarget(i);
   const phase=i<RESET_DAYS?'Phase 1 · Sleep Reset':(state.gym?'Phase 3 · Gym Build':'Phase 2 · Foundation');
-  const isWeekday=dow>=1&&dow<=5,isSunday=dow===0;
-  const workout=isWeekday?(state.gym?WO_GYM:WO_BODY)[dow]:null;
+  const cyc=i%7;                       // 0-4 = train, 5-6 = rest, counted from Day 1
+  const isWeekday=cyc<5;               // training day
+  const isSunday=cyc===6;             // weekly weigh-in day (last day of the 7)
+  const workout=isWeekday?(state.gym?WO_GYM:WO_BODY)[cyc+1]:null;
   const theme=LEARN_ORDER[week%4];
-  const learn=!isSunday?{theme,task:LEARN[theme][(dow-1+6)%6]||LEARN[theme][0]}:null;
+  const learn=!isSunday?{theme,task:LEARN[theme][cyc]||LEARN[theme][0]}:null;
   return{i,date,dow,season,level,phase,sleep,workout,isWeekday,isSunday,learn,pad:i%2===0};}
 
 /* ===== STATE ===== */
@@ -514,7 +516,7 @@ function buildCards(d,session){const c=[];
       c.push({type:'info',icon:'sleep',title:'Cool down · 1 min',detail:'Stretch what you worked, slow your breathing back to normal. Helps recovery and keeps you from getting tight.',btn:'Done'});
       c.push({type:'rate',grp:'felt',title:'How did the workout feel?',labels:['Brutal','Easy']});
     }else{
-      c.push({type:'step',icon:'move',title:'Recovery movement',detail:'No lifting today. Light stretch, a walk outside, get some sun and water in. Rest days are when the muscle you built actually grows — don\'t skip, don\'t feel guilty.'});
+      c.push({type:'checklist',icon:'move',title:'Recovery day',items:[{k:'stretch',it:'Light stretch',is:'5 min, loosen up'},{k:'walk',it:'Get outside / walk',is:'Sun + easy movement'},{k:'water',it:'Drink water',is:'Stay hydrated'},{k:'sleep',it:'Slept 8+ hrs last night',is:'Where the growth happens'}],note:'No lifting today — rest is when the muscle you built actually grows. Don\'t skip, don\'t feel guilty.'});
     }
     if(d.learn){c.push({type:'timer',theme:d.learn.theme,task:d.learn.task,mins:60});c.push({type:'rate',grp:'useful',title:'How useful was it?',labels:['Useless','Gold']});}
     c.push({type:'morningdone'});
