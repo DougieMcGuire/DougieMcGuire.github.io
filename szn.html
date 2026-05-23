@@ -374,6 +374,30 @@ const HOWTO={
  'Glute bridges':['Lie on your back, knees bent, feet flat on the floor','Drive through your heels and lift your hips up','Squeeze your glutes HARD at the top','Lower slowly — don\'t let your butt fully rest between reps'],
  'Plank':['Forearms on the floor, elbows directly under your shoulders','Body in one straight line, toes tucked under','Brace your abs and squeeze your glutes — no sagging or piking','Breathe steadily and hold for the full time'],
  'Leg raises':['Lie flat, tuck your hands under your lower back for support','Keep your legs straight and lift them up to about 90°','Lower them slowly without letting your back arch off the floor','Stop just above the floor, then raise again'],
+ 'Bench press':['Lie flat, eyes under the bar, feet planted, slight arch in your back','Grip just outside shoulder-width, pull your shoulder blades down and together','Lower the bar to mid-chest with elbows around 45°','Press up and slightly back over your shoulders to full lockout'],
+ 'Incline bench':['Set the bench to about 30°, same tight setup as flat bench','Lower the bar to your upper chest','Keep your shoulder blades pinned back the whole time','Press up over your shoulders'],
+ 'Incline DB press':['Bench at ~30°, a dumbbell in each hand at shoulder level','Press both up over your chest without clanking them together','Lower under control to a full stretch','Don\'t let your lower back arch off the bench'],
+ 'Shoulder press':['Sit tall, dumbbells at shoulder height, palms facing forward','Brace your core hard so you don\'t arch your lower back','Press straight up until your arms are nearly locked','Lower under control back to shoulder level'],
+ 'DB shoulder press':['Sit tall, dumbbells at shoulder height, palms forward','Brace your core so your lower back stays flat','Press straight up to nearly locked arms','Lower slow back to your shoulders'],
+ 'Cable fly':['Set the cables about chest height, soft bend in your elbows','Step forward with arms out wide','Bring your hands together in front of your chest in a wide arc','Squeeze your chest, then open back up slowly'],
+ 'Chest fly':['Lie back, a dumbbell in each hand over your chest','Slight elbow bend, lower the weights out wide in an arc','Feel the stretch across your chest','Squeeze them back together over your chest'],
+ 'Triceps pushdown':['Grab the cable bar, elbows pinned tight to your sides','Push the bar down until your arms are fully straight','Squeeze your triceps hard at the bottom','Let it rise back to ~90° — only your forearms move'],
+ 'Overhead triceps ext':['Hold a dumbbell overhead with both hands','Lower it behind your head by bending your elbows','Keep your elbows pointing up and close to your head','Extend back up, squeezing your triceps'],
+ 'Lat pulldown':['Grip the bar wider than your shoulders, thighs pinned under the pad','Pull your shoulder blades down first','Pull the bar to your upper chest, driving your elbows down','Control it back up to a full stretch — no swinging'],
+ 'Seated row':['Sit tall, slight knee bend, grab the handle','Pull it to your stomach, driving your elbows straight back','Squeeze your shoulder blades together','Let it stretch forward under control — don\'t round your back'],
+ 'Cable row':['Sit tall, slight knee bend, grab the handle','Pull to your stomach, elbows driving back','Squeeze your shoulder blades together','Stretch forward under control, back stays flat'],
+ 'Face pulls':['Set a rope at face height, grab both ends','Pull toward your face, splitting your hands apart','Squeeze your rear delts and upper back','Control it back out slowly'],
+ 'Hammer curls':['Stand tall, dumbbells at your sides, palms facing in','Curl up keeping the neutral thumbs-up grip','Squeeze at the top — no swinging','Lower slow and controlled'],
+ 'Barbell curl':['Stand, grip the bar shoulder-width, palms up','Curl up bending only at the elbows — no swinging or leaning','Squeeze your biceps at the top','Lower all the way down slowly'],
+ 'Preacher curl':['Rest your arms over the preacher pad, grip the bar','Curl up squeezing your biceps','Lower until your arms are nearly straight','Keep the backs of your arms glued to the pad'],
+ 'Barbell squats':['Bar on your upper back, feet shoulder-width, toes slightly out','Brace your core, push your hips back and down','Chest up, knees tracking over your toes','Drive up through your heels to standing'],
+ 'Rack pulls':['Bar set around knee height in the rack','Flat back, grip just outside your legs','Drive through your heels and stand tall, squeezing your glutes','Lower under control back to the pins'],
+ 'Leg press':['Sit in the machine, feet shoulder-width on the platform','Unlock the safeties, lower until your knees hit ~90°','Don\'t let your lower back round off the seat','Press back up without snapping your knees straight'],
+ 'Leg curl':['Get set in the machine, pad against your lower calves','Curl the pad by bending your knees','Squeeze your hamstrings at the top','Lower slow and controlled'],
+ 'Calf raises':['Balls of your feet on the platform or step','Rise up as high as you can onto your toes','Squeeze your calves at the top','Lower slow for a full stretch at the bottom'],
+ 'Hanging leg raise':['Hang from a bar, arms straight','Raise your legs up keeping them fairly straight','Use your abs, not momentum — no swinging','Lower under control'],
+ 'Lateral raises':['Dumbbells at your sides, slight bend in your elbows','Raise them out to the sides up to shoulder height','Lead with your elbows, not your hands','Lower slow — no swinging or shrugging'],
+ 'Rear delt fly':['Hinge forward, dumbbells hanging straight down','Raise them out to the sides, squeezing your rear delts','Keep a slight elbow bend, no momentum','Lower slow and controlled'],
 };
 const HOW_DEFAULT=['Watch the form demo above first so you know the movement','Move slow and controlled — no swinging, bouncing, or rushing','Full range of motion on every single rep','Stop a rep or two before total failure while your form\'s still clean'];
 const getHow=n=>HOWTO[n]||HOWTO[n.replace(/\s*\(.*\)/,'')]||HOW_DEFAULT;
@@ -384,6 +408,12 @@ const VIDMAP={
  'Dumbbell curls':'txBFNHLbNYU','Dumbbell curls (slow)':'txBFNHLbNYU','Wrist curls':'txBFNHLbNYU',
  'Supermans':'6V082DZzqLQ','Bodyweight squats':'P-yaD24bUE8','Reverse lunges':'bI2qDaLrKCg',
  'Glute bridges':'6V082DZzqLQ','Plank':'bI2qDaLrKCg','Leg raises':'6V082DZzqLQ',
+ 'Bench press':'Pp8rHcFVIYg','Incline bench':'Pp8rHcFVIYg','Incline DB press':'Pp8rHcFVIYg',
+ 'Shoulder press':'fuQpuu--bMI','DB shoulder press':'fuQpuu--bMI','Cable fly':'Pp8rHcFVIYg','Chest fly':'Pp8rHcFVIYg',
+ 'Lateral raises':'fuQpuu--bMI','Rear delt fly':'fuQpuu--bMI','Triceps pushdown':'Pp8rHcFVIYg','Overhead triceps ext':'Pp8rHcFVIYg',
+ 'Lat pulldown':'Z_3xHwuO8Tk','Seated row':'fURsHPHgssI','Cable row':'fURsHPHgssI','Face pulls':'Z_3xHwuO8Tk','Rack pulls':'fURsHPHgssI',
+ 'Hammer curls':'txBFNHLbNYU','Barbell curl':'txBFNHLbNYU','Preacher curl':'txBFNHLbNYU',
+ 'Barbell squats':'P-yaD24bUE8','Leg press':'XNvaNipSycI','Leg curl':'XNvaNipSycI','Calf raises':'XNvaNipSycI','Hanging leg raise':'6V082DZzqLQ',
 };
 const getVid=e=>e.vid||VIDMAP[e.n]||VIDMAP[e.n.replace(/\s*\(.*\)/,'')]||null;
 function parseReps(r){const m=r.match(/^(\d+)\s*(?:sets?\s*)?[×x]\s*(.+)$/i);return m?{sets:+m[1],reps:m[2].trim()}:{sets:3,reps:r};}
