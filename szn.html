@@ -377,6 +377,15 @@ const HOWTO={
 };
 const HOW_DEFAULT=['Watch the form demo above first so you know the movement','Move slow and controlled — no swinging, bouncing, or rushing','Full range of motion on every single rep','Stop a rep or two before total failure while your form\'s still clean'];
 const getHow=n=>HOWTO[n]||HOWTO[n.replace(/\s*\(.*\)/,'')]||HOW_DEFAULT;
+const VIDMAP={
+ 'Push-ups':'mECzqUIDWfU','Wide push-ups':'mECzqUIDWfU','Diamond push-ups':'mECzqUIDWfU',
+ 'Pike push-ups':'pHR5yG6xBps','Chair dips':'jDafIn0WMUw','Shoulder taps':'bI2qDaLrKCg',
+ '1-arm dumbbell rows':'fURsHPHgssI','Towel / door rows':'fURsHPHgssI',
+ 'Dumbbell curls':'txBFNHLbNYU','Dumbbell curls (slow)':'txBFNHLbNYU','Wrist curls':'txBFNHLbNYU',
+ 'Supermans':'6V082DZzqLQ','Bodyweight squats':'P-yaD24bUE8','Reverse lunges':'bI2qDaLrKCg',
+ 'Glute bridges':'6V082DZzqLQ','Plank':'bI2qDaLrKCg','Leg raises':'6V082DZzqLQ',
+};
+const getVid=e=>e.vid||VIDMAP[e.n]||VIDMAP[e.n.replace(/\s*\(.*\)/,'')]||null;
 function parseReps(r){const m=r.match(/^(\d+)\s*(?:sets?\s*)?[×x]\s*(.+)$/i);return m?{sets:+m[1],reps:m[2].trim()}:{sets:3,reps:r};}
 function sleepTarget(i){const start=8*60,end=state.wakeTarget||270,step=30,per=4;let wake=start-Math.floor(i/per)*step;if(wake<end)wake=end;const bed=((wake-510)%1440+1440)%1440;return{wake,bed,resetting:wake>end};}
 const fmt=m=>{let h=Math.floor(m/60),mm=m%60;const ap=h>=12?'pm':'am';h=h%12||12;return h+(mm?':'+String(mm).padStart(2,'0'):'')+ap;};
@@ -573,9 +582,9 @@ function cardInner(c){
   if(c.type==='info')return `<div class="cbig">${ICON[c.icon]({s:46,w:2.2})}</div><div class="ctitle">${c.title}</div><div class="cdetail">${c.detail}</div>`;
   if(c.type==='checklist'){let h=`<div class="cbig">${ICON[c.icon]({s:46,w:2.2})}</div><div class="ctitle">${c.title}</div><div class="clist">`;c.items.forEach(it=>{const on=V.data.checks[c.title+it.k];h+=`<div class="citem ${on?'on':''}" data-k="${c.title+it.k}"><div class="cbox">${ICON.check({s:17})}</div><div><div class="it">${it.it}</div>${it.is?`<div class="is">${it.is}</div>`:''}</div></div>`;});h+=`</div>`;if(c.note)h+=`<div class="cfeel" style="margin-top:12px">${ICON.flame({s:18})}<div>${c.note}</div></div>`;return h;}
   if(c.type==='step')return `<div class="cbig pop">${ICON[c.icon]({s:46,w:2.2})}</div><div class="ctitle">${c.title}</div><div class="cdetail">${c.detail}</div>${c.tip?`<div class="cfeel">${ICON.flame({s:18})}<div>${c.tip}</div></div>`:''}`;
-  if(c.type==='exercise'){const e=c.ex;const pr=parseReps(e.r);const how=getHow(e.n);
+  if(c.type==='exercise'){const e=c.ex;const pr=parseReps(e.r);const how=getHow(e.n);const vid=getVid(e);
     const timed=/sec|min/i.test(pr.reps);
-    const media=e.vid?`<div class="vembed"><iframe src="https://www.youtube.com/embed/${e.vid}?playsinline=1&rel=0" title="form demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><a class="vsearch" href="https://www.youtube.com/watch?v=${e.vid}" target="_blank" rel="noopener" style="margin-top:6px">${ICON.play({s:16})} Open in YouTube if it won't play</a>`:`<a class="vsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.q)}" target="_blank" rel="noopener">${ICON.play({s:18})} Watch a form demo</a>`;
+    const media=vid?`<div class="vembed"><iframe src="https://www.youtube.com/embed/${vid}?playsinline=1&rel=0" title="form demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><a class="vsearch" href="https://www.youtube.com/watch?v=${vid}" target="_blank" rel="noopener" style="margin-top:6px">${ICON.play({s:16})} Open in YouTube if it won't play</a>`:`<a class="vsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.q)}" target="_blank" rel="noopener">${ICON.play({s:18})} Watch a form demo</a>`;
     let pills=`<div class="statpills"><div class="statpill"><b>${pr.sets}</b> sets</div><div class="statpill"><b>${pr.reps}</b>${timed?'':' reps'}</div><div class="statpill"><b>60–90s</b> rest</div></div>`;
     let steps=`<div class="exsec">${ICON.move({s:13})} How to do it</div><div class="howlist">`+how.map((s,k)=>`<div class="howstep"><div class="hownum">${k+1}</div><div class="howtxt">${s}</div></div>`).join('')+`</div>`;
     let feel=`<div class="exfeel">${ICON.flame({s:17})}<div><b>Should feel like:</b> ${e.feel}</div></div>`;
