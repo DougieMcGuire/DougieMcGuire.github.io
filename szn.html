@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SZN — Lock In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f5ed;--ink:#2b2b23;--muted:#9c9c8d;--line:#e6e5d9;--card:#fff;
+    --season:#ffd23f;--season-ink:#7a5c00;--season-soft:#fff6d2;--season-deep:#e8b800;
+    --green:#58cc52;--green-d:#3da838;--red:#ff6b6b;--red-d:#d84a4a;--orange:#ff6b35;--blue:#6cc0e0;--blue-d:#3f9bc4;--night:#3a3a6a;--night-d:#26264a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{background:var(--bg);color:var(--ink);font-family:'Nunito',sans-serif;font-weight:700;overscroll-behavior:none;overflow:hidden;}
+  svg{display:block;}
+  .app{max-width:560px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative;}
+
+  /* GATE */
+  #gate{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;}
+  #gate .logo{font-family:'Baloo 2';font-weight:800;font-size:66px;letter-spacing:2px;}
+  #gate .logo b{color:var(--season);-webkit-text-stroke:2px var(--season-deep);}
+  #gate p{color:var(--muted);font-size:14px;margin:6px 0 26px;max-width:280px;}
+  #gate input{width:100%;max-width:300px;border:3px solid var(--line);border-bottom-width:5px;border-radius:16px;padding:15px;font-family:'Nunito';font-weight:800;font-size:17px;text-align:center;color:var(--ink);}
+  #gate input:focus{outline:none;border-color:var(--season);}
+  #gate button{width:100%;max-width:300px;margin-top:14px;background:var(--green);color:#fff;border:none;border-bottom:6px solid var(--green-d);border-radius:16px;padding:16px;font-family:'Baloo 2';font-size:19px;font-weight:800;cursor:pointer;}
+  #gate button:active{transform:translateY(3px);border-bottom-width:3px;}
+  #gateErr{color:var(--red-d);font-size:13px;height:18px;margin-top:12px;font-weight:800;}
+
+  /* HEADER (clean) */
+  .top{padding:16px 18px 14px;background:var(--bg);z-index:10;}
+  .toprow{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
+  .logo{font-family:'Baloo 2';font-weight:800;font-size:28px;letter-spacing:1px;display:flex;align-items:center;gap:9px;}
+  .logo b{color:var(--season);-webkit-text-stroke:1.5px var(--season-deep);}
+  .logo .sdot{width:30px;height:30px;border-radius:9px;background:var(--season-soft);color:var(--season-ink);display:flex;align-items:center;justify-content:center;}
+  .hright{display:flex;align-items:center;gap:9px;}
+  .chip{display:flex;align-items:center;gap:5px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:6px 12px;font-family:'Baloo 2';font-size:15px;}
+  .chip.fire{color:var(--orange);}
+  .gear{width:38px;height:38px;border-radius:11px;border:2px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;}
+  .gear:active{transform:scale(.94);}
+  .pbarwrap{display:flex;align-items:center;gap:11px;}
+  .pmeta{font-size:12px;color:var(--muted);font-weight:800;white-space:nowrap;}
+  .pmeta b{color:var(--ink);font-family:'Baloo 2';font-size:14px;}
+  .ptrack{flex:1;height:10px;background:var(--line);border-radius:6px;overflow:hidden;}
+  .pfillh{height:100%;background:linear-gradient(90deg,var(--season),var(--season-deep));border-radius:6px;transition:width .4s;}
+  .penalty{margin-top:12px;background:#ffe9e2;border:2px solid var(--orange);border-bottom:4px solid #d8501f;border-radius:13px;padding:9px 12px;display:none;align-items:center;justify-content:space-between;gap:10px;}
+  .penalty.show{display:flex;}
+  .penalty .pt{font-size:12.5px;color:#b8431c;font-weight:800;display:flex;align-items:center;gap:6px;}
+  .penalty button{background:var(--orange);color:#fff;border:none;border-bottom:3px solid #c44d22;border-radius:10px;padding:7px 11px;font-family:'Nunito';font-weight:900;font-size:12px;cursor:pointer;white-space:nowrap;}
+
+  /* VERTICAL SERPENTINE PATH */
+  .pathwrap{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;border-top:2px solid var(--line);}
+  .pathwrap::-webkit-scrollbar{display:none;}
+  .track{padding:30px 0 60px;display:flex;flex-direction:column;align-items:center;}
+  .seasonband{width:100%;text-align:center;margin:18px 0;display:flex;align-items:center;justify-content:center;gap:11px;}
+  .seasonband .ln{height:3px;width:42px;background:var(--line);border-radius:3px;}
+  .seasonband .lbl{font-family:'Baloo 2';font-weight:800;text-transform:uppercase;letter-spacing:2px;font-size:13px;display:flex;align-items:center;gap:7px;}
+  .row{width:100%;display:flex;justify-content:center;margin:7px 0;}
+  .node{display:flex;flex-direction:column;align-items:center;gap:5px;}
+  .btn{width:70px;height:70px;border-radius:50%;border:none;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;transition:transform .08s;color:#fff;}
+  .btn:active{transform:translateY(3px) scale(.97);}
+  .btn .num{position:absolute;bottom:-4px;right:-4px;background:#fff;color:var(--ink);font-family:'Baloo 2';font-size:11px;min-width:23px;height:23px;padding:0 5px;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2px solid var(--line);}
+  .btn.locked{background:#deddd1;color:#9d9d90;box-shadow:0 5px 0 #c9c9bd;}
+  .btn.done{background:var(--green);box-shadow:0 5px 0 var(--green-d);}
+  .btn.half{background:var(--blue);box-shadow:0 5px 0 var(--blue-d);}
+  .btn.missed{background:var(--red);box-shadow:0 5px 0 var(--red-d);}
+  .btn.today{background:var(--season);color:var(--season-ink);box-shadow:0 6px 0 var(--season-deep);animation:bob 1.5s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .daylabel{font-size:10px;color:var(--muted);font-weight:800;}
+  .todaytag{position:absolute;top:-32px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:10px;font-weight:900;padding:4px 9px;border-radius:999px;white-space:nowrap;letter-spacing:.5px;}
+  .todaytag::after{content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--ink);border-bottom:0;}
+
+  /* SCRIM + SHEETS */
+  .scrim{position:fixed;inset:0;background:rgba(20,20,12,.5);z-index:100;display:none;}
+  .scrim.show{display:block;}
+  .sheet{position:absolute;left:0;right:0;max-width:560px;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;}
+  .sheet.full{inset:0;}
+  .sheet.bottom{bottom:0;max-height:84%;border-radius:26px 26px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.18);animation:up .26s cubic-bezier(.2,.8,.2,1);}
+  @keyframes up{from{transform:translateY(60px);opacity:.6}to{transform:translateY(0);opacity:1}}
+  .grab{width:42px;height:5px;background:var(--line);border-radius:3px;margin:10px auto 2px;flex-shrink:0;}
+
+  .sheettop{padding:12px 16px;display:flex;align-items:center;gap:12px;}
+  .iconbtn{width:40px;height:40px;border-radius:12px;border:2px solid var(--line);border-bottom-width:4px;background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--ink);}
+  .iconbtn:active{transform:translateY(2px);border-bottom-width:2px;}
+  .ti{flex:1;}
+  .ti .d{font-family:'Baloo 2';font-size:20px;line-height:1;}
+  .ti .s{font-size:11px;color:var(--muted);font-weight:800;}
+  .phasechip{background:var(--season-soft);color:var(--season-ink);border-radius:999px;padding:4px 10px;font-size:10.5px;font-weight:800;white-space:nowrap;}
+
+  .pbar{height:8px;background:var(--line);border-radius:5px;margin:0 16px;overflow:hidden;}
+  .pfill{height:100%;background:linear-gradient(90deg,var(--season),var(--season-deep));border-radius:5px;transition:width .3s;width:0;}
+
+  .body{flex:1;overflow-y:auto;padding:8px 16px 24px;}
+  .sleepbox{display:flex;gap:10px;margin:4px 0;}
+  .sleepbox .sb{flex:1;background:var(--season-soft);border-radius:14px;padding:12px;text-align:center;}
+  .sleepbox .sb .v{font-family:'Baloo 2';font-size:20px;color:var(--season-ink);}
+  .sleepbox .sb .l{font-size:10px;color:var(--season-ink);text-transform:uppercase;font-weight:800;opacity:.8;}
+  .am{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:15px 0 8px;font-weight:800;display:flex;align-items:center;gap:7px;}
+  .prow{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--card);border:2px solid var(--line);border-bottom:4px solid var(--line);border-radius:13px;margin-bottom:8px;}
+  .prow .pi{width:30px;height:30px;border-radius:9px;background:var(--season-soft);color:var(--season-ink);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .prow .pt2{font-size:14px;font-weight:800;}
+  .prow .ps{font-size:11px;color:var(--muted);font-weight:700;}
+  .banner{text-align:center;color:var(--muted);font-weight:800;font-size:13px;background:var(--card);border:2px dashed var(--line);border-radius:14px;padding:13px;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:6px;}
+
+  /* CARD (spoonfeed full screen) */
+  .cardview{flex:1;display:flex;flex-direction:column;padding:6px 20px 0;overflow-y:auto;animation:slidein .26s cubic-bezier(.2,.8,.2,1);}
+  @keyframes slidein{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:translateX(0)}}
+  .cstep{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:1px;margin:6px 0 14px;display:flex;align-items:center;gap:8px;}
+  .cstep .tag{background:var(--season-soft);color:var(--season-ink);padding:3px 9px;border-radius:999px;}
+  .cwrap{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:8px;padding-bottom:16px;}
+  .cbig{width:96px;height:96px;border-radius:28px;background:var(--season-soft);color:var(--season-ink);display:flex;align-items:center;justify-content:center;margin-bottom:6px;box-shadow:0 6px 0 rgba(0,0,0,.05);}
+  .ctitle{font-family:'Baloo 2';font-size:30px;line-height:1.05;}
+  .cdetail{font-size:15px;color:var(--muted);font-weight:800;max-width:330px;line-height:1.45;}
+  .creps{font-family:'Baloo 2';font-size:20px;color:var(--green-d);}
+  .cfeel{background:var(--season-soft);color:var(--season-ink);border-radius:14px;padding:12px 16px;font-size:13.5px;font-weight:800;max-width:360px;line-height:1.4;display:flex;gap:9px;text-align:left;}
+  .cfeel svg{flex-shrink:0;margin-top:1px;}
+
+  /* in-card checklist */
+  .clist{width:100%;max-width:380px;display:flex;flex-direction:column;gap:9px;margin-top:4px;}
+  .citem{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--card);border:2px solid var(--line);border-bottom:4px solid var(--line);border-radius:14px;cursor:pointer;text-align:left;transition:.12s;}
+  .citem.on{border-color:var(--green);background:#f3fbf1;}
+  .cbox{width:27px;height:27px;border-radius:8px;border:2.5px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:transparent;transition:.12s;}
+  .citem.on .cbox{background:var(--green);border-color:var(--green);color:#fff;}
+  .citem .it{font-size:14.5px;font-weight:800;}
+  .citem .is{font-size:11px;color:var(--muted);font-weight:700;}
+
+  .vthumb{width:100%;max-width:360px;aspect-ratio:16/9;border-radius:18px;overflow:hidden;position:relative;background:#1a1a1a;cursor:pointer;border:3px solid var(--line);}
+  .vthumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .vthumb .pov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(0,0,0,.18);}
+  .vthumb .pc{width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.95);color:#222;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.3);}
+  .vthumb .vl{color:#fff;font-size:11.5px;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.6);}
+  .vsearch{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:13px;padding:11px 16px;font-size:14px;font-weight:800;color:var(--ink);cursor:pointer;text-decoration:none;}
+
+  .rate{display:flex;gap:9px;width:100%;max-width:360px;margin-top:6px;}
+  .rate button{flex:1;aspect-ratio:1;border:2px solid var(--line);border-bottom:4px solid var(--line);background:var(--card);border-radius:16px;font-family:'Baloo 2';font-size:22px;color:var(--ink);cursor:pointer;transition:.1s;}
+  .rate button:active{transform:translateY(2px);}
+  .rate button.sel{background:var(--season);border-color:var(--season-deep);color:var(--season-ink);transform:translateY(2px);border-bottom-width:2px;}
+  .ratelabels{display:flex;justify-content:space-between;width:100%;max-width:360px;font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:800;}
+  .doseinp{display:flex;align-items:center;gap:10px;width:100%;max-width:360px;background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:14px;padding:10px 13px;margin-top:8px;}
+  .doseinp .dl{flex:1;font-size:14px;font-weight:800;text-align:left;}
+  .doseinp input{width:120px;border:2px solid var(--line);border-radius:10px;padding:8px;font-family:'Nunito';font-weight:800;font-size:13px;text-align:center;color:var(--ink);}
+  .doseinp input:focus{outline:none;border-color:var(--season);}
+  input.win{border:2.5px solid var(--line);border-bottom-width:5px;border-radius:14px;padding:14px;font-family:'Nunito';font-weight:800;font-size:17px;color:var(--ink);text-align:center;width:100%;max-width:280px;}
+  input.win:focus{outline:none;border-color:var(--season);}
+
+  .action{padding:14px 20px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(0deg,var(--bg) 74%,transparent);}
+  .bigbtn{width:100%;border:none;border-radius:16px;padding:18px;font-family:'Baloo 2';font-size:19px;font-weight:800;cursor:pointer;letter-spacing:.5px;color:#fff;background:var(--green);border-bottom:6px solid var(--green-d);display:flex;align-items:center;justify-content:center;gap:8px;}
+  .bigbtn:active{transform:translateY(3px);border-bottom-width:3px;}
+  .bigbtn.lock{background:var(--season);border-bottom-color:var(--season-deep);color:var(--season-ink);}
+  .bigbtn.night{background:var(--night);border-bottom-color:var(--night-d);}
+  .bigbtn:disabled{background:#dcdcd0;border-bottom-color:#c2c2b6;color:#fff;cursor:default;}
+
+  .donewrap{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:8px;padding:20px;}
+  .donewrap .big{font-family:'Baloo 2';font-size:30px;}
+  .donewrap p{color:var(--muted);font-size:15px;font-weight:800;max-width:320px;}
+
+  /* settings */
+  .setrow{margin:6px 0 14px;}
+  .opts{display:flex;flex-wrap:wrap;gap:8px;}
+  .opt{flex:1 1 28%;background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:12px;padding:11px;font-family:'Baloo 2';font-size:15px;color:var(--ink);cursor:pointer;text-align:center;}
+  .opt.sel{background:var(--season);border-color:var(--season-deep);color:var(--season-ink);}
+  .toggle{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:14px;padding:14px;}
+  .sw{width:52px;height:30px;border-radius:999px;background:var(--line);position:relative;transition:.2s;flex-shrink:0;}
+  .sw.on{background:var(--green);}
+  .sw::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s;}
+  .sw.on::after{left:25px;}
+  .fbnote{font-size:10.5px;color:var(--muted);text-align:center;padding:7px;font-weight:700;}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="logo">S<b>Z</b>N</div>
+  <p>Enter the password to unlock SZN on this device. One time only.</p>
+  <input id="gateInput" type="password" placeholder="Password" autocomplete="off">
+  <button id="gateBtn">Unlock</button>
+  <div id="gateErr"></div>
+</div>
+
+<div class="app" id="app" style="display:none">
+  <div class="top">
+    <div class="toprow">
+      <div class="logo"><span class="sdot" id="sdot"></span>S<b>Z</b>N</div>
+      <div class="hright"><div class="chip fire" id="streakChip"></div><div class="gear" id="gearBtn"></div></div>
+    </div>
+    <div class="pbarwrap">
+      <div class="pmeta">Day <b id="hDay">1</b></div>
+      <div class="ptrack"><div class="pfillh" id="hFill"></div></div>
+      <div class="pmeta"><b id="hLeft">620</b> to 18</div>
+    </div>
+    <div class="penalty" id="penalty"><div class="pt" id="penaltyText"></div><button id="payBtn">Did 'em</button></div>
+  </div>
+  <div class="pathwrap" id="pathwrap"><div class="track" id="track"></div></div>
+  <div class="fbnote" id="fbnote">On-device. Paste Firebase config in the file to sync your year of data.</div>
+</div>
+
+<div class="scrim" id="scrim"><div class="sheet" id="sheet"></div></div>
+
+<script>
+/* ===== ICONS ===== */
+const I=(p,o={})=>`<svg width="${o.s||24}" height="${o.s||24}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${o.w||2.4}" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const ICON={
+  ready:o=>I('<path d="M5 21V8a4 4 0 0 1 4-4h2"/><path d="M11 4a3 3 0 0 1 6 0v3"/><path d="M5 12h14"/><path d="M8 16v2M12 16v2M16 16v2"/>',o),
+  fuel:o=>I('<path d="M5 3v8a2 2 0 0 0 4 0V3M7 11v10"/><path d="M17 3c-1.5 0-2.5 2-2.5 5s1 4 2.5 4 2.5-1 2.5-4-1-5-2.5-5zM17 16v5"/>',o),
+  move:o=>I('<path d="M4 8v8M8 6v12M16 6v12M20 8v8M8 12h8"/>',o),
+  grow:o=>I('<path d="M3 17l5-5 4 4 7-8"/><path d="M16 8h4v4"/>',o),
+  sleep:o=>I('<path d="M20 14a8 8 0 1 1-9.9-9.9 6 6 0 0 0 9.9 9.9z"/>',o),
+  skin:o=>I('<path d="M12 3s6 6 6 11a6 6 0 0 1-12 0c0-5 6-11 6-11z"/>',o),
+  pill:o=>I('<rect x="3" y="9" width="18" height="6" rx="3" transform="rotate(45 12 12)"/><path d="M9 9l6 6"/>',o),
+  water:o=>I('<path d="M12 3s6 6 6 11a6 6 0 0 1-12 0c0-5 6-11 6-11z"/><path d="M9 14a3 3 0 0 0 3 3" stroke-width="1.8"/>',o),
+  check:o=>I('<path d="M5 12l4 4L19 7"/>',o),
+  lock:o=>I('<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',o),
+  flame:o=>I('<path d="M12 3c1 4 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 1-3s3 1 3-6z"/>',o),
+  play:o=>I('<path d="M7 5l11 7-11 7z" fill="currentColor" stroke="none"/>',o),
+  weight:o=>I('<path d="M4 9h16l-1.5 11h-13z"/><path d="M9 9a3 3 0 0 1 6 0"/>',o),
+  back:o=>I('<path d="M15 5l-7 7 7 7"/>',o),
+  x:o=>I('<path d="M6 6l12 12M18 6L6 18"/>',o),
+  sun:o=>I('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.4 1.4M17.6 17.6L19 19M19 5l-1.4 1.4M6.4 17.6L5 19"/>',o),
+  leaf:o=>I('<path d="M5 19c0-8 6-14 14-14 0 8-6 14-14 14z"/><path d="M5 19c4-4 7-6 10-7"/>',o),
+  snow:o=>I('<path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/>',o),
+  trophy:o=>I('<path d="M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M5 4H3v2a3 3 0 0 0 3 3M19 4h2v2a3 3 0 0 1-3 3M9 15v3h6v-3M8 21h8"/>',o),
+  arrow:o=>I('<path d="M5 12h14M13 6l6 6-6 6"/>',o),
+  moon2:o=>I('<path d="M20 14a8 8 0 1 1-9.9-9.9 6 6 0 0 0 9.9 9.9z"/><path d="M16 4h4M18 2v4"/>',o),
+  gear:o=>I('<circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',o),
+  warm:o=>I('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',o),
+};
+
+/* ===== HAPTICS ===== */
+const Haptics=(()=>{const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent),cv='vibrate' in navigator;
+  function mk(){const id='h'+Math.random().toString(36).slice(2);const el=document.createElement('div');el.innerHTML=`<input type="checkbox" id="${id}" switch /><label for="${id}"></label>`;el.style.cssText='display:none;position:absolute;top:-9999px';document.body.appendChild(el);return el;}
+  function lay(ch){ch.forEach(t=>{const el=mk(),l=el.querySelector('label');t.forEach(ms=>setTimeout(()=>l.click(),ms));setTimeout(()=>el.remove(),Math.max(...t)+300);});}
+  const P={light:{i:[[0]],a:[20]},medium:{i:[[0],[15]],a:[40,15,40]},success:{i:[[0,90],[25,115],[50]],a:[35,20,70]},error:{i:[[0,45,90],[15,60,105]],a:[70,30,70]},levelUp:{i:[[0,50,100],[15,65,115],[30,80,130],[45,95]],a:[80,25,80,25,120]},toggle:{i:[[0],[20]],a:[30,20,60]}};
+  return{go(t='light'){const p=P[t]||P.light;if(isIOS)lay(p.i);else if(cv)navigator.vibrate(p.a);}};})();
+
+/* ===== FIREBASE ===== */
+const FIREBASE_CONFIG=null; // <-- paste firebaseConfig here for cloud sync
+let fb={ready:false};
+async function initFirebase(){if(!FIREBASE_CONFIG)return;try{
+  const {initializeApp}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+  const {getFirestore,doc,getDoc,setDoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  const app=initializeApp(FIREBASE_CONFIG);fb.db=getFirestore(app);fb.doc=doc;fb.get=getDoc;fb.set=setDoc;fb.ready=true;
+  const snap=await fb.get(fb.doc(fb.db,'szn','state'));if(snap.exists())Object.assign(state,snap.data());
+  document.getElementById('fbnote').textContent='Synced to Firebase';boot();}catch(e){console.warn('FB off',e);}}
+
+/* ===== PLAN ===== */
+const TOTAL_DAYS=620,RESET_DAYS=28,SUPP_DAY=30;
+const SEASONS={spring:{name:'Spring',icon:'leaf',color:'#58cc52',ink:'#2f7a2a',soft:'#e8f9e7',deep:'#3da838'},summer:{name:'Summer',icon:'sun',color:'#ffd23f',ink:'#7a5c00',soft:'#fff6d2',deep:'#e8b800'},autumn:{name:'Autumn',icon:'flame',color:'#e8552f',ink:'#8a2d12',soft:'#fbe4dc',deep:'#c0421f'},winter:{name:'Winter',icon:'snow',color:'#6cc0e0',ink:'#1d5a73',soft:'#e6f4fa',deep:'#3f9bc4'}};
+const seasonFor=d=>{const m=d.getMonth();return m>=2&&m<=4?'spring':m>=5&&m<=7?'summer':m>=8&&m<=10?'autumn':'winter';};
+const VID={pushup:'mECzqUIDWfU',squat:'P-yaD24bUE8',row:'fURsHPHgssI',curl:'txBFNHLbNYU'};
+const ex=(n,r,feel,vid,q)=>({n,r,feel,vid:vid||null,q:q||n+' proper form'});
+const WO_BODY={
+ 1:{t:'Push Day',ex:[ex('Push-ups','3 sets × max (8–15)','Chest & triceps working; last 2–3 reps a real grind. No sharp shoulder pain.',VID.pushup),ex('Pike push-ups','3 × 8–10','Shoulders burning; hips piked up high like an upside-down V.',null,'pike push up form'),ex('Chair dips','3 × 10–12','Triceps burn at the bottom; stay tall, don\'t shrug.',null,'bench dips triceps form'),ex('Diamond push-ups','3 × max','All triceps; hands in a diamond under your chest.',null,'diamond push up form')]},
+ 2:{t:'Pull Day',ex:[ex('1-arm dumbbell rows','3 × 10–12 each','Squeeze your back at the top; pull with the elbow, not the hand.',VID.row),ex('Towel / door rows','3 × 10','Back & biceps; squeeze shoulder blades together.',null,'door towel row back exercise'),ex('Dumbbell curls','3 × 10–12','Biceps squeeze at top; no swinging.',VID.curl),ex('Supermans','3 × 15','Lower back & glutes; small controlled lift, hold a sec.',null,'superman exercise back')]},
+ 3:{t:'Legs + Abs',ex:[ex('Bodyweight squats','3 × 15–20','Thighs working; knees over toes, heels planted.',VID.squat),ex('Reverse lunges','3 × 10 each','Front thigh & glute; control the balance.',null,'reverse lunge form'),ex('Glute bridges','3 × 15','Hard glute squeeze at the very top.',null,'glute bridge form'),ex('Plank','3 × 30–45 sec','Whole core braced; hips don\'t sag or pike.',null,'plank proper form'),ex('Leg raises','3 × 12','Lower abs; lower back stays flat.',null,'lying leg raise abs form')]},
+ 4:{t:'Push Day 2',ex:[ex('Push-ups','4 × max','Full range — chest to the floor each rep.',VID.pushup),ex('Wide push-ups','3 × max','Wider hands, bigger chest stretch; controlled.',null,'wide push up chest'),ex('Pike push-ups','3 × 8–10','Lower the crown of your head toward the floor.',null,'pike push up form'),ex('Shoulder taps','3 × 20','Core tight, hips dead still — fight the wobble.',null,'shoulder tap exercise form')]},
+ 5:{t:'Pull + Arms',ex:[ex('1-arm dumbbell rows','3 × 12 each','Full stretch bottom, hard squeeze top.',VID.row),ex('Dumbbell curls (slow)','4 × 12','3 sec on the way down; constant tension.',VID.curl),ex('Chair dips','4 × max','Triceps to failure; stay tall.',null,'bench dips triceps form'),ex('Wrist curls','3 × 15','Forearm burn; small range, just wrists.',null,'dumbbell wrist curl forearm'),ex('Supermans','3 × 15','Lower-back squeeze, controlled.',null,'superman exercise back')]},
+};
+const WO_GYM={
+ 1:{t:'Push Day (Gym)',ex:[ex('Bench press','4 × 6–10','Chest drive; bar to mid-chest.',null,'bench press form'),ex('Incline DB press','3 × 10','Upper chest; full stretch.',null,'incline dumbbell press form'),ex('Shoulder press','3 × 10','Delts; don\'t arch low back.',null,'dumbbell shoulder press form'),ex('Cable fly','3 × 12','Chest squeeze.',null,'cable fly form'),ex('Triceps pushdown','3 × 12','Elbows pinned.',null,'triceps pushdown form')]},
+ 2:{t:'Pull Day (Gym)',ex:[ex('Lat pulldown','4 × 8–12','Drive elbows down.',null,'lat pulldown form'),ex('Seated row','3 × 10','Mid-back squeeze.',null,'seated cable row form'),ex('Face pulls','3 × 15','Rear delts.',null,'face pull form'),ex('Dumbbell curls','3 × 12','No swing.',VID.curl),ex('Hammer curls','3 × 12','Forearms + biceps.',null,'hammer curl form')]},
+ 3:{t:'Legs + Abs (Gym)',ex:[ex('Barbell squats','4 × 6–10','Depth + heels down, brace core.',VID.squat),ex('Leg press','3 × 12','Don\'t lock knees hard.',null,'leg press form'),ex('Leg curl','3 × 12','Hamstrings.',null,'leg curl form'),ex('Calf raises','4 × 15','Full stretch + squeeze.',null,'calf raise form'),ex('Hanging leg raise','3 × 12','Lower abs.',null,'hanging leg raise form')]},
+ 4:{t:'Push Day 2 (Gym)',ex:[ex('Incline bench','4 × 8','Upper chest.',null,'incline bench press form'),ex('DB shoulder press','3 × 10','Delts.',null,'dumbbell shoulder press form'),ex('Chest fly','3 × 12','Stretch + squeeze.',null,'dumbbell chest fly form'),ex('Lateral raises','3 × 15','Lead with elbows.',null,'lateral raise form'),ex('Overhead triceps ext','3 × 12','Triceps stretch.',null,'overhead triceps extension form')]},
+ 5:{t:'Pull + Arms (Gym)',ex:[ex('Rack pulls','4 × 5–8','Flat back.',null,'rack pull form'),ex('Cable row','3 × 10','Mid-back.',null,'cable row form'),ex('Barbell curl','4 × 10','No swing.',null,'barbell curl form'),ex('Preacher curl','3 × 12','Biceps peak.',null,'preacher curl form'),ex('Rear delt fly','3 × 15','Rear delts.',null,'rear delt fly form')]},
+};
+const LEARN={
+ Marketing:['Watch a video on how attention & distribution actually work','Pick a brand you love and figure out WHY it works','Write 5 short-form hooks for one of your products','Learn SEO basics — how people find things online','Post one piece of content for one of your products','Free study: a marketing rabbit hole you\'re into'],
+ Sales:['Watch the basics of sales psychology','Break down what makes a great pitch great','Learn to handle 3 common objections','Write a real pitch for one of your products','Say that pitch out loud to an actual person','Study one founder/salesperson you admire'],
+ Copywriting:['Learn what makes a headline actually work','Study 3 landing pages you think are good','Learn the AIDA & PAS copy frameworks','Rewrite a landing page for one of your products','Write 10 headlines for one product','Start a swipe file of copy you like'],
+ Money:['Learn what an LLC is + the main business structures','Income vs expenses — how the books work','How business taxes work (just the concepts)','Sales tax: what it is and when it applies','Write your "what I\'ll set up at 18" cheat sheet','Watch a founder break down their real numbers'],
+};
+const LEARN_ORDER=['Marketing','Sales','Copywriting','Money'];
+function sleepTarget(i){const start=8*60,end=state.wakeTarget||270,step=30,per=4;let wake=start-Math.floor(i/per)*step;if(wake<end)wake=end;const bed=((wake-510)%1440+1440)%1440;return{wake,bed,resetting:wake>end};}
+const fmt=m=>{let h=Math.floor(m/60),mm=m%60;const ap=h>=12?'pm':'am';h=h%12||12;return h+(mm?':'+String(mm).padStart(2,'0'):'')+ap;};
+function getDay(i){const date=new Date(startD);date.setDate(date.getDate()+i);
+  const dow=date.getDay(),season=seasonFor(date),week=Math.floor(i/7),level=Math.floor(week/2)+1,sleep=sleepTarget(i);
+  const phase=i<RESET_DAYS?'Phase 1 · Sleep Reset':(state.gym?'Phase 3 · Gym Build':'Phase 2 · Foundation');
+  const isWeekday=dow>=1&&dow<=5,isSunday=dow===0;
+  const workout=isWeekday?(state.gym?WO_GYM:WO_BODY)[dow]:null;
+  const theme=LEARN_ORDER[week%4];
+  const learn=!isSunday?{theme,task:LEARN[theme][(dow-1+6)%6]||LEARN[theme][0]}:null;
+  return{i,date,dow,season,level,phase,sleep,workout,isWeekday,isSunday,learn,pad:i%2===0};}
+
+/* ===== STATE ===== */
+let state={startDate:null,prog:{},gym:false,penaltyPaidUpTo:-1,suppAck:false,doses:{},wakeTarget:270};
+const todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const parseKey=k=>{const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d);};
+try{const s=localStorage.getItem('szn');if(s)Object.assign(state,JSON.parse(s));}catch(e){}
+if(!state.startDate)state.startDate=todayKey();
+if(!state.prog)state.prog={};if(!state.wakeTarget)state.wakeTarget=270;
+let startD=parseKey(state.startDate);
+function save(){try{localStorage.setItem('szn',JSON.stringify(state));}catch(e){}if(fb.ready){try{fb.set(fb.doc(fb.db,'szn','state'),state);}catch(e){}}}
+const currentIndex=()=>Math.round((parseKey(todayKey())-startD)/86400000);
+const pastNoon=()=>new Date().getHours()>=12;
+const prog=i=>state.prog[i]||{};
+const dayFull=i=>!!(prog(i).md&&prog(i).nd);
+
+/* ===== GATE ===== */
+const PW='dougieszn';
+function tryUnlock(){const v=document.getElementById('gateInput').value.trim().toLowerCase();if(v===PW){localStorage.setItem('szn_device','1');Haptics.go('success');showApp();}else{Haptics.go('error');document.getElementById('gateErr').textContent='Nope. Try again.';document.getElementById('gateInput').value='';}}
+document.getElementById('gateBtn').onclick=tryUnlock;
+document.getElementById('gateInput').addEventListener('keydown',e=>{if(e.key==='Enter')tryUnlock();});
+function showApp(){document.getElementById('gate').style.display='none';document.getElementById('app').style.display='flex';boot();initFirebase();}
+
+/* ===== TOP + PATH ===== */
+function setSeasonVars(s){const o=SEASONS[s];document.documentElement.style.setProperty('--season',o.color);document.documentElement.style.setProperty('--season-ink',o.ink);document.documentElement.style.setProperty('--season-soft',o.soft);document.documentElement.style.setProperty('--season-deep',o.deep);}
+function boot(){startD=parseKey(state.startDate);renderTop();renderPath();}
+function renderTop(){
+  const ci=currentIndex(),today=getDay(Math.max(0,Math.min(ci,TOTAL_DAYS-1))),s=SEASONS[today.season];setSeasonVars(today.season);
+  document.getElementById('sdot').innerHTML=`<span style="color:${s.ink}">${ICON[s.icon]({s:18,w:2.6})}</span>`;
+  document.getElementById('hDay').textContent=ci+1;
+  document.getElementById('hLeft').textContent=Math.max(0,TOTAL_DAYS-ci-1);
+  document.getElementById('hFill').style.width=((ci+1)/TOTAL_DAYS*100)+'%';
+  let streak=0;for(let j=ci;j>=0;j--){if(dayFull(j))streak++;else if(j<ci)break;}
+  document.getElementById('streakChip').innerHTML=`${ICON.flame({s:16})} ${streak}`;
+  document.getElementById('gearBtn').innerHTML=ICON.gear({s:20});
+  let missed=0;for(let j=Math.max(0,state.penaltyPaidUpTo+1);j<ci;j++)if(!dayFull(j))missed++;
+  const owed=Math.min(50,missed>0?missed*5+5:0),pe=document.getElementById('penalty');
+  if(owed>0){pe.classList.add('show');document.getElementById('penaltyText').innerHTML=`${ICON.x({s:14})} ${owed} push-up debt (${missed} missed)`;}else pe.classList.remove('show');
+}
+document.getElementById('payBtn').onclick=()=>{Haptics.go('medium');state.penaltyPaidUpTo=currentIndex()-1;save();renderTop();};
+document.getElementById('gearBtn').onclick=()=>{Haptics.go('light');openSettings();};
+
+const OFFS=[0,-54,-80,-54,0,54,80,54];
+function renderPath(){
+  const ci=currentIndex();let html='';let last=null;
+  for(let i=0;i<TOTAL_DAYS;i++){const d=getDay(i);
+    if(d.season!==last){const o=SEASONS[d.season];html+=`<div class="seasonband"><div class="ln"></div><div class="lbl" style="color:${o.ink}">${ICON[o.icon]({s:16})} ${o.name}</div><div class="ln"></div></div>`;last=d.season;}
+    let cls='locked',ic;const p=prog(i);
+    if(dayFull(i)){cls='done';ic=ICON.check({s:30,w:3});}
+    else if(i===ci){cls='today';ic=`${ICON[p.md?'moon2':(d.isWeekday?'move':(d.isSunday?'weight':'grow'))]({s:30,w:2.6})}<div class="todaytag">${p.md?'TONIGHT':'TODAY'}</div>`;}
+    else if(i<ci){cls=p.md?'half':'missed';ic=p.md?ICON.moon2({s:26}):ICON.x({s:28,w:3});}
+    else ic=ICON.lock({s:25});
+    const off=OFFS[i%8];const tint=i!==ci?`--season:${SEASONS[d.season].color}`:'';
+    html+=`<div class="row"><div class="node" style="transform:translateX(${off}px)"><button class="btn ${cls}" data-i="${i}" style="${tint}">${ic}<span class="num">${i+1}</span></button><span class="daylabel">${d.date.toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span></div></div>`;}
+  const track=document.getElementById('track');track.innerHTML=html;
+  track.querySelectorAll('.btn').forEach(b=>b.onclick=()=>{Haptics.go('light');openDay(+b.dataset.i);});
+  setTimeout(()=>{const t=track.querySelector('.today');if(t)t.scrollIntoView({block:'center'});},80);
+}
+
+/* ===== SHEETS ===== */
+const scrim=document.getElementById('scrim'),sheet=document.getElementById('sheet');
+let V={};
+function setSheet(mode){sheet.className='sheet '+(mode==='full'?'full':'bottom');}
+function openDay(i){const ci=currentIndex(),d=getDay(i);setSeasonVars(d.season);scrim.classList.add('show');
+  if(i===ci&&!dayFull(i))renderLanding(d);
+  else renderPreview(d,i<ci?(prog(i).md?'half':'missed'):(dayFull(i)?'done':'preview'),ci);}
+const closeDay=()=>{scrim.classList.remove('show');renderTop();renderPath();};
+scrim.onclick=e=>{if(e.target===scrim&&!sheet.classList.contains('full'))closeDay();};
+function topbar(d,extra,backFn){return `<div class="sheettop"><div class="iconbtn" id="backBtn">${ICON.back({s:22})}</div><div class="ti"><div class="d">Day ${d.i+1}</div><div class="s">${d.date.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})}</div></div><div class="phasechip">${d.phase}</div></div>${extra||''}`;}
+
+function morningList(d){let r=[['ready','Get Ready','Shower, hair, skincare, dressed'],['fuel','Fuel up','Eggs + fruit/veg + grain + shake + water']];if(d.isWeekday){r.push(['warm','Warm up','2 min, get the blood going']);r.push(['move',d.workout.t,'Spoonfed set by set, with demos']);r.push(['move','Cool down','Quick stretch']);}else r.push(['move','Recover','Stretch, get outside, hydrate']);if(d.learn)r.push(['grow','Learn '+d.learn.theme,d.learn.task]);return r;}
+function nightList(d){let r=[['skin','Night skincare','Pad, moisturizer, rosemary brows']];if(d.i>=SUPP_DAY)r.push(['pill','Supplements','Magnesium + ashwagandha']);if(d.isSunday)r.push(['weight','Weigh-in','Log your weekly weight']);r.push(['sleep','Wind down','Lights out on target']);return r;}
+
+function renderLanding(d){setSheet('bottom');const p=prog(d.i);
+  let h=`<div class="grab"></div>`+topbar(d)+`<div class="body">`;
+  h+=`<div class="am">${ICON.sleep({s:14})} Tonight's sleep target</div><div class="sleepbox"><div class="sb"><div class="v">${fmt(d.sleep.bed)}</div><div class="l">Lights out</div></div><div class="sb"><div class="v">${fmt(d.sleep.wake)}</div><div class="l">Wake</div></div></div>`;
+  h+=`<div class="am">${ICON.sun({s:14})} Morning${p.md?' · done':''}</div>`;morningList(d).forEach(x=>h+=prowHtml(x));
+  h+=`<div class="am">${ICON.moon2({s:14})} Night · after 12pm${p.nd?' · done':''}</div>`;nightList(d).forEach(x=>h+=prowHtml(x));
+  h+=`</div>`;
+  let btn;
+  if(!p.md)btn=`<button class="bigbtn lock" id="startBtn">Start morning ${ICON.arrow({s:20})}</button>`;
+  else if(!p.nd&&pastNoon())btn=`<button class="bigbtn night" id="nightBtn">Continue to night ${ICON.arrow({s:20})}</button>`;
+  else if(!p.nd)btn=`<button class="bigbtn" disabled>${ICON.lock({s:18})} Night unlocks at 12:00pm</button>`;
+  h+=`<div class="action">${btn}</div>`;
+  sheet.innerHTML=h;
+  document.getElementById('backBtn').onclick=()=>{Haptics.go('light');closeDay();};
+  const sb=document.getElementById('startBtn');if(sb)sb.onclick=()=>{Haptics.go('medium');launch(d,'morning');};
+  const nb=document.getElementById('nightBtn');if(nb)nb.onclick=()=>{Haptics.go('medium');launch(d,'night');};
+}
+const prowHtml=x=>`<div class="prow"><div class="pi">${ICON[x[0]]({s:17})}</div><div><div class="pt2">${x[1]}</div><div class="ps">${x[2]}</div></div></div>`;
+
+function renderPreview(d,mode,ci){setSheet('bottom');
+  let h=`<div class="grab"></div>`+topbar(d)+`<div class="body">`;
+  if(mode==='preview')h+=`<div class="banner">${ICON.lock({s:16})} Unlocks in ${d.i-ci} day${d.i-ci>1?'s':''} — preview only</div>`;
+  if(mode==='missed')h+=`<div class="banner" style="border-color:var(--red);color:var(--red-d)">${ICON.x({s:16})} Missed day</div>`;
+  if(mode==='half')h+=`<div class="banner" style="border-color:var(--blue);color:var(--blue-d)">${ICON.moon2({s:16})} Morning done, night missed</div>`;
+  if(mode==='done'){const c=prog(d.i).data||{};h+=`<div class="banner" style="border-color:var(--green);color:var(--green-d)">${ICON.check({s:16})} Done${c.felt?` · felt ${c.felt}/5`:''}${c.useful?` · learn ${c.useful}/5`:''}${c.weight?` · ${c.weight} lbs`:''}</div>`;}
+  h+=`<div class="am">${ICON.sleep({s:14})} Sleep target</div><div class="sleepbox"><div class="sb"><div class="v">${fmt(d.sleep.bed)}</div><div class="l">Lights out</div></div><div class="sb"><div class="v">${fmt(d.sleep.wake)}</div><div class="l">Wake</div></div></div>`;
+  h+=`<div class="am">${ICON.sun({s:14})} Morning</div>`;morningList(d).forEach(x=>h+=prowHtml(x));
+  if(d.isWeekday){h+=`<div class="am">${ICON.move({s:14})} ${d.workout.t}</div>`;d.workout.ex.forEach(e=>h+=`<div class="prow"><div class="pi">${ICON.move({s:16})}</div><div><div class="pt2">${e.n}</div><div class="ps">${e.r}</div></div></div>`);}
+  h+=`<div class="am">${ICON.moon2({s:14})} Night</div>`;nightList(d).forEach(x=>h+=prowHtml(x));
+  h+=`</div>`;sheet.innerHTML=h;
+  document.getElementById('backBtn').onclick=()=>{Haptics.go('light');closeDay();};
+}
+
+/* ===== CARDS ===== */
+function buildCards(d,session){const c=[];
+  if(session==='morning'){
+    c.push({type:'info',icon:'sun',title:'Morning lock-in',detail:`Wake target was ${fmt(d.sleep.wake)}. Knock this out by lunch and the rest of the day is yours. Tip: get some daylight early — it resets your body clock.`,btn:'Let\'s go'});
+    const ready=[{k:'shower',it:'Shower',is:'Music on, wake up'},{k:'hair',it:'Hair / style'},{k:'teeth',it:'Brush teeth'},{k:'face',it:'Rinse + moisturizer + sunscreen',is:'Sunscreen matters now you exfoliate'}];
+    if(d.pad)ready.push({k:'pad',it:'Salicylic acid pad',is:'Every other day — today counts'});
+    ready.push({k:'dress',it:'Get dressed'});
+    c.push({type:'checklist',icon:'ready',title:'Get Ready',items:ready,note:'Up to an hour — finish early = more day for you.'});
+    c.push({type:'checklist',icon:'fuel',title:'Fuel Up',items:[{k:'eggs',it:'Eggs',is:'Your protein base'},{k:'fv',it:'A fruit or veg'},{k:'grain',it:'A grain',is:'Oats, toast, rice'},{k:'shake',it:'Protein shake',is:'~25–30g'},{k:'water',it:'Big glass of water'}],note:'Eat till satisfied, not stuffed. You\'re building — under-eating kills gains. No calorie counting.'});
+    if(d.isWeekday){
+      c.push({type:'info',icon:'warm',title:'Warm up · 2 min',detail:'Arm circles, 10 air squats, 10 easy push-ups, shake it out. Warming up protects your joints and opens your lungs — extra important with asthma.',btn:'Warmed up'});
+      c.push({type:'info',icon:'move',title:d.workout.t,detail:`Level ${d.level}. Rest 60–90s between sets. Breathe OUT on the hard part. Inhaler within reach — real attack coming on, you STOP. No ego.`,btn:'Start workout'});
+      d.workout.ex.forEach(e=>c.push({type:'exercise',ex:e}));
+      c.push({type:'info',icon:'sleep',title:'Cool down',detail:'1–2 min: stretch the muscles you worked, slow your breathing back down. Helps you recover and grow.',btn:'Done'});
+      c.push({type:'rate',grp:'felt',title:'How did the workout feel?',labels:['Brutal','Easy']});
+    }else{
+      c.push({type:'checklist',icon:'move',title:'Recover',items:[{k:'stretch',it:'Light stretch'},{k:'out',it:'Get outside / walk',is:'Sun + movement'},{k:'water',it:'Hydrate'}],note:'Rest days are when muscle actually grows. Don\'t skip, don\'t feel guilty.'});
+    }
+    if(d.learn){c.push({type:'learn',theme:d.learn.theme,task:d.learn.task});c.push({type:'rate',grp:'useful',title:'How useful was it?',labels:['Useless','Gold']});}
+    c.push({type:'morningdone'});
+  }else{
+    c.push({type:'info',icon:'moon2',title:'Night routine',detail:'Wind the day down. Quick stuff, then lights out on target.',btn:'Let\'s go'});
+    const skin=[];if(d.pad)skin.push({k:'pad',it:'Salicylic acid pad',is:'Skip if you already did one today'});
+    skin.push({k:'moist',it:'Moisturizer'});skin.push({k:'rose',it:'Rosemary oil on brows',is:'Tiny amount, avoid eyes'});
+    c.push({type:'checklist',icon:'skin',title:'Night Skincare',items:skin});
+    if(d.i>=SUPP_DAY){if(!state.suppAck)c.push({type:'suppack'});c.push({type:'supps'});}
+    if(d.isSunday)c.push({type:'weight'});
+    c.push({type:'checklist',icon:'water',title:'Day check',items:[{k:'ate',it:'Ate enough today',is:'3+ real meals'},{k:'water',it:'Drank enough water'},{k:'outside',it:'Got outside / moved'}],note:'Quick honesty check — these are the quiet things that actually move the needle.'});
+    c.push({type:'info',icon:'sleep',title:`Lights out by ${fmt(d.sleep.bed)}`,detail:'Phone down, screen off. You need ~8.5 hrs at 16 — it\'s when you actually grow. Wind down now.',btn:'I\'m winding down'});
+    c.push({type:'finish'});
+  }
+  return c;
+}
+
+function launch(d,session){const p=prog(d.i);const cards=buildCards(d,session);
+  let idx=0;const saved=session==='morning'?p.mi:p.ni;if(saved&&saved<cards.length)idx=saved;
+  V={d,session,cards,idx,data:Object.assign({felt:0,useful:0,weight:'',checks:{},doses:Object.assign({mag:'200 mg',ash:'300–600 mg'},state.doses||{})},p.data||{})};
+  renderCard();}
+function saveProg(){const i=V.d.i,p=state.prog[i]||{};if(V.session==='morning')p.mi=V.idx;else p.ni=V.idx;p.data=V.data;state.prog[i]=p;save();}
+
+function renderCard(){setSheet('full');const c=V.cards[V.idx],d=V.d,total=V.cards.length;
+  const pct=Math.round((V.idx/total)*100);
+  let h=topbar(d,`<div class="pbar"><div class="pfill" style="width:${pct}%"></div></div>`);
+  h+=`<div class="cardview" id="cv"><div class="cstep"><span class="tag">${V.session==='morning'?'Morning':'Night'}</span> Step ${Math.min(V.idx+1,total)} of ${total}</div><div class="cwrap">`+cardInner(c)+`</div></div>`;
+  let label='Done',cls=V.session==='night'?'night':'';
+  if(c.type==='info')label=c.btn||'Continue';
+  else if(c.type==='checklist')label='Done';
+  else if(c.type==='exercise')label='Done — next';
+  else if(c.type==='rate')label='Next';
+  else if(c.type==='learn')label='Done';
+  else if(c.type==='supps')label='Took them';
+  else if(c.type==='weight')label='Save & continue';
+  else if(c.type==='suppack'){label='I\'m cleared — continue';cls='';}
+  else if(c.type==='morningdone'){label='Done for now';cls='lock';}
+  else if(c.type==='finish'){label='Lock in the day';cls='lock';}
+  h+=`<div class="action"><button class="bigbtn ${cls}" id="cbtn">${label}</button></div>`;
+  sheet.innerHTML=h;
+  document.getElementById('backBtn').onclick=goBack;
+  wireCard(c);
+  document.getElementById('cbtn').onclick=()=>onCardBtn(c);
+}
+function goBack(){Haptics.go('light');if(V.idx>0){V.idx--;saveProg();renderCard();}else{saveProg();renderLanding(V.d);}}
+
+function cardInner(c){
+  if(c.type==='info')return `<div class="cbig">${ICON[c.icon]({s:46,w:2.2})}</div><div class="ctitle">${c.title}</div><div class="cdetail">${c.detail}</div>`;
+  if(c.type==='checklist'){let h=`<div class="cbig">${ICON[c.icon]({s:46,w:2.2})}</div><div class="ctitle">${c.title}</div><div class="clist">`;c.items.forEach(it=>{const on=V.data.checks[c.title+it.k];h+=`<div class="citem ${on?'on':''}" data-k="${c.title+it.k}"><div class="cbox">${ICON.check({s:17})}</div><div><div class="it">${it.it}</div>${it.is?`<div class="is">${it.is}</div>`:''}</div></div>`;});h+=`</div>`;if(c.note)h+=`<div class="cfeel" style="margin-top:12px">${ICON.flame({s:18})}<div>${c.note}</div></div>`;return h;}
+  if(c.type==='exercise'){const e=c.ex;const media=e.vid?`<div class="vthumb" id="vt" data-vid="${e.vid}"><img src="https://img.youtube.com/vi/${e.vid}/hqdefault.jpg" onerror="this.style.display='none'"><div class="pov"><div class="pc">${ICON.play({s:24})}</div><div class="vl">Tap to watch the form on YouTube</div></div></div>`:`<a class="vsearch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.q)}" target="_blank" rel="noopener">${ICON.play({s:18})} Watch a form demo</a>`;return `<div class="ctitle">${e.n}</div><div class="creps">${e.r}</div>${media}<div class="cfeel">${ICON.flame({s:18})}<div><b>Should feel like:</b> ${e.feel}</div></div>`;}
+  if(c.type==='rate')return `<div class="cbig">${ICON.flame({s:46,w:2.2})}</div><div class="ctitle">${c.title}</div><div class="rate" id="rate">${[1,2,3,4,5].map(n=>`<button data-v="${n}" class="${V.data[c.grp]===n?'sel':''}">${n}</button>`).join('')}</div><div class="ratelabels"><span>${c.labels[0]}</span><span>${c.labels[1]}</span></div>`;
+  if(c.type==='learn')return `<div class="cbig">${ICON.grow({s:46,w:2.2})}</div><div class="ctitle">${c.theme}</div><div class="cdetail" style="color:var(--ink);font-size:17px">${c.task}</div><div class="cfeel">${ICON.grow({s:18})}<div>1 focused hour. Watch, then actually apply it to one of your products.</div></div>`;
+  if(c.type==='supps')return `<div class="cbig">${ICON.pill({s:46,w:2.2})}</div><div class="ctitle">Supplements</div><div class="cdetail">Take only the dose your parent/doctor agreed on. Tap a number to edit it.</div><div class="doseinp"><span class="dl">Magnesium (glycinate)</span><input data-dose="mag" value="${V.data.doses.mag}"></div><div class="doseinp"><span class="dl">Ashwagandha (extract)</span><input data-dose="ash" value="${V.data.doses.ash}"></div>`;
+  if(c.type==='suppack')return `<div class="cbig">${ICON.pill({s:46,w:2.2})}</div><div class="ctitle">Supplements unlock</div><div class="cdetail">Magnesium + ashwagandha start tonight. Take only what your parent/doctor agreed on — the app never sets your dose. You can edit the amounts.</div>`;
+  if(c.type==='weight')return `<div class="cbig">${ICON.weight({s:46,w:2.2})}</div><div class="ctitle">Weekly weigh-in</div><div class="cdetail">Once a week only. The weekly trend matters, not daily bounce.</div><input class="win" id="wIn" type="number" inputmode="decimal" placeholder="Weight (lbs)" value="${V.data.weight}">`;
+  if(c.type==='morningdone')return `<div class="cbig" style="background:var(--green);color:#fff">${ICON.check({s:50,w:2.6})}</div><div class="ctitle">Morning locked</div><div class="cdetail">Hard part's done. Go live your day — come back after <b>12:00pm</b> for the quick night routine.</div>`;
+  if(c.type==='finish')return `<div class="cbig" style="background:var(--season);color:var(--season-ink)">${ICON.trophy({s:50,w:2.2})}</div><div class="ctitle">Day ${V.d.i+1} complete</div><div class="cdetail">Full day locked in. This is how you get from here to 18 looking like a different person.</div>`;
+  return '';
+}
+function wireCard(c){
+  if(c.type==='checklist')sheet.querySelectorAll('.citem').forEach(el=>el.onclick=()=>{Haptics.go('toggle');el.classList.toggle('on');V.data.checks[el.dataset.k]=el.classList.contains('on');});
+  if(c.type==='exercise'&&c.ex.vid){const vt=document.getElementById('vt');if(vt)vt.onclick=()=>{Haptics.go('light');window.open('https://www.youtube.com/watch?v='+vt.dataset.vid,'_blank','noopener');};}
+  if(c.type==='rate'){const r=document.getElementById('rate');r.querySelectorAll('button').forEach(b=>b.onclick=()=>{Haptics.go('light');V.data[c.grp]=+b.dataset.v;r.querySelectorAll('button').forEach(x=>x.classList.toggle('sel',x===b));});}
+  if(c.type==='supps')sheet.querySelectorAll('input[data-dose]').forEach(inp=>inp.oninput=()=>{V.data.doses[inp.dataset.dose]=inp.value;state.doses=V.data.doses;});
+  if(c.type==='weight'){const w=document.getElementById('wIn');if(w)w.oninput=()=>V.data.weight=w.value;}
+}
+function onCardBtn(c){
+  if(c.type==='rate'&&!V.data[c.grp]){Haptics.go('error');toast('Pick a number first');return;}
+  if(c.type==='suppack')state.suppAck=true;
+  if(c.type==='morningdone'){const p=state.prog[V.d.i]||{};p.md=true;p.mi=V.cards.length;p.data=V.data;state.prog[V.d.i]=p;save();Haptics.go('levelUp');closeDay();return;}
+  if(c.type==='finish'){const p=state.prog[V.d.i]||{};p.nd=true;p.ni=V.cards.length;p.data=V.data;p.completedAt=Date.now();state.prog[V.d.i]=p;save();Haptics.go('levelUp');
+    sheet.innerHTML=topbar(V.d)+`<div class="donewrap"><div class="cbig" style="background:var(--green);color:#fff">${ICON.trophy({s:54})}</div><div class="big">Day ${V.d.i+1} done</div><p>Both sessions locked. Rest up — you need it.</p></div><div class="action"><button class="bigbtn" id="cbtn">Back to the path</button></div>`;
+    document.getElementById('backBtn').onclick=closeDay;document.getElementById('cbtn').onclick=()=>{Haptics.go('medium');closeDay();};return;}
+  Haptics.go(c.type==='checklist'||c.type==='exercise'||c.type==='supps'?'success':'medium');
+  V.idx++;saveProg();if(V.idx>=V.cards.length){closeDay();return;}renderCard();
+}
+function toast(m){const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:999px;font-weight:800;font-size:13px;z-index:300';document.body.appendChild(t);setTimeout(()=>t.remove(),1500);}
+
+/* ===== SETTINGS ===== */
+function openSettings(){setSheet('bottom');scrim.classList.add('show');
+  const WT=[['4:30am',270],['5:00am',300],['5:30am',330],['6:00am',360],['7:00am',420]];
+  let h=`<div class="grab"></div><div class="sheettop"><div class="iconbtn" id="backBtn">${ICON.back({s:22})}</div><div class="ti"><div class="d">Settings</div><div class="s">Tune your plan</div></div></div><div class="body">`;
+  h+=`<div class="am">${ICON.sleep({s:14})} Wake-up target</div><div class="setrow"><div class="opts">${WT.map(w=>`<div class="opt ${state.wakeTarget===w[1]?'sel':''}" data-min="${w[1]}">${w[0]}</div>`).join('')}</div><div class="ps" style="color:var(--muted);font-size:11.5px;margin-top:8px">The 4-week ladder eases you down to this. If early wakes wreck your sleep, bumping this later is smart, not weak.</div></div>`;
+  h+=`<div class="am">${ICON.move({s:14})} Got a gym now?</div><div class="toggle" id="gymTog"><div><div class="pt2">Gym mode</div><div class="ps">Swaps home workouts for weights</div></div><div class="sw ${state.gym?'on':''}" id="gymSw"></div></div>`;
+  h+=`<div class="am">${ICON.flame({s:14})} The honest truth</div><div class="cfeel" style="max-width:none">${ICON.flame({s:18})}<div>No app can <i>guarantee</i> results — but showing up daily, sleeping enough, eating enough protein, and not skipping rest is what actually gets you there. If anything feels off (the early wake, the supplements, your breathing) talk to a parent or doctor. Listen to your body over any app.</div></div>`;
+  h+=`</div>`;sheet.innerHTML=h;
+  document.getElementById('backBtn').onclick=()=>{Haptics.go('light');closeDay();};
+  sheet.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{Haptics.go('light');state.wakeTarget=+o.dataset.min;save();sheet.querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x===o));});
+  document.getElementById('gymTog').onclick=()=>{Haptics.go('medium');state.gym=!state.gym;save();document.getElementById('gymSw').classList.toggle('on',state.gym);};
+}
+
+/* ===== START ===== */
+if(localStorage.getItem('szn_device')==='1')showApp();
+</script>
+</body>
+</html>
