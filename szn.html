@@ -246,12 +246,36 @@ const FIREBASE_CONFIG={
   measurementId:"G-40KQWZ64VR"
 };
 let fb={ready:false};
-async function initFirebase(){if(!FIREBASE_CONFIG)return;try{
-  const {initializeApp}=await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js');
-  const {getFirestore,doc,getDoc,setDoc}=await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js');
-  const app=initializeApp(FIREBASE_CONFIG);fb.db=getFirestore(app);fb.doc=doc;fb.get=getDoc;fb.set=setDoc;fb.ready=true;
-  const snap=await fb.get(fb.doc(fb.db,'szn','state'));if(snap.exists())Object.assign(state,snap.data());
-  document.getElementById('fbnote').textContent='Synced to the cloud \u2713';boot();}catch(e){console.warn('FB off',e);document.getElementById('fbnote').textContent='Cloud sync error \u2014 running on-device';}}
+function mergeCloud(cloud){
+  // never lose local progress: keep whichever day-record is more complete
+  if(!cloud)return;
+  const localProg=state.prog||{};const cloudProg=cloud.prog||{};
+  const merged={...cloudProg};
+  for(const k in localProg){
+    const l=localProg[k],c=cloudProg[k];
+    const score=x=>(x&&x.md?2:0)+(x&&x.nd?2:0)+(x&&(x.mi||x.ni)?1:0);
+    if(!c||score(l)>=score(c))merged[k]=l;
+  }
+  // cloud wins for simple settings unless local has them set
+  Object.assign(state,{gym:cloud.gym??state.gym,suppAck:cloud.suppAck||state.suppAck,penaltyPaidUpTo:Math.max(cloud.penaltyPaidUpTo??-1,state.penaltyPaidUpTo??-1),wakeTarget:state.wakeTarget||cloud.wakeTarget||270,doses:{...(cloud.doses||{}),...(state.doses||{})},startDate:cloud.startDate||state.startDate});
+  state.prog=merged;
+}
+async function initFirebase(){if(!FIREBASE_CONFIG)return;
+  const note=document.getElementById('fbnote');
+  try{
+    const {initializeApp}=await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js');
+    const {getFirestore,doc,getDoc,setDoc}=await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js');
+    const app=initializeApp(FIREBASE_CONFIG);fb.db=getFirestore(app);fb.doc=doc;fb.get=getDoc;fb.set=setDoc;
+    let snap;
+    try{ snap=await fb.get(fb.doc(fb.db,'szn','state')); }
+    catch(readErr){ console.warn('FB read failed',readErr); note.textContent='Cloud read blocked — check Firestore is enabled + rules. Saving on-device.'; return; }
+    if(snap.exists())mergeCloud(snap.data());
+    // verify we can actually write before claiming sync works
+    try{ await fb.set(fb.doc(fb.db,'szn','state'),state); fb.ready=true; note.textContent='Synced to the cloud \u2713'; }
+    catch(writeErr){ console.warn('FB write blocked',writeErr); note.textContent='Cloud is read-only — update Firestore rules to allow writes. Saving on-device.'; }
+    startD=parseKey(state.startDate);renderTop();renderPath();
+  }catch(e){ console.warn('FB init failed',e); note.textContent='Cloud unavailable — running safely on-device.'; }
+}
 
 /* ===== PLAN ===== */
 const TOTAL_DAYS=620,RESET_DAYS=28,SUPP_DAY=30;
@@ -299,7 +323,10 @@ try{const s=localStorage.getItem('szn');if(s)Object.assign(state,JSON.parse(s));
 if(!state.startDate)state.startDate=todayKey();
 if(!state.prog)state.prog={};if(!state.wakeTarget)state.wakeTarget=270;
 let startD=parseKey(state.startDate);
-function save(){try{localStorage.setItem('szn',JSON.stringify(state));}catch(e){}if(fb.ready){try{fb.set(fb.doc(fb.db,'szn','state'),state);}catch(e){}}}
+function save(){
+  try{localStorage.setItem('szn',JSON.stringify(state));}catch(e){console.warn('local save failed',e);}
+  if(fb.ready&&fb.db){ Promise.resolve().then(()=>fb.set(fb.doc(fb.db,'szn','state'),state)).catch(e=>console.warn('cloud save failed',e)); }
+}
 const currentIndex=()=>{const t=parseKey(todayKey());return Math.round((t-startD)/86400000);};
 const pastNoon=()=>new Date().getHours()>=12;
 const prog=i=>state.prog[i]||{};
@@ -353,8 +380,9 @@ const scrim=document.getElementById('scrim'),sheet=document.getElementById('shee
 let V={};
 function setSheet(mode){sheet.className='sheet '+(mode==='full'?'full':'bottom');}
 function openDay(i){const ci=currentIndex(),d=getDay(i);setSeasonVars(d.season);scrim.classList.add('show');
-  if(i===ci&&!dayFull(i))renderLanding(d);
-  else renderPreview(d,i<ci?(prog(i).md?'half':'missed'):(dayFull(i)?'done':'preview'),ci);}
+  if(i===ci)renderLanding(d);                        // today: always the landing (do morning/night anytime)
+  else if(i<ci)renderLanding(d);                     // past days: still openable so you can finish missed sessions
+  else renderPreview(d,'preview',ci);}               // future days: preview only
 const closeDay=()=>{scrim.classList.remove('show');renderTop();renderPath();};
 scrim.onclick=e=>{if(e.target===scrim&&!sheet.classList.contains('full'))closeDay();};
 function topbar(d,extra,backFn){return `<div class="sheettop"><div class="iconbtn" id="backBtn">${ICON.back({s:22})}</div><div class="ti"><div class="d">Day ${d.i+1}</div><div class="s">${d.date.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})}</div></div><div class="phasechip">${d.phase}</div></div>${extra||''}`;}
@@ -366,13 +394,12 @@ function renderLanding(d){setSheet('bottom');const p=prog(d.i);
   let h=`<div class="grab"></div>`+topbar(d)+`<div class="body">`;
   h+=`<div class="am">${ICON.sleep({s:14})} Tonight's sleep target</div><div class="sleepbox"><div class="sb"><div class="v">${fmt(d.sleep.bed)}</div><div class="l">Lights out</div></div><div class="sb"><div class="v">${fmt(d.sleep.wake)}</div><div class="l">Wake</div></div></div>`;
   h+=`<div class="am">${ICON.sun({s:14})} Morning${p.md?' · done':''}</div>`;morningList(d).forEach(x=>h+=prowHtml(x));
-  h+=`<div class="am">${ICON.moon2({s:14})} Night · after 12pm${p.nd?' · done':''}</div>`;nightList(d).forEach(x=>h+=prowHtml(x));
+  h+=`<div class="am">${ICON.moon2({s:14})} Night${p.nd?' · done':''}</div>`;nightList(d).forEach(x=>h+=prowHtml(x));
   h+=`</div>`;
-  let btn;
-  if(!p.md)btn=`<button class="bigbtn lock" id="startBtn">Start morning ${ICON.arrow({s:20})}</button>`;
-  else if(!p.nd&&pastNoon())btn=`<button class="bigbtn night" id="nightBtn">Continue to night ${ICON.arrow({s:20})}</button>`;
-  else if(!p.nd)btn=`<button class="bigbtn" disabled>${ICON.lock({s:18})} Night unlocks at 12:00pm</button>`;
-  h+=`<div class="action">${btn}</div>`;
+  // both sessions available anytime, independently
+  const mBtn=`<button class="bigbtn ${p.md?'':'lock'}" id="startBtn">${p.md?ICON.check({s:18})+' Redo morning':'Start morning '+ICON.arrow({s:20})}</button>`;
+  const nBtn=`<button class="bigbtn night" id="nightBtn" style="margin-top:10px">${p.nd?ICON.check({s:18})+' Redo night':'Start night '+ICON.arrow({s:20})}</button>`;
+  h+=`<div class="action">${mBtn}${nBtn}</div>`;
   sheet.innerHTML=h;
   document.getElementById('backBtn').onclick=()=>{Haptics.go('light');closeDay();};
   const sb=document.getElementById('startBtn');if(sb)sb.onclick=()=>{Haptics.go('medium');launch(d,'morning');};
