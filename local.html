@@ -283,13 +283,32 @@ const SOURCES = [
   { label: "Ledyard",     q: '"Ledyard" Iowa Kossuth' },
 ];
 
-// Free public CORS proxies (tried in order). Static-host friendly.
-const PROXIES = [
-  (u)=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-  (u)=>`https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-];
-
 const gnews = (q)=>`https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;
+
+// Free public proxies tried in order until one works.
+//   kind "xml"  -> proxy returns the raw RSS feed text
+//   kind "wrap" -> proxy returns JSON, feed text lives in .contents
+//   kind "json" -> RSS->JSON service, already parsed into .items
+const PROXIES = [
+  { name:"rss2json",     kind:"json", build:u=>`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(u)}` },
+  { name:"allorigins-raw",kind:"xml", build:u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` },
+  { name:"codetabs",     kind:"xml",  build:u=>`https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(u)}` },
+  { name:"corsproxy.io", kind:"xml",  build:u=>`https://corsproxy.io/?url=${encodeURIComponent(u)}` },
+  { name:"cors.lol",     kind:"xml",  build:u=>`https://api.cors.lol/?url=${encodeURIComponent(u)}` },
+  { name:"allorigins-get",kind:"wrap",build:u=>`https://api.allorigins.win/get?url=${encodeURIComponent(u)}` },
+  { name:"thingproxy",   kind:"xml",  build:u=>`https://thingproxy.freeboard.io/fetch/${u}` },
+  { name:"whateverorigin",kind:"wrap",build:u=>`https://www.whateverorigin.org/get?url=${encodeURIComponent(u)}` },
+];
+// Remember which proxy last worked so we try it first next round.
+let proxyOrder = PROXIES.slice();
+
+// fetch with a timeout so a dead proxy is skipped, not hung on.
+async function fetchTimeout(url, ms=7000){
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), ms);
+  try{ return await fetch(url,{signal:ctrl.signal}); }
+  finally{ clearTimeout(t); }
+}
 
 /* ===================== state ===================== */
 let allItems = [];
@@ -297,36 +316,63 @@ let activeTown = "All";
 let searchTerm = "";
 
 /* ===================== fetch one feed ===================== */
+function cleanTitle(rawTitle, srcEl){
+  let title = rawTitle, source = srcEl || "";
+  if(srcEl && rawTitle.endsWith(" - "+srcEl)){
+    title = rawTitle.slice(0, -(srcEl.length+3));
+  } else if(rawTitle.lastIndexOf(" - ")>0){
+    const i = rawTitle.lastIndexOf(" - ");
+    title = rawTitle.slice(0,i); source = source || rawTitle.slice(i+3);
+  }
+  return { title:title.trim(), source:(source||"Local").trim() };
+}
+
+function parseXml(text, town){
+  const xml = new DOMParser().parseFromString(text,"text/xml");
+  if(xml.querySelector("parsererror")) return [];
+  return [...xml.querySelectorAll("item")].map(it=>{
+    const c = cleanTitle(it.querySelector("title")?.textContent||"", it.querySelector("source")?.textContent||"");
+    const pub = it.querySelector("pubDate")?.textContent || "";
+    return { title:c.title, source:c.source,
+      link: it.querySelector("link")?.textContent || "#",
+      ts: Date.parse(pub)||0, town };
+  });
+}
+
+function parseJson(obj, town){      // rss2json shape
+  if(!obj || !Array.isArray(obj.items)) return [];
+  return obj.items.map(it=>{
+    const c = cleanTitle(it.title||"", "");
+    return { title:c.title, source:c.source,
+      link: it.link || "#",
+      ts: Date.parse(it.pubDate||"")||0, town };
+  });
+}
+
 async function fetchFeed(src){
-  const url = gnews(src.q);
-  for(const proxy of PROXIES){
+  const feedUrl = gnews(src.q);
+  for(const proxy of proxyOrder){
     try{
-      const res = await fetch(proxy(url));
+      const res = await fetchTimeout(proxy.build(feedUrl));
       if(!res.ok) continue;
-      const text = await res.text();
-      const xml = new DOMParser().parseFromString(text,"text/xml");
-      const items = [...xml.querySelectorAll("item")].map(it=>{
-        const rawTitle = it.querySelector("title")?.textContent || "";
-        const srcEl = it.querySelector("source")?.textContent || "";
-        // Google News appends " - Publisher" to titles; strip it.
-        let title = rawTitle, source = srcEl;
-        if(srcEl && rawTitle.endsWith(" - "+srcEl)){
-          title = rawTitle.slice(0, -(srcEl.length+3));
-        } else if(rawTitle.lastIndexOf(" - ")>0){
-          const i = rawTitle.lastIndexOf(" - ");
-          title = rawTitle.slice(0,i); source = source || rawTitle.slice(i+3);
-        }
-        return {
-          title: title.trim(),
-          link: it.querySelector("link")?.textContent || "#",
-          source: (source||"Local").trim(),
-          date: it.querySelector("pubDate")?.textContent || "",
-          ts: Date.parse(it.querySelector("pubDate")?.textContent || "") || 0,
-          town: src.label,
-        };
-      });
-      return items;
-    }catch(e){ /* try next proxy */ }
+
+      let items = [];
+      if(proxy.kind === "json"){
+        const j = await res.json();
+        items = parseJson(j, src.label);
+      } else if(proxy.kind === "wrap"){
+        const j = await res.json();
+        items = parseXml(j.contents || j.body || "", src.label);
+      } else {
+        items = parseXml(await res.text(), src.label);
+      }
+
+      if(items.length){
+        // promote the working proxy to the front for next time
+        proxyOrder = [proxy, ...proxyOrder.filter(p=>p!==proxy)];
+        return items;
+      }
+    }catch(e){ /* timeout or blocked — try next proxy */ }
   }
   return [];
 }
