@@ -6,26 +6,19 @@
 
 <!-- ============ SEO ============ -->
 <title>TownFeed — Kossuth County, Iowa News | Local Headlines for Algona & Beyond</title>
-<meta name="description" content="Every local story from Kossuth County, Iowa in one place. Breaking news, headlines and updates from Algona, Bancroft, Burt, Titonka, Swea City, Wesley, Whittemore and more — updated continuously." />
-<meta name="keywords" content="Kossuth County news, Algona Iowa news, Kossuth County Iowa, local Iowa news, Algona, Bancroft, Burt, Titonka, Swea City, Wesley, Whittemore, Lu Verne" />
+<meta name="description" content="Every local story from Kossuth County, Iowa in one place. Breaking news and headlines from Algona, Bancroft, Burt, Titonka, Swea City, Wesley, Whittemore and more — updated continuously." />
+<meta name="keywords" content="Kossuth County news, Algona Iowa news, local Iowa news, Bancroft, Burt, Titonka, Swea City, Wesley, Whittemore, Lu Verne" />
 <link rel="canonical" href="https://example.com/" />
 <meta name="robots" content="index, follow" />
-
-<!-- Open Graph -->
 <meta property="og:type" content="website" />
 <meta property="og:title" content="TownFeed — Kossuth County, Iowa News" />
-<meta property="og:description" content="Every local story from Kossuth County in one place. Updated continuously." />
+<meta property="og:description" content="Every local story from Kossuth County in one place." />
 <meta property="og:locale" content="en_US" />
-
-<!-- JSON-LD structured data -->
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "NewsMediaOrganization",
-  "name": "TownFeed — Kossuth County",
-  "description": "Hyperlocal news aggregator covering Kossuth County, Iowa.",
-  "areaServed": { "@type": "AdministrativeArea", "name": "Kossuth County, Iowa" }
-}
+{ "@context":"https://schema.org","@type":"NewsMediaOrganization",
+  "name":"TownFeed — Kossuth County",
+  "description":"Hyperlocal news aggregator covering Kossuth County, Iowa.",
+  "areaServed":{"@type":"AdministrativeArea","name":"Kossuth County, Iowa"} }
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -34,174 +27,98 @@
 
 <style>
 :root{
-  --bg:#f4f2ec;
-  --surface:#ffffff;
-  --ink:#0a0a0a;
-  --ink-soft:#555149;
-  --line:#0a0a0a;
-  --line-soft:#dcd8cd;
-  --accent:#0a0a0a;
-  --chip:#0a0a0a;
-  --chip-ink:#f4f2ec;
-  --shadow:6px 6px 0 #0a0a0a;
-  --radius:18px;
+  --bg:#f4f2ec; --surface:#ffffff; --ink:#0a0a0a; --ink-soft:#555149;
+  --line:#0a0a0a; --line-soft:#dcd8cd; --chip:#0a0a0a; --chip-ink:#f4f2ec;
+  --shadow:6px 6px 0 #0a0a0a; --radius:18px;
 }
 [data-theme="dark"]{
-  --bg:#0c0c0d;
-  --surface:#161618;
-  --ink:#f3f1ea;
-  --ink-soft:#9c988d;
-  --line:#f3f1ea;
-  --line-soft:#2a2a2d;
-  --accent:#f3f1ea;
-  --chip:#f3f1ea;
-  --chip-ink:#0c0c0d;
+  --bg:#0c0c0d; --surface:#161618; --ink:#f3f1ea; --ink-soft:#9c988d;
+  --line:#f3f1ea; --line-soft:#2a2a2d; --chip:#f3f1ea; --chip-ink:#0c0c0d;
   --shadow:6px 6px 0 #000000;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{
-  background:var(--bg);
-  color:var(--ink);
-  font-family:"Newsreader",Georgia,serif;
-  font-size:18px;
-  line-height:1.5;
-  -webkit-font-smoothing:antialiased;
-  transition:background .25s ease,color .25s ease;
-}
+body{background:var(--bg);color:var(--ink);font-family:"Newsreader",Georgia,serif;font-size:18px;line-height:1.5;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s;}
 
-/* ---------- Masthead ---------- */
-header.masthead{
-  border-bottom:3px solid var(--line);
-  padding:22px 22px 18px;
-  position:sticky;top:0;z-index:50;
-  background:var(--bg);
-  backdrop-filter:blur(2px);
-}
-.mast-row{
-  max-width:1180px;margin:0 auto;
-  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
-}
-.brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
-.logo{
-  font-family:"Bricolage Grotesque",sans-serif;
-  font-weight:800;
-  font-size:clamp(30px,5vw,46px);
-  letter-spacing:-.03em;
-  line-height:.9;
-}
-.logo span{
-  display:inline-block;
-  background:var(--chip);color:var(--chip-ink);
-  padding:0 10px;border-radius:10px;transform:rotate(-2deg);
-}
-.tagline{
-  font-family:"Bricolage Grotesque",sans-serif;
-  font-weight:500;font-size:14px;letter-spacing:.02em;
-  color:var(--ink-soft);text-transform:uppercase;
-}
+/* Masthead */
+header.masthead{border-bottom:3px solid var(--line);padding:22px 22px 18px;position:sticky;top:0;z-index:50;background:var(--bg);}
+.mast-row{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;cursor:pointer;}
+.logo{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(30px,5vw,46px);letter-spacing:-.03em;line-height:.9;}
+.logo span{display:inline-block;background:var(--chip);color:var(--chip-ink);padding:0 10px;border-radius:10px;transform:rotate(-2deg);}
+.tagline{font-family:"Bricolage Grotesque",sans-serif;font-weight:500;font-size:14px;letter-spacing:.02em;color:var(--ink-soft);text-transform:uppercase;}
 .mast-tools{display:flex;align-items:center;gap:10px;}
-.icon-btn{
-  font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:14px;
-  border:2.5px solid var(--line);background:var(--surface);color:var(--ink);
-  border-radius:999px;padding:9px 16px;cursor:pointer;
-  display:inline-flex;align-items:center;gap:7px;
-  transition:transform .12s ease,background .2s,color .2s;
-}
+.icon-btn{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:14px;border:2.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:9px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:transform .12s,background .2s,color .2s;}
 .icon-btn:hover{transform:translateY(-2px);}
-.icon-btn:active{transform:translateY(0);}
-
-/* ---------- Ticker ---------- */
-.ticker{
-  max-width:1180px;margin:0 auto;
-  display:flex;align-items:center;gap:10px;
-  font-family:"Bricolage Grotesque",sans-serif;font-size:13px;
-  color:var(--ink-soft);margin-top:12px;overflow:hidden;white-space:nowrap;
-}
+.ticker{max-width:1180px;margin:12px auto 0;display:flex;align-items:center;gap:10px;font-family:"Bricolage Grotesque",sans-serif;font-size:13px;color:var(--ink-soft);overflow:hidden;white-space:nowrap;}
 .live-dot{width:9px;height:9px;border-radius:50%;background:#d11;flex:0 0 auto;animation:pulse 1.4s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
 
-/* ---------- Layout ---------- */
 main{max-width:1180px;margin:0 auto;padding:26px 22px 80px;}
 
-/* Search + filters */
+/* Controls */
 .controls{display:flex;flex-direction:column;gap:16px;margin-bottom:26px;}
 .search-wrap{position:relative;max-width:520px;}
-#search{
-  width:100%;font-family:"Bricolage Grotesque",sans-serif;font-size:16px;
-  padding:13px 18px;border:2.5px solid var(--line);border-radius:999px;
-  background:var(--surface);color:var(--ink);outline:none;
-}
+#search{width:100%;font-family:"Bricolage Grotesque",sans-serif;font-size:16px;padding:13px 18px;border:2.5px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);outline:none;}
 #search:focus{box-shadow:var(--shadow);}
 .chips{display:flex;gap:9px;flex-wrap:wrap;}
-.chip{
-  font-family:"Bricolage Grotesque",sans-serif;font-weight:600;font-size:13.5px;
-  border:2.5px solid var(--line);background:var(--surface);color:var(--ink);
-  border-radius:999px;padding:8px 15px;cursor:pointer;
-  transition:transform .12s,background .18s,color .18s;
-}
+.chip{font-family:"Bricolage Grotesque",sans-serif;font-weight:600;font-size:13.5px;border:2.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 15px;cursor:pointer;transition:transform .12s,background .18s,color .18s;}
 .chip:hover{transform:translateY(-2px);}
 .chip.active{background:var(--chip);color:var(--chip-ink);}
 
-/* Section heading */
-.sec-head{
-  font-family:"Bricolage Grotesque",sans-serif;font-weight:800;
-  font-size:13px;letter-spacing:.14em;text-transform:uppercase;
-  display:flex;align-items:center;gap:12px;margin:6px 0 18px;color:var(--ink-soft);
-}
+.sec-head{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:13px;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:12px;margin:6px 0 18px;color:var(--ink-soft);}
 .sec-head::after{content:"";flex:1;height:2px;background:var(--line-soft);}
 
-/* Cards grid */
-.grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px;
-}
-.card{
-  background:var(--surface);border:2.5px solid var(--line);border-radius:var(--radius);
-  padding:20px;display:flex;flex-direction:column;gap:11px;
-  text-decoration:none;color:inherit;position:relative;
-  transition:transform .14s ease,box-shadow .14s ease;
-  animation:rise .5s ease both;
-}
+/* Cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px;}
+.card{background:var(--surface);border:2.5px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:transform .14s,box-shadow .14s;animation:rise .5s ease both;}
 .card:hover{transform:translate(-3px,-3px);box-shadow:var(--shadow);}
 @keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
-.card .town{
-  align-self:flex-start;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;
-  font-size:11px;letter-spacing:.08em;text-transform:uppercase;
-  background:var(--chip);color:var(--chip-ink);padding:4px 10px;border-radius:7px;
-}
-.card h2{
-  font-family:"Bricolage Grotesque",sans-serif;font-weight:700;
-  font-size:21px;line-height:1.18;letter-spacing:-.01em;
-}
-.card .meta{
-  margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:10px;
-  font-family:"Bricolage Grotesque",sans-serif;font-size:12.5px;color:var(--ink-soft);
-  padding-top:9px;border-top:2px solid var(--line-soft);
-}
+.cover{position:relative;aspect-ratio:16/9;background-size:cover;background-position:center;display:flex;align-items:flex-end;border-bottom:2.5px solid var(--line);}
+.cover.gen{align-items:center;justify-content:center;}
+.cover .gmark{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;color:rgba(255,255,255,.92);text-align:center;padding:0 14px;line-height:1.05;}
+.cover .gmark small{display:block;font-weight:600;font-size:.55em;letter-spacing:.18em;text-transform:uppercase;opacity:.7;margin-top:6px;}
+.town{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:var(--chip);color:var(--chip-ink);padding:5px 11px;border-radius:7px;position:absolute;top:11px;left:11px;}
+.card .body{padding:17px 19px 16px;display:flex;flex-direction:column;gap:10px;flex:1;}
+.card h2{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:20px;line-height:1.18;letter-spacing:-.01em;}
+.card .meta{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:10px;font-family:"Bricolage Grotesque",sans-serif;font-size:12.5px;color:var(--ink-soft);padding-top:9px;border-top:2px solid var(--line-soft);}
 .card .src{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.card .arrow{font-size:17px;}
-
-/* Feature (first) card spans wide */
 .card.feature{grid-column:1/-1;}
-.card.feature h2{font-size:clamp(26px,4vw,40px);line-height:1.04;}
-.card.feature .town{font-size:12px;}
+.card.feature .cover{aspect-ratio:auto;height:clamp(220px,32vw,360px);}
+.card.feature h2{font-size:clamp(24px,3.4vw,38px);line-height:1.05;}
 
 /* Skeletons */
-.skel{background:var(--surface);border:2.5px solid var(--line-soft);border-radius:var(--radius);padding:20px;height:185px;overflow:hidden;position:relative;}
+.skel{background:var(--surface);border:2.5px solid var(--line-soft);border-radius:var(--radius);height:300px;overflow:hidden;position:relative;}
 .skel::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(125,125,125,.12),transparent);transform:translateX(-100%);animation:shimmer 1.3s infinite;}
 @keyframes shimmer{100%{transform:translateX(100%);}}
 
+/* Article page */
+#view-article{max-width:820px;margin:0 auto;animation:rise .4s ease both;}
+.back{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:14px;color:var(--ink);text-decoration:none;display:inline-flex;gap:7px;border:2.5px solid var(--line);border-radius:999px;padding:8px 16px;margin-bottom:22px;transition:transform .12s;}
+.back:hover{transform:translateX(-3px);}
+.art-cover{border:2.5px solid var(--line);border-radius:var(--radius);overflow:hidden;height:clamp(200px,40vw,380px);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;margin-bottom:22px;}
+.art-town{display:inline-block;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;background:var(--chip);color:var(--chip-ink);padding:6px 13px;border-radius:8px;margin-bottom:14px;}
+#view-article h1{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(28px,5vw,46px);line-height:1.05;letter-spacing:-.02em;margin-bottom:14px;}
+.art-meta{font-family:"Bricolage Grotesque",sans-serif;font-size:14px;color:var(--ink-soft);margin-bottom:24px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.art-meta b{color:var(--ink);}
+.read-btn{display:inline-flex;align-items:center;gap:9px;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:16px;background:var(--chip);color:var(--chip-ink);text-decoration:none;padding:15px 26px;border-radius:14px;border:2.5px solid var(--line);transition:transform .12s,box-shadow .12s;}
+.read-btn:hover{transform:translate(-2px,-2px);box-shadow:var(--shadow);}
+.note{font-size:15px;color:var(--ink-soft);margin:18px 0 26px;line-height:1.6;}
+.related{margin-top:34px;}
+.related h3{font-family:"Bricolage Grotesque",sans-serif;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:14px;}
+.related a{display:flex;justify-content:space-between;gap:12px;align-items:center;text-decoration:none;color:inherit;border:2.5px solid var(--line-soft);border-radius:12px;padding:13px 16px;margin-bottom:10px;font-family:"Bricolage Grotesque",sans-serif;font-weight:600;font-size:15px;transition:border-color .15s,transform .12s;}
+.related a:hover{border-color:var(--line);transform:translateX(3px);}
+
+/* Ad slot */
+.adslot{border:2.5px dashed var(--line);border-radius:14px;padding:26px 20px;text-align:center;margin:28px 0;font-family:"Bricolage Grotesque",sans-serif;color:var(--ink-soft);background:var(--surface);}
+.adslot b{display:block;color:var(--ink);font-size:17px;font-weight:800;margin-bottom:4px;}
+
 /* States */
-.state{
-  text-align:center;padding:60px 20px;font-family:"Bricolage Grotesque",sans-serif;
-}
+.state{text-align:center;padding:60px 20px;font-family:"Bricolage Grotesque",sans-serif;}
 .state h3{font-size:24px;font-weight:800;margin-bottom:8px;}
 .state p{color:var(--ink-soft);font-family:"Newsreader",serif;max-width:440px;margin:0 auto 18px;}
 
-footer{
-  border-top:3px solid var(--line);text-align:center;padding:30px 22px;
-  font-family:"Bricolage Grotesque",sans-serif;font-size:13px;color:var(--ink-soft);
-}
+footer{border-top:3px solid var(--line);text-align:center;padding:30px 22px;font-family:"Bricolage Grotesque",sans-serif;font-size:13px;color:var(--ink-soft);}
 footer b{color:var(--ink);}
 .hidden{display:none!important;}
 </style>
@@ -210,7 +127,7 @@ footer b{color:var(--ink);}
 <body>
 <header class="masthead">
   <div class="mast-row">
-    <div class="brand">
+    <div class="brand" onclick="location.hash='#/'">
       <div class="logo">Town<span>Feed</span></div>
       <div class="tagline">Kossuth County · Iowa</div>
     </div>
@@ -219,41 +136,31 @@ footer b{color:var(--ink);}
       <button class="icon-btn" id="theme">🌙 Dark</button>
     </div>
   </div>
-  <div class="ticker">
-    <span class="live-dot"></span>
-    <span id="ticker-text">Loading the latest from around the county…</span>
-  </div>
+  <div class="ticker"><span class="live-dot"></span><span id="ticker-text">Loading the latest from around the county…</span></div>
 </header>
 
 <main>
-  <div class="controls">
-    <div class="search-wrap">
-      <input id="search" type="text" placeholder="Search headlines… (e.g. school, council, weather)" autocomplete="off" />
+  <!-- ===== FEED VIEW ===== -->
+  <section id="view-feed">
+    <div class="controls">
+      <div class="search-wrap">
+        <input id="search" type="text" placeholder="Search headlines… (e.g. school, council, weather)" autocomplete="off" />
+      </div>
+      <div class="chips" id="chips"></div>
     </div>
-    <div class="chips" id="chips"></div>
-  </div>
+    <div class="sec-head" id="sec-head">Latest Headlines</div>
+    <div class="grid" id="skeletons">
+      <div class="skel" style="grid-column:1/-1;height:300px;"></div>
+      <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+      <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+    </div>
+    <div class="grid hidden" id="grid"></div>
+    <div class="state hidden" id="empty"><h3>No stories match that.</h3><p>Try a different town or clear your search.</p></div>
+    <div class="state hidden" id="error"><h3>Couldn't reach the wire.</h3><p>The news proxies might be busy. Give it a second and hit refresh.</p><button class="icon-btn" onclick="loadAll()">↻ Try again</button></div>
+  </section>
 
-  <div class="sec-head" id="sec-head">Latest Headlines</div>
-
-  <!-- skeletons while loading -->
-  <div class="grid" id="skeletons">
-    <div class="skel" style="grid-column:1/-1;height:120px;"></div>
-    <div class="skel"></div><div class="skel"></div><div class="skel"></div>
-    <div class="skel"></div><div class="skel"></div><div class="skel"></div>
-  </div>
-
-  <div class="grid hidden" id="grid"></div>
-
-  <div class="state hidden" id="empty">
-    <h3>No stories match that.</h3>
-    <p>Try a different town or clear your search.</p>
-  </div>
-
-  <div class="state hidden" id="error">
-    <h3>Couldn't reach the wire.</h3>
-    <p>The news proxy might be busy. Give it a second and hit refresh.</p>
-    <button class="icon-btn" onclick="loadAll()">↻ Try again</button>
-  </div>
+  <!-- ===== ARTICLE VIEW ===== -->
+  <section id="view-article" class="hidden"></section>
 </main>
 
 <footer>
@@ -263,46 +170,39 @@ footer b{color:var(--ink);}
 
 <script>
 /* =====================================================================
-   CONFIG — change BRAND or the towns/queries here to re-skin for any place
+   CONFIG — edit SOURCES to re-skin for any county / all of Iowa
    ===================================================================== */
 const BRAND = "TownFeed";
+const AD_CONTACT = "advertise@townfeed.com";
 
-// Each entry = a Google News search. "label" is the town chip.
 const SOURCES = [
-  { label: "County-wide", q: '"Kossuth County" Iowa' },
-  { label: "Algona",      q: 'Algona Iowa' },
-  { label: "Bancroft",    q: '"Bancroft" Iowa Kossuth' },
-  { label: "Burt",        q: '"Burt" Iowa Kossuth' },
-  { label: "Titonka",     q: '"Titonka" Iowa' },
-  { label: "Swea City",   q: '"Swea City" Iowa' },
-  { label: "Wesley",      q: '"Wesley" Iowa Kossuth' },
-  { label: "Whittemore",  q: '"Whittemore" Iowa' },
-  { label: "Lu Verne",    q: '"Lu Verne" Iowa' },
-  { label: "Lakota",      q: '"Lakota" Iowa Kossuth' },
-  { label: "Lone Rock",   q: '"Lone Rock" Iowa' },
-  { label: "Ledyard",     q: '"Ledyard" Iowa Kossuth' },
+  { label:"County-wide", q:'"Kossuth County" Iowa when:60d' },
+  { label:"Algona",      q:'"Algona, Iowa" when:45d' },
+  { label:"Bancroft",    q:'"Bancroft" Iowa Kossuth when:60d' },
+  { label:"Burt",        q:'"Burt, Iowa" Kossuth when:90d' },
+  { label:"Titonka",     q:'"Titonka, Iowa" when:90d' },
+  { label:"Swea City",   q:'"Swea City" Iowa when:90d' },
+  { label:"Wesley",      q:'"Wesley, Iowa" Kossuth when:90d' },
+  { label:"Whittemore",  q:'"Whittemore, Iowa" when:90d' },
+  { label:"Lu Verne",    q:'"Lu Verne, Iowa" when:90d' },
+  { label:"Lakota",      q:'"Lakota, Iowa" when:90d' },
+  { label:"Lone Rock",   q:'"Lone Rock, Iowa" when:120d' },
+  { label:"Ledyard",     q:'"Ledyard, Iowa" Kossuth when:120d' },
 ];
 
 const gnews = (q)=>`https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;
 
-// Free public proxies tried in order until one works.
-//   kind "xml"  -> proxy returns the raw RSS feed text
-//   kind "wrap" -> proxy returns JSON, feed text lives in .contents
-//   kind "json" -> RSS->JSON service, already parsed into .items
 const PROXIES = [
-  { name:"rss2json",     kind:"json", build:u=>`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(u)}` },
-  { name:"allorigins-raw",kind:"xml", build:u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` },
-  { name:"codetabs",     kind:"xml",  build:u=>`https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(u)}` },
-  { name:"corsproxy.io", kind:"xml",  build:u=>`https://corsproxy.io/?url=${encodeURIComponent(u)}` },
-  { name:"cors.lol",     kind:"xml",  build:u=>`https://api.cors.lol/?url=${encodeURIComponent(u)}` },
-  { name:"allorigins-get",kind:"wrap",build:u=>`https://api.allorigins.win/get?url=${encodeURIComponent(u)}` },
-  { name:"thingproxy",   kind:"xml",  build:u=>`https://thingproxy.freeboard.io/fetch/${u}` },
-  { name:"whateverorigin",kind:"wrap",build:u=>`https://www.whateverorigin.org/get?url=${encodeURIComponent(u)}` },
+  { name:"rss2json",      kind:"json", build:u=>`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(u)}` },
+  { name:"allorigins-raw",kind:"xml",  build:u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` },
+  { name:"codetabs",      kind:"xml",  build:u=>`https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(u)}` },
+  { name:"corsproxy.io",  kind:"xml",  build:u=>`https://corsproxy.io/?url=${encodeURIComponent(u)}` },
+  { name:"cors.lol",      kind:"xml",  build:u=>`https://api.cors.lol/?url=${encodeURIComponent(u)}` },
+  { name:"allorigins-get",kind:"wrap", build:u=>`https://api.allorigins.win/get?url=${encodeURIComponent(u)}` },
+  { name:"thingproxy",    kind:"xml",  build:u=>`https://thingproxy.freeboard.io/fetch/${u}` },
 ];
-// Remember which proxy last worked so we try it first next round.
 let proxyOrder = PROXIES.slice();
 
-// fetch with a timeout so a dead proxy is skipped, not hung on.
 async function fetchTimeout(url, ms=7000){
   const ctrl = new AbortController();
   const t = setTimeout(()=>ctrl.abort(), ms);
@@ -312,19 +212,35 @@ async function fetchTimeout(url, ms=7000){
 
 /* ===================== state ===================== */
 let allItems = [];
+let byId = {};
 let activeTown = "All";
 let searchTerm = "";
 
-/* ===================== fetch one feed ===================== */
+/* ===================== parsing helpers ===================== */
 function cleanTitle(rawTitle, srcEl){
   let title = rawTitle, source = srcEl || "";
-  if(srcEl && rawTitle.endsWith(" - "+srcEl)){
-    title = rawTitle.slice(0, -(srcEl.length+3));
-  } else if(rawTitle.lastIndexOf(" - ")>0){
-    const i = rawTitle.lastIndexOf(" - ");
-    title = rawTitle.slice(0,i); source = source || rawTitle.slice(i+3);
-  }
+  if(srcEl && rawTitle.endsWith(" - "+srcEl)) title = rawTitle.slice(0,-(srcEl.length+3));
+  else if(rawTitle.lastIndexOf(" - ")>0){ const i=rawTitle.lastIndexOf(" - "); title=rawTitle.slice(0,i); source=source||rawTitle.slice(i+3); }
   return { title:title.trim(), source:(source||"Local").trim() };
+}
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h<<5)-h+s.charCodeAt(i); h|=0; } return Math.abs(h); }
+function imgFromHtml(html){
+  if(!html) return null;
+  const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return m ? m[1] : null;
+}
+function relatedFromHtml(html){
+  if(!html) return [];
+  try{
+    const doc = new DOMParser().parseFromString(html,"text/html");
+    return [...doc.querySelectorAll("a")].map(a=>({title:a.textContent.trim(),link:a.href}))
+      .filter(r=>r.title && r.link && r.link.startsWith("http")).slice(0,6);
+  }catch(e){ return []; }
+}
+function makeItem({title,source,link,ts,town,image,desc}){
+  const id = String(hashStr(link||title)).slice(0,9);
+  return { id, title, source, link:link||"#", ts:ts||0, town,
+           image:image||null, related: relatedFromHtml(desc) };
 }
 
 function parseXml(text, town){
@@ -332,152 +248,172 @@ function parseXml(text, town){
   if(xml.querySelector("parsererror")) return [];
   return [...xml.querySelectorAll("item")].map(it=>{
     const c = cleanTitle(it.querySelector("title")?.textContent||"", it.querySelector("source")?.textContent||"");
-    const pub = it.querySelector("pubDate")?.textContent || "";
-    return { title:c.title, source:c.source,
-      link: it.querySelector("link")?.textContent || "#",
-      ts: Date.parse(pub)||0, town };
+    const desc = it.querySelector("description")?.textContent||"";
+    let image=null;
+    const media = it.getElementsByTagName("media:content")[0]||it.getElementsByTagName("media:thumbnail")[0]||it.querySelector("enclosure");
+    if(media) image = media.getAttribute("url");
+    if(!image) image = imgFromHtml(desc);
+    return makeItem({ title:c.title, source:c.source,
+      link: it.querySelector("link")?.textContent||"#",
+      ts: Date.parse(it.querySelector("pubDate")?.textContent||"")||0, town, image, desc });
   });
 }
-
-function parseJson(obj, town){      // rss2json shape
+function parseJson(obj, town){
   if(!obj || !Array.isArray(obj.items)) return [];
   return obj.items.map(it=>{
     const c = cleanTitle(it.title||"", "");
-    return { title:c.title, source:c.source,
-      link: it.link || "#",
-      ts: Date.parse(it.pubDate||"")||0, town };
+    const desc = it.description||it.content||"";
+    let image = it.thumbnail || (it.enclosure&&it.enclosure.link) || imgFromHtml(desc);
+    if(image && !/^https?:/.test(image)) image=null;
+    return makeItem({ title:c.title, source:c.source, link:it.link||"#",
+      ts: Date.parse(it.pubDate||"")||0, town, image, desc });
   });
 }
 
+/* ===================== location accuracy filter ===================== */
+function isRelevant(it){
+  const hay = (it.title+" "+it.source).toLowerCase();
+  if(it.town==="County-wide") return hay.includes("kossuth")||hay.includes("algona");
+  const tok = it.town.toLowerCase();
+  return hay.includes(tok) || hay.includes("kossuth");
+}
+
+/* ===================== fetch ===================== */
 async function fetchFeed(src){
   const feedUrl = gnews(src.q);
   for(const proxy of proxyOrder){
     try{
       const res = await fetchTimeout(proxy.build(feedUrl));
       if(!res.ok) continue;
-
-      let items = [];
-      if(proxy.kind === "json"){
-        const j = await res.json();
-        items = parseJson(j, src.label);
-      } else if(proxy.kind === "wrap"){
-        const j = await res.json();
-        items = parseXml(j.contents || j.body || "", src.label);
-      } else {
-        items = parseXml(await res.text(), src.label);
-      }
-
-      if(items.length){
-        // promote the working proxy to the front for next time
-        proxyOrder = [proxy, ...proxyOrder.filter(p=>p!==proxy)];
-        return items;
-      }
-    }catch(e){ /* timeout or blocked — try next proxy */ }
+      let items=[];
+      if(proxy.kind==="json"){ items = parseJson(await res.json(), src.label); }
+      else if(proxy.kind==="wrap"){ const j=await res.json(); items = parseXml(j.contents||j.body||"", src.label); }
+      else { items = parseXml(await res.text(), src.label); }
+      if(items.length){ proxyOrder=[proxy,...proxyOrder.filter(p=>p!==proxy)]; return items; }
+    }catch(e){}
   }
   return [];
 }
 
-/* ===================== load everything ===================== */
 async function loadAll(){
   show("skeletons"); hide("grid"); hide("empty"); hide("error");
-  document.getElementById("ticker-text").textContent = "Pulling the latest from around the county…";
+  document.getElementById("ticker-text").textContent="Pulling the latest from around the county…";
   try{
     const results = await Promise.all(SOURCES.map(fetchFeed));
-    const merged = results.flat();
-
-    // de-dupe by normalized title
-    const seen = new Set(); const unique = [];
+    const merged = results.flat().filter(isRelevant);
+    const seen=new Set(); const unique=[];
     for(const it of merged){
-      const key = it.title.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,60);
+      const key=it.title.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,60);
       if(it.title && !seen.has(key)){ seen.add(key); unique.push(it); }
     }
     unique.sort((a,b)=>b.ts-a.ts);
-    allItems = unique;
-
+    allItems=unique; byId={}; unique.forEach(i=>byId[i.id]=i);
     if(!allItems.length){ hide("skeletons"); show("error"); return; }
-
     buildChips();
-    render();
     hide("skeletons"); show("grid");
-    const top = allItems[0];
-    document.getElementById("ticker-text").textContent =
-      `${allItems.length} stories live · Top: ${top.title.slice(0,70)}${top.title.length>70?"…":""}`;
-  }catch(e){
-    hide("skeletons"); show("error");
-  }
+    const top=allItems[0];
+    document.getElementById("ticker-text").textContent=`${allItems.length} stories live · Top: ${top.title.slice(0,70)}${top.title.length>70?"…":""}`;
+    router();
+  }catch(e){ hide("skeletons"); show("error"); }
 }
+
+/* ===================== covers ===================== */
+function genCover(it, big){
+  const hue=hashStr(it.source)%360;
+  const bg=`linear-gradient(135deg,hsl(${hue} 55% 16%),hsl(${(hue+45)%360} 60% 32%))`;
+  const initial=(it.source||"?").trim()[0]||"•";
+  const size=big?"clamp(40px,7vw,84px)":"34px";
+  return {bg, html:`<div class="gmark" style="font-size:${size}">${escapeHtml(initial.toUpperCase())}<small>${escapeHtml(it.source)}</small></div>`};
+}
+
+/* ===================== feed render ===================== */
+function timeAgo(ts){ if(!ts)return""; const s=(Date.now()-ts)/1000;
+  if(s<3600)return Math.max(1,Math.round(s/60))+"m ago";
+  if(s<86400)return Math.round(s/3600)+"h ago";
+  return Math.round(s/86400)+"d ago"; }
+
+function cardHtml(it,idx){
+  const feature=idx===0;
+  let coverInner, coverStyle, coverClass="cover";
+  if(it.image){ coverStyle=`background-image:url('${it.image}')`; coverInner=""; }
+  else { const g=genCover(it,feature); coverStyle=`background-image:${g.bg}`; coverInner=g.html; coverClass="cover gen"; }
+  return `<a class="card ${feature?'feature':''}" href="#/a/${it.id}" style="animation-delay:${Math.min(idx*40,500)}ms">
+    <div class="${coverClass}" style="${coverStyle}"><span class="town">${escapeHtml(it.town)}</span>${coverInner}</div>
+    <div class="body">
+      <h2>${escapeHtml(it.title)}</h2>
+      <div class="meta"><span class="src">${escapeHtml(it.source)}</span><span>${timeAgo(it.ts)} →</span></div>
+    </div></a>`;
+}
+function renderFeed(){
+  const list = allItems
+    .filter(i=>activeTown==="All"||i.town===activeTown)
+    .filter(i=>!searchTerm||i.title.toLowerCase().includes(searchTerm));
+  const grid=document.getElementById("grid");
+  document.getElementById("sec-head").textContent = activeTown==="All"?"Latest Headlines":activeTown+" Headlines";
+  if(!list.length){ grid.innerHTML=""; hide("grid"); show("empty"); return; }
+  hide("empty"); show("grid");
+  grid.innerHTML=list.map(cardHtml).join("");
+}
+
+/* ===================== article page ===================== */
+function renderArticle(id){
+  const it=byId[id];
+  const box=document.getElementById("view-article");
+  if(!it){ box.innerHTML=`<a class="back" href="#/">← All headlines</a><div class="state"><h3>Story not found.</h3><p>It may have rolled off the feed. Head back to the latest headlines.</p></div>`; return; }
+  document.title=`${it.title} — ${BRAND}`;
+  let cover;
+  if(it.image){ cover=`<div class="art-cover" style="background-image:url('${it.image}')"></div>`; }
+  else{ const g=genCover(it,true); cover=`<div class="art-cover" style="background-image:${g.bg}">${g.html}</div>`; }
+  const related = it.related.length ? `<div class="related"><h3>More coverage</h3>${it.related.map(r=>`<a href="${r.link}" target="_blank" rel="noopener"><span>${escapeHtml(r.title)}</span><span>→</span></a>`).join("")}</div>` : "";
+  box.innerHTML=`
+    <a class="back" href="#/${activeTown!=='All'?'t/'+encodeURIComponent(activeTown):''}">← Back to headlines</a>
+    ${cover}
+    <span class="art-town">${escapeHtml(it.town)} · Kossuth County</span>
+    <h1>${escapeHtml(it.title)}</h1>
+    <div class="art-meta">Reported by <b>${escapeHtml(it.source)}</b> <span>·</span> <span>${timeAgo(it.ts)}</span></div>
+    <a class="read-btn" href="${it.link}" target="_blank" rel="noopener">Read the full story at ${escapeHtml(it.source)} →</a>
+    <p class="note">TownFeed brings Kossuth County coverage together in one place. The full report lives on the original publisher's site — tap above to read it there.</p>
+    <div class="adslot"><b>Your business here</b>Reach all of Kossuth County. Email ${AD_CONTACT} to advertise.</div>
+    ${related}`;
+}
+
+/* ===================== router ===================== */
+function showFeedView(){ document.getElementById("view-article").classList.add("hidden"); document.getElementById("view-feed").classList.remove("hidden"); document.title=`${BRAND} — Kossuth County, Iowa News`; }
+function showArticleView(){ document.getElementById("view-feed").classList.add("hidden"); document.getElementById("view-article").classList.remove("hidden"); }
+function syncChips(){ document.querySelectorAll(".chip").forEach(c=>c.classList.toggle("active",c.dataset.town===activeTown)); }
+
+function router(){
+  const h=location.hash.replace(/^#/,"");
+  window.scrollTo({top:0,behavior:"instant"});
+  if(h.startsWith("/a/")){ showArticleView(); renderArticle(h.slice(3)); return; }
+  if(h.startsWith("/t/")){ activeTown=decodeURIComponent(h.slice(3)); }
+  else { activeTown="All"; }
+  showFeedView(); syncChips(); renderFeed();
+}
+window.addEventListener("hashchange", router);
 
 /* ===================== chips ===================== */
 function buildChips(){
-  const towns = ["All", ...new Set(allItems.map(i=>i.town))];
-  const box = document.getElementById("chips");
-  box.innerHTML = towns.map(t=>
-    `<button class="chip ${t===activeTown?'active':''}" data-town="${t}">${t}</button>`
-  ).join("");
-  box.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
-    activeTown=c.dataset.town;
-    box.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===c));
-    render();
-  });
+  const towns=["All",...new Set(allItems.map(i=>i.town))];
+  const box=document.getElementById("chips");
+  box.innerHTML=towns.map(t=>`<button class="chip ${t===activeTown?'active':''}" data-town="${escapeHtml(t)}">${escapeHtml(t)}</button>`).join("");
+  box.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{ const t=c.dataset.town; location.hash = t==="All"?"#/":"#/t/"+encodeURIComponent(t); });
 }
 
-/* ===================== render ===================== */
-function timeAgo(ts){
-  if(!ts) return "";
-  const s=(Date.now()-ts)/1000;
-  if(s<3600) return Math.max(1,Math.round(s/60))+"m ago";
-  if(s<86400) return Math.round(s/3600)+"h ago";
-  return Math.round(s/86400)+"d ago";
-}
-function render(){
-  let list = allItems
-    .filter(i=>activeTown==="All"||i.town===activeTown)
-    .filter(i=>!searchTerm||i.title.toLowerCase().includes(searchTerm));
-
-  const grid=document.getElementById("grid");
-  document.getElementById("sec-head").textContent =
-    activeTown==="All" ? "Latest Headlines" : activeTown + " Headlines";
-
-  if(!list.length){ grid.innerHTML=""; hide("grid"); show("empty"); return; }
-  hide("empty"); show("grid");
-
-  grid.innerHTML = list.map((it,idx)=>`
-    <a class="card ${idx===0?'feature':''}" href="${it.link}" target="_blank" rel="noopener"
-       style="animation-delay:${Math.min(idx*40,500)}ms">
-      <span class="town">${it.town}</span>
-      <h2>${escapeHtml(it.title)}</h2>
-      <div class="meta">
-        <span class="src">${escapeHtml(it.source)}</span>
-        <span>${timeAgo(it.ts)} <span class="arrow">→</span></span>
-      </div>
-    </a>`).join("");
-}
-function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-
-/* ===================== helpers ===================== */
+/* ===================== misc ===================== */
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 const show=id=>document.getElementById(id).classList.remove("hidden");
 const hide=id=>document.getElementById(id).classList.add("hidden");
 
-/* search */
-document.getElementById("search").addEventListener("input",e=>{
-  searchTerm=e.target.value.toLowerCase().trim(); render();
-});
-/* refresh */
+document.getElementById("search").addEventListener("input",e=>{ searchTerm=e.target.value.toLowerCase().trim(); if(!location.hash.startsWith("#/a/")) renderFeed(); });
 document.getElementById("refresh").onclick=loadAll;
 
-/* theme (safe localStorage for both artifact preview + GitHub Pages) */
 const themeBtn=document.getElementById("theme");
-function setTheme(t){
-  document.documentElement.setAttribute("data-theme",t);
-  themeBtn.textContent = t==="dark" ? "☀️ Light" : "🌙 Dark";
-  try{ localStorage.setItem("tf-theme",t); }catch(e){}
-}
+function setTheme(t){ document.documentElement.setAttribute("data-theme",t); themeBtn.textContent=t==="dark"?"☀️ Light":"🌙 Dark"; try{localStorage.setItem("tf-theme",t);}catch(e){} }
 themeBtn.onclick=()=>setTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");
-try{ const saved=localStorage.getItem("tf-theme"); if(saved) setTheme(saved); }catch(e){}
-
+try{const s=localStorage.getItem("tf-theme"); if(s)setTheme(s);}catch(e){}
 document.getElementById("year").textContent=new Date().getFullYear();
 
-/* go */
 loadAll();
 </script>
 </body>
