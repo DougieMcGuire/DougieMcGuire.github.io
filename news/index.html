@@ -3,991 +3,1102 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#f8f4ec">
+  <meta name="theme-color" content="#faf7f2">
   <title>TownFeed — Kossuth County · Iowa</title>
-  <meta name="description" content="All the news from Kossuth County, Iowa. Algona, Bancroft, Burt, Titonka, Swea City, Wesley, Whittemore, Lu Verne, Lakota, Lone Rock, Ledyard, Fenton — sports, obituaries, weather alerts and more, updated every 10 minutes.">
+  <meta name="description" content="Your local news source for Kossuth County, Iowa. Algona, Bancroft, Burt, Titonka, Swea City and more — updated every 10 minutes.">
   <link rel="canonical" href="https://townfeed.app/">
   <meta property="og:title" content="TownFeed — Kossuth County News">
-  <meta property="og:description" content="Every story from Kossuth County, Iowa — local news, sports, obituaries, weather alerts. Updated every 10 minutes.">
+  <meta property="og:description" content="Your local news source for Kossuth County, Iowa.">
   <meta property="og:type" content="website">
-  <meta property="og:locale" content="en_US">
-  <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet">
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "NewsMediaOrganization",
-    "name": "TownFeed",
-    "alternateName": "TownFeed Kossuth County",
-    "url": "https://townfeed.app/",
-    "areaServed": { "@type": "AdministrativeArea", "name": "Kossuth County, Iowa" },
-    "description": "Hyperlocal news aggregator for Kossuth County, Iowa.",
-    "publishingPrinciples": "https://townfeed.app/"
-  }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg: #f8f4ec;
-      --bg-soft: #ece6d7;
+      --paper: #faf7f2;
+      --paper2: #f2ede4;
+      --ink: #1a1208;
+      --ink2: #4a4236;
+      --ink3: #8a7e6e;
+      --rule: #d4cbb8;
+      --red: #c0392b;
+      --red-soft: #fdf1f0;
+      --blue: #1a4a7a;
+      --gold: #b8860b;
       --card: #ffffff;
-      --text: #0a0a0a;
-      --text-soft: #4a4a4a;
-      --line: #0a0a0a;
-      --shadow: 6px 6px 0 #0a0a0a;
-      --shadow-sm: 3px 3px 0 #0a0a0a;
-      --shadow-press: 2px 2px 0 #0a0a0a;
-      --accent: #ff3b30;
-      --accent-soft: #ffe8e6;
-      --good: #1aa84a;
-      --warn: #ff8a00;
-      --r: 18px;
-      --r-sm: 12px;
-      --r-pill: 999px;
-      --border: 2.5px solid var(--line);
-      --t-fast: 120ms cubic-bezier(.2,.7,.3,1);
+      --shadow: 0 1px 3px rgba(26,18,8,0.08), 0 4px 12px rgba(26,18,8,0.06);
+      --shadow-hover: 0 4px 16px rgba(26,18,8,0.14), 0 8px 32px rgba(26,18,8,0.08);
+      --r: 4px;
     }
     [data-theme="dark"] {
-      --bg: #0a0a0a;
-      --bg-soft: #161616;
-      --card: #1a1a1a;
-      --text: #f8f4ec;
-      --text-soft: #b8b3a6;
-      --line: #f8f4ec;
-      --shadow: 6px 6px 0 #f8f4ec;
-      --shadow-sm: 3px 3px 0 #f8f4ec;
-      --shadow-press: 2px 2px 0 #f8f4ec;
-      --accent: #ff5b51;
-      --accent-soft: #2a1614;
+      --paper: #141210;
+      --paper2: #1e1c19;
+      --ink: #f0ebe0;
+      --ink2: #b8b0a0;
+      --ink3: #706860;
+      --rule: #2e2b25;
+      --card: #1e1c19;
+      --red-soft: #2a1210;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+      --shadow-hover: 0 4px 16px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.25);
     }
-    *,*::before,*::after { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
     body {
       margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Newsreader', Georgia, serif;
-      font-size: 18px;
-      line-height: 1.5;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.6;
       min-height: 100vh;
-      transition: background var(--t-fast), color var(--t-fast);
+      transition: background 0.2s, color 0.2s;
     }
-    a { color: inherit; }
-    button { font: inherit; cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; border: none; background: none; }
     img { display: block; max-width: 100%; }
 
-    .container { max-width: 1180px; margin: 0 auto; padding: 0 22px; }
+    /* ── LAYOUT ─────────────────────────────────────────── */
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 
-    /* ===== HEADER ===== */
-    header.site {
-      padding: 22px 0 14px;
-      border-bottom: var(--border);
-      background: var(--bg);
-      position: sticky; top: 0; z-index: 30;
+    /* ── NAMEPLATE ──────────────────────────────────────── */
+    .nameplate {
+      border-bottom: 3px double var(--rule);
+      padding: 14px 0 10px;
+      background: var(--paper);
+      position: sticky; top: 0; z-index: 50;
     }
-    .hd-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-    .brand {
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 800;
-      font-size: clamp(28px, 5vw, 40px);
-      letter-spacing: -0.03em;
+    .np-top {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 8px;
+    }
+    .masthead {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 900;
+      font-size: clamp(32px, 5vw, 52px);
+      letter-spacing: -0.02em;
       line-height: 1;
-      text-decoration: none;
-      color: var(--text);
-      display: inline-flex; align-items: baseline; gap: 8px;
+      color: var(--ink);
+      flex-shrink: 0;
     }
-    .brand .mark {
-      display: inline-block;
-      background: var(--text);
-      color: var(--bg);
-      padding: 4px 10px 6px;
-      border-radius: var(--r-sm);
-      font-size: 0.95em;
-      transform: rotate(-2deg);
+    .masthead span { color: var(--red); }
+    .edition-block {
+      border-left: 2px solid var(--rule);
+      padding-left: 14px;
+      font-family: 'DM Sans', sans-serif;
     }
-    .tagline {
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 600;
-      font-size: 15px;
-      color: var(--text-soft);
-      letter-spacing: 0.02em;
+    .edition-county {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--ink3);
+    }
+    .edition-date {
+      font-size: 13px; color: var(--ink2); margin-top: 1px;
+    }
+    .np-actions { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+    .search-wrap {
+      display: flex; align-items: center; gap: 8px;
+      border: 1.5px solid var(--rule);
+      border-radius: 2px;
+      padding: 6px 12px;
+      background: var(--card);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .search-wrap:focus-within { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(26,18,8,0.08); }
+    .search-wrap svg { color: var(--ink3); flex-shrink: 0; }
+    .search-wrap input {
+      border: none; background: transparent; outline: none;
+      font-family: 'DM Sans', sans-serif; font-size: 14px;
+      color: var(--ink); width: 160px;
+    }
+    .search-wrap input::placeholder { color: var(--ink3); }
+    .theme-btn {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--rule);
+      border-radius: 2px;
+      background: var(--card);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink2);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .theme-btn:hover { border-color: var(--ink); color: var(--ink); }
+    .np-nav {
+      display: flex; align-items: center; gap: 0;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .np-nav::-webkit-scrollbar { display: none; }
+    .nav-tab {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600; font-size: 13px;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 6px 18px;
+      border-right: 1px solid var(--rule);
+      color: var(--ink2);
+      transition: color 0.15s, background 0.15s;
+      white-space: nowrap;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .nav-tab:first-child { padding-left: 0; }
+    .nav-tab .count {
+      background: var(--paper2); color: var(--ink3);
+      border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 700;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-tab:hover { color: var(--ink); }
+    .nav-tab.active { color: var(--red); }
+    .nav-tab.active .count { background: var(--red); color: #fff; }
+    .nav-sep { flex: 1; }
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--red);
+      animation: pulse 2s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .live-label {
+      font-family: 'DM Sans', sans-serif; font-size: 11px;
+      font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--red);
+    }
+
+    /* ── WEATHER ALERT ──────────────────────────────────── */
+    .alert-bar {
+      background: var(--red); color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 600;
+      padding: 10px 0;
+      overflow: hidden;
+    }
+    .alert-bar .wrap { display: flex; gap: 16px; align-items: center; }
+    .alert-tag {
+      background: #fff; color: var(--red);
+      font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
+      padding: 3px 8px; border-radius: 2px; flex-shrink: 0;
       text-transform: uppercase;
     }
-    .hd-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .search {
-      display: flex; align-items: center; gap: 8px;
-      background: var(--card);
-      border: var(--border);
-      border-radius: var(--r-pill);
-      padding: 6px 14px;
-      box-shadow: var(--shadow-sm);
-      transition: transform var(--t-fast), box-shadow var(--t-fast);
+    .alert-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .alert-nav { display: flex; gap: 4px; flex-shrink: 0; }
+    .alert-nav button {
+      background: rgba(255,255,255,0.25); color: #fff;
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 2px; padding: 3px 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
     }
-    .search:focus-within { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--line); }
-    .search input {
-      border: 0; background: transparent; outline: none; color: var(--text);
-      font-family: 'Bricolage Grotesque', sans-serif; font-weight: 500; font-size: 15px;
-      width: 180px;
-    }
-    .search input::placeholder { color: var(--text-soft); }
-    .icon-btn {
-      width: 42px; height: 42px;
-      border: var(--border); background: var(--card);
-      border-radius: var(--r-pill);
-      box-shadow: var(--shadow-sm);
-      display: inline-flex; align-items: center; justify-content: center;
-      color: var(--text);
-      transition: transform var(--t-fast), box-shadow var(--t-fast);
-    }
-    .icon-btn:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--line); }
-    .icon-btn:active { transform: translate(2px,2px); box-shadow: var(--shadow-press); }
-    .icon-btn svg { width: 20px; height: 20px; }
+    .alert-nav button:disabled { opacity: 0.4; }
 
-    /* ===== WEATHER BANNER ===== */
-    .weather-banner {
-      margin: 18px 0 0;
-      border: var(--border);
-      border-radius: var(--r);
-      background: var(--accent);
-      color: #fff;
-      box-shadow: var(--shadow);
-      padding: 18px 22px;
-      display: flex; gap: 16px; align-items: flex-start;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      position: relative;
+    /* ── FILTERS ────────────────────────────────────────── */
+    .filters {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--rule);
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
     }
-    [data-theme="dark"] .weather-banner { color: #fff; }
-    .weather-banner.minor { background: var(--warn); }
-    .weather-banner .wb-icon {
-      flex: 0 0 auto; width: 42px; height: 42px;
-      background: #fff; color: var(--accent);
-      border: 2.5px solid #0a0a0a;
-      border-radius: var(--r-sm);
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: 22px;
-    }
-    .weather-banner h3 {
-      margin: 0 0 4px; font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 800; font-size: 20px; letter-spacing: -0.01em;
-    }
-    .weather-banner p { margin: 0; font-family: 'Newsreader', serif; font-size: 16px; line-height: 1.4; }
-    .weather-banner .wb-expires {
-      font-size: 13px; opacity: 0.9; font-weight: 600;
-      margin-top: 6px; letter-spacing: 0.02em; text-transform: uppercase;
-    }
-    .weather-pager { display: flex; gap: 6px; margin-top: 10px; }
-    .weather-pager button {
-      background: #fff; color: var(--text); border: 2px solid #0a0a0a;
-      border-radius: var(--r-pill); padding: 4px 12px; font-weight: 700; font-size: 13px;
-    }
-    .weather-pager button[disabled] { opacity: 0.4; cursor: default; }
-
-    /* ===== TABS ===== */
-    .tabs {
-      display: flex; gap: 10px;
-      margin: 22px 0 14px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding-bottom: 4px;
-    }
-    .tabs::-webkit-scrollbar { display: none; }
-    .tab {
-      flex: 0 0 auto;
-      background: var(--card);
-      border: var(--border);
-      border-radius: var(--r-pill);
-      box-shadow: var(--shadow-sm);
-      padding: 10px 20px;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 700; font-size: 15px;
-      letter-spacing: -0.005em;
-      color: var(--text);
-      transition: transform var(--t-fast), box-shadow var(--t-fast);
-      white-space: nowrap;
-      display: inline-flex; align-items: center; gap: 8px;
-    }
-    .tab .pill {
-      background: var(--bg-soft); color: var(--text-soft);
-      border-radius: var(--r-pill); padding: 2px 8px; font-size: 12px; font-weight: 700;
-    }
-    .tab:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--line); }
-    .tab.active {
-      background: var(--text); color: var(--bg);
-      transform: translate(2px,2px); box-shadow: var(--shadow-press);
-    }
-    .tab.active .pill { background: var(--bg); color: var(--text); }
-
-    /* ===== FILTER CHIPS ===== */
-    .chip-row {
-      display: flex; gap: 8px; flex-wrap: wrap;
-      margin: 0 0 18px;
-    }
-    .chip-label {
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 700; font-size: 11px; letter-spacing: 0.06em;
-      text-transform: uppercase; color: var(--text-soft);
-      align-self: center; margin-right: 4px;
+    .filter-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink3);
+      margin-right: 2px;
     }
     .chip {
-      background: var(--card); color: var(--text);
-      border: 2px solid var(--line);
-      border-radius: var(--r-pill);
-      padding: 6px 14px;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 600; font-size: 14px;
-      transition: all var(--t-fast);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500;
+      color: var(--ink2);
+      border: 1px solid var(--rule);
+      border-radius: 2px;
+      padding: 5px 12px;
+      background: var(--card);
+      transition: all 0.12s;
+      cursor: pointer;
     }
-    .chip:hover { background: var(--bg-soft); }
-    .chip.active { background: var(--text); color: var(--bg); }
+    .chip:hover { border-color: var(--ink); color: var(--ink); }
+    .chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .filter-divider {
+      width: 1px; height: 20px; background: var(--rule);
+      margin: 0 4px;
+    }
 
-    /* ===== STATUS / EMPTY / LOADING ===== */
-    .status {
-      padding: 60px 22px; text-align: center;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      color: var(--text-soft); font-size: 15px;
+    /* ── FEED LAYOUTS ───────────────────────────────────── */
+    .feed-wrap { padding: 28px 0 40px; }
+
+    /* TOP STORY — full width hero */
+    .hero-story {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border: 1px solid var(--rule);
+      border-radius: var(--r);
+      overflow: hidden;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+      text-decoration: none; color: var(--ink);
+      transition: box-shadow 0.2s;
     }
-    .status .spinner {
-      display: inline-block; width: 28px; height: 28px;
-      border: 3px solid var(--line); border-top-color: transparent;
+    .hero-story:hover { box-shadow: var(--shadow-hover); }
+    .hero-img {
+      position: relative; aspect-ratio: 4/3; overflow: hidden;
+      background: var(--paper2);
+    }
+    .hero-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .hero-story:hover .hero-img img { transform: scale(1.03); }
+    .hero-img .placeholder {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 72px; font-weight: 900;
+      color: var(--rule);
+    }
+    .hero-body {
+      padding: 32px 36px;
+      display: flex; flex-direction: column; gap: 12px;
+      border-left: 1px solid var(--rule);
+    }
+    .story-meta {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 12px;
+      font-weight: 600; color: var(--ink3);
+    }
+    .story-meta .topic {
+      background: var(--red); color: #fff;
+      padding: 2px 8px; border-radius: 2px;
+      font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+      font-weight: 700;
+    }
+    .story-meta .topic.sports { background: var(--blue); }
+    .story-meta .topic.schools { background: #2e7d32; }
+    .story-meta .topic.weather { background: #e65100; }
+    .story-meta .topic.government { background: #4a148c; }
+    .story-meta .topic.business { background: var(--gold); }
+    .story-meta .topic.community { background: var(--ink3); }
+    .story-meta .topic.crime { background: #37474f; }
+    .story-meta .sep { color: var(--rule); }
+    .hero-body h2 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      font-weight: 800; font-size: clamp(22px, 2.5vw, 32px);
+      line-height: 1.2; letter-spacing: -0.01em;
+    }
+    .hero-body .deck {
+      font-family: 'Source Serif 4', serif;
+      font-size: 16px; line-height: 1.55;
+      color: var(--ink2);
+    }
+    .hero-body .read-more {
+      margin-top: auto;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      color: var(--red); display: flex; align-items: center; gap: 6px;
+    }
+    .hero-body .attribution {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px; color: var(--ink3);
+      padding-top: 12px; border-top: 1px solid var(--rule);
+    }
+
+    /* 3-COLUMN GRID */
+    .story-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--rule);
+      border: 1px solid var(--rule);
+      border-radius: var(--r);
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .story-card {
+      background: var(--card);
+      display: flex; flex-direction: column;
+      text-decoration: none; color: var(--ink);
+      transition: background 0.15s;
+    }
+    .story-card:hover { background: var(--paper2); }
+    .story-card .card-img {
+      aspect-ratio: 16/9; overflow: hidden;
+      background: var(--paper2); position: relative;
+    }
+    .story-card .card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      opacity: 0; transition: opacity 0.3s, transform 0.4s;
+    }
+    .story-card .card-img img.loaded { opacity: 1; }
+    .story-card:hover .card-img img { transform: scale(1.04); }
+    .story-card .card-img .placeholder {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 40px; font-weight: 900; color: var(--rule);
+    }
+    .story-card .card-body { padding: 16px 20px 20px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .story-card h3 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700; font-size: 18px; line-height: 1.25;
+      letter-spacing: -0.005em;
+    }
+    .story-card .card-desc {
+      font-size: 14px; line-height: 1.5; color: var(--ink2);
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .story-card .card-foot {
+      margin-top: auto; padding-top: 10px;
+      border-top: 1px solid var(--rule);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px; color: var(--ink3);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .story-card .card-foot .via { font-style: italic; }
+
+    /* LIST ROWS — after the grid */
+    .story-list { border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; margin-bottom: 28px; }
+    .list-item {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 0;
+      background: var(--card);
+      border-bottom: 1px solid var(--rule);
+      text-decoration: none; color: var(--ink);
+      transition: background 0.15s;
+    }
+    .list-item:last-child { border-bottom: none; }
+    .list-item:hover { background: var(--paper2); }
+    .list-thumb {
+      aspect-ratio: 4/3; overflow: hidden; background: var(--paper2);
+      position: relative;
+    }
+    .list-thumb img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.3s; }
+    .list-thumb img.loaded { opacity: 1; }
+    .list-thumb .placeholder {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif; font-size: 26px;
+      font-weight: 900; color: var(--rule);
+    }
+    .list-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; justify-content: center; }
+    .list-body h4 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700; font-size: 16px; line-height: 1.25;
+    }
+    .list-body .list-desc { font-size: 13px; color: var(--ink2); line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .list-body .list-foot { margin-top: 4px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink3); }
+
+    /* OBIT LAYOUT */
+    .obit-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 1px; background: var(--rule);
+      border: 1px solid var(--rule); border-radius: var(--r);
+      overflow: hidden; margin-bottom: 28px;
+    }
+    .obit-card {
+      background: var(--card);
+      padding: 22px 26px;
+      text-decoration: none; color: var(--ink);
+      transition: background 0.15s;
+    }
+    .obit-card:hover { background: var(--paper2); }
+    .obit-card::before { content: '✦'; font-size: 16px; color: var(--ink3); display: block; margin-bottom: 10px; }
+    .obit-card h3 {
+      margin: 0 0 6px;
+      font-family: 'Playfair Display', serif;
+      font-style: italic; font-weight: 700;
+      font-size: 19px; line-height: 1.25;
+    }
+    .obit-card .obit-desc { font-size: 14px; color: var(--ink2); line-height: 1.45;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .obit-card .obit-foot { margin-top: 10px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink3); }
+
+    /* SECTION HEADERS */
+    .section-head {
+      display: flex; align-items: baseline; gap: 14px;
+      margin: 32px 0 16px;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      font-weight: 800; font-size: 22px;
+      letter-spacing: -0.01em;
+    }
+    .section-head .rule { flex: 1; height: 1px; background: var(--rule); }
+    .section-head .count {
+      font-family: 'DM Sans', sans-serif; font-size: 12px;
+      font-weight: 600; color: var(--ink3);
+    }
+
+    /* LOAD MORE */
+    .load-wrap { text-align: center; padding: 10px 0 30px; }
+    .load-btn {
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--ink); border: 1.5px solid var(--rule);
+      padding: 10px 28px; border-radius: 2px;
+      background: var(--card);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .load-btn:hover { border-color: var(--ink); box-shadow: 0 2px 8px rgba(26,18,8,0.1); }
+
+    /* ARTICLE PAGE */
+    .article-wrap { max-width: 780px; margin: 0 auto; padding: 32px 0 64px; }
+    .back { display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+      color: var(--ink2); margin-bottom: 24px;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .back svg { width: 14px; height: 14px; }
+    .article-wrap .a-label {
+      font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--red); margin-bottom: 12px;
+    }
+    .article-wrap h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900; font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.1; letter-spacing: -0.02em;
+      margin: 0 0 16px;
+    }
+    .article-wrap .a-deck {
+      font-size: 19px; line-height: 1.55; color: var(--ink2);
+      font-style: italic; margin-bottom: 20px;
+      border-bottom: 1px solid var(--rule); padding-bottom: 20px;
+    }
+    .article-wrap .a-meta {
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink3);
+      margin-bottom: 24px;
+    }
+    .article-wrap .a-img {
+      margin: 0 0 28px;
+      border-radius: var(--r); overflow: hidden;
+      aspect-ratio: 16/9; background: var(--paper2);
+    }
+    .article-wrap .a-img img { width: 100%; height: 100%; object-fit: cover; }
+    .article-wrap .a-img .placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif; font-size: 80px;
+      font-weight: 900; color: var(--rule);
+    }
+    .article-wrap .a-attribution {
+      margin: 24px 0;
+      padding: 16px 20px;
+      background: var(--paper2);
+      border-left: 3px solid var(--rule);
+      border-radius: 0 var(--r) var(--r) 0;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink2);
+    }
+    .article-wrap .a-attribution a { color: var(--blue); text-decoration: underline; font-weight: 600; }
+    .article-wrap .a-read-original {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: #fff; background: var(--ink);
+      padding: 12px 24px; border-radius: 2px;
+      margin: 24px 0;
+      transition: opacity 0.15s;
+    }
+    .article-wrap .a-read-original:hover { opacity: 0.85; }
+    .article-wrap .ad-slot {
+      margin: 32px 0;
+      padding: 24px;
+      border: 1px dashed var(--rule);
+      border-radius: var(--r);
+      text-align: center;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .article-wrap .ad-slot .ad-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink3); margin-bottom: 6px; }
+    .article-wrap .ad-slot .ad-pitch { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .article-wrap .ad-slot .ad-sub { font-size: 14px; color: var(--ink2); }
+    .article-wrap .ad-slot a { color: var(--red); }
+    .article-wrap .related-stories { margin-top: 40px; }
+    .article-wrap .related-stories h3 {
+      font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 800;
+      margin: 0 0 14px; letter-spacing: -0.01em;
+    }
+
+    /* STATUS */
+    .status {
+      padding: 80px 24px; text-align: center;
+      font-family: 'DM Sans', sans-serif; color: var(--ink3);
+    }
+    .spinner {
+      display: inline-block; width: 24px; height: 24px;
+      border: 2.5px solid var(--rule); border-top-color: var(--ink);
       border-radius: 50%; animation: spin 0.7s linear infinite;
       vertical-align: middle; margin-right: 10px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ===== FEED GRID ===== */
-    .feed {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 22px;
-      margin-bottom: 30px;
-    }
-    .card {
-      background: var(--card);
-      border: var(--border);
-      border-radius: var(--r);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      text-decoration: none;
-      color: var(--text);
-      display: flex; flex-direction: column;
-      transition: transform var(--t-fast), box-shadow var(--t-fast);
-      will-change: transform;
-    }
-    .card:hover { transform: translate(-2px,-2px); box-shadow: 8px 8px 0 var(--line); }
-    .card:active { transform: translate(2px,2px); box-shadow: var(--shadow-press); }
-    .card .cover {
-      position: relative; aspect-ratio: 16/9; overflow: hidden;
-      border-bottom: var(--border);
-      background: var(--bg-soft);
-    }
-    .card .cover img {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover;
-      opacity: 0; transition: opacity 300ms ease;
-    }
-    .card .cover img.loaded { opacity: 1; }
-    .card .cover .gradient {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 800; font-size: 38px; color: rgba(255,255,255,0.95);
-      letter-spacing: -0.02em;
-      text-shadow: 0 2px 0 rgba(0,0,0,0.2);
-      padding: 10px;
-      text-align: center;
-    }
-    .card .cover .pub-name {
-      position: absolute; bottom: 8px; left: 10px;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 700; font-size: 12px;
-      color: rgba(255,255,255,0.95);
-      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      pointer-events: none;
-    }
-    .card .new-badge {
-      position: absolute; top: 10px; left: 10px;
-      background: var(--accent); color: #fff;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 800; font-size: 11px;
-      padding: 4px 9px;
-      border: 2px solid #0a0a0a; border-radius: var(--r-sm);
-      letter-spacing: 0.08em;
-      box-shadow: 2px 2px 0 #0a0a0a;
-    }
-    .card .topic-badge {
-      position: absolute; top: 10px; right: 10px;
-      background: var(--card); color: var(--text);
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 700; font-size: 11px;
-      padding: 4px 9px;
-      border: 2px solid var(--line); border-radius: var(--r-sm);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .card .body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-    .card .source-row {
-      display: flex; align-items: center; gap: 6px;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-size: 13px; font-weight: 600;
-      color: var(--text-soft);
-    }
-    .card .source-row .favicon {
-      width: 16px; height: 16px; border-radius: 4px;
-      background: var(--bg-soft);
-    }
-    .card .source-row .dot { opacity: 0.5; }
-    .card h2 {
-      margin: 0;
-      font-family: 'Newsreader', Georgia, serif;
-      font-weight: 600;
-      font-size: 19px; line-height: 1.25;
-      letter-spacing: -0.005em;
-      color: var(--text);
-    }
-    .card .desc {
-      font-family: 'Newsreader', serif; font-size: 14.5px;
-      color: var(--text-soft); line-height: 1.4;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-      overflow: hidden;
+    /* AI badge */
+    .ai-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--ink3);
+      border: 1px solid var(--rule);
+      padding: 2px 6px; border-radius: 2px;
     }
 
-    /* OBIT CARD — different feel */
-    .card.obit .cover { display: none; }
-    .card.obit { background: var(--card); }
-    .card.obit h2 { font-style: italic; font-weight: 500; }
-    .card.obit .body::before {
-      content: '✦';
-      font-family: 'Newsreader', serif;
-      font-size: 22px; color: var(--text-soft);
-      align-self: flex-start; line-height: 1; margin-bottom: 4px;
+    /* FOOTER */
+    footer {
+      border-top: 3px double var(--rule);
+      padding: 20px 0 40px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; color: var(--ink3);
     }
+    footer .foot-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    footer a { color: var(--ink3); text-decoration: underline; }
+    footer a:hover { color: var(--ink); }
 
-    /* ===== LOAD MORE ===== */
-    .load-more {
-      display: block; margin: 10px auto 40px;
-      padding: 14px 28px;
-      background: var(--card); color: var(--text);
-      border: var(--border); border-radius: var(--r);
-      box-shadow: var(--shadow);
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 700; font-size: 16px;
-      letter-spacing: -0.005em;
-      transition: transform var(--t-fast), box-shadow var(--t-fast);
+    /* ── RESPONSIVE ─────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .hero-story { grid-template-columns: 1fr; }
+      .hero-img { aspect-ratio: 16/9; }
+      .hero-body { border-left: none; border-top: 1px solid var(--rule); padding: 20px 24px; }
+      .story-grid { grid-template-columns: repeat(2, 1fr); }
     }
-    .load-more:hover { transform: translate(-2px,-2px); box-shadow: 8px 8px 0 var(--line); }
-    .load-more:active { transform: translate(2px,2px); box-shadow: var(--shadow-press); }
-
-    /* ===== ARTICLE PAGE ===== */
-    .article { padding: 30px 0 60px; }
-    .back-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700;
-      font-size: 14px; color: var(--text); text-decoration: none;
-      padding: 8px 14px; border: 2px solid var(--line); border-radius: var(--r-pill);
-      box-shadow: var(--shadow-sm);
-      transition: transform var(--t-fast), box-shadow var(--t-fast);
-      background: var(--card);
-    }
-    .back-link:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--line); }
-
-    .article-cover {
-      margin: 22px 0;
-      border: var(--border); border-radius: var(--r);
-      box-shadow: var(--shadow);
-      overflow: hidden; aspect-ratio: 16/9;
-      position: relative; background: var(--bg-soft);
-    }
-    .article-cover img { width: 100%; height: 100%; object-fit: cover; }
-    .article-cover .gradient {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 800; font-size: 56px;
-      color: rgba(255,255,255,0.95);
-      letter-spacing: -0.02em;
-      text-shadow: 0 3px 0 rgba(0,0,0,0.2);
-    }
-    .article-meta {
-      display: flex; gap: 14px; align-items: center;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 600; font-size: 14px;
-      color: var(--text-soft);
-      margin-bottom: 14px; flex-wrap: wrap;
-    }
-    .article-meta .favicon { width: 20px; height: 20px; border-radius: 5px; background: var(--bg-soft); }
-    .article-meta .dot { opacity: 0.5; }
-    .article-meta .topic-tag {
-      background: var(--text); color: var(--bg);
-      padding: 3px 10px; border-radius: var(--r-pill);
-      font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 800;
-    }
-    .article h1 {
-      font-family: 'Newsreader', serif;
-      font-weight: 700; font-size: clamp(28px, 5vw, 44px);
-      line-height: 1.1; letter-spacing: -0.015em;
-      margin: 0 0 16px;
-    }
-    .article-desc {
-      font-family: 'Newsreader', serif;
-      font-size: 19px; line-height: 1.5;
-      color: var(--text-soft);
-      margin-bottom: 26px;
-      max-width: 720px;
-    }
-
-    .ad-slot {
-      margin: 30px 0;
-      padding: 26px;
-      background: var(--card);
-      border: 2.5px dashed var(--line);
-      border-radius: var(--r);
-      text-align: center;
-      font-family: 'Bricolage Grotesque', sans-serif;
-    }
-    .ad-slot .label {
-      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-      font-weight: 700; color: var(--text-soft); margin-bottom: 6px;
-    }
-    .ad-slot .pitch { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-    .ad-slot .cta {
-      font-family: 'Newsreader', serif; font-size: 15px;
-      color: var(--text-soft);
-    }
-    .ad-slot a { color: var(--accent); text-decoration: underline; font-weight: 700; }
-
-    .related h3 {
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 800; font-size: 18px; letter-spacing: -0.01em;
-      margin: 30px 0 14px;
-    }
-    .related-list { display: flex; flex-direction: column; gap: 10px; }
-    .related-list a {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px;
-      background: var(--card); border: 2px solid var(--line);
-      border-radius: var(--r-sm); box-shadow: var(--shadow-sm);
-      text-decoration: none; color: var(--text);
-      font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: 14px;
-      transition: transform var(--t-fast), box-shadow var(--t-fast);
-    }
-    .related-list a:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--line); }
-    .related-list .favicon { width: 16px; height: 16px; border-radius: 4px; }
-
-    .source-fine {
-      margin-top: 36px; padding-top: 18px;
-      border-top: 1.5px solid var(--bg-soft);
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-size: 11px; color: var(--text-soft);
-      letter-spacing: 0.04em; text-align: center;
-    }
-    .source-fine a { color: var(--text-soft); text-decoration: underline; }
-    .source-fine a:hover { color: var(--text); }
-
-    /* ===== FOOTER ===== */
-    footer.site {
-      border-top: var(--border);
-      margin-top: 50px; padding: 24px 0 40px;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-size: 13px; color: var(--text-soft);
-      display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap;
-    }
-    footer.site .meta { font-variant-numeric: tabular-nums; }
-    footer.site a { color: var(--text-soft); text-decoration: underline; }
-    footer.site a:hover { color: var(--text); }
-
     @media (max-width: 640px) {
-      .container { padding: 0 14px; }
-      .feed { grid-template-columns: 1fr; gap: 16px; }
-      .search input { width: 130px; }
-      .brand { font-size: 30px; }
-      header.site { padding: 14px 0 12px; }
+      .wrap { padding: 0 16px; }
+      .story-grid { grid-template-columns: 1fr; }
+      .obit-grid { grid-template-columns: 1fr; }
+      .list-item { grid-template-columns: 80px 1fr; }
+      .masthead { font-size: 28px; }
+      .search-wrap input { width: 120px; }
+      .hero-body h2 { font-size: 22px; }
     }
   </style>
 </head>
 <body>
-  <!-- ============================================================
-       CONFIG: replace this URL with your deployed Worker URL
-       ============================================================ -->
+
   <script>
     window.TF_CONFIG = {
       WORKER_URL: 'https://townfeed.dtm2210.workers.dev',
       COUNTY_NAME: 'Kossuth County',
       STATE: 'Iowa',
-      CACHE_KEY: 'tf-cache-kossuth-v1',
+      CACHE_KEY: 'tf-cache-kossuth-v2',
       ADVERTISE_EMAIL: 'ads@townfeed.app',
-      PAGE_SIZE: 24,
+      PAGE_SIZE: 18,
       NEW_THRESHOLD_HOURS: 6,
       REFRESH_MS: 5 * 60 * 1000,
       TOWNS: [
-        ['algona',     'Algona'],
-        ['bancroft',   'Bancroft'],
-        ['burt',       'Burt'],
-        ['titonka',    'Titonka'],
-        ['swea-city',  'Swea City'],
-        ['wesley',     'Wesley'],
-        ['whittemore', 'Whittemore'],
-        ['lu-verne',   'Lu Verne'],
-        ['lakota',     'Lakota'],
-        ['lone-rock',  'Lone Rock'],
-        ['ledyard',    'Ledyard'],
-        ['fenton',     'Fenton'],
+        ['algona','Algona'],['bancroft','Bancroft'],['burt','Burt'],
+        ['titonka','Titonka'],['swea-city','Swea City'],['wesley','Wesley'],
+        ['whittemore','Whittemore'],['lu-verne','Lu Verne'],['lakota','Lakota'],
+        ['lone-rock','Lone Rock'],['ledyard','Ledyard'],['fenton','Fenton'],
       ],
       TOPICS: [
-        ['sports',     'Sports'],
-        ['crime',      'Crime'],
-        ['schools',    'Schools'],
-        ['government', 'Government'],
-        ['weather',    'Weather'],
-        ['business',   'Business'],
-        ['community',  'Community'],
+        ['crime','Crime'],['schools','Schools'],['government','Government'],
+        ['weather','Weather'],['business','Business'],['community','Community'],
       ],
     };
   </script>
 
-  <header class="site">
-    <div class="container hd-row">
-      <a href="#/" class="brand" aria-label="TownFeed home">
-        <span>Town</span><span class="mark">Feed</span>
-      </a>
-      <div class="tagline" id="tagline">Kossuth County · Iowa</div>
-      <div class="hd-actions">
-        <label class="search" aria-label="Search stories">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
-          <input id="search" placeholder="Search…" autocomplete="off">
-        </label>
-        <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme" title="Toggle dark mode">
-          <svg id="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-          <svg id="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
-        </button>
+  <!-- NAMEPLATE -->
+  <header class="nameplate">
+    <div class="wrap">
+      <div class="np-top">
+        <a href="#/" class="masthead" aria-label="TownFeed home">
+          Town<span>Feed</span>
+        </a>
+        <div class="edition-block">
+          <div class="edition-county">Kossuth County · Iowa</div>
+          <div class="edition-date" id="edition-date"></div>
+        </div>
+        <div class="np-actions">
+          <label class="search-wrap">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+            <input id="search" placeholder="Search stories…" autocomplete="off">
+          </label>
+          <button class="theme-btn" id="theme-btn" aria-label="Toggle dark mode">
+            <svg id="ico-sun" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+            <svg id="ico-moon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+          </button>
+        </div>
       </div>
+      <nav class="np-nav" role="tablist">
+        <button class="nav-tab active" data-tab="news" role="tab">
+          Local News <span class="count" id="cnt-news">0</span>
+        </button>
+        <button class="nav-tab" data-tab="sports" role="tab">
+          Sports <span class="count" id="cnt-sports">0</span>
+        </button>
+        <button class="nav-tab" data-tab="obits" role="tab">
+          Obituaries <span class="count" id="cnt-obits">0</span>
+        </button>
+        <span class="nav-sep"></span>
+        <span class="live-dot" id="live-dot" style="display:none"></span>
+        <span class="live-label" id="live-label" style="display:none">Live</span>
+      </nav>
     </div>
   </header>
 
-  <main class="container" id="app">
-    <!-- views injected here -->
+  <div id="alert-container"></div>
+
+  <main id="app">
+    <div class="status"><span class="spinner"></span> Loading…</div>
   </main>
 
-  <footer class="site container">
-    <div class="meta" id="footer-meta">Updated never · 0 stories</div>
-    <div>
-      Independent · Built for the county · <a href="mailto:ads@townfeed.app">Advertise</a>
+  <footer>
+    <div class="wrap foot-row">
+      <span id="footer-meta">Loading…</span>
+      <span>Independent · Built for the county · <a href="mailto:ads@townfeed.app">Advertise with us</a></span>
     </div>
   </footer>
 
   <script>
-  // ============================================================
-  // TownFeed frontend
-  // ============================================================
   const CFG = window.TF_CONFIG;
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
+  // ── State
   const state = {
-    data: null,           // { news, sports, obits, weather, meta }
-    etag: null,
-    activeTab: 'news',    // 'news' | 'sports' | 'obits'
-    activeTowns: new Set(),
-    activeTopics: new Set(),
+    data: null, etag: null,
+    tab: 'news',
+    topics: new Set(), towns: new Set(),
     search: '',
-    pageSize: CFG.PAGE_SIZE,
     visible: CFG.PAGE_SIZE,
-    weatherIdx: 0,
-    loading: false,
+    wIdx: 0, loading: false,
   };
 
-  // ===== THEME =====
-  const themeBtn = $('#theme-toggle');
-  const sunIco = $('#ico-sun'), moonIco = $('#ico-moon');
+  // ── Edition date
+  $('#edition-date').textContent = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+  });
+
+  // ── Theme
+  const themeBtn = $('#theme-btn');
   function applyTheme(t) {
     document.documentElement.setAttribute('data-theme', t);
-    document.querySelector('meta[name="theme-color"]').setAttribute('content', t === 'dark' ? '#0a0a0a' : '#f8f4ec');
-    sunIco.style.display = t === 'dark' ? 'block' : 'none';
-    moonIco.style.display = t === 'dark' ? 'none' : 'block';
+    $('meta[name="theme-color"]').setAttribute('content', t === 'dark' ? '#141210' : '#faf7f2');
+    $('#ico-sun').style.display = t === 'dark' ? 'block' : 'none';
+    $('#ico-moon').style.display = t === 'dark' ? 'none' : 'block';
   }
   applyTheme(localStorage.getItem('tf-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
   themeBtn.addEventListener('click', () => {
-    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('tf-theme', next);
-    applyTheme(next);
+    const n = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('tf-theme', n); applyTheme(n);
   });
 
-  // ===== SEARCH =====
-  let searchTimer;
+  // ── Search
+  let st;
   $('#search').addEventListener('input', e => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-      state.search = e.target.value.toLowerCase().trim();
-      state.visible = state.pageSize;
-      render();
-    }, 150);
+    clearTimeout(st);
+    st = setTimeout(() => { state.search = e.target.value.toLowerCase().trim(); state.visible = CFG.PAGE_SIZE; render(); }, 150);
   });
 
-  // ===== DATA FETCH =====
-  async function loadFromCache() {
+  // ── Data
+  async function loadCache() {
     try {
-      const raw = localStorage.getItem(CFG.CACHE_KEY);
-      if (!raw) return null;
-      const { data, etag, ts } = JSON.parse(raw);
-      if (data && data.news) {
-        state.data = data;
-        state.etag = etag;
-        return data;
-      }
+      const r = localStorage.getItem(CFG.CACHE_KEY);
+      if (!r) return null;
+      const { data, etag } = JSON.parse(r);
+      if (data?.news) { state.data = data; state.etag = etag; return data; }
     } catch {}
     return null;
   }
-  function saveToCache() {
-    try {
-      localStorage.setItem(CFG.CACHE_KEY, JSON.stringify({
-        data: state.data, etag: state.etag, ts: Date.now(),
-      }));
-    } catch {}
+  function saveCache() {
+    try { localStorage.setItem(CFG.CACHE_KEY, JSON.stringify({ data: state.data, etag: state.etag, ts: Date.now() })); } catch {}
   }
-  async function fetchFeed(opts = {}) {
+  async function fetchFeed(force = false) {
     if (state.loading) return;
     state.loading = true;
     try {
-      const headers = {};
-      if (state.etag && !opts.force) headers['If-None-Match'] = state.etag;
-      const resp = await fetch(CFG.WORKER_URL + '/feed', { headers });
-      if (resp.status === 304) { return; }
+      const h = {};
+      if (state.etag && !force) h['If-None-Match'] = state.etag;
+      const resp = await fetch(CFG.WORKER_URL + '/feed', { headers: h });
+      if (resp.status === 304) return;
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const etag = resp.headers.get('ETag');
-      const data = await resp.json();
-      state.data = data;
-      state.etag = etag;
-      saveToCache();
+      state.data = await resp.json();
+      state.etag = resp.headers.get('ETag');
+      saveCache();
       render();
+      showLive();
     } catch (e) {
-      if (!state.data) {
-        $('#app').innerHTML = `
-          <div class="status">
-            Couldn't reach the feed. <br>
-            <span style="font-size:13px;opacity:0.7">${escapeHtml(e.message)}</span>
-          </div>`;
-      }
-    } finally {
-      state.loading = false;
-    }
+      if (!state.data) $('#app').innerHTML = `<div class="status">Couldn't reach the feed.<br><small>${esc(e.message)}</small></div>`;
+    } finally { state.loading = false; }
+  }
+  function showLive() {
+    $('#live-dot').style.display = 'block';
+    $('#live-label').style.display = 'block';
+    setTimeout(() => { $('#live-dot').style.display = 'none'; $('#live-label').style.display = 'none'; }, 4000);
   }
 
-  // Cache-first, then refresh from network
   (async () => {
-    const cached = await loadFromCache();
-    if (cached) render();
-    await fetchFeed();
-    // Auto-refresh every N ms when visible
+    const c = await loadCache();
+    if (c) render();
+    await fetchFeed(true);
     setInterval(() => { if (!document.hidden) fetchFeed(); }, CFG.REFRESH_MS);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) fetchFeed(); });
   })();
 
-  // ===== ROUTER =====
-  function parseRoute() {
+  // ── Router
+  function route() {
     const h = location.hash.replace(/^#/, '') || '/';
-    if (h.startsWith('/a/')) return { view: 'article', id: h.slice(3) };
-    if (h.startsWith('/t/')) return { view: 'home', town: h.slice(3) };
+    if (h.startsWith('/a/')) return { view: 'article', id: decodeURIComponent(h.slice(3)) };
     return { view: 'home' };
   }
   window.addEventListener('hashchange', render);
 
-  // ===== RENDER =====
+  // ── Render
   function render() {
-    if (!state.data) {
-      $('#app').innerHTML = `
-        <div class="status"><span class="spinner"></span> Loading the latest from the county…</div>`;
-      return;
-    }
-    const route = parseRoute();
-    if (route.view === 'article') renderArticle(route.id);
-    else renderHome(route);
+    if (!state.data) return;
+    updateCounts();
+    updateWeather();
+    const r = route();
+    if (r.view === 'article') renderArticle(r.id);
+    else renderHome();
     updateFooter();
   }
 
-  // ----- HOME VIEW -----
-  function renderHome(route) {
+  function updateCounts() {
+    const d = state.data;
+    $('#cnt-news').textContent   = d.news?.length   || 0;
+    $('#cnt-sports').textContent = d.sports?.length || 0;
+    $('#cnt-obits').textContent  = d.obits?.length  || 0;
+  }
+
+  function updateWeather() {
+    const wx = state.data?.weather || [];
+    const c = $('#alert-container');
+    if (!wx.length) { c.innerHTML = ''; return; }
+    const idx = Math.min(state.wIdx, wx.length - 1);
+    const a = wx[idx];
+    c.innerHTML = `
+      <div class="alert-bar">
+        <div class="wrap">
+          <span class="alert-tag">⚠ ${esc(a.event)}</span>
+          <span class="alert-text">${esc(a.headline || a.description.slice(0, 120))}</span>
+          ${wx.length > 1 ? `<div class="alert-nav">
+            <button id="wx-prev" ${idx===0?'disabled':''}>‹</button>
+            <button id="wx-next" ${idx===wx.length-1?'disabled':''}>›</button>
+          </div>` : ''}
+        </div>
+      </div>`;
+    $('#wx-prev')?.addEventListener('click', () => { state.wIdx = Math.max(0, state.wIdx - 1); updateWeather(); });
+    $('#wx-next')?.addEventListener('click', () => { state.wIdx = Math.min(wx.length-1, state.wIdx + 1); updateWeather(); });
+  }
+
+  // ── Home
+  function renderHome() {
     const app = $('#app');
-    if (route.town) state.activeTowns = new Set([route.town]);
+    const raw = state.tab === 'news' ? state.data.news
+              : state.tab === 'sports' ? state.data.sports
+              : state.data.obits;
+    const items = filter(raw);
 
-    const tabs = [
-      { key: 'news',   label: 'News',         items: state.data.news },
-      { key: 'sports', label: 'Sports',       items: state.data.sports },
-      { key: 'obits',  label: 'Obituaries',   items: state.data.obits },
-    ];
+    let html = `<div class="wrap">`;
 
-    const html = [];
-
-    // Weather banner
-    const wx = state.data.weather || [];
-    if (wx.length) {
-      html.push(renderWeather(wx));
+    // Filters (news only)
+    if (state.tab === 'news') {
+      html += `<div class="filters">
+        <span class="filter-label">Topics</span>
+        ${CFG.TOPICS.map(([s,n]) => `<button class="chip ${state.topics.has(s)?'active':''}" data-topic="${s}">${n}</button>`).join('')}
+        <span class="filter-divider"></span>
+        <span class="filter-label">Towns</span>
+        ${CFG.TOWNS.map(([s,n]) => `<button class="chip ${state.towns.has(s)?'active':''}" data-town="${s}">${n}</button>`).join('')}
+      </div>`;
     }
 
-    // Tabs
-    html.push(`<div class="tabs" role="tablist">${tabs.map(t => `
-      <button class="tab ${state.activeTab === t.key ? 'active' : ''}" data-tab="${t.key}" role="tab">
-        ${t.label} <span class="pill">${t.items.length}</span>
-      </button>`).join('')}</div>`);
-
-    // Filter chips (only on News tab)
-    if (state.activeTab === 'news') {
-      html.push(`<div class="chip-row" id="topic-chips">
-        <span class="chip-label">Topics</span>
-        ${CFG.TOPICS.map(([s,n]) => `<button class="chip ${state.activeTopics.has(s)?'active':''}" data-topic="${s}">${n}</button>`).join('')}
-      </div>`);
-      html.push(`<div class="chip-row" id="town-chips">
-        <span class="chip-label">Towns</span>
-        ${CFG.TOWNS.map(([s,n]) => `<button class="chip ${state.activeTowns.has(s)?'active':''}" data-town="${s}">${n}</button>`).join('')}
-      </div>`);
-    }
-
-    // Feed
-    const items = filterItems(tabs.find(t => t.key === state.activeTab).items);
-    const visible = items.slice(0, state.visible);
-
-    if (!visible.length) {
-      html.push(`<div class="status">No stories match. Try clearing filters or search.</div>`);
+    if (!items.length) {
+      html += `<div class="status">No stories found. Try clearing filters.</div>`;
+    } else if (state.tab === 'obits') {
+      html += renderObits(items);
     } else {
-      html.push(`<div class="feed">${visible.map(it => renderCard(it, state.activeTab)).join('')}</div>`);
-      if (items.length > state.visible) {
-        html.push(`<button class="load-more" id="load-more">Load more (${items.length - state.visible} left)</button>`);
-      }
+      html += renderStories(items);
     }
 
-    app.innerHTML = html.join('');
+    html += `</div>`;
+    app.innerHTML = html;
     wireHome();
   }
 
-  function filterItems(items) {
-    const s = state.search;
-    return items.filter(it => {
-      if (state.activeTab === 'news') {
-        if (state.activeTopics.size && !state.activeTopics.has(it.topic)) return false;
-        if (state.activeTowns.size && !state.activeTowns.has(it.town)) return false;
+  function renderStories(items) {
+    const visible = items.slice(0, state.visible);
+    let html = '';
+
+    if (visible.length === 0) return '<div class="status">No stories.</div>';
+
+    // Hero
+    const [hero, ...rest] = visible;
+    html += heroCard(hero);
+
+    // Grid (next 6)
+    const gridItems = rest.slice(0, 6);
+    if (gridItems.length) {
+      html += `<div class="story-grid">${gridItems.map(it => storyCard(it)).join('')}</div>`;
+    }
+
+    // List (remaining)
+    const listItems = rest.slice(6);
+    if (listItems.length) {
+      html += `<div class="section-head"><h2>More Stories</h2><span class="rule"></span></div>`;
+      html += `<div class="story-list">${listItems.map(it => listItem(it)).join('')}</div>`;
+    }
+
+    if (items.length > state.visible) {
+      html += `<div class="load-wrap"><button class="load-btn" id="load-more">Load more stories</button></div>`;
+    }
+
+    return html;
+  }
+
+  function renderObits(items) {
+    const visible = items.slice(0, state.visible);
+    let html = `<div class="section-head"><h2>Obituaries</h2><span class="rule"></span><span class="count">${items.length} notices</span></div>`;
+    html += `<div class="obit-grid">${visible.map(it => obitCard(it)).join('')}</div>`;
+    if (items.length > state.visible)
+      html += `<div class="load-wrap"><button class="load-btn" id="load-more">Load more</button></div>`;
+    return html;
+  }
+
+  // ── Card templates
+  function getTitle(it)   { return it.tfTitle   || it.title; }
+  function getSummary(it) { return it.tfSummary || it.description; }
+  const topicColors = { crime:'crime', schools:'schools', weather:'weather', government:'government', business:'business', community:'community', sports:'sports' };
+
+  function heroCard(it) {
+    const t = getTitle(it), s = getSummary(it);
+    const initial = (it.sourceName || it.source || '?').charAt(0).toUpperCase();
+    const seedHue = strHash(it.sourceName || 'x') % 360;
+    const grad = `linear-gradient(135deg,hsl(${seedHue},50%,40%),hsl(${(seedHue+50)%360},50%,30%))`;
+    const ageMs = Date.now() - (Date.parse(it.pubDate) || Date.now());
+    const isNew = ageMs < CFG.NEW_THRESHOLD_HOURS * 3600000;
+    const topicCls = topicColors[it.topic] || 'community';
+    return `
+      <a class="hero-story" href="#/a/${encodeURIComponent(it.id)}">
+        <div class="hero-img" style="background:${grad}">
+          ${it.image
+            ? `<img referrerpolicy="no-referrer" src="${attr(it.image)}" alt="" loading="eager" onload="this.style.opacity=1" onerror="this.remove()" style="opacity:0;transition:opacity .3s">`
+            : `<div class="placeholder">${esc(initial)}</div>`
+          }
+        </div>
+        <div class="hero-body">
+          <div class="story-meta">
+            <span class="topic ${topicCls}">${esc((it.topic||'community').toUpperCase())}</span>
+            ${isNew ? `<span style="color:var(--red);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em">● NEW</span>` : ''}
+            <span class="sep">·</span>
+            <span>${fmtRel(it.pubDate)}</span>
+          </div>
+          <h2>${esc(t)}</h2>
+          ${s ? `<div class="deck">${esc(s)}</div>` : ''}
+          <div class="read-more">Read story →</div>
+          <div class="attribution">
+            ${it.tfTitle ? `<span class="ai-badge">✦ Edited</span> ` : ''}
+            Reported by ${esc(it.sourceName || it.source || 'local source')}
+          </div>
+        </div>
+      </a>`;
+  }
+
+  function storyCard(it) {
+    const t = getTitle(it), s = getSummary(it);
+    const initial = (it.sourceName || it.source || '?').charAt(0).toUpperCase();
+    const seedHue = strHash(it.sourceName || 'x') % 360;
+    const grad = `linear-gradient(135deg,hsl(${seedHue},50%,40%),hsl(${(seedHue+50)%360},50%,30%))`;
+    const topicCls = topicColors[it.topic] || 'community';
+    return `
+      <a class="story-card" href="#/a/${encodeURIComponent(it.id)}">
+        <div class="card-img" style="background:${grad}">
+          ${it.image
+            ? `<img loading="lazy" referrerpolicy="no-referrer" src="${attr(it.image)}" alt="" onload="this.classList.add('loaded')" onerror="this.remove()">`
+            : `<div class="placeholder">${esc(initial)}</div>`
+          }
+        </div>
+        <div class="card-body">
+          <div class="story-meta">
+            <span class="topic ${topicCls}">${esc((it.topic||'news').toUpperCase())}</span>
+          </div>
+          <h3>${esc(t)}</h3>
+          ${s ? `<div class="card-desc">${esc(s)}</div>` : ''}
+          <div class="card-foot">
+            <span class="via">${esc(it.sourceName || it.source || '')}</span>
+            <span>${fmtRel(it.pubDate)}</span>
+          </div>
+        </div>
+      </a>`;
+  }
+
+  function listItem(it) {
+    const t = getTitle(it), s = getSummary(it);
+    const initial = (it.sourceName || it.source || '?').charAt(0).toUpperCase();
+    const seedHue = strHash(it.sourceName || 'x') % 360;
+    const grad = `linear-gradient(135deg,hsl(${seedHue},50%,42%),hsl(${(seedHue+50)%360},50%,32%))`;
+    return `
+      <a class="list-item" href="#/a/${encodeURIComponent(it.id)}">
+        <div class="list-thumb" style="background:${grad}">
+          ${it.image
+            ? `<img loading="lazy" referrerpolicy="no-referrer" src="${attr(it.image)}" alt="" onload="this.classList.add('loaded')" onerror="this.remove()">`
+            : `<div class="placeholder">${esc(initial)}</div>`
+          }
+        </div>
+        <div class="list-body">
+          <h4>${esc(t)}</h4>
+          ${s ? `<div class="list-desc">${esc(s)}</div>` : ''}
+          <div class="list-foot">${esc(it.sourceName || '')} · ${fmtRel(it.pubDate)}</div>
+        </div>
+      </a>`;
+  }
+
+  function obitCard(it) {
+    const t = getTitle(it), s = it.description; // obits never AI-rewritten
+    return `
+      <a class="obit-card" href="#/a/${encodeURIComponent(it.id)}">
+        <h3>${esc(t)}</h3>
+        ${s ? `<div class="obit-desc">${esc(s)}</div>` : ''}
+        <div class="obit-foot">${esc(it.sourceName || '')} · ${fmtRel(it.pubDate)}</div>
+      </a>`;
+  }
+
+  // ── Wire events
+  function wireHome() {
+    $$('.nav-tab').forEach(b => b.addEventListener('click', () => {
+      state.tab = b.dataset.tab;
+      state.visible = CFG.PAGE_SIZE;
+      $$('.nav-tab').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      renderHome();
+    }));
+    $$('[data-topic]').forEach(b => b.addEventListener('click', () => {
+      const t = b.dataset.topic;
+      if (state.topics.has(t)) state.topics.delete(t); else state.topics.add(t);
+      state.visible = CFG.PAGE_SIZE; renderHome();
+    }));
+    $$('[data-town]').forEach(b => b.addEventListener('click', () => {
+      const t = b.dataset.town;
+      if (state.towns.has(t)) state.towns.delete(t); else state.towns.add(t);
+      state.visible = CFG.PAGE_SIZE; renderHome();
+    }));
+    $('#load-more')?.addEventListener('click', () => { state.visible += CFG.PAGE_SIZE; renderHome(); });
+  }
+
+  // ── Filter
+  function filter(items) {
+    return (items || []).filter(it => {
+      if (state.tab === 'news') {
+        if (state.topics.size && !state.topics.has(it.topic)) return false;
+        if (state.towns.size  && !state.towns.has(it.town))  return false;
       }
-      if (s) {
-        const blob = ((it.title || '') + ' ' + (it.description || '') + ' ' + (it.sourceName || '')).toLowerCase();
-        if (!blob.includes(s)) return false;
+      if (state.search) {
+        const blob = ((it.tfTitle||it.title||'') + ' ' + (it.tfSummary||it.description||'') + ' ' + (it.sourceName||'')).toLowerCase();
+        if (!blob.includes(state.search)) return false;
       }
       return true;
     });
   }
 
-  function wireHome() {
-    $$('.tab').forEach(b => b.addEventListener('click', () => {
-      state.activeTab = b.dataset.tab;
-      state.visible = state.pageSize;
-      render();
-    }));
-    $$('#topic-chips .chip').forEach(b => b.addEventListener('click', () => {
-      const t = b.dataset.topic;
-      if (state.activeTopics.has(t)) state.activeTopics.delete(t); else state.activeTopics.add(t);
-      state.visible = state.pageSize;
-      render();
-    }));
-    $$('#town-chips .chip').forEach(b => b.addEventListener('click', () => {
-      const t = b.dataset.town;
-      if (state.activeTowns.has(t)) state.activeTowns.delete(t); else state.activeTowns.add(t);
-      state.visible = state.pageSize;
-      render();
-    }));
-    const lm = $('#load-more');
-    if (lm) lm.addEventListener('click', () => {
-      state.visible += state.pageSize;
-      render();
-    });
-    // Weather pager
-    $$('.weather-pager button').forEach(b => b.addEventListener('click', () => {
-      const dir = b.dataset.dir === 'next' ? 1 : -1;
-      const total = state.data.weather.length;
-      state.weatherIdx = Math.max(0, Math.min(total - 1, state.weatherIdx + dir));
-      render();
-    }));
-  }
+  // ── Article view
+  function renderArticle(id) {
+    const all = [...(state.data.news||[]),...(state.data.sports||[]),...(state.data.obits||[])];
+    const it = all.find(x => x.id === id);
+    if (!it) {
+      $('#app').innerHTML = `<div class="wrap"><div class="status">Story not found. <a href="#/">← Back</a></div></div>`;
+      return;
+    }
+    document.title = `${getTitle(it)} — TownFeed`;
+    const t = getTitle(it), s = getSummary(it);
+    const isObit = it.topic === 'obituaries';
+    const wasRewritten = !!it.tfTitle;
+    const initial = (it.sourceName || it.source || '?').charAt(0).toUpperCase();
+    const seedHue = strHash(it.sourceName || 'x') % 360;
+    const grad = `linear-gradient(135deg,hsl(${seedHue},50%,40%),hsl(${(seedHue+50)%360},50%,30%))`;
+    const topicCls = topicColors[it.topic] || 'community';
+    const related = (it.related || []).filter(r => r.link);
+    const favicon = it.source ? `https://www.google.com/s2/favicons?sz=32&domain=${encodeURIComponent(it.source)}` : '';
 
-  // ----- WEATHER -----
-  function renderWeather(wx) {
-    const idx = Math.min(state.weatherIdx, wx.length - 1);
-    const a = wx[idx];
-    const severeEvents = ['Tornado Warning','Severe Thunderstorm Warning','Flash Flood Warning','Blizzard Warning'];
-    const isSevere = severeEvents.some(e => (a.event || '').toLowerCase().includes(e.toLowerCase()));
-    const cls = isSevere ? '' : 'minor';
-    const expiresStr = a.expires ? 'Expires ' + fmtRelative(a.expires) : '';
-    const pager = wx.length > 1 ? `
-      <div class="weather-pager">
-        <button data-dir="prev" ${idx === 0 ? 'disabled' : ''}>← Prev</button>
-        <button data-dir="next" ${idx === wx.length-1 ? 'disabled' : ''}>Next →</button>
-        <span style="margin-left:auto;font-size:12px;font-weight:600;opacity:0.9;align-self:center">
-          ${idx+1} of ${wx.length}
-        </span>
-      </div>` : '';
-    return `
-      <div class="weather-banner ${cls}">
-        <div class="wb-icon">!</div>
-        <div style="flex:1;min-width:0">
-          <h3>${escapeHtml(a.event)}</h3>
-          <p>${escapeHtml(truncate(a.headline || a.description, 240))}</p>
-          ${expiresStr ? `<div class="wb-expires">${expiresStr}</div>` : ''}
-          ${pager}
-        </div>
+    $('#app').innerHTML = `
+      <div class="wrap">
+        <article class="article-wrap">
+          <a href="#/" class="back">
+            <svg fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+            Back to feed
+          </a>
+
+          <div class="a-label">
+            <span class="topic ${topicCls}" style="background:none;color:var(--red);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:0">
+              ${esc((it.topic||'News').toUpperCase())}
+            </span>
+          </div>
+
+          <h1>${esc(t)}</h1>
+          ${s ? `<div class="a-deck">${esc(s)}</div>` : ''}
+
+          <div class="a-meta">
+            ${favicon ? `<img src="${attr(favicon)}" width="16" height="16" style="border-radius:3px" alt="" onerror="this.remove()">` : ''}
+            <span>${esc(it.sourceName || it.source || 'Local source')}</span>
+            <span>·</span>
+            <span>${fmtRel(it.pubDate)}</span>
+            ${wasRewritten && !isObit ? `<span class="ai-badge">✦ Summarized by TownFeed</span>` : ''}
+          </div>
+
+          <div class="a-img" style="background:${grad}">
+            ${it.image
+              ? `<img referrerpolicy="no-referrer" src="${attr(it.image)}" alt="" onerror="this.parentElement.innerHTML='<div class=\\'placeholder\\'>${esc(initial)}</div>'">`
+              : `<div class="placeholder">${esc(initial)}</div>`
+            }
+          </div>
+
+          <div class="a-attribution">
+            ${wasRewritten && !isObit
+              ? `This summary was written by TownFeed based on reporting by <a href="${attr(it.realLink || it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName || it.source)}</a>. TownFeed only reports facts stated in the original article — nothing is added or invented.`
+              : `Originally reported by <a href="${attr(it.realLink || it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName || it.source)}</a>.`
+            }
+          </div>
+
+          <a class="a-read-original" href="${attr(it.realLink || it.link)}" target="_blank" rel="noopener nofollow">
+            Read full story at ${esc(it.sourceName || it.source || 'source')} ↗
+          </a>
+
+          <div class="ad-slot">
+            <div class="ad-label">Advertisement</div>
+            <div class="ad-pitch">Your business, seen by all of Kossuth County.</div>
+            <div class="ad-sub"><a href="mailto:${CFG.ADVERTISE_EMAIL}?subject=TownFeed%20Advertising">Email us to advertise</a> — rates start at $25/month.</div>
+          </div>
+
+          ${related.length ? `
+            <div class="related-stories">
+              <h3>More coverage of this story</h3>
+              <div class="story-list">
+                ${related.map(r => `
+                  <a class="list-item" href="${attr(r.link)}" target="_blank" rel="noopener nofollow" style="grid-template-columns:1fr">
+                    <div class="list-body">
+                      <div class="list-foot">${esc(r.sourceName || r.source || 'Source')} ↗</div>
+                    </div>
+                  </a>`).join('')}
+              </div>
+            </div>` : ''}
+        </article>
       </div>`;
   }
 
-  // ----- CARD -----
-  function renderCard(it, tab) {
-    const isObit = tab === 'obits';
-    const ageMs = Date.now() - (Date.parse(it.pubDate) || Date.now());
-    const isNew = ageMs < CFG.NEW_THRESHOLD_HOURS * 3600 * 1000;
-    const seedHue = strHash(it.sourceName || it.source || 'x') % 360;
-    const grad = `linear-gradient(135deg, hsl(${seedHue}, 70%, 45%), hsl(${(seedHue+40)%360}, 70%, 35%))`;
-    const initial = (it.sourceName || it.source || '?').trim().charAt(0).toUpperCase();
-    const favicon = it.source
-      ? `https://www.google.com/s2/favicons?sz=32&domain=${encodeURIComponent(it.source)}`
-      : '';
-    const topicLbl = (it.topic || '').toUpperCase();
-    const showTopic = !isObit && tab === 'news' && it.topic && it.topic !== 'community';
-
-    return `
-      <a class="card ${isObit ? 'obit' : ''}" href="#/a/${encodeURIComponent(it.id)}">
-        ${!isObit ? `
-        <div class="cover" style="background: ${grad}">
-          <div class="gradient">${escapeHtml(initial)}</div>
-          ${it.image ? `<img loading="lazy" referrerpolicy="no-referrer" src="${escapeAttr(it.image)}" alt="" onload="this.classList.add('loaded')" onerror="this.remove()">` : ''}
-          ${isNew ? `<span class="new-badge">NEW</span>` : ''}
-          ${showTopic ? `<span class="topic-badge">${escapeHtml(topicLbl)}</span>` : ''}
-          <span class="pub-name">${escapeHtml(it.sourceName || it.source || '')}</span>
-        </div>` : ''}
-        <div class="body">
-          ${isObit ? '' : `<div class="source-row">
-            ${favicon ? `<img class="favicon" src="${escapeAttr(favicon)}" alt="" onerror="this.remove()">` : ''}
-            <span>${escapeHtml(it.sourceName || '')}</span>
-            <span class="dot">·</span>
-            <span>${fmtRelative(it.pubDate)}</span>
-          </div>`}
-          <h2>${escapeHtml(it.title)}</h2>
-          ${it.description ? `<div class="desc">${escapeHtml(it.description)}</div>` : ''}
-          ${isObit ? `<div class="source-row" style="margin-top:auto">
-            <span>${escapeHtml(it.sourceName || '')}</span>
-            <span class="dot">·</span>
-            <span>${fmtRelative(it.pubDate)}</span>
-          </div>` : ''}
-        </div>
-      </a>`;
-  }
-
-  // ----- ARTICLE VIEW -----
-  function renderArticle(id) {
-    const all = [
-      ...(state.data.news || []),
-      ...(state.data.sports || []),
-      ...(state.data.obits || []),
-    ];
-    const it = all.find(x => x.id === id);
-    if (!it) {
-      $('#app').innerHTML = `
-        <div class="status">
-          Story not found.<br>
-          <a href="#/" style="color:var(--accent);font-weight:700">← Back to feed</a>
-        </div>`;
-      return;
-    }
-    // Push history so back arrow works
-    document.title = `${it.title} — TownFeed`;
-
-    const seedHue = strHash(it.sourceName || it.source || 'x') % 360;
-    const grad = `linear-gradient(135deg, hsl(${seedHue}, 70%, 45%), hsl(${(seedHue+40)%360}, 70%, 35%))`;
-    const initial = (it.sourceName || it.source || '?').trim().charAt(0).toUpperCase();
-    const favicon = it.source
-      ? `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(it.source)}`
-      : '';
-    const related = (it.related || []).filter(r => r.link);
-
-    $('#app').innerHTML = `
-      <article class="article">
-        <a href="#/" class="back-link">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          Back
-        </a>
-
-        <div class="article-cover" style="background:${grad}">
-          ${it.image ? `<img referrerpolicy="no-referrer" src="${escapeAttr(it.image)}" alt="" onerror="this.remove()">`
-                     : `<div class="gradient">${escapeHtml(initial)}</div>`}
-        </div>
-
-        <div class="article-meta">
-          ${favicon ? `<img class="favicon" src="${escapeAttr(favicon)}" alt="" onerror="this.remove()">` : ''}
-          <span>${escapeHtml(it.sourceName || '')}</span>
-          <span class="dot">·</span>
-          <span>${fmtRelative(it.pubDate)}</span>
-          ${it.topic && it.topic !== 'community' ? `<span class="topic-tag">${escapeHtml(it.topic.toUpperCase())}</span>` : ''}
-        </div>
-
-        <h1>${escapeHtml(it.title)}</h1>
-        ${it.description ? `<div class="article-desc">${escapeHtml(it.description)}</div>` : ''}
-
-        <div class="ad-slot">
-          <div class="label">Sponsored slot</div>
-          <div class="pitch">Your business here.</div>
-          <div class="cta">Reach every Kossuth County reader. <a href="mailto:${CFG.ADVERTISE_EMAIL}?subject=TownFeed%20advertising">Email to advertise</a>.</div>
-        </div>
-
-        ${related.length ? `
-          <div class="related">
-            <h3>More coverage</h3>
-            <div class="related-list">
-              ${related.map(r => `
-                <a href="${escapeAttr(r.link)}" target="_blank" rel="noopener nofollow">
-                  ${r.source ? `<img class="favicon" src="https://www.google.com/s2/favicons?sz=32&domain=${encodeURIComponent(r.source)}" alt="" onerror="this.remove()">` : ''}
-                  <span>${escapeHtml(r.sourceName || r.source || 'Source')}</span>
-                </a>`).join('')}
-            </div>
-          </div>` : ''}
-
-        <div class="source-fine">
-          Originally reported by <a href="${escapeAttr(it.realLink || it.link)}" target="_blank" rel="noopener nofollow">${escapeHtml(it.sourceName || it.source || 'source')} ↗</a>
-        </div>
-      </article>`;
-  }
-
-  // ----- FOOTER META -----
+  // ── Footer
   function updateFooter() {
     if (!state.data) return;
     const m = state.data.meta || {};
-    const total = (state.data.news?.length || 0) + (state.data.sports?.length || 0) + (state.data.obits?.length || 0);
-    const updated = m.lastRun ? fmtRelative(m.lastRun) : 'never';
-    $('#footer-meta').textContent = `Updated ${updated} · ${total} stories tracked`;
+    const total = (state.data.news?.length||0)+(state.data.sports?.length||0)+(state.data.obits?.length||0);
+    $('#footer-meta').textContent = `Updated ${m.lastRun ? fmtRel(m.lastRun) : 'never'} · ${total} stories tracked`;
   }
 
-  // ===== UTILITIES =====
-  function escapeHtml(s) {
-    return String(s ?? '').replace(/[&<>"']/g, c =>
-      ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  // ── Utils
+  function esc(s) {
+    return String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
-  function escapeAttr(s) { return escapeHtml(s); }
+  function attr(s) { return esc(s); }
   function strHash(s) {
-    let h = 0; for (let i = 0; i < s.length; i++) h = ((h<<5)-h+s.charCodeAt(i)) | 0;
+    let h = 0; for (let i = 0; i < s.length; i++) h = ((h<<5)-h+s.charCodeAt(i))|0;
     return Math.abs(h);
   }
-  function truncate(s, n) {
-    s = String(s || '');
-    return s.length > n ? s.slice(0, n).trim() + '…' : s;
-  }
-  function fmtRelative(when) {
+  function fmtRel(when) {
     if (!when) return '—';
     const ts = typeof when === 'string' ? Date.parse(when) : when;
     if (!ts) return '—';
-    const diff = (Date.now() - ts) / 1000;
-    if (diff < 60) return 'just now';
-    if (diff < 3600) return Math.floor(diff/60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
-    if (diff < 604800) return Math.floor(diff/86400) + 'd ago';
-    if (diff < 2592000) return Math.floor(diff/604800) + 'w ago';
-    return new Date(ts).toLocaleDateString();
+    const d = (Date.now()-ts)/1000;
+    if (d < 60) return 'just now';
+    if (d < 3600) return Math.floor(d/60)+'m ago';
+    if (d < 86400) return Math.floor(d/3600)+'h ago';
+    if (d < 604800) return Math.floor(d/86400)+'d ago';
+    return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});
   }
   </script>
 </body>
