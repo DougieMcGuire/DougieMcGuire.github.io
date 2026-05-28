@@ -698,7 +698,7 @@ const fetchFeed = async (force=false) => {
 })();
 
 // Router
-const getRoute = () => {
+function getRoute() {
   const h=location.hash.replace(/^#/,'')||'/';
   if(h.startsWith('/a/')) return {view:'article',id:decodeURIComponent(h.slice(3))};
   return {view:'home'};
