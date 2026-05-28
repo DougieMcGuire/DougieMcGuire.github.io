@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f9f6f0">
 <title>TownFeed — Kossuth County, Iowa</title>
-<meta name="description" content="Your complete local news source for Kossuth County, Iowa. Every story, right here.">
+<meta name="description" content="All of Kossuth County's news in one place. Local, sports, obituaries — updated every 10 minutes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -19,199 +19,202 @@ img{display:block;max-width:100%}
 
 :root{
   --bg:#f9f6f0;--bg2:#f0ebe1;--card:#fff;
-  --ink:#18120a;--ink2:#5a4e40;--ink3:#9a8e7e;
-  --border:#e0d8cc;
-  --red:#c92b0a;--blue:#1a3a6e;--green:#1a5c2e;--amber:#8a6400;
-  --r:6px;
-  --fh:'Outfit',sans-serif;--fb:'Lora',Georgia,serif;
+  --ink:#18120a;--ink2:#5a4e40;--ink3:#9a8e7e;--border:#e0d8cc;
+  --red:#c92b0a;--blue:#1a3a6e;--green:#1a5c2e;--amber:#8a6400;--purple:#5b21b6;--teal:#0f766e;--slate:#374151;
+  --r:6px;--fh:'Outfit',sans-serif;
 }
 [data-theme=dark]{
   --bg:#100e0b;--bg2:#1a1710;--card:#1e1b14;
-  --ink:#f0ebe0;--ink2:#b0a890;--ink3:#706856;
-  --border:#2e2b20;--red:#e8402a;--blue:#4a7ab8;--green:#4aaa6e;
+  --ink:#f0ebe0;--ink2:#b0a890;--ink3:#706856;--border:#2e2b20;
+  --red:#e8402a;--blue:#4a7ab8;--green:#4aaa6e;--amber:#d4a017;
 }
 
+/* Topic colors for placeholders */
+.ph-crime    { background: linear-gradient(135deg,#7f1d1d,#991b1b); }
+.ph-sports   { background: linear-gradient(135deg,#1e3a5f,#1a3a6e); }
+.ph-schools  { background: linear-gradient(135deg,#14532d,#166534); }
+.ph-weather  { background: linear-gradient(135deg,#78350f,#92400e); }
+.ph-government{ background: linear-gradient(135deg,#3b0764,#4c1d95); }
+.ph-business { background: linear-gradient(135deg,#451a03,#78350f); }
+.ph-community{ background: linear-gradient(135deg,#1c1917,#292524); }
+.ph-obituaries{ background: linear-gradient(135deg,#1c1917,#292524); }
+.ph-default  { background: linear-gradient(135deg,#1c1917,#292524); }
+
 .wrap{max-width:1240px;margin:0 auto;padding:0 28px}
-.wrap-narrow{max-width:760px;margin:0 auto;padding:0 28px}
+.wrap-narrow{max-width:740px;margin:0 auto;padding:0 28px}
 
 /* ── Masthead ── */
 .mast{background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.mast-top{display:flex;align-items:center;gap:20px;padding:16px 0 12px}
-.logo{font-family:var(--fh);font-weight:800;font-size:clamp(24px,4vw,40px);letter-spacing:-.03em;line-height:1;color:var(--ink);display:flex;align-items:center;gap:2px}
-.logo-dot{display:inline-block;width:9px;height:9px;background:var(--red);border-radius:50%;margin:0 1px 12px;flex-shrink:0}
-.mast-loc{font-family:var(--fh);font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);border-left:1px solid var(--border);padding-left:16px;line-height:1.3}
-.mast-loc strong{display:block;color:var(--ink2);font-weight:700}
-.mast-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-.search-box{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1.5px solid var(--border);border-radius:100px;padding:8px 16px;transition:border-color .15s,box-shadow .15s}
-.search-box:focus-within{border-color:var(--ink);box-shadow:0 0 0 3px rgba(24,18,10,.08)}
+.mast-top{display:flex;align-items:center;gap:20px;padding:14px 0 10px}
+.logo{font-family:var(--fh);font-weight:800;font-size:clamp(22px,3.5vw,38px);letter-spacing:-.03em;line-height:1;color:var(--ink);display:flex;align-items:center}
+.logo-dot{display:inline-block;width:8px;height:8px;background:var(--red);border-radius:50%;margin:0 1px 10px;flex-shrink:0}
+.mast-loc{font-family:var(--fh);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);border-left:1px solid var(--border);padding-left:14px;line-height:1.3}
+.mast-loc strong{display:block;color:var(--ink2)}
+.mast-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.search-box{display:flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:100px;padding:7px 14px;transition:border-color .15s}
+.search-box:focus-within{border-color:var(--ink)}
 .search-box svg{color:var(--ink3);flex-shrink:0}
-.search-box input{border:none;background:transparent;outline:none;font-family:var(--fh);font-size:14px;font-weight:500;color:var(--ink);width:150px}
+.search-box input{border:none;background:transparent;outline:none;font-family:var(--fh);font-size:13px;font-weight:500;color:var(--ink);width:140px}
 .search-box input::placeholder{color:var(--ink3)}
-.icon-btn{width:38px;height:38px;border-radius:50%;background:var(--bg2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--ink2);transition:background .15s,border-color .15s}
+.icon-btn{width:36px;height:36px;border-radius:50%;background:var(--bg2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--ink2);transition:background .15s,border-color .15s}
 .icon-btn:hover{background:var(--card);border-color:var(--ink);color:var(--ink)}
 .mast-tabs{display:flex;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--border)}
 .mast-tabs::-webkit-scrollbar{display:none}
-.mast-tab{font-family:var(--fh);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:12px 20px;color:var(--ink3);border-bottom:2.5px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.mast-tab{font-family:var(--fh);font-weight:600;font-size:12px;letter-spacing:.05em;text-transform:uppercase;padding:11px 18px;color:var(--ink3);border-bottom:2.5px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;display:flex;align-items:center;gap:7px}
 .mast-tab:hover{color:var(--ink)}
 .mast-tab.active{color:var(--red);border-bottom-color:var(--red)}
 .badge{background:var(--bg2);color:var(--ink3);font-size:11px;font-weight:700;padding:1px 7px;border-radius:100px;transition:background .15s,color .15s}
 .mast-tab.active .badge{background:var(--red);color:#fff}
 
-/* ── Weather ── */
-.wx-bar{background:var(--red);color:#fff;font-family:var(--fh);font-size:13px;font-weight:500;padding:10px 0}
+/* ── Weather bar ── */
+.wx-bar{background:var(--red);color:#fff;font-family:var(--fh);font-size:13px;font-weight:500;padding:9px 0}
 .wx-bar .wrap{display:flex;align-items:center;gap:12px;min-width:0}
-.wx-tag{background:#fff;color:var(--red);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:4px;flex-shrink:0}
+.wx-tag{background:#fff;color:var(--red);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px;flex-shrink:0}
 .wx-text{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .wx-btns{display:flex;gap:4px;flex-shrink:0}
-.wx-btns button{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:4px;padding:3px 10px;font-family:var(--fh);font-size:12px;font-weight:600}
+.wx-btns button{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:3px;padding:2px 9px;font-family:var(--fh);font-size:12px;font-weight:600}
 .wx-btns button:disabled{opacity:.35}
 
 /* ── Filters ── */
-.filters{padding:14px 0 12px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.filter-sep{width:1px;height:22px;background:var(--border);margin:0 4px}
-.filter-label{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-right:2px}
-.chip{font-family:var(--fh);font-size:12px;font-weight:600;color:var(--ink2);border:1.5px solid var(--border);border-radius:100px;padding:5px 13px;background:var(--card);transition:all .12s}
+.filters{padding:12px 0 10px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.filter-sep{width:1px;height:20px;background:var(--border);margin:0 3px}
+.fl{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.chip{font-family:var(--fh);font-size:12px;font-weight:600;color:var(--ink2);border:1.5px solid var(--border);border-radius:100px;padding:4px 12px;background:var(--card);transition:all .12s}
 .chip:hover{border-color:var(--ink);color:var(--ink)}
 .chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 
 /* ── Feed ── */
-.feed-wrap{padding:28px 0 60px}
-.sec-head{display:flex;align-items:center;gap:16px;margin:36px 0 18px;padding-bottom:10px;border-bottom:2px solid var(--ink)}
-.sec-head h2{font-family:var(--fh);font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase}
-.sec-count{font-family:var(--fh);font-size:11px;font-weight:600;color:var(--ink3);margin-left:auto}
-
-/* Hero */
-.hero{display:grid;grid-template-columns:1.1fr .9fr;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--card);margin-bottom:2px;transition:box-shadow .2s;cursor:pointer}
-.hero:hover{box-shadow:0 8px 32px rgba(24,18,10,.1)}
-.hero-img{position:relative;overflow:hidden;background:var(--bg2);min-height:300px}
-.hero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.22,.68,0,1.2)}
-.hero:hover .hero-img img{transform:scale(1.04)}
-.hero-img .ini{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:80px;color:var(--border)}
-.hero-body{padding:32px 36px;display:flex;flex-direction:column;gap:14px;border-left:1px solid var(--border)}
-.hero-body h2{font-family:var(--fh);font-weight:800;font-size:clamp(20px,2.2vw,32px);line-height:1.15;letter-spacing:-.02em;color:var(--ink)}
-.hero-lede{font-size:15px;line-height:1.6;color:var(--ink2)}
-.hero-meta{font-family:var(--fh);font-size:12px;color:var(--ink3);margin-top:auto;padding-top:14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.hero-meta .via{font-weight:700;color:var(--ink2)}
+.feed-wrap{padding:26px 0 60px}
+.sec-head{display:flex;align-items:center;gap:14px;margin:32px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--ink)}
+.sec-head h2{font-family:var(--fh);font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.sec-count{font-family:var(--fh);font-size:11px;color:var(--ink3);margin-left:auto}
 
 /* Topic tag */
-.ttag{font-family:var(--fh);font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;align-items:center;gap:5px}
+.ttag{font-family:var(--fh);font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;align-items:center;gap:4px}
 .ttag .d{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.tc-crime{color:#e53e3e}.tc-crime .d{background:#e53e3e}
+.tc-crime{color:#dc2626}.tc-crime .d{background:#dc2626}
 .tc-sports{color:var(--blue)}.tc-sports .d{background:var(--blue)}
 .tc-schools{color:var(--green)}.tc-schools .d{background:var(--green)}
 .tc-weather{color:#d97706}.tc-weather .d{background:#d97706}
-.tc-government{color:#7c3aed}.tc-government .d{background:#7c3aed}
+.tc-government{color:var(--purple)}.tc-government .d{background:var(--purple)}
 .tc-business{color:var(--amber)}.tc-business .d{background:var(--amber)}
 .tc-community{color:var(--ink3)}.tc-community .d{background:var(--ink3)}
 .tc-obituaries{color:var(--ink3)}.tc-obituaries .d{background:var(--ink3)}
 
+/* Placeholder */
+.ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.ph svg{opacity:.35}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--card);margin-bottom:2px;transition:box-shadow .2s}
+.hero:hover{box-shadow:0 6px 28px rgba(24,18,10,.1)}
+.hero-img{position:relative;overflow:hidden;min-height:280px}
+.hero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.22,.68,0,1.2)}
+.hero:hover .hero-img img{transform:scale(1.04)}
+.hero-body{padding:30px 34px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--border)}
+.hero-body h2{font-family:var(--fh);font-weight:800;font-size:clamp(18px,2vw,30px);line-height:1.15;letter-spacing:-.02em;color:var(--ink)}
+.hero-lede{font-size:15px;line-height:1.6;color:var(--ink2)}
+.hero-meta{font-family:var(--fh);font-size:12px;color:var(--ink3);margin-top:auto;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hero-meta .via{font-weight:700;color:var(--ink2)}
+.has-article-badge{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:.06em;background:var(--bg2);padding:2px 8px;border-radius:3px;color:var(--ink3)}
+
 /* Grid */
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:2px}
-.card{background:var(--card);display:flex;flex-direction:column;cursor:pointer;transition:background .15s}
+.card{background:var(--card);display:flex;flex-direction:column;transition:background .15s}
 .card:hover{background:var(--bg2)}
-.card-img{aspect-ratio:16/9;overflow:hidden;background:var(--bg2);position:relative}
+.card-img{aspect-ratio:16/9;overflow:hidden;position:relative}
 .card-img img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s,transform .4s}
 .card-img img.vis{opacity:1}
 .card:hover .card-img img{transform:scale(1.04)}
-.card-img .ini{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:36px;color:var(--border)}
-.card-body{padding:16px 18px 18px;flex:1;display:flex;flex-direction:column;gap:8px}
-.card-body h3{font-family:var(--fh);font-weight:700;font-size:16px;line-height:1.25;letter-spacing:-.01em;color:var(--ink)}
-.card-desc{font-size:13px;line-height:1.5;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.card-foot{margin-top:auto;padding-top:10px;border-top:1px solid var(--border);font-family:var(--fh);font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;align-items:center}
+.card-body{padding:14px 16px 16px;flex:1;display:flex;flex-direction:column;gap:7px}
+.card-body h3{font-family:var(--fh);font-weight:700;font-size:15px;line-height:1.25;letter-spacing:-.01em;color:var(--ink)}
+.card-desc{font-size:13px;line-height:1.45;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card-foot{margin-top:auto;padding-top:9px;border-top:1px solid var(--border);font-family:var(--fh);font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;align-items:center}
 
 /* List */
 .story-list{border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
-.list-row{display:grid;grid-template-columns:88px 1fr;background:var(--card);border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.list-row{display:grid;grid-template-columns:84px 1fr;background:var(--card);border-bottom:1px solid var(--border);transition:background .15s}
 .list-row:last-child{border-bottom:none}
 .list-row:hover{background:var(--bg2)}
-.list-thumb{aspect-ratio:1;overflow:hidden;background:var(--bg2);position:relative}
+.list-thumb{aspect-ratio:1;overflow:hidden;position:relative}
 .list-thumb img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
 .list-thumb img.vis{opacity:1}
-.list-thumb .ini{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:26px;color:var(--border)}
-.list-body{padding:12px 16px;display:flex;flex-direction:column;gap:4px;justify-content:center}
-.list-body h4{font-family:var(--fh);font-weight:700;font-size:14px;line-height:1.3;color:var(--ink)}
-.list-desc{font-size:13px;color:var(--ink2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.list-foot{font-family:var(--fh);font-size:11px;color:var(--ink3);display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap}
+.list-body{padding:11px 14px;display:flex;flex-direction:column;gap:3px;justify-content:center}
+.list-body h4{font-family:var(--fh);font-weight:700;font-size:13px;line-height:1.3;color:var(--ink)}
+.list-desc{font-size:12px;color:var(--ink2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.list-foot{font-family:var(--fh);font-size:10px;color:var(--ink3);display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap}
 
 /* Obits */
 .obit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
-.obit-card{background:var(--card);padding:22px 26px;cursor:pointer;transition:background .15s;display:flex;flex-direction:column;gap:8px}
+.obit-card{background:var(--card);padding:20px 24px;transition:background .15s;display:flex;flex-direction:column;gap:7px}
 .obit-card:hover{background:var(--bg2)}
-.obit-orn{color:var(--ink3);font-size:16px}
-.obit-card h3{font-family:var(--fh);font-weight:700;font-size:17px;line-height:1.2;color:var(--ink);font-style:italic}
-.obit-desc{font-size:13px;color:var(--ink2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.obit-orn{color:var(--ink3);font-size:14px}
+.obit-card h3{font-family:var(--fh);font-weight:700;font-size:16px;line-height:1.2;color:var(--ink);font-style:italic}
+.obit-desc{font-size:13px;color:var(--ink2);line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .obit-foot{font-family:var(--fh);font-size:11px;color:var(--ink3);margin-top:auto}
 
-/* Load more */
-.load-wrap{text-align:center;padding:24px 0 0}
-.load-btn{font-family:var(--fh);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--border);border-radius:100px;padding:11px 32px;background:var(--card);color:var(--ink);transition:border-color .15s,box-shadow .15s}
-.load-btn:hover{border-color:var(--ink);box-shadow:0 2px 12px rgba(24,18,10,.08)}
+.load-wrap{text-align:center;padding:22px 0 0}
+.load-btn{font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--border);border-radius:100px;padding:10px 28px;background:var(--card);color:var(--ink);transition:border-color .15s}
+.load-btn:hover{border-color:var(--ink)}
 
-/* Status */
-.empty{padding:80px 24px;text-align:center;font-family:var(--fh);color:var(--ink3);font-size:15px}
-.spin{display:inline-block;width:22px;height:22px;border:2.5px solid var(--border);border-top-color:var(--ink);border-radius:50%;animation:spin .65s linear infinite;vertical-align:middle;margin-right:8px}
+.empty{padding:70px 24px;text-align:center;font-family:var(--fh);color:var(--ink3)}
+.spin{display:inline-block;width:20px;height:20px;border:2.5px solid var(--border);border-top-color:var(--ink);border-radius:50%;animation:spin .65s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── Article ── */
-.art-page{padding:36px 0 80px}
-.back-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:28px;transition:color .15s}
+/* ── Article page ── */
+.art-page{padding:32px 0 70px}
+.back-btn{display:inline-flex;align-items:center;gap:5px;font-family:var(--fh);font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);margin-bottom:26px;transition:color .15s}
 .back-btn:hover{color:var(--ink)}
-.art-page h1{font-family:var(--fh);font-weight:800;font-size:clamp(26px,4vw,48px);line-height:1.08;letter-spacing:-.03em;margin:12px 0 18px}
-.art-lede{font-size:18px;line-height:1.6;color:var(--ink2);font-style:italic;margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid var(--border)}
-.art-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--fh);font-size:12px;color:var(--ink3);margin-bottom:26px}
+.art-page h1{font-family:var(--fh);font-weight:800;font-size:clamp(24px,4vw,44px);line-height:1.08;letter-spacing:-.03em;margin:10px 0 16px}
+.art-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--fh);font-size:12px;color:var(--ink3);margin-bottom:22px}
 .art-meta .via{font-weight:700;color:var(--ink2)}
-.art-img{margin:0 0 28px;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;background:var(--bg2);position:relative}
+.art-img{margin:0 0 26px;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;position:relative}
 .art-img img{width:100%;height:100%;object-fit:cover}
-.art-img .ini{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:100px;color:var(--border)}
-.art-body{font-size:18px;line-height:1.8}
-.art-body p{margin-bottom:1.5em}
-.src-box{margin:32px 0;padding:18px 22px;background:var(--bg2);border-left:3px solid var(--border);border-radius:0 var(--r) var(--r) 0;font-family:var(--fh);font-size:13px;color:var(--ink2);line-height:1.5}
+.art-body{font-size:17px;line-height:1.8;margin-bottom:28px}
+.art-body p{margin-bottom:1.4em}
+.art-body p:last-child{margin-bottom:0}
+.src-box{padding:16px 20px;background:var(--bg2);border-left:3px solid var(--border);border-radius:0 var(--r) var(--r) 0;font-family:var(--fh);font-size:13px;color:var(--ink2);line-height:1.5;margin-bottom:16px}
 .src-box a{color:var(--blue);font-weight:600;text-decoration:underline}
-.read-orig{display:inline-flex;align-items:center;gap:8px;font-family:var(--fh);font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:var(--ink);color:var(--bg);padding:13px 28px;border-radius:100px;margin:4px 0 32px;transition:opacity .15s,transform .15s}
-.read-orig:hover{opacity:.85;transform:translateY(-1px)}
-.ad-slot{margin:32px 0;padding:26px;border:1.5px dashed var(--border);border-radius:var(--r);text-align:center}
-.ad-eye{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
-.ad-hed{font-family:var(--fh);font-weight:800;font-size:19px;color:var(--ink);margin-bottom:5px}
+.read-orig{display:inline-flex;align-items:center;gap:7px;font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:var(--ink);color:var(--bg);padding:12px 24px;border-radius:100px;margin-bottom:28px;transition:opacity .15s}
+.read-orig:hover{opacity:.82}
+.ad-slot{padding:24px;border:1.5px dashed var(--border);border-radius:var(--r);text-align:center;margin-bottom:10px}
+.ad-eye{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+.ad-hed{font-family:var(--fh);font-weight:800;font-size:18px;color:var(--ink);margin-bottom:4px}
 .ad-sub{font-size:14px;color:var(--ink2)}
 .ad-sub a{color:var(--red);font-weight:600}
-.related-wrap{margin-top:44px;padding-top:28px;border-top:2px solid var(--ink)}
-.related-wrap h3{font-family:var(--fh);font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
-.rel-link{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;font-family:var(--fh);font-size:14px;font-weight:600;color:var(--ink);transition:background .15s,border-color .15s}
+.rel-wrap{margin-top:36px;padding-top:24px;border-top:2px solid var(--ink)}
+.rel-wrap h3{font-family:var(--fh);font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.rel-link{display:flex;align-items:center;gap:9px;padding:11px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:7px;font-family:var(--fh);font-size:13px;font-weight:600;color:var(--ink);transition:background .15s,border-color .15s}
 .rel-link:hover{background:var(--bg2);border-color:var(--ink)}
-.rel-link .ext{color:var(--ink3);font-weight:400;font-size:12px;margin-left:auto}
+.rel-link .ext{color:var(--ink3);font-weight:400;font-size:11px;margin-left:auto}
 
-/* ── Footer ── */
-footer{border-top:1px solid var(--border);padding:18px 0 36px;font-family:var(--fh);font-size:12px;color:var(--ink3)}
-.foot-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+/* Footer */
+footer{border-top:1px solid var(--border);padding:16px 0 32px;font-family:var(--fh);font-size:12px;color:var(--ink3)}
+.foot-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 footer a{color:var(--ink3);text-decoration:underline}
 footer a:hover{color:var(--ink)}
-.live-pill{display:inline-flex;align-items:center;gap:5px;font-weight:700;color:var(--green);background:rgba(26,92,46,.1);padding:2px 10px;border-radius:100px;font-size:11px}
-.live-pill .d{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+.live-pill{display:inline-flex;align-items:center;gap:4px;font-weight:700;color:var(--green);background:rgba(26,92,46,.1);padding:2px 9px;border-radius:100px;font-size:11px}
+.live-pill .d{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
 @media(max-width:900px){
   .hero{grid-template-columns:1fr}
-  .hero-img{min-height:200px}
-  .hero-body{border-left:none;border-top:1px solid var(--border);padding:22px 24px}
+  .hero-img{min-height:180px}
+  .hero-body{border-left:none;border-top:1px solid var(--border);padding:20px 22px}
   .grid3{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:640px){
   .wrap{padding:0 16px}.wrap-narrow{padding:0 16px}
-  .grid3{grid-template-columns:1fr}
-  .obit-grid{grid-template-columns:1fr}
-  .search-box input{width:90px}
-  .logo{font-size:24px}
+  .grid3,.obit-grid{grid-template-columns:1fr}
+  .search-box input{width:80px}
 }
 </style>
 </head>
 <body>
-
 <script>
 window.TF={
   WORKER:'https://townfeed.dtm2210.workers.dev',
-  CACHE:'tf-v3-kossuth',
-  PAGE:15,NEW_HRS:6,REFRESH:5*60*1000,
-  AD_EMAIL:'ads@townfeed.app',
+  CACHE:'tf-v4-kossuth',PAGE:15,NEW_HRS:6,REFRESH:5*60*1000,AD:'ads@townfeed.app',
   TOWNS:[['algona','Algona'],['bancroft','Bancroft'],['burt','Burt'],['titonka','Titonka'],['swea-city','Swea City'],['wesley','Wesley'],['whittemore','Whittemore'],['lu-verne','Lu Verne'],['lakota','Lakota'],['lone-rock','Lone Rock'],['ledyard','Ledyard'],['fenton','Fenton']],
   TOPICS:[['crime','Crime'],['schools','Schools'],['government','Government'],['weather','Weather'],['business','Business'],['community','Community']],
 };
@@ -220,23 +223,23 @@ window.TF={
 <header class="mast">
   <div class="wrap">
     <div class="mast-top">
-      <a href="#/" class="logo" aria-label="TownFeed home">Town<span class="logo-dot"></span>Feed</a>
+      <a href="#/" class="logo">Town<span class="logo-dot"></span>Feed</a>
       <div class="mast-loc"><strong>Kossuth County</strong>Iowa</div>
       <div class="mast-right">
-        <label class="search-box" aria-label="Search stories">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
-          <input id="q" placeholder="Search all tabs…" autocomplete="off">
+        <label class="search-box">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+          <input id="q" placeholder="Search all stories…" autocomplete="off">
         </label>
         <button class="icon-btn" id="theme-btn" aria-label="Toggle dark mode">
-          <svg id="ico-sun" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-          <svg id="ico-moon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+          <svg id="ico-sun" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg id="ico-moon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
         </button>
       </div>
     </div>
-    <nav class="mast-tabs" role="tablist">
-      <button class="mast-tab active" data-tab="news" role="tab">Local News <span class="badge" id="cnt-news">0</span></button>
-      <button class="mast-tab" data-tab="sports" role="tab">Sports <span class="badge" id="cnt-sports">0</span></button>
-      <button class="mast-tab" data-tab="obits" role="tab">Obituaries <span class="badge" id="cnt-obits">0</span></button>
+    <nav class="mast-tabs">
+      <button class="mast-tab active" data-tab="news">Local News <span class="badge" id="cnt-news">0</span></button>
+      <button class="mast-tab" data-tab="sports">Sports <span class="badge" id="cnt-sports">0</span></button>
+      <button class="mast-tab" data-tab="obits">Obituaries <span class="badge" id="cnt-obits">0</span></button>
     </nav>
   </div>
 </header>
@@ -251,60 +254,54 @@ window.TF={
 const CFG=window.TF;
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-
-// ── Utils ────────────────────────────────────────────────────
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function attr(s){return esc(s);}
 function strHash(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h+s.charCodeAt(i))|0;return Math.abs(h);}
 function ago(when){
   if(!when)return'—';
-  const ts=typeof when==='string'?Date.parse(when):when;
-  if(!ts)return'—';
+  const ts=typeof when==='string'?Date.parse(when):when;if(!ts)return'—';
   const d=(Date.now()-ts)/1000;
-  if(d<60)return'just now';
-  if(d<3600)return Math.floor(d/60)+'m ago';
-  if(d<86400)return Math.floor(d/3600)+'h ago';
-  if(d<604800)return Math.floor(d/86400)+'d ago';
-  // After a week, show actual date
+  if(d<60)return'just now';if(d<3600)return Math.floor(d/60)+'m ago';
+  if(d<86400)return Math.floor(d/3600)+'h ago';if(d<604800)return Math.floor(d/86400)+'d ago';
   return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
-
-// Clean WordPress RSS artifacts
 function cleanText(s){
-  if(!s)return'';
-  return String(s)
-    .replace(/\s*[-–]\s*The post .+? first appeared on .+?\.?\s*$/i,'')
-    .replace(/The post .+? first appeared on .+?\.?\s*$/i,'')
-    .replace(/https?:\/\/\S+/g,'')  // strip raw URLs
-    .replace(/\s+/g,' ').trim();
+  return String(s||'').replace(/\s*[-–]\s*The post .+? first appeared on .+?\.?\s*$/i,'')
+    .replace(/https?:\/\/\S+/g,'').replace(/\s+/g,' ').trim();
 }
 
-function seedGrad(name){
-  const h=strHash(name||'x')%360;
-  const dark=document.documentElement.getAttribute('data-theme')==='dark';
-  const l1=dark?22:80, l2=dark?16:73;
-  return `background:linear-gradient(135deg,hsl(${h},35%,${l1}%),hsl(${(h+60)%360},30%,${l2}%))`;
+// Topic-colored SVG placeholders — no more logo spam
+const TOPIC_ICONS={
+  crime:'<svg width="40" height="40" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  sports:'<svg width="40" height="40" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>',
+  schools:'<svg width="40" height="40" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>',
+  weather:'<svg width="40" height="40" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/></svg>',
+  government:'<svg width="40" height="40" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+  business:'<svg width="40" height="40" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>',
+  community:'<svg width="40" height="40" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  obituaries:'<svg width="40" height="40" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/><path d="M12 6v6l4 2"/></svg>',
+};
+function phHtml(topic){
+  const t=topic||'community';
+  return `<div class="ph ph-${t}">${TOPIC_ICONS[t]||TOPIC_ICONS.community}</div>`;
 }
 
 const TAG_LABELS={crime:'Crime',sports:'Sports',schools:'Schools',weather:'Weather',government:'Government',business:'Business',community:'Community',obituaries:'Obituary'};
-function tagHtml(topic){
-  const c=topic||'community';
-  return `<span class="ttag tc-${c}"><span class="d"></span>${esc(TAG_LABELS[c]||'News')}</span>`;
-}
-
+function tagHtml(topic){const c=topic||'community';return `<span class="ttag tc-${c}"><span class="d"></span>${esc(TAG_LABELS[c]||'News')}</span>`;}
 function getTitle(it){return it.articleTitle||it.title||'';}
 function getLede(it){
-  if(it.article){
-    const first=it.article.split('\n\n')[0]||'';
-    if(first.length>30)return cleanText(first.slice(0,200))+(first.length>200?'…':'');
-  }
+  if(it.article){const f=it.article.split('\n\n')[0]||'';if(f.length>30)return cleanText(f).slice(0,190)+(f.length>190?'…':'');}
   return cleanText(it.description||'');
 }
 
-// ── State ────────────────────────────────────────────────────
+// If story has a Gemini article -> article page. Otherwise -> direct link to source.
+function storyHref(it){
+  return it.article ? `#/a/${encodeURIComponent(it.id)}` : (it.realLink||it.link);
+}
+function storyTarget(it){return it.article ? '' : '_blank';}
+function storyRel(it){return it.article ? '' : 'noopener nofollow';}
+
 const S={data:null,etag:null,tab:'news',topics:new Set(),towns:new Set(),q:'',vis:CFG.PAGE,wIdx:0,scrollY:0};
 
-// ── Theme ────────────────────────────────────────────────────
 function applyTheme(t){
   document.documentElement.setAttribute('data-theme',t);
   $('meta[name=theme-color]').content=t==='dark'?'#100e0b':'#f9f6f0';
@@ -312,78 +309,45 @@ function applyTheme(t){
   $('#ico-moon').style.display=t==='dark'?'none':'block';
 }
 applyTheme(localStorage.getItem('tf-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
-$('#theme-btn').addEventListener('click',()=>{
-  const n=document.documentElement.dataset.theme==='dark'?'light':'dark';
-  localStorage.setItem('tf-theme',n);applyTheme(n);
-});
+$('#theme-btn').addEventListener('click',()=>{const n=document.documentElement.dataset.theme==='dark'?'light':'dark';localStorage.setItem('tf-theme',n);applyTheme(n);});
 
-// ── Search — global across all tabs ─────────────────────────
 let st;
-$('#q').addEventListener('input',e=>{
-  clearTimeout(st);
-  st=setTimeout(()=>{S.q=e.target.value.toLowerCase().trim();S.vis=CFG.PAGE;renderHome();},150);
-});
+$('#q').addEventListener('input',e=>{clearTimeout(st);st=setTimeout(()=>{S.q=e.target.value.toLowerCase().trim();S.vis=CFG.PAGE;render();},150);});
 
-// ── Data ─────────────────────────────────────────────────────
-function loadCache(){
-  try{const r=localStorage.getItem(CFG.CACHE);if(!r)return null;const{data,etag}=JSON.parse(r);if(data?.news){S.data=data;S.etag=etag;return data;}}catch{}return null;
-}
-function saveCache(){
-  try{localStorage.setItem(CFG.CACHE,JSON.stringify({data:S.data,etag:S.etag,ts:Date.now()}));}catch{}
-}
+function loadCache(){try{const r=localStorage.getItem(CFG.CACHE);if(!r)return null;const{data,etag}=JSON.parse(r);if(data?.news){S.data=data;S.etag=etag;return data;}}catch{}return null;}
+function saveCache(){try{localStorage.setItem(CFG.CACHE,JSON.stringify({data:S.data,etag:S.etag,ts:Date.now()}));}catch{}}
 let fetching=false;
 async function fetchFeed(force){
   if(fetching)return;fetching=true;
   try{
     const h={};if(S.etag&&!force)h['If-None-Match']=S.etag;
     const r=await fetch(CFG.WORKER+'/feed',{headers:h});
-    if(r.status===304)return;
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    S.data=await r.json();S.etag=r.headers.get('ETag');
-    saveCache();render();
-  }catch(e){
-    if(!S.data)$('#app').innerHTML=`<div class="empty">Couldn't load the feed.<br><small>${esc(e.message)}</small></div>`;
-  }finally{fetching=false;}
+    if(r.status===304)return;if(!r.ok)throw new Error('HTTP '+r.status);
+    S.data=await r.json();S.etag=r.headers.get('ETag');saveCache();render();
+  }catch(e){if(!S.data)$('#app').innerHTML=`<div class="empty">Couldn't load the feed.<br><small>${esc(e.message)}</small></div>`;}
+  finally{fetching=false;}
 }
-
-// ── Boot ─────────────────────────────────────────────────────
-(async()=>{
-  if(loadCache())render();
-  await fetchFeed(true);
-  setInterval(()=>{if(!document.hidden)fetchFeed();},CFG.REFRESH);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchFeed();});
-})();
-
+(async()=>{if(loadCache())render();await fetchFeed(true);setInterval(()=>{if(!document.hidden)fetchFeed();},CFG.REFRESH);document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchFeed();});})();
 window.addEventListener('hashchange',render);
 
-// ── Render ───────────────────────────────────────────────────
 function render(){
   if(!S.data)return;
   updateCounts();renderWx();
   const h=location.hash.replace(/^#/,'')||'/';
-  if(h.startsWith('/a/')){
-    renderArticle(decodeURIComponent(h.slice(3)));
-  }else{
-    document.title='TownFeed — Kossuth County, Iowa';
-    renderHome();
-  }
+  if(h.startsWith('/a/')){renderArticle(decodeURIComponent(h.slice(3)));}
+  else{document.title='TownFeed — Kossuth County, Iowa';renderHome();}
   renderFoot();
 }
 
 function updateCounts(){
-  // Show counts filtered by current search if active
-  const filterCount=(arr)=>S.q?arr.filter(it=>{
-    const b=((it.articleTitle||it.title||'')+' '+(it.description||'')+' '+(it.sourceName||'')).toLowerCase();
-    return b.includes(S.q);
-  }).length:arr.length;
-  $('#cnt-news').textContent=filterCount(S.data.news||[]);
-  $('#cnt-sports').textContent=filterCount(S.data.sports||[]);
-  $('#cnt-obits').textContent=filterCount(S.data.obits||[]);
+  function fc(arr){return S.q?arr.filter(it=>(getTitle(it)+' '+(it.description||'')+' '+(it.sourceName||'')).toLowerCase().includes(S.q)).length:arr.length;}
+  $('#cnt-news').textContent=fc(S.data.news||[]);
+  $('#cnt-sports').textContent=fc(S.data.sports||[]);
+  $('#cnt-obits').textContent=fc(S.data.obits||[]);
 }
 
 function renderWx(){
-  const wx=S.data?.weather||[];
-  const bar=$('#wx-bar');
+  const wx=S.data?.weather||[];const bar=$('#wx-bar');
   if(!wx.length){bar.innerHTML='';return;}
   const idx=Math.min(S.wIdx,wx.length-1),a=wx[idx];
   bar.innerHTML=`<div class="wx-bar"><div class="wrap"><span class="wx-tag">⚠ ${esc(a.event)}</span><span class="wx-text">${esc((a.headline||a.description||'').slice(0,140))}</span>${wx.length>1?`<div class="wx-btns"><button id="wx-p"${idx===0?' disabled':''}>‹</button><button id="wx-n"${idx===wx.length-1?' disabled':''}>›</button></div>`:''}</div></div>`;
@@ -391,33 +355,27 @@ function renderWx(){
   $('#wx-n')?.addEventListener('click',()=>{S.wIdx=Math.min(wx.length-1,S.wIdx+1);renderWx();});
 }
 
-// ── Home ─────────────────────────────────────────────────────
 function renderHome(){
-  // Global search across all tabs
-  const allItems=S.q
-    ? [...(S.data.news||[]),...(S.data.sports||[]),...(S.data.obits||[])].filter(it=>{
-        const b=((it.articleTitle||it.title||'')+' '+(it.description||'')+' '+(it.sourceName||'')).toLowerCase();
-        return b.includes(S.q);
-      })
-    : null;
-
-  const raw=allItems||( S.tab==='news'?S.data.news:S.tab==='sports'?S.data.sports:S.data.obits )||[];
-  const items=applyFilters(raw);
+  // Global search
+  const allSearch=S.q?[...(S.data.news||[]),...(S.data.sports||[]),...(S.data.obits||[])].filter(it=>(getTitle(it)+' '+(it.description||'')+' '+(it.sourceName||'')).toLowerCase().includes(S.q)):null;
+  const raw=allSearch||(S.tab==='news'?S.data.news:S.tab==='sports'?S.data.sports:S.data.obits)||[];
+  const items=S.tab==='news'&&!S.q?raw.filter(it=>{
+    if(S.topics.size&&!S.topics.has(it.topic))return false;
+    if(S.towns.size&&!S.towns.has(it.town))return false;
+    return true;
+  }):raw;
 
   let html=`<div class="wrap feed-wrap">`;
   if(S.tab==='news'&&!S.q){
-    html+=`<div class="filters" role="group" aria-label="Filter stories">
-      <span class="filter-label" aria-hidden="true">Topic</span>
+    html+=`<div class="filters">
+      <span class="fl">Topic</span>
       ${CFG.TOPICS.map(([s,n])=>`<button class="chip${S.topics.has(s)?' on':''}" data-topic="${s}" aria-pressed="${S.topics.has(s)}">${n}</button>`).join('')}
       <span class="filter-sep"></span>
-      <span class="filter-label" aria-hidden="true">Town</span>
+      <span class="fl">Town</span>
       ${CFG.TOWNS.map(([s,n])=>`<button class="chip${S.towns.has(s)?' on':''}" data-town="${s}" aria-pressed="${S.towns.has(s)}">${n}</button>`).join('')}
     </div>`;
   }
-
-  if(S.q){
-    html+=`<div class="sec-head"><h2>Search: "${esc(S.q)}"</h2><span class="sec-count">${items.length} results across all tabs</span></div>`;
-  }
+  if(S.q)html+=`<div class="sec-head"><h2>Results for "${esc(S.q)}"</h2><span class="sec-count">${items.length} stories</span></div>`;
 
   if(!items.length){
     html+=`<div class="empty">No stories found${S.q?` for "${esc(S.q)}"`:''}.${!S.q?' Try clearing filters.':''}</div>`;
@@ -429,16 +387,6 @@ function renderHome(){
   html+=`</div>`;
   $('#app').innerHTML=html;
   wireHome();
-}
-
-function applyFilters(items){
-  return items.filter(it=>{
-    if(S.tab==='news'&&!S.q){
-      if(S.topics.size&&!S.topics.has(it.topic))return false;
-      if(S.towns.size&&!S.towns.has(it.town))return false;
-    }
-    return true;
-  });
 }
 
 function renderStories(items){
@@ -466,19 +414,18 @@ function renderObits(items){
   return html;
 }
 
-// ── Card templates ───────────────────────────────────────────
-function imgHtml(it,cls){
-  const init=(it.sourceName||it.source||'?').charAt(0).toUpperCase();
-  if(it.image)return`<img loading="lazy" referrerpolicy="no-referrer" src="${attr(it.image)}" alt="${attr(getTitle(it))}" onload="this.classList.add('vis')" onerror="this.remove()">`;
-  return`<div class="ini" aria-hidden="true">${esc(init)}</div>`;
+function imgBlock(it,cls){
+  if(it.image)return`<img loading="lazy" referrerpolicy="no-referrer" src="${esc(it.image)}" alt="${esc(getTitle(it))}" onload="this.classList.add('vis')" onerror="this.remove()">`;
+  return phHtml(it.topic);
 }
 
 function heroHtml(it){
   const t=getTitle(it),l=getLede(it);
-  const ageMs=Date.now()-(Date.parse(it.pubDate)||Date.now());
-  const isNew=ageMs<CFG.NEW_HRS*3600000;
-  return`<a class="hero" href="#/a/${encodeURIComponent(it.id)}" aria-label="${attr(t)}">
-    <div class="hero-img" style="${seedGrad(it.sourceName)}">${imgHtml(it)}</div>
+  const isNew=(Date.now()-(Date.parse(it.pubDate)||Date.now()))<CFG.NEW_HRS*3600000;
+  const href=storyHref(it),tgt=storyTarget(it),rel=storyRel(it);
+  return`<a class="hero" href="${esc(href)}"${tgt?` target="${tgt}"`:''}${rel?` rel="${rel}"`:''}
+    onclick="if(!this.href.startsWith('#'))return;window._sy=window.scrollY">
+    <div class="hero-img ph-${it.topic||'community'}">${imgBlock(it)}</div>
     <div class="hero-body">
       <div style="display:flex;align-items:center;gap:10px">
         ${tagHtml(it.topic)}
@@ -489,7 +436,8 @@ function heroHtml(it){
       <div class="hero-meta">
         <span class="via">${esc(it.sourceName||it.source||'Local')}</span>
         <span>·</span><span>${ago(it.pubDate)}</span>
-        ${it.article?`<span style="font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:.06em;background:var(--bg2);padding:2px 8px;border-radius:4px;color:var(--ink3)">FULL ARTICLE</span>`:''}
+        ${it.article?`<span class="has-article-badge">Full article</span>`:''}
+        ${!it.article?`<span style="font-family:var(--fh);font-size:10px;color:var(--ink3)">↗ ${esc(it.source||'')}</span>`:''}
       </div>
     </div>
   </a>`;
@@ -497,8 +445,10 @@ function heroHtml(it){
 
 function cardHtml(it){
   const t=getTitle(it),l=getLede(it);
-  return`<a class="card" href="#/a/${encodeURIComponent(it.id)}" aria-label="${attr(t)}">
-    <div class="card-img" style="${seedGrad(it.sourceName)}">${imgHtml(it)}</div>
+  const href=storyHref(it),tgt=storyTarget(it),rel=storyRel(it);
+  return`<a class="card" href="${esc(href)}"${tgt?` target="${tgt}"`:''}${rel?` rel="${rel}"`:''}
+    onclick="if(!this.href.startsWith('#'))return;window._sy=window.scrollY">
+    <div class="card-img ph-${it.topic||'community'}">${imgBlock(it)}</div>
     <div class="card-body">
       ${tagHtml(it.topic)}
       <h3>${esc(t)}</h3>
@@ -510,8 +460,10 @@ function cardHtml(it){
 
 function listRowHtml(it){
   const t=getTitle(it),l=getLede(it);
-  return`<a class="list-row" href="#/a/${encodeURIComponent(it.id)}" aria-label="${attr(t)}">
-    <div class="list-thumb" style="${seedGrad(it.sourceName)}">${imgHtml(it)}</div>
+  const href=storyHref(it),tgt=storyTarget(it),rel=storyRel(it);
+  return`<a class="list-row" href="${esc(href)}"${tgt?` target="${tgt}"`:''}${rel?` rel="${rel}"`:''}
+    onclick="if(!this.href.startsWith('#'))return;window._sy=window.scrollY">
+    <div class="list-thumb ph-${it.topic||'community'}">${imgBlock(it)}</div>
     <div class="list-body">
       <h4>${esc(t)}</h4>
       ${l?`<div class="list-desc">${esc(l)}</div>`:''}
@@ -522,7 +474,7 @@ function listRowHtml(it){
 
 function obitCardHtml(it){
   const desc=cleanText(it.description||'');
-  return`<a class="obit-card" href="#/a/${encodeURIComponent(it.id)}">
+  return`<a class="obit-card" href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">
     <div class="obit-orn">✦</div>
     <h3>${esc(it.title)}</h3>
     ${desc?`<div class="obit-desc">${esc(desc)}</div>`:''}
@@ -530,93 +482,72 @@ function obitCardHtml(it){
   </a>`;
 }
 
-// ── Wire home ────────────────────────────────────────────────
 function wireHome(){
   $$('.mast-tab').forEach(b=>b.addEventListener('click',()=>{
     S.tab=b.dataset.tab;S.vis=CFG.PAGE;
-    $$('.mast-tab').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');renderHome();
+    $$('.mast-tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderHome();
   }));
-  $$('[data-topic]').forEach(b=>b.addEventListener('click',()=>{
-    const t=b.dataset.topic;S.topics.has(t)?S.topics.delete(t):S.topics.add(t);
-    b.classList.toggle('on');b.setAttribute('aria-pressed',S.topics.has(t));
-    S.vis=CFG.PAGE;renderHome();
-  }));
-  $$('[data-town]').forEach(b=>b.addEventListener('click',()=>{
-    const t=b.dataset.town;S.towns.has(t)?S.towns.delete(t):S.towns.add(t);
-    b.classList.toggle('on');b.setAttribute('aria-pressed',S.towns.has(t));
-    S.vis=CFG.PAGE;renderHome();
-  }));
+  $$('[data-topic]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.topic;S.topics.has(t)?S.topics.delete(t):S.topics.add(t);S.vis=CFG.PAGE;renderHome();}));
+  $$('[data-town]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.town;S.towns.has(t)?S.towns.delete(t):S.towns.add(t);S.vis=CFG.PAGE;renderHome();}));
   $('#load-more')?.addEventListener('click',()=>{S.vis+=CFG.PAGE;renderHome();});
-  // Store scroll position before navigating to article
-  $$('a[href^="#/a/"]').forEach(a=>a.addEventListener('click',()=>{S.scrollY=window.scrollY;}));
 }
 
-// ── Article ──────────────────────────────────────────────────
 function renderArticle(id){
   const all=[...(S.data.news||[]),...(S.data.sports||[]),...(S.data.obits||[])];
   const it=all.find(x=>x.id===id);
   if(!it){$('#app').innerHTML=`<div class="wrap"><div class="empty">Story not found. <a href="#/">← Back</a></div></div>`;return;}
-
   document.title=`${getTitle(it)} — TownFeed`;
   const t=getTitle(it);
-  const isObit=it.topic==='obituaries';
-  const hasArticle=!!it.article&&!isObit;
-  const init=(it.sourceName||it.source||'?').charAt(0).toUpperCase();
+  const hasArticle=!!it.article&&it.topic!=='obituaries';
   const favicon=it.source?`https://www.google.com/s2/favicons?sz=32&domain=${encodeURIComponent(it.source)}`:'';
   const related=(it.related||[]).filter(r=>r.link);
 
-  // Build article body — clean each paragraph
   let bodyHtml='';
   if(hasArticle){
     const paras=it.article.split(/\n\n+/).filter(p=>p.trim()).map(p=>cleanText(p));
     bodyHtml=`<div class="art-body">${paras.map(p=>`<p>${esc(p)}</p>`).join('')}</div>`;
-  }else{
-    const desc=cleanText(it.description||'');
-    if(desc)bodyHtml=`<div class="art-body"><p>${esc(desc)}</p></div>`;
+  }else if(it.description){
+    bodyHtml=`<div class="art-body"><p>${esc(cleanText(it.description))}</p></div>`;
   }
 
   $('#app').innerHTML=`<div class="wrap-narrow art-page">
-    <button class="back-btn" onclick="history.back();setTimeout(()=>window.scrollTo(0,${S.scrollY}),50)">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
-      Back to feed
+    <button class="back-btn" onclick="history.back();setTimeout(()=>window.scrollTo(0,window._sy||0),60)">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Back
     </button>
-    <div>${tagHtml(it.topic)}</div>
+    ${tagHtml(it.topic)}
     <h1>${esc(t)}</h1>
     <div class="art-meta">
-      ${favicon?`<img src="${attr(favicon)}" width="16" height="16" style="border-radius:3px;display:inline" alt="" onerror="this.remove()">`:'' }
-      <span class="via">${esc(it.sourceName||it.source||'Local source')}</span>
+      ${favicon?`<img src="${esc(favicon)}" width="15" height="15" style="border-radius:3px;display:inline" alt="" onerror="this.remove()">`:'' }
+      <span class="via">${esc(it.sourceName||it.source||'Local')}</span>
       <span>·</span><span>${ago(it.pubDate)}</span>
     </div>
-    <div class="art-img" style="${seedGrad(it.sourceName)}">
-      ${it.image?`<img referrerpolicy="no-referrer" src="${attr(it.image)}" alt="${attr(t)}" onerror="this.parentElement.innerHTML='<div class=\\'ini\\'>${esc(init)}</div>'">`:`<div class="ini" aria-hidden="true">${esc(init)}</div>`}
+    <div class="art-img ph-${it.topic||'community'}">
+      ${it.image?`<img referrerpolicy="no-referrer" src="${esc(it.image)}" alt="${esc(t)}" onerror="this.remove()">`:`${phHtml(it.topic)}`}
     </div>
     ${bodyHtml}
     <div class="src-box">
       ${hasArticle
-        ?`This article was written by <strong>TownFeed</strong> using information reported by <a href="${attr(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName||it.source||'the source')}</a>. Only facts stated in the original report are included — nothing is added or invented.`
-        :`Originally reported by <a href="${attr(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName||it.source||'source')}</a>.`
+        ?`Written by <strong>TownFeed</strong> using reporting from <a href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName||it.source)}</a>. Only facts from the original report are included.`
+        :`Reported by <a href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName||it.source)}</a>.`
       }
     </div>
-    <a class="read-orig" href="${attr(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">Read original at ${esc(it.sourceName||it.source||'source')} ↗</a>
+    <a class="read-orig" href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">Read full story at ${esc(it.sourceName||it.source||'source')} ↗</a>
     <div class="ad-slot">
       <div class="ad-eye">Reach Kossuth County</div>
       <div class="ad-hed">Advertise with TownFeed</div>
-      <div class="ad-sub">Connect with every reader in the county. <a href="mailto:${CFG.AD_EMAIL}?subject=TownFeed%20Advertising">Email us to get started</a>.</div>
+      <div class="ad-sub">Connect with every reader in the county. <a href="mailto:${CFG.AD}?subject=TownFeed%20Advertising">Email us to get started</a>.</div>
     </div>
-    ${related.length?`<div class="related-wrap"><h3>More coverage</h3>${related.map(r=>`<a class="rel-link" href="${attr(r.link)}" target="_blank" rel="noopener nofollow">${r.source?`<img src="https://www.google.com/s2/favicons?sz=24&domain=${encodeURIComponent(r.source)}" width="16" height="16" style="border-radius:3px" alt="" onerror="this.remove()">`:''}<span>${esc(r.sourceName||r.source||'Source')}</span><span class="ext">↗</span></a>`).join('')}</div>`:''}
+    ${related.length?`<div class="rel-wrap"><h3>More coverage</h3>${related.map(r=>`<a class="rel-link" href="${esc(r.link)}" target="_blank" rel="noopener nofollow">${r.source?`<img src="https://www.google.com/s2/favicons?sz=24&domain=${encodeURIComponent(r.source)}" width="15" height="15" style="border-radius:3px" alt="" onerror="this.remove()">`:''}<span>${esc(r.sourceName||r.source||'Source')}</span><span class="ext">↗</span></a>`).join('')}</div>`:''}
   </div>`;
   window.scrollTo(0,0);
 }
 
-// ── Footer ───────────────────────────────────────────────────
 function renderFoot(){
   if(!S.data)return;
   const m=S.data.meta||{};
   const n=S.data.news?.length||0,sp=S.data.sports?.length||0,ob=S.data.obits?.length||0;
   $('#foot-meta').innerHTML=`<span class="live-pill"><span class="d"></span>Live</span> Updated ${m.lastRun?ago(m.lastRun):'never'} · News&nbsp;${n} · Sports&nbsp;${sp} · Obits&nbsp;${ob}`;
 }
-
 })();
 </script>
 </body>
