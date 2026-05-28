@@ -1,1105 +1,1022 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#faf7f2">
-  <title>TownFeed — Kossuth County · Iowa</title>
-  <meta name="description" content="Your local news source for Kossuth County, Iowa. Algona, Bancroft, Burt, Titonka, Swea City and more — updated every 10 minutes.">
-  <link rel="canonical" href="https://townfeed.app/">
-  <meta property="og:title" content="TownFeed — Kossuth County News">
-  <meta property="og:description" content="Your local news source for Kossuth County, Iowa.">
-  <meta property="og:type" content="website">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f9f6f0">
+<title>TownFeed — Kossuth County, Iowa</title>
+<meta name="description" content="Your complete local news source for Kossuth County, Iowa. Every story, right here.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ───────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;font-size:16px}
+body{background:var(--bg);color:var(--ink);font-family:'Lora',Georgia,serif;line-height:1.65;min-height:100vh;transition:background .2s,color .2s}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:none;background:none}
+img{display:block;max-width:100%}
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+/* ── Design Tokens ──────────────────────────────────────────── */
+:root{
+  --bg:#f9f6f0;
+  --bg2:#f0ebe1;
+  --card:#ffffff;
+  --ink:#18120a;
+  --ink2:#5a4e40;
+  --ink3:#9a8e7e;
+  --border:#e0d8cc;
+  --red:#c92b0a;
+  --red2:#f5ede9;
+  --blue:#1a3a6e;
+  --green:#1a5c2e;
+  --amber:#8a6400;
+  --slate:#3a4a5a;
+  --r:6px;
+  --font-head:'Outfit',sans-serif;
+  --font-body:'Lora',Georgia,serif;
+  --ease:cubic-bezier(.22,.68,0,1.2);
+}
+[data-theme=dark]{
+  --bg:#100e0b;
+  --bg2:#1a1710;
+  --card:#1e1b14;
+  --ink:#f0ebe0;
+  --ink2:#b0a890;
+  --ink3:#706856;
+  --border:#2e2b20;
+  --red:#e8402a;
+  --red2:#2a1208;
+  --blue:#4a7ab8;
+  --green:#4aaa6e;
+}
 
-  <style>
-    :root {
-      --paper: #faf7f2;
-      --paper2: #f2ede4;
-      --ink: #1a1208;
-      --ink2: #4a4236;
-      --ink3: #8a7e6e;
-      --rule: #d4cbb8;
-      --red: #c0392b;
-      --red-soft: #fdf1f0;
-      --blue: #1a4a7a;
-      --gold: #b8860b;
-      --card: #ffffff;
-      --shadow: 0 1px 3px rgba(26,18,8,0.08), 0 4px 12px rgba(26,18,8,0.06);
-      --shadow-hover: 0 4px 16px rgba(26,18,8,0.14), 0 8px 32px rgba(26,18,8,0.08);
-      --r: 4px;
-    }
-    [data-theme="dark"] {
-      --paper: #141210;
-      --paper2: #1e1c19;
-      --ink: #f0ebe0;
-      --ink2: #b8b0a0;
-      --ink3: #706860;
-      --rule: #2e2b25;
-      --card: #1e1c19;
-      --red-soft: #2a1210;
-      --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
-      --shadow-hover: 0 4px 16px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.25);
-    }
+/* ── Layout ─────────────────────────────────────────────────── */
+.container{max-width:1240px;margin:0 auto;padding:0 28px}
+.container-narrow{max-width:760px;margin:0 auto;padding:0 28px}
 
-    *, *::before, *::after { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--paper);
-      color: var(--ink);
-      font-family: 'Source Serif 4', Georgia, serif;
-      font-size: 17px;
-      line-height: 1.6;
-      min-height: 100vh;
-      transition: background 0.2s, color 0.2s;
-    }
-    a { color: inherit; text-decoration: none; }
-    button { font: inherit; cursor: pointer; border: none; background: none; }
-    img { display: block; max-width: 100%; }
+/* ── Masthead ───────────────────────────────────────────────── */
+.masthead{
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+}
+.mast-top{
+  display:flex;align-items:center;gap:20px;
+  padding:16px 0 12px;
+}
+.logo{
+  font-family:var(--font-head);
+  font-weight:800;font-size:clamp(26px,4vw,42px);
+  letter-spacing:-0.03em;line-height:1;
+  color:var(--ink);
+  display:flex;align-items:center;gap:2px;
+  flex-shrink:0;
+}
+.logo-dot{
+  display:inline-block;
+  width:10px;height:10px;
+  background:var(--red);
+  border-radius:50%;
+  margin:0 1px 14px;
+  flex-shrink:0;
+}
+.mast-location{
+  font-family:var(--font-head);
+  font-size:12px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3);
+  border-left:1px solid var(--border);
+  padding-left:16px;
+  line-height:1.3;
+}
+.mast-location strong{display:block;color:var(--ink2);font-weight:700}
+.mast-right{
+  margin-left:auto;
+  display:flex;align-items:center;gap:10px;
+}
+.search-box{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg2);
+  border:1.5px solid var(--border);
+  border-radius:100px;
+  padding:8px 16px;
+  transition:border-color .15s,box-shadow .15s;
+}
+.search-box:focus-within{border-color:var(--ink);box-shadow:0 0 0 3px color-mix(in srgb,var(--ink) 10%,transparent)}
+.search-box svg{color:var(--ink3);flex-shrink:0}
+.search-box input{
+  border:none;background:transparent;outline:none;
+  font-family:var(--font-head);font-size:14px;font-weight:500;
+  color:var(--ink);width:150px;
+}
+.search-box input::placeholder{color:var(--ink3)}
+.icon-btn{
+  width:38px;height:38px;
+  border-radius:50%;
+  background:var(--bg2);
+  border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ink2);
+  transition:background .15s,border-color .15s,color .15s;
+}
+.icon-btn:hover{background:var(--card);border-color:var(--ink);color:var(--ink)}
 
-    /* ── LAYOUT ─────────────────────────────────────────── */
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+/* Tabs */
+.mast-tabs{
+  display:flex;gap:0;
+  overflow-x:auto;scrollbar-width:none;
+  border-top:1px solid var(--border);
+}
+.mast-tabs::-webkit-scrollbar{display:none}
+.mast-tab{
+  font-family:var(--font-head);
+  font-weight:600;font-size:13px;
+  letter-spacing:.04em;text-transform:uppercase;
+  padding:12px 20px;
+  color:var(--ink3);
+  border-bottom:2.5px solid transparent;
+  transition:color .15s,border-color .15s;
+  white-space:nowrap;
+  display:flex;align-items:center;gap:8px;
+}
+.mast-tab:hover{color:var(--ink)}
+.mast-tab.active{color:var(--red);border-bottom-color:var(--red)}
+.mast-tab .badge{
+  background:var(--bg2);color:var(--ink3);
+  font-size:11px;font-weight:700;
+  padding:1px 7px;border-radius:100px;
+  transition:background .15s,color .15s;
+}
+.mast-tab.active .badge{background:var(--red);color:#fff}
 
-    /* ── NAMEPLATE ──────────────────────────────────────── */
-    .nameplate {
-      border-bottom: 3px double var(--rule);
-      padding: 14px 0 10px;
-      background: var(--paper);
-      position: sticky; top: 0; z-index: 50;
-    }
-    .np-top {
-      display: flex; align-items: center; gap: 16px;
-      margin-bottom: 8px;
-    }
-    .masthead {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-weight: 900;
-      font-size: clamp(32px, 5vw, 52px);
-      letter-spacing: -0.02em;
-      line-height: 1;
-      color: var(--ink);
-      flex-shrink: 0;
-    }
-    .masthead span { color: var(--red); }
-    .edition-block {
-      border-left: 2px solid var(--rule);
-      padding-left: 14px;
-      font-family: 'DM Sans', sans-serif;
-    }
-    .edition-county {
-      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--ink3);
-    }
-    .edition-date {
-      font-size: 13px; color: var(--ink2); margin-top: 1px;
-    }
-    .np-actions { margin-left: auto; display: flex; gap: 10px; align-items: center; }
-    .search-wrap {
-      display: flex; align-items: center; gap: 8px;
-      border: 1.5px solid var(--rule);
-      border-radius: 2px;
-      padding: 6px 12px;
-      background: var(--card);
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    .search-wrap:focus-within { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(26,18,8,0.08); }
-    .search-wrap svg { color: var(--ink3); flex-shrink: 0; }
-    .search-wrap input {
-      border: none; background: transparent; outline: none;
-      font-family: 'DM Sans', sans-serif; font-size: 14px;
-      color: var(--ink); width: 160px;
-    }
-    .search-wrap input::placeholder { color: var(--ink3); }
-    .theme-btn {
-      width: 36px; height: 36px;
-      border: 1.5px solid var(--rule);
-      border-radius: 2px;
-      background: var(--card);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--ink2);
-      transition: border-color 0.15s, color 0.15s;
-    }
-    .theme-btn:hover { border-color: var(--ink); color: var(--ink); }
-    .np-nav {
-      display: flex; align-items: center; gap: 0;
-      overflow-x: auto; scrollbar-width: none;
-    }
-    .np-nav::-webkit-scrollbar { display: none; }
-    .nav-tab {
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 600; font-size: 13px;
-      letter-spacing: 0.05em; text-transform: uppercase;
-      padding: 6px 18px;
-      border-right: 1px solid var(--rule);
-      color: var(--ink2);
-      transition: color 0.15s, background 0.15s;
-      white-space: nowrap;
-      display: flex; align-items: center; gap: 7px;
-    }
-    .nav-tab:first-child { padding-left: 0; }
-    .nav-tab .count {
-      background: var(--paper2); color: var(--ink3);
-      border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 700;
-      transition: background 0.15s, color 0.15s;
-    }
-    .nav-tab:hover { color: var(--ink); }
-    .nav-tab.active { color: var(--red); }
-    .nav-tab.active .count { background: var(--red); color: #fff; }
-    .nav-sep { flex: 1; }
-    .live-dot {
-      width: 7px; height: 7px; border-radius: 50%; background: var(--red);
-      animation: pulse 2s infinite;
-      flex-shrink: 0;
-    }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-    .live-label {
-      font-family: 'DM Sans', sans-serif; font-size: 11px;
-      font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--red);
-    }
+/* ── Weather Alert ──────────────────────────────────────────── */
+.wx-alert{
+  background:var(--red);color:#fff;
+  font-family:var(--font-head);font-size:13px;font-weight:500;
+  padding:10px 0;
+}
+.wx-alert .container{display:flex;align-items:center;gap:12px;min-width:0}
+.wx-tag{
+  background:#fff;color:var(--red);
+  font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 9px;border-radius:4px;flex-shrink:0;
+}
+.wx-text{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.wx-btns{display:flex;gap:4px;flex-shrink:0}
+.wx-btns button{
+  background:rgba(255,255,255,.2);color:#fff;
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:4px;padding:3px 10px;
+  font-family:var(--font-head);font-size:12px;font-weight:600;
+}
+.wx-btns button:disabled{opacity:.35;cursor:default}
 
-    /* ── WEATHER ALERT ──────────────────────────────────── */
-    .alert-bar {
-      background: var(--red); color: #fff;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px; font-weight: 600;
-      padding: 10px 0;
-      overflow: hidden;
-    }
-    .alert-bar .wrap { display: flex; gap: 16px; align-items: center; }
-    .alert-tag {
-      background: #fff; color: var(--red);
-      font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
-      padding: 3px 8px; border-radius: 2px; flex-shrink: 0;
-      text-transform: uppercase;
-    }
-    .alert-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .alert-nav { display: flex; gap: 4px; flex-shrink: 0; }
-    .alert-nav button {
-      background: rgba(255,255,255,0.25); color: #fff;
-      border: 1px solid rgba(255,255,255,0.4);
-      border-radius: 2px; padding: 3px 10px;
-      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
-    }
-    .alert-nav button:disabled { opacity: 0.4; }
+/* ── Filters ────────────────────────────────────────────────── */
+.filters{
+  padding:14px 0 12px;
+  border-bottom:1px solid var(--border);
+  display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+}
+.filter-group{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.filter-sep{width:1px;height:22px;background:var(--border);margin:0 4px}
+.filter-label{
+  font-family:var(--font-head);
+  font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3);margin-right:2px;
+}
+.chip{
+  font-family:var(--font-head);font-size:12px;font-weight:600;
+  color:var(--ink2);
+  border:1.5px solid var(--border);border-radius:100px;
+  padding:5px 13px;background:var(--card);
+  transition:all .12s;
+}
+.chip:hover{border-color:var(--ink);color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 
-    /* ── FILTERS ────────────────────────────────────────── */
-    .filters {
-      padding: 12px 0;
-      border-bottom: 1px solid var(--rule);
-      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
-    }
-    .filter-label {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
-      text-transform: uppercase; color: var(--ink3);
-      margin-right: 2px;
-    }
-    .chip {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px; font-weight: 500;
-      color: var(--ink2);
-      border: 1px solid var(--rule);
-      border-radius: 2px;
-      padding: 5px 12px;
-      background: var(--card);
-      transition: all 0.12s;
-      cursor: pointer;
-    }
-    .chip:hover { border-color: var(--ink); color: var(--ink); }
-    .chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-    .filter-divider {
-      width: 1px; height: 20px; background: var(--rule);
-      margin: 0 4px;
-    }
+/* ── Feed ───────────────────────────────────────────────────── */
+.feed-wrap{padding:32px 0 60px}
 
-    /* ── FEED LAYOUTS ───────────────────────────────────── */
-    .feed-wrap { padding: 28px 0 40px; }
+/* Section heading */
+.sec-head{
+  display:flex;align-items:center;gap:16px;
+  margin:40px 0 20px;
+  padding-bottom:12px;
+  border-bottom:2px solid var(--ink);
+}
+.sec-head h2{
+  font-family:var(--font-head);font-weight:800;
+  font-size:13px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink);
+}
+.sec-head .sec-count{
+  font-family:var(--font-head);font-size:11px;
+  font-weight:600;color:var(--ink3);
+  margin-left:auto;
+}
 
-    /* TOP STORY — full width hero */
-    .hero-story {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      border: 1px solid var(--rule);
-      border-radius: var(--r);
-      overflow: hidden;
-      background: var(--card);
-      box-shadow: var(--shadow);
-      margin-bottom: 28px;
-      text-decoration: none; color: var(--ink);
-      transition: box-shadow 0.2s;
-    }
-    .hero-story:hover { box-shadow: var(--shadow-hover); }
-    .hero-img {
-      position: relative; aspect-ratio: 4/3; overflow: hidden;
-      background: var(--paper2);
-    }
-    .hero-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
-    .hero-story:hover .hero-img img { transform: scale(1.03); }
-    .hero-img .placeholder {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Playfair Display', serif;
-      font-size: 72px; font-weight: 900;
-      color: var(--rule);
-    }
-    .hero-body {
-      padding: 32px 36px;
-      display: flex; flex-direction: column; gap: 12px;
-      border-left: 1px solid var(--rule);
-    }
-    .story-meta {
-      display: flex; align-items: center; gap: 8px;
-      font-family: 'DM Sans', sans-serif; font-size: 12px;
-      font-weight: 600; color: var(--ink3);
-    }
-    .story-meta .topic {
-      background: var(--red); color: #fff;
-      padding: 2px 8px; border-radius: 2px;
-      font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
-      font-weight: 700;
-    }
-    .story-meta .topic.sports { background: var(--blue); }
-    .story-meta .topic.schools { background: #2e7d32; }
-    .story-meta .topic.weather { background: #e65100; }
-    .story-meta .topic.government { background: #4a148c; }
-    .story-meta .topic.business { background: var(--gold); }
-    .story-meta .topic.community { background: var(--ink3); }
-    .story-meta .topic.crime { background: #37474f; }
-    .story-meta .sep { color: var(--rule); }
-    .hero-body h2 {
-      margin: 0;
-      font-family: 'Playfair Display', serif;
-      font-weight: 800; font-size: clamp(22px, 2.5vw, 32px);
-      line-height: 1.2; letter-spacing: -0.01em;
-    }
-    .hero-body .deck {
-      font-family: 'Source Serif 4', serif;
-      font-size: 16px; line-height: 1.55;
-      color: var(--ink2);
-    }
-    .hero-body .read-more {
-      margin-top: auto;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px; font-weight: 700;
-      letter-spacing: 0.05em; text-transform: uppercase;
-      color: var(--red); display: flex; align-items: center; gap: 6px;
-    }
-    .hero-body .attribution {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 11px; color: var(--ink3);
-      padding-top: 12px; border-top: 1px solid var(--rule);
-    }
+/* Hero */
+.hero{
+  display:grid;grid-template-columns:1.1fr .9fr;
+  border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;background:var(--card);
+  margin-bottom:2px;
+  transition:box-shadow .2s;
+}
+.hero:hover{box-shadow:0 8px 32px color-mix(in srgb,var(--ink) 10%,transparent)}
+.hero-img{
+  position:relative;overflow:hidden;
+  background:var(--bg2);
+  min-height:300px;
+}
+.hero-img img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform .5s var(--ease);
+}
+.hero:hover .hero-img img{transform:scale(1.04)}
+.hero-img .initials{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-weight:800;font-size:80px;
+  color:var(--border);
+  background:linear-gradient(135deg,var(--bg2),var(--border));
+}
+.hero-body{
+  padding:36px 40px;
+  display:flex;flex-direction:column;gap:14px;
+  border-left:1px solid var(--border);
+}
+.story-tag{
+  font-family:var(--font-head);font-size:10px;font-weight:800;
+  letter-spacing:.12em;text-transform:uppercase;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.story-tag .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.tag-crime .dot{background:#e53e3e} .tag-crime{color:#e53e3e}
+.tag-sports .dot{background:var(--blue)} .tag-sports{color:var(--blue)}
+.tag-schools .dot{background:var(--green)} .tag-schools{color:var(--green)}
+.tag-weather .dot{background:#d97706} .tag-weather{color:#d97706}
+.tag-government .dot{background:#7c3aed} .tag-government{color:#7c3aed}
+.tag-business .dot{background:var(--amber)} .tag-business{color:var(--amber)}
+.tag-community .dot{background:var(--ink3)} .tag-community{color:var(--ink3)}
+.tag-obituaries .dot{background:var(--ink3)} .tag-obituaries{color:var(--ink3)}
 
-    /* 3-COLUMN GRID */
-    .story-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: var(--rule);
-      border: 1px solid var(--rule);
-      border-radius: var(--r);
-      overflow: hidden;
-      margin-bottom: 28px;
-    }
-    .story-card {
-      background: var(--card);
-      display: flex; flex-direction: column;
-      text-decoration: none; color: var(--ink);
-      transition: background 0.15s;
-    }
-    .story-card:hover { background: var(--paper2); }
-    .story-card .card-img {
-      aspect-ratio: 16/9; overflow: hidden;
-      background: var(--paper2); position: relative;
-    }
-    .story-card .card-img img {
-      width: 100%; height: 100%; object-fit: cover;
-      opacity: 0; transition: opacity 0.3s, transform 0.4s;
-    }
-    .story-card .card-img img.loaded { opacity: 1; }
-    .story-card:hover .card-img img { transform: scale(1.04); }
-    .story-card .card-img .placeholder {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Playfair Display', serif;
-      font-size: 40px; font-weight: 900; color: var(--rule);
-    }
-    .story-card .card-body { padding: 16px 20px 20px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
-    .story-card h3 {
-      margin: 0;
-      font-family: 'Playfair Display', serif;
-      font-weight: 700; font-size: 18px; line-height: 1.25;
-      letter-spacing: -0.005em;
-    }
-    .story-card .card-desc {
-      font-size: 14px; line-height: 1.5; color: var(--ink2);
-      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .story-card .card-foot {
-      margin-top: auto; padding-top: 10px;
-      border-top: 1px solid var(--rule);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 11px; color: var(--ink3);
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .story-card .card-foot .via { font-style: italic; }
+.hero-body h2{
+  font-family:var(--font-head);font-weight:800;
+  font-size:clamp(22px,2.4vw,34px);
+  line-height:1.15;letter-spacing:-.02em;
+  color:var(--ink);
+}
+.hero-body .lede{
+  font-size:16px;line-height:1.6;color:var(--ink2);
+}
+.hero-body .meta{
+  font-family:var(--font-head);font-size:12px;color:var(--ink3);
+  margin-top:auto;padding-top:16px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.hero-body .meta .via{font-weight:600;color:var(--ink2)}
+.hero-body .meta .time-ago{}
 
-    /* LIST ROWS — after the grid */
-    .story-list { border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; margin-bottom: 28px; }
-    .list-item {
-      display: grid;
-      grid-template-columns: 100px 1fr;
-      gap: 0;
-      background: var(--card);
-      border-bottom: 1px solid var(--rule);
-      text-decoration: none; color: var(--ink);
-      transition: background 0.15s;
-    }
-    .list-item:last-child { border-bottom: none; }
-    .list-item:hover { background: var(--paper2); }
-    .list-thumb {
-      aspect-ratio: 4/3; overflow: hidden; background: var(--paper2);
-      position: relative;
-    }
-    .list-thumb img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.3s; }
-    .list-thumb img.loaded { opacity: 1; }
-    .list-thumb .placeholder {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Playfair Display', serif; font-size: 26px;
-      font-weight: 900; color: var(--rule);
-    }
-    .list-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; justify-content: center; }
-    .list-body h4 {
-      margin: 0;
-      font-family: 'Playfair Display', serif;
-      font-weight: 700; font-size: 16px; line-height: 1.25;
-    }
-    .list-body .list-desc { font-size: 13px; color: var(--ink2); line-height: 1.4;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .list-body .list-foot { margin-top: 4px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink3); }
+/* 3-col grid */
+.grid3{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;margin-bottom:2px;
+}
+.card{
+  background:var(--card);
+  display:flex;flex-direction:column;
+  cursor:pointer;
+  transition:background .15s;
+}
+.card:hover{background:var(--bg2)}
+.card-img{
+  aspect-ratio:16/9;overflow:hidden;
+  background:var(--bg2);position:relative;
+}
+.card-img img{
+  width:100%;height:100%;object-fit:cover;
+  opacity:0;transition:opacity .3s,transform .4s;
+}
+.card-img img.vis{opacity:1}
+.card:hover .card-img img{transform:scale(1.04)}
+.card-img .initials{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-weight:800;font-size:36px;color:var(--border);
+  background:linear-gradient(135deg,var(--bg2),color-mix(in srgb,var(--border) 80%,var(--bg2)));
+}
+.card-body{padding:18px 20px 20px;flex:1;display:flex;flex-direction:column;gap:8px}
+.card-body h3{
+  font-family:var(--font-head);font-weight:700;
+  font-size:17px;line-height:1.25;letter-spacing:-.01em;color:var(--ink);
+}
+.card-body .card-lede{
+  font-size:13.5px;line-height:1.5;color:var(--ink2);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.card-foot{
+  margin-top:auto;padding-top:10px;
+  border-top:1px solid var(--border);
+  font-family:var(--font-head);font-size:11px;
+  color:var(--ink3);
+  display:flex;justify-content:space-between;
+}
 
-    /* OBIT LAYOUT */
-    .obit-grid {
-      display: grid; grid-template-columns: repeat(2, 1fr);
-      gap: 1px; background: var(--rule);
-      border: 1px solid var(--rule); border-radius: var(--r);
-      overflow: hidden; margin-bottom: 28px;
-    }
-    .obit-card {
-      background: var(--card);
-      padding: 22px 26px;
-      text-decoration: none; color: var(--ink);
-      transition: background 0.15s;
-    }
-    .obit-card:hover { background: var(--paper2); }
-    .obit-card::before { content: '✦'; font-size: 16px; color: var(--ink3); display: block; margin-bottom: 10px; }
-    .obit-card h3 {
-      margin: 0 0 6px;
-      font-family: 'Playfair Display', serif;
-      font-style: italic; font-weight: 700;
-      font-size: 19px; line-height: 1.25;
-    }
-    .obit-card .obit-desc { font-size: 14px; color: var(--ink2); line-height: 1.45;
-      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .obit-card .obit-foot { margin-top: 10px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink3); }
+/* List */
+.story-list{
+  border:1px solid var(--border);border-radius:var(--r);overflow:hidden;
+}
+.list-row{
+  display:grid;grid-template-columns:96px 1fr;
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+  transition:background .15s;
+}
+.list-row:last-child{border-bottom:none}
+.list-row:hover{background:var(--bg2)}
+.list-thumb{
+  aspect-ratio:1;overflow:hidden;background:var(--bg2);position:relative;
+}
+.list-thumb img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
+.list-thumb img.vis{opacity:1}
+.list-thumb .initials{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-weight:800;font-size:28px;color:var(--border);
+}
+.list-body{padding:14px 18px;display:flex;flex-direction:column;gap:5px;justify-content:center}
+.list-body h4{
+  font-family:var(--font-head);font-weight:700;
+  font-size:15px;line-height:1.3;color:var(--ink);
+}
+.list-body .list-desc{
+  font-size:13px;color:var(--ink2);line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.list-body .list-foot{
+  font-family:var(--font-head);font-size:11px;color:var(--ink3);
+  display:flex;gap:8px;margin-top:2px;
+}
 
-    /* SECTION HEADERS */
-    .section-head {
-      display: flex; align-items: baseline; gap: 14px;
-      margin: 32px 0 16px;
-    }
-    .section-head h2 {
-      margin: 0;
-      font-family: 'Playfair Display', serif;
-      font-weight: 800; font-size: 22px;
-      letter-spacing: -0.01em;
-    }
-    .section-head .rule { flex: 1; height: 1px; background: var(--rule); }
-    .section-head .count {
-      font-family: 'DM Sans', sans-serif; font-size: 12px;
-      font-weight: 600; color: var(--ink3);
-    }
+/* Obits */
+.obit-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:var(--r);overflow:hidden;
+}
+.obit-card{
+  background:var(--card);padding:24px 28px;
+  cursor:pointer;transition:background .15s;
+  display:flex;flex-direction:column;gap:8px;
+}
+.obit-card:hover{background:var(--bg2)}
+.obit-ornament{color:var(--ink3);font-size:18px}
+.obit-card h3{
+  font-family:var(--font-head);font-weight:700;
+  font-size:18px;line-height:1.2;color:var(--ink);
+  font-style:italic;
+}
+.obit-card .obit-desc{
+  font-size:14px;color:var(--ink2);line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.obit-card .obit-foot{
+  font-family:var(--font-head);font-size:11px;color:var(--ink3);margin-top:auto;
+}
 
-    /* LOAD MORE */
-    .load-wrap { text-align: center; padding: 10px 0 30px; }
-    .load-btn {
-      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      color: var(--ink); border: 1.5px solid var(--rule);
-      padding: 10px 28px; border-radius: 2px;
-      background: var(--card);
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    .load-btn:hover { border-color: var(--ink); box-shadow: 0 2px 8px rgba(26,18,8,0.1); }
+/* Load more */
+.load-wrap{text-align:center;padding:28px 0 0}
+.load-btn{
+  font-family:var(--font-head);font-size:13px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;
+  border:1.5px solid var(--border);border-radius:100px;
+  padding:11px 32px;background:var(--card);color:var(--ink);
+  transition:border-color .15s,box-shadow .15s;
+}
+.load-btn:hover{border-color:var(--ink);box-shadow:0 2px 12px color-mix(in srgb,var(--ink) 8%,transparent)}
 
-    /* ARTICLE PAGE */
-    .article-wrap { max-width: 780px; margin: 0 auto; padding: 32px 0 64px; }
-    .back { display: inline-flex; align-items: center; gap: 6px;
-      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
-      color: var(--ink2); margin-bottom: 24px;
-      letter-spacing: 0.04em; text-transform: uppercase;
-    }
-    .back svg { width: 14px; height: 14px; }
-    .article-wrap .a-label {
-      font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--red); margin-bottom: 12px;
-    }
-    .article-wrap h1 {
-      font-family: 'Playfair Display', serif;
-      font-weight: 900; font-size: clamp(28px, 4vw, 46px);
-      line-height: 1.1; letter-spacing: -0.02em;
-      margin: 0 0 16px;
-    }
-    .article-wrap .a-deck {
-      font-size: 19px; line-height: 1.55; color: var(--ink2);
-      font-style: italic; margin-bottom: 20px;
-      border-bottom: 1px solid var(--rule); padding-bottom: 20px;
-    }
-    .article-wrap .a-meta {
-      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-      font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink3);
-      margin-bottom: 24px;
-    }
-    .article-wrap .a-img {
-      margin: 0 0 28px;
-      border-radius: var(--r); overflow: hidden;
-      aspect-ratio: 16/9; background: var(--paper2);
-    }
-    .article-wrap .a-img img { width: 100%; height: 100%; object-fit: cover; }
-    .article-wrap .a-img .placeholder {
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Playfair Display', serif; font-size: 80px;
-      font-weight: 900; color: var(--rule);
-    }
-    .article-wrap .a-attribution {
-      margin: 24px 0;
-      padding: 16px 20px;
-      background: var(--paper2);
-      border-left: 3px solid var(--rule);
-      border-radius: 0 var(--r) var(--r) 0;
-      font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink2);
-    }
-    .article-wrap .a-attribution a { color: var(--blue); text-decoration: underline; font-weight: 600; }
-    .article-wrap .a-read-original {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      color: #fff; background: var(--ink);
-      padding: 12px 24px; border-radius: 2px;
-      margin: 24px 0;
-      transition: opacity 0.15s;
-    }
-    .article-wrap .a-read-original:hover { opacity: 0.85; }
-    .article-wrap .ad-slot {
-      margin: 32px 0;
-      padding: 24px;
-      border: 1px dashed var(--rule);
-      border-radius: var(--r);
-      text-align: center;
-      font-family: 'DM Sans', sans-serif;
-    }
-    .article-wrap .ad-slot .ad-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink3); margin-bottom: 6px; }
-    .article-wrap .ad-slot .ad-pitch { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-    .article-wrap .ad-slot .ad-sub { font-size: 14px; color: var(--ink2); }
-    .article-wrap .ad-slot a { color: var(--red); }
-    .article-wrap .related-stories { margin-top: 40px; }
-    .article-wrap .related-stories h3 {
-      font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 800;
-      margin: 0 0 14px; letter-spacing: -0.01em;
-    }
+/* Empty / loading */
+.empty{
+  padding:80px 24px;text-align:center;
+  font-family:var(--font-head);color:var(--ink3);font-size:15px;
+}
+.spin{
+  display:inline-block;width:24px;height:24px;
+  border:2.5px solid var(--border);border-top-color:var(--ink);
+  border-radius:50%;animation:spin .65s linear infinite;
+  vertical-align:middle;margin-right:10px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-    /* STATUS */
-    .status {
-      padding: 80px 24px; text-align: center;
-      font-family: 'DM Sans', sans-serif; color: var(--ink3);
-    }
-    .spinner {
-      display: inline-block; width: 24px; height: 24px;
-      border: 2.5px solid var(--rule); border-top-color: var(--ink);
-      border-radius: 50%; animation: spin 0.7s linear infinite;
-      vertical-align: middle; margin-right: 10px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+/* ── Article Page ───────────────────────────────────────────── */
+.article-page{padding:40px 0 80px}
+.back-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--font-head);font-size:12px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:32px;
+  transition:color .15s;
+}
+.back-btn:hover{color:var(--ink)}
+.article-page .a-section{
+  font-family:var(--font-head);font-size:11px;font-weight:800;
+  letter-spacing:.14em;text-transform:uppercase;
+  margin-bottom:12px;
+}
+.article-page h1{
+  font-family:var(--font-head);font-weight:800;
+  font-size:clamp(28px,4.5vw,52px);
+  line-height:1.08;letter-spacing:-.03em;
+  margin-bottom:20px;
+}
+.article-page .a-lede{
+  font-size:19px;line-height:1.6;
+  color:var(--ink2);font-style:italic;
+  margin-bottom:24px;
+  padding-bottom:24px;border-bottom:1px solid var(--border);
+}
+.article-page .a-meta{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  font-family:var(--font-head);font-size:12px;color:var(--ink3);
+  margin-bottom:28px;
+}
+.article-page .a-meta .via{font-weight:700;color:var(--ink2)}
+.article-page .a-img{
+  margin:0 0 32px;
+  border-radius:var(--r);overflow:hidden;
+  aspect-ratio:16/9;background:var(--bg2);position:relative;
+}
+.article-page .a-img img{width:100%;height:100%;object-fit:cover}
+.article-page .a-img .initials{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-weight:800;font-size:100px;color:var(--border);
+}
+.article-body{
+  font-size:18px;line-height:1.8;
+}
+.article-body p{margin-bottom:1.5em}
+.article-body p:last-child{margin-bottom:0}
+.source-box{
+  margin:36px 0;
+  padding:20px 24px;
+  background:var(--bg2);
+  border-left:3px solid var(--border);
+  border-radius:0 var(--r) var(--r) 0;
+  font-family:var(--font-head);font-size:13px;color:var(--ink2);
+  line-height:1.5;
+}
+.source-box a{color:var(--blue);font-weight:600;text-decoration:underline}
+.read-original{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--font-head);font-size:13px;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;
+  background:var(--ink);color:var(--bg);
+  padding:14px 28px;border-radius:100px;
+  margin:8px 0 36px;
+  transition:opacity .15s,transform .15s;
+}
+.read-original:hover{opacity:.85;transform:translateY(-1px)}
+.ad-slot{
+  margin:36px 0;padding:28px;
+  border:1.5px dashed var(--border);border-radius:var(--r);
+  text-align:center;
+}
+.ad-slot .ad-eyebrow{
+  font-family:var(--font-head);font-size:10px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;
+}
+.ad-slot .ad-hed{
+  font-family:var(--font-head);font-weight:800;font-size:20px;
+  color:var(--ink);margin-bottom:6px;
+}
+.ad-slot .ad-sub{font-size:14px;color:var(--ink2)}
+.ad-slot .ad-sub a{color:var(--red);font-weight:600}
+.related-wrap{margin-top:48px;padding-top:32px;border-top:2px solid var(--ink)}
+.related-wrap h3{
+  font-family:var(--font-head);font-weight:800;font-size:13px;
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;
+}
+.related-link{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  margin-bottom:8px;
+  font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--ink);
+  transition:background .15s,border-color .15s;
+}
+.related-link:hover{background:var(--bg2);border-color:var(--ink)}
+.related-link .ext{color:var(--ink3);font-weight:400;font-size:12px;margin-left:auto}
 
-    /* AI badge */
-    .ai-badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      color: var(--ink3);
-      border: 1px solid var(--rule);
-      padding: 2px 6px; border-radius: 2px;
-    }
+/* ── Footer ─────────────────────────────────────────────────── */
+footer{
+  border-top:1px solid var(--border);
+  padding:20px 0 40px;
+  font-family:var(--font-head);font-size:12px;color:var(--ink3);
+}
+footer .foot-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+footer a{color:var(--ink3);text-decoration:underline}
+footer a:hover{color:var(--ink)}
+footer .live-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  font-weight:700;color:var(--green);
+  background:color-mix(in srgb,var(--green) 12%,transparent);
+  padding:2px 10px;border-radius:100px;font-size:11px;
+}
+footer .live-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-    /* FOOTER */
-    footer {
-      border-top: 3px double var(--rule);
-      padding: 20px 0 40px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px; color: var(--ink3);
-    }
-    footer .foot-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-    footer a { color: var(--ink3); text-decoration: underline; }
-    footer a:hover { color: var(--ink); }
-
-    /* ── RESPONSIVE ─────────────────────────────────────── */
-    @media (max-width: 900px) {
-      .hero-story { grid-template-columns: 1fr; }
-      .hero-img { aspect-ratio: 16/9; }
-      .hero-body { border-left: none; border-top: 1px solid var(--rule); padding: 20px 24px; }
-      .story-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 640px) {
-      .wrap { padding: 0 16px; }
-      .story-grid { grid-template-columns: 1fr; }
-      .obit-grid { grid-template-columns: 1fr; }
-      .list-item { grid-template-columns: 80px 1fr; }
-      .masthead { font-size: 28px; }
-      .search-wrap input { width: 120px; }
-      .hero-body h2 { font-size: 22px; }
-    }
-  </style>
+/* ── Responsive ─────────────────────────────────────────────── */
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr}
+  .hero-img{min-height:220px}
+  .hero-body{border-left:none;border-top:1px solid var(--border);padding:24px 28px}
+  .grid3{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:640px){
+  .container{padding:0 16px}
+  .container-narrow{padding:0 16px}
+  .grid3{grid-template-columns:1fr}
+  .obit-grid{grid-template-columns:1fr}
+  .search-box input{width:100px}
+  .logo{font-size:26px}
+  .hero-body h2{font-size:22px}
+}
+</style>
 </head>
 <body>
 
-  <script>
-    window.TF_CONFIG = {
-      WORKER_URL: 'https://townfeed.dtm2210.workers.dev',
-      COUNTY_NAME: 'Kossuth County',
-      STATE: 'Iowa',
-      CACHE_KEY: 'tf-cache-kossuth-v2',
-      ADVERTISE_EMAIL: 'ads@townfeed.app',
-      PAGE_SIZE: 18,
-      NEW_THRESHOLD_HOURS: 6,
-      REFRESH_MS: 5 * 60 * 1000,
-      TOWNS: [
-        ['algona','Algona'],['bancroft','Bancroft'],['burt','Burt'],
-        ['titonka','Titonka'],['swea-city','Swea City'],['wesley','Wesley'],
-        ['whittemore','Whittemore'],['lu-verne','Lu Verne'],['lakota','Lakota'],
-        ['lone-rock','Lone Rock'],['ledyard','Ledyard'],['fenton','Fenton'],
-      ],
-      TOPICS: [
-        ['crime','Crime'],['schools','Schools'],['government','Government'],
-        ['weather','Weather'],['business','Business'],['community','Community'],
-      ],
-    };
-  </script>
+<script>
+window.TF = {
+  WORKER: 'https://townfeed.dtm2210.workers.dev',
+  CACHE: 'tf-v2-kossuth',
+  PAGE: 15,
+  NEW_HRS: 6,
+  REFRESH: 5*60*1000,
+  TOWNS: [
+    ['algona','Algona'],['bancroft','Bancroft'],['burt','Burt'],['titonka','Titonka'],
+    ['swea-city','Swea City'],['wesley','Wesley'],['whittemore','Whittemore'],
+    ['lu-verne','Lu Verne'],['lakota','Lakota'],['lone-rock','Lone Rock'],
+    ['ledyard','Ledyard'],['fenton','Fenton'],
+  ],
+  TOPICS:[
+    ['crime','Crime'],['schools','Schools'],['government','Government'],
+    ['weather','Weather'],['business','Business'],['community','Community'],
+  ],
+  AD_EMAIL:'ads@townfeed.app',
+};
+</script>
 
-  <!-- NAMEPLATE -->
-  <header class="nameplate">
-    <div class="wrap">
-      <div class="np-top">
-        <a href="#/" class="masthead" aria-label="TownFeed home">
-          Town<span>Feed</span>
-        </a>
-        <div class="edition-block">
-          <div class="edition-county">Kossuth County · Iowa</div>
-          <div class="edition-date" id="edition-date"></div>
-        </div>
-        <div class="np-actions">
-          <label class="search-wrap">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
-            <input id="search" placeholder="Search stories…" autocomplete="off">
-          </label>
-          <button class="theme-btn" id="theme-btn" aria-label="Toggle dark mode">
-            <svg id="ico-sun" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-            <svg id="ico-moon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
-          </button>
-        </div>
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="container">
+    <div class="mast-top">
+      <a href="#/" class="logo" aria-label="TownFeed">
+        Town<span class="logo-dot"></span>Feed
+      </a>
+      <div class="mast-location">
+        <strong>Kossuth County</strong>
+        Iowa
       </div>
-      <nav class="np-nav" role="tablist">
-        <button class="nav-tab active" data-tab="news" role="tab">
-          Local News <span class="count" id="cnt-news">0</span>
+      <div class="mast-right">
+        <label class="search-box">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+          <input id="q" placeholder="Search…" autocomplete="off">
+        </label>
+        <button class="icon-btn" id="theme-btn" aria-label="Toggle dark mode">
+          <svg id="ico-sun" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg id="ico-moon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
         </button>
-        <button class="nav-tab" data-tab="sports" role="tab">
-          Sports <span class="count" id="cnt-sports">0</span>
-        </button>
-        <button class="nav-tab" data-tab="obits" role="tab">
-          Obituaries <span class="count" id="cnt-obits">0</span>
-        </button>
-        <span class="nav-sep"></span>
-        <span class="live-dot" id="live-dot" style="display:none"></span>
-        <span class="live-label" id="live-label" style="display:none">Live</span>
-      </nav>
+      </div>
     </div>
-  </header>
+    <nav class="mast-tabs" role="tablist">
+      <button class="mast-tab active" data-tab="news" role="tab">Local News <span class="badge" id="cnt-news">0</span></button>
+      <button class="mast-tab" data-tab="sports" role="tab">Sports <span class="badge" id="cnt-sports">0</span></button>
+      <button class="mast-tab" data-tab="obits" role="tab">Obituaries <span class="badge" id="cnt-obits">0</span></button>
+    </nav>
+  </div>
+</header>
 
-  <div id="alert-container"></div>
+<div id="wx-bar"></div>
 
-  <main id="app">
-    <div class="status"><span class="spinner"></span> Loading…</div>
-  </main>
+<main id="app"></main>
 
-  <footer>
-    <div class="wrap foot-row">
-      <span id="footer-meta">Loading…</span>
-      <span>Independent · Built for the county · <a href="mailto:ads@townfeed.app">Advertise with us</a></span>
+<footer>
+  <div class="container foot-inner">
+    <span id="foot-meta">Loading…</span>
+    <span>
+      Independent local news ·
+      <a href="mailto:ads@townfeed.app">Advertise</a> ·
+      <a href="mailto:tips@townfeed.app">Send a tip</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+const CFG = window.TF;
+const $ = (s,r=document) => r.querySelector(s);
+const $$ = (s,r=document) => [...r.querySelectorAll(s)];
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const attr = s => esc(s);
+const hash = s => { let h=0; for(let i=0;i<s.length;i++) h=((h<<5)-h+s.charCodeAt(i))|0; return Math.abs(h); };
+const ago = when => {
+  if(!when) return '—';
+  const d = (Date.now() - (typeof when==='string' ? Date.parse(when) : when)) / 1000;
+  if(d<60) return 'just now';
+  if(d<3600) return Math.floor(d/60)+'m ago';
+  if(d<86400) return Math.floor(d/3600)+'h ago';
+  if(d<604800) return Math.floor(d/86400)+'d ago';
+  return new Date(typeof when==='string'?Date.parse(when):when).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+};
+
+// State
+const S = {
+  data:null, etag:null,
+  tab:'news',
+  topics:new Set(), towns:new Set(),
+  q:'', vis:CFG.PAGE, wIdx:0,
+};
+
+// Theme
+const applyTheme = t => {
+  document.documentElement.setAttribute('data-theme',t);
+  $('meta[name=theme-color]').content = t==='dark'?'#100e0b':'#f9f6f0';
+  $('#ico-sun').style.display = t==='dark'?'block':'none';
+  $('#ico-moon').style.display = t==='dark'?'none':'block';
+};
+applyTheme(localStorage.getItem('tf-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+$('#theme-btn').addEventListener('click',()=>{
+  const n = document.documentElement.dataset.theme==='dark'?'light':'dark';
+  localStorage.setItem('tf-theme',n); applyTheme(n);
+});
+
+// Search
+let st;
+$('#q').addEventListener('input',e=>{
+  clearTimeout(st);
+  st=setTimeout(()=>{ S.q=e.target.value.toLowerCase().trim(); S.vis=CFG.PAGE; render(); },150);
+});
+
+// Data
+const loadCache = () => {
+  try{
+    const r=localStorage.getItem(CFG.CACHE);
+    if(!r) return null;
+    const {data,etag}=JSON.parse(r);
+    if(data?.news){S.data=data;S.etag=etag;return data;}
+  }catch{}
+  return null;
+};
+const saveCache = () => {
+  try{localStorage.setItem(CFG.CACHE,JSON.stringify({data:S.data,etag:S.etag,ts:Date.now()}));}catch{}
+};
+let fetching=false;
+const fetchFeed = async (force=false) => {
+  if(fetching) return; fetching=true;
+  try{
+    const h={};
+    if(S.etag&&!force) h['If-None-Match']=S.etag;
+    const r=await fetch(CFG.WORKER+'/feed',{headers:h});
+    if(r.status===304){return;}
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    S.data=await r.json(); S.etag=r.headers.get('ETag');
+    saveCache(); render();
+  }catch(e){
+    if(!S.data) $('#app').innerHTML=`<div class="empty">Couldn't reach the feed.<br><small>${esc(e.message)}</small></div>`;
+  }finally{fetching=false;}
+};
+
+// Boot
+(async()=>{
+  if(loadCache()) render();
+  await fetchFeed(true);
+  setInterval(()=>{if(!document.hidden)fetchFeed();},CFG.REFRESH);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchFeed();});
+})();
+
+// Router
+const getRoute = () => {
+  const h=location.hash.replace(/^#/,'')||'/';
+  if(h.startsWith('/a/')) return {view:'article',id:decodeURIComponent(h.slice(3))};
+  return {view:'home'};
+};
+window.addEventListener('hashchange',render);
+
+// ── Render ───────────────────────────────────────────────────
+function render(){
+  if(!S.data) return;
+  updateCounts(); renderWx();
+  const r=getRoute();
+  r.view==='article' ? renderArticle(r.id) : renderHome();
+  renderFoot();
+}
+
+function updateCounts(){
+  $('#cnt-news').textContent=S.data.news?.length||0;
+  $('#cnt-sports').textContent=S.data.sports?.length||0;
+  $('#cnt-obits').textContent=S.data.obits?.length||0;
+}
+
+function renderWx(){
+  const wx=S.data?.weather||[];
+  const bar=$('#wx-bar');
+  if(!wx.length){bar.innerHTML='';return;}
+  const idx=Math.min(S.wIdx,wx.length-1), a=wx[idx];
+  bar.innerHTML=`<div class="wx-alert"><div class="container">
+    <span class="wx-tag">⚠ ${esc(a.event)}</span>
+    <span class="wx-text">${esc((a.headline||a.description||'').slice(0,140))}</span>
+    ${wx.length>1?`<div class="wx-btns">
+      <button id="wx-p" ${idx===0?'disabled':''}>‹</button>
+      <button id="wx-n" ${idx===wx.length-1?'disabled':''}>›</button>
+    </div>`:''}
+  </div></div>`;
+  $('#wx-p')?.addEventListener('click',()=>{S.wIdx=Math.max(0,S.wIdx-1);renderWx();});
+  $('#wx-n')?.addEventListener('click',()=>{S.wIdx=Math.min(wx.length-1,S.wIdx+1);renderWx();});
+}
+
+// ── Home ─────────────────────────────────────────────────────
+function renderHome(){
+  const app=$('#app');
+  const raw = S.tab==='news'?S.data.news : S.tab==='sports'?S.data.sports : S.data.obits;
+  const items = applyFilters(raw||[]);
+
+  let html=`<div class="container feed-wrap">`;
+
+  // filters (news only)
+  if(S.tab==='news'){
+    html+=`<div class="filters">
+      <div class="filter-group">
+        <span class="filter-label">Topic</span>
+        ${CFG.TOPICS.map(([s,n])=>`<button class="chip${S.topics.has(s)?' on':''}" data-topic="${s}">${n}</button>`).join('')}
+      </div>
+      <span class="filter-sep"></span>
+      <div class="filter-group">
+        <span class="filter-label">Town</span>
+        ${CFG.TOWNS.map(([s,n])=>`<button class="chip${S.towns.has(s)?' on':''}" data-town="${s}">${n}</button>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  if(!items.length){
+    html+=`<div class="empty">No stories found. Try clearing filters.</div>`;
+  } else if(S.tab==='obits'){
+    html+=renderObits(items);
+  } else {
+    html+=renderStories(items);
+  }
+
+  html+=`</div>`;
+  app.innerHTML=html;
+  wireHome();
+}
+
+function applyFilters(items){
+  return items.filter(it=>{
+    if(S.tab==='news'){
+      if(S.topics.size&&!S.topics.has(it.topic)) return false;
+      if(S.towns.size&&!S.towns.has(it.town)) return false;
+    }
+    if(S.q){
+      const blob=((it.articleTitle||it.title||'')+' '+(it.article||it.description||'')+' '+(it.sourceName||'')).toLowerCase();
+      if(!blob.includes(S.q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderStories(items){
+  const vis=items.slice(0,S.vis);
+  if(!vis.length) return '<div class="empty">No stories.</div>';
+  const [hero,...rest]=vis;
+  let html=heroHtml(hero);
+  if(rest.length){
+    const grid=rest.slice(0,6);
+    const list=rest.slice(6);
+    if(grid.length) html+=`<div class="grid3">${grid.map(cardHtml).join('')}</div>`;
+    if(list.length){
+      html+=`<div class="sec-head"><h2>More Stories</h2><span class="sec-count">${list.length} more</span></div>`;
+      html+=`<div class="story-list">${list.map(listHtml).join('')}</div>`;
+    }
+  }
+  if(items.length>S.vis)
+    html+=`<div class="load-wrap"><button class="load-btn" id="load-more">Load more stories</button></div>`;
+  return html;
+}
+
+function renderObits(items){
+  const vis=items.slice(0,S.vis);
+  let html=`<div class="sec-head"><h2>Obituaries</h2><span class="sec-count">${items.length} notices</span></div>`;
+  html+=`<div class="obit-grid">${vis.map(obitHtml).join('')}</div>`;
+  if(items.length>S.vis)
+    html+=`<div class="load-wrap"><button class="load-btn" id="load-more">Load more</button></div>`;
+  return html;
+}
+
+// Topic tag helpers
+const TAG_NAMES = {crime:'Crime',sports:'Sports',schools:'Schools',weather:'Weather',government:'Gov\'t',business:'Business',community:'Community',obituaries:'Obituary'};
+function tagHtml(topic){
+  const cls=`tag-${topic||'community'}`;
+  return `<span class="story-tag ${cls}"><span class="dot"></span>${esc(TAG_NAMES[topic]||'News')}</span>`;
+}
+
+// Title/lede helpers — use AI content if available
+const getTitle = it => it.articleTitle || it.title;
+const getLede  = it => {
+  if(it.article){
+    // First sentence of article
+    const first = it.article.split('\n')[0];
+    return first.length>20 ? first.slice(0,180)+(first.length>180?'…':'') : it.description;
+  }
+  return it.description;
+};
+
+// Color seeding for placeholder
+const seedGrad = name => {
+  const h=hash(name||'x')%360;
+  return `background:linear-gradient(135deg,hsl(${h},40%,${document.documentElement.dataset.theme==='dark'?'18':'82'}%),hsl(${(h+60)%360},35%,${document.documentElement.dataset.theme==='dark'?'14':'75'}%))`;
+};
+
+function heroHtml(it){
+  const t=getTitle(it), l=getLede(it);
+  const init=(it.sourceName||it.source||'?').charAt(0).toUpperCase();
+  const ageMs=Date.now()-(Date.parse(it.pubDate)||Date.now());
+  const isNew=ageMs<CFG.NEW_HRS*3600000;
+  return `<a class="hero" href="#/a/${encodeURIComponent(it.id)}">
+    <div class="hero-img" style="${seedGrad(it.sourceName)}">
+      ${it.image?`<img referrerpolicy="no-referrer" src="${attr(it.image)}" alt="" loading="eager" onload="this.style.opacity=1" onerror="this.remove()" style="opacity:0;transition:opacity .35s">`:`<div class="initials">${esc(init)}</div>`}
     </div>
-  </footer>
+    <div class="hero-body">
+      <div style="display:flex;align-items:center;gap:12px">
+        ${tagHtml(it.topic)}
+        ${isNew?`<span style="font-family:var(--font-head);font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--red)">● JUST IN</span>`:''}
+      </div>
+      <h2>${esc(t)}</h2>
+      ${l?`<div class="lede">${esc(l.slice(0,200)+(l.length>200?'…':''))}</div>`:''}
+      <div class="meta">
+        <span class="via">${esc(it.sourceName||it.source||'Local')}</span>
+        <span>·</span>
+        <span class="time-ago">${ago(it.pubDate)}</span>
+        ${it.article?`<span style="font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.06em;background:var(--bg2);padding:2px 8px;border-radius:4px;color:var(--ink3)">FULL ARTICLE</span>`:''}
+      </div>
+    </div>
+  </a>`;
+}
 
-  <script>
-  const CFG = window.TF_CONFIG;
-  const $ = (s, r = document) => r.querySelector(s);
-  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+function cardHtml(it){
+  const t=getTitle(it), l=getLede(it);
+  const init=(it.sourceName||it.source||'?').charAt(0).toUpperCase();
+  return `<a class="card" href="#/a/${encodeURIComponent(it.id)}">
+    <div class="card-img" style="${seedGrad(it.sourceName)}">
+      ${it.image?`<img loading="lazy" referrerpolicy="no-referrer" src="${attr(it.image)}" alt="" onload="this.classList.add('vis')" onerror="this.remove()">`:`<div class="initials">${esc(init)}</div>`}
+    </div>
+    <div class="card-body">
+      ${tagHtml(it.topic)}
+      <h3>${esc(t)}</h3>
+      ${l?`<div class="card-lede">${esc(l)}</div>`:''}
+      <div class="card-foot">
+        <span>${esc(it.sourceName||'')}</span>
+        <span>${ago(it.pubDate)}</span>
+      </div>
+    </div>
+  </a>`;
+}
 
-  // ── State
-  const state = {
-    data: null, etag: null,
-    tab: 'news',
-    topics: new Set(), towns: new Set(),
-    search: '',
-    visible: CFG.PAGE_SIZE,
-    wIdx: 0, loading: false,
-  };
+function listHtml(it){
+  const t=getTitle(it), l=getLede(it);
+  const init=(it.sourceName||it.source||'?').charAt(0).toUpperCase();
+  return `<a class="list-row" href="#/a/${encodeURIComponent(it.id)}">
+    <div class="list-thumb" style="${seedGrad(it.sourceName)}">
+      ${it.image?`<img loading="lazy" referrerpolicy="no-referrer" src="${attr(it.image)}" alt="" onload="this.classList.add('vis')" onerror="this.remove()">`:`<div class="initials">${esc(init)}</div>`}
+    </div>
+    <div class="list-body">
+      <h4>${esc(t)}</h4>
+      ${l?`<div class="list-desc">${esc(l)}</div>`:''}
+      <div class="list-foot">
+        <span>${esc(it.sourceName||'')}</span>
+        <span>${ago(it.pubDate)}</span>
+        ${tagHtml(it.topic)}
+      </div>
+    </div>
+  </a>`;
+}
 
-  // ── Edition date
-  $('#edition-date').textContent = new Date().toLocaleDateString('en-US', {
-    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
-  });
+function obitHtml(it){
+  return `<a class="obit-card" href="#/a/${encodeURIComponent(it.id)}">
+    <div class="obit-ornament">✦</div>
+    <h3>${esc(it.title)}</h3>
+    ${it.description?`<div class="obit-desc">${esc(it.description)}</div>`:''}
+    <div class="obit-foot">${esc(it.sourceName||'')} · ${ago(it.pubDate)}</div>
+  </a>`;
+}
 
-  // ── Theme
-  const themeBtn = $('#theme-btn');
-  function applyTheme(t) {
-    document.documentElement.setAttribute('data-theme', t);
-    $('meta[name="theme-color"]').setAttribute('content', t === 'dark' ? '#141210' : '#faf7f2');
-    $('#ico-sun').style.display = t === 'dark' ? 'block' : 'none';
-    $('#ico-moon').style.display = t === 'dark' ? 'none' : 'block';
+// ── Wire home events ─────────────────────────────────────────
+function wireHome(){
+  $$('.mast-tab').forEach(b=>b.addEventListener('click',()=>{
+    S.tab=b.dataset.tab; S.vis=CFG.PAGE;
+    $$('.mast-tab').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); renderHome();
+  }));
+  $$('[data-topic]').forEach(b=>b.addEventListener('click',()=>{
+    const t=b.dataset.topic;
+    S.topics.has(t)?S.topics.delete(t):S.topics.add(t);
+    S.vis=CFG.PAGE; renderHome();
+  }));
+  $$('[data-town]').forEach(b=>b.addEventListener('click',()=>{
+    const t=b.dataset.town;
+    S.towns.has(t)?S.towns.delete(t):S.towns.add(t);
+    S.vis=CFG.PAGE; renderHome();
+  }));
+  $('#load-more')?.addEventListener('click',()=>{S.vis+=CFG.PAGE; renderHome();});
+}
+
+// ── Article ──────────────────────────────────────────────────
+function renderArticle(id){
+  const all=[...(S.data.news||[]),...(S.data.sports||[]),...(S.data.obits||[])];
+  const it=all.find(x=>x.id===id);
+  if(!it){
+    $('#app').innerHTML=`<div class="container"><div class="empty">Story not found. <a href="#/">← Back</a></div></div>`;
+    return;
   }
-  applyTheme(localStorage.getItem('tf-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
-  themeBtn.addEventListener('click', () => {
-    const n = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('tf-theme', n); applyTheme(n);
-  });
+  document.title=`${getTitle(it)} — TownFeed`;
+  const t=getTitle(it);
+  const isObit=it.topic==='obituaries';
+  const hasArticle=!!it.article&&!isObit;
+  const init=(it.sourceName||it.source||'?').charAt(0).toUpperCase();
+  const favicon=it.source?`https://www.google.com/s2/favicons?sz=32&domain=${encodeURIComponent(it.source)}`:'';
+  const related=(it.related||[]).filter(r=>r.link);
 
-  // ── Search
-  let st;
-  $('#search').addEventListener('input', e => {
-    clearTimeout(st);
-    st = setTimeout(() => { state.search = e.target.value.toLowerCase().trim(); state.visible = CFG.PAGE_SIZE; render(); }, 150);
-  });
-
-  // ── Data
-  async function loadCache() {
-    try {
-      const r = localStorage.getItem(CFG.CACHE_KEY);
-      if (!r) return null;
-      const { data, etag } = JSON.parse(r);
-      if (data?.news) { state.data = data; state.etag = etag; return data; }
-    } catch {}
-    return null;
-  }
-  function saveCache() {
-    try { localStorage.setItem(CFG.CACHE_KEY, JSON.stringify({ data: state.data, etag: state.etag, ts: Date.now() })); } catch {}
-  }
-  async function fetchFeed(force = false) {
-    if (state.loading) return;
-    state.loading = true;
-    try {
-      const h = {};
-      if (state.etag && !force) h['If-None-Match'] = state.etag;
-      const resp = await fetch(CFG.WORKER_URL + '/feed', { headers: h });
-      if (resp.status === 304) return;
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      state.data = await resp.json();
-      state.etag = resp.headers.get('ETag');
-      saveCache();
-      render();
-      showLive();
-    } catch (e) {
-      if (!state.data) $('#app').innerHTML = `<div class="status">Couldn't reach the feed.<br><small>${esc(e.message)}</small></div>`;
-    } finally { state.loading = false; }
-  }
-  function showLive() {
-    $('#live-dot').style.display = 'block';
-    $('#live-label').style.display = 'block';
-    setTimeout(() => { $('#live-dot').style.display = 'none'; $('#live-label').style.display = 'none'; }, 4000);
-  }
-
-  (async () => {
-    const c = await loadCache();
-    if (c) render();
-    await fetchFeed(true);
-    setInterval(() => { if (!document.hidden) fetchFeed(); }, CFG.REFRESH_MS);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) fetchFeed(); });
-  })();
-
-  // ── Router
-  function route() {
-    const h = location.hash.replace(/^#/, '') || '/';
-    if (h.startsWith('/a/')) return { view: 'article', id: decodeURIComponent(h.slice(3)) };
-    return { view: 'home' };
-  }
-  window.addEventListener('hashchange', render);
-
-  // ── Render
-  function render() {
-    if (!state.data) return;
-    updateCounts();
-    updateWeather();
-    const r = route();
-    if (r.view === 'article') renderArticle(r.id);
-    else renderHome();
-    updateFooter();
-  }
-
-  function updateCounts() {
-    const d = state.data;
-    $('#cnt-news').textContent   = d.news?.length   || 0;
-    $('#cnt-sports').textContent = d.sports?.length || 0;
-    $('#cnt-obits').textContent  = d.obits?.length  || 0;
+  // Format article body — split on double newlines into paragraphs
+  let bodyHtml='';
+  if(hasArticle){
+    const paras=it.article.split(/\n\n+/).filter(p=>p.trim());
+    bodyHtml=`<div class="article-body">${paras.map(p=>`<p>${esc(p.trim())}</p>`).join('')}</div>`;
+  } else if(it.description){
+    bodyHtml=`<div class="article-body"><p>${esc(it.description)}</p></div>`;
   }
 
-  function updateWeather() {
-    const wx = state.data?.weather || [];
-    const c = $('#alert-container');
-    if (!wx.length) { c.innerHTML = ''; return; }
-    const idx = Math.min(state.wIdx, wx.length - 1);
-    const a = wx[idx];
-    c.innerHTML = `
-      <div class="alert-bar">
-        <div class="wrap">
-          <span class="alert-tag">⚠ ${esc(a.event)}</span>
-          <span class="alert-text">${esc(a.headline || a.description.slice(0, 120))}</span>
-          ${wx.length > 1 ? `<div class="alert-nav">
-            <button id="wx-prev" ${idx===0?'disabled':''}>‹</button>
-            <button id="wx-next" ${idx===wx.length-1?'disabled':''}>›</button>
-          </div>` : ''}
-        </div>
-      </div>`;
-    $('#wx-prev')?.addEventListener('click', () => { state.wIdx = Math.max(0, state.wIdx - 1); updateWeather(); });
-    $('#wx-next')?.addEventListener('click', () => { state.wIdx = Math.min(wx.length-1, state.wIdx + 1); updateWeather(); });
-  }
+  $('#app').innerHTML=`<div class="container-narrow article-page">
+    <a href="#/" class="back-btn">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+      Back to feed
+    </a>
 
-  // ── Home
-  function renderHome() {
-    const app = $('#app');
-    const raw = state.tab === 'news' ? state.data.news
-              : state.tab === 'sports' ? state.data.sports
-              : state.data.obits;
-    const items = filter(raw);
+    <div class="a-section">${tagHtml(it.topic)}</div>
+    <h1>${esc(t)}</h1>
 
-    let html = `<div class="wrap">`;
+    <div class="a-meta">
+      ${favicon?`<img src="${attr(favicon)}" width="16" height="16" style="border-radius:3px;display:inline" alt="" onerror="this.remove()">`:'' }
+      <span class="via">${esc(it.sourceName||it.source||'Local source')}</span>
+      <span>·</span>
+      <span>${ago(it.pubDate)}</span>
+    </div>
 
-    // Filters (news only)
-    if (state.tab === 'news') {
-      html += `<div class="filters">
-        <span class="filter-label">Topics</span>
-        ${CFG.TOPICS.map(([s,n]) => `<button class="chip ${state.topics.has(s)?'active':''}" data-topic="${s}">${n}</button>`).join('')}
-        <span class="filter-divider"></span>
-        <span class="filter-label">Towns</span>
-        ${CFG.TOWNS.map(([s,n]) => `<button class="chip ${state.towns.has(s)?'active':''}" data-town="${s}">${n}</button>`).join('')}
-      </div>`;
-    }
-
-    if (!items.length) {
-      html += `<div class="status">No stories found. Try clearing filters.</div>`;
-    } else if (state.tab === 'obits') {
-      html += renderObits(items);
-    } else {
-      html += renderStories(items);
-    }
-
-    html += `</div>`;
-    app.innerHTML = html;
-    wireHome();
-  }
-
-  function renderStories(items) {
-    const visible = items.slice(0, state.visible);
-    let html = '';
-
-    if (visible.length === 0) return '<div class="status">No stories.</div>';
-
-    // Hero
-    const [hero, ...rest] = visible;
-    html += heroCard(hero);
-
-    // Grid (next 6)
-    const gridItems = rest.slice(0, 6);
-    if (gridItems.length) {
-      html += `<div class="story-grid">${gridItems.map(it => storyCard(it)).join('')}</div>`;
-    }
-
-    // List (remaining)
-    const listItems = rest.slice(6);
-    if (listItems.length) {
-      html += `<div class="section-head"><h2>More Stories</h2><span class="rule"></span></div>`;
-      html += `<div class="story-list">${listItems.map(it => listItem(it)).join('')}</div>`;
-    }
-
-    if (items.length > state.visible) {
-      html += `<div class="load-wrap"><button class="load-btn" id="load-more">Load more stories</button></div>`;
-    }
-
-    return html;
-  }
-
-  function renderObits(items) {
-    const visible = items.slice(0, state.visible);
-    let html = `<div class="section-head"><h2>Obituaries</h2><span class="rule"></span><span class="count">${items.length} notices</span></div>`;
-    html += `<div class="obit-grid">${visible.map(it => obitCard(it)).join('')}</div>`;
-    if (items.length > state.visible)
-      html += `<div class="load-wrap"><button class="load-btn" id="load-more">Load more</button></div>`;
-    return html;
-  }
-
-  // ── Card templates
-  function getTitle(it)   { return it.tfTitle   || it.title; }
-  function getSummary(it) { return it.tfSummary || it.description; }
-  const topicColors = { crime:'crime', schools:'schools', weather:'weather', government:'government', business:'business', community:'community', sports:'sports' };
-
-  function heroCard(it) {
-    const t = getTitle(it), s = getSummary(it);
-    const initial = (it.sourceName || it.source || '?').charAt(0).toUpperCase();
-    const seedHue = strHash(it.sourceName || 'x') % 360;
-    const grad = `linear-gradient(135deg,hsl(${seedHue},50%,40%),hsl(${(seedHue+50)%360},50%,30%))`;
-    const ageMs = Date.now() - (Date.parse(it.pubDate) || Date.now());
-    const isNew = ageMs < CFG.NEW_THRESHOLD_HOURS * 3600000;
-    const topicCls = topicColors[it.topic] || 'community';
-    return `
-      <a class="hero-story" href="#/a/${encodeURIComponent(it.id)}">
-        <div class="hero-img" style="background:${grad}">
-          ${it.image
-            ? `<img referrerpolicy="no-referrer" src="${attr(it.image)}" alt="" loading="eager" onload="this.style.opacity=1" onerror="this.remove()" style="opacity:0;transition:opacity .3s">`
-            : `<div class="placeholder">${esc(initial)}</div>`
-          }
-        </div>
-        <div class="hero-body">
-          <div class="story-meta">
-            <span class="topic ${topicCls}">${esc((it.topic||'community').toUpperCase())}</span>
-            ${isNew ? `<span style="color:var(--red);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em">● NEW</span>` : ''}
-            <span class="sep">·</span>
-            <span>${fmtRel(it.pubDate)}</span>
-          </div>
-          <h2>${esc(t)}</h2>
-          ${s ? `<div class="deck">${esc(s)}</div>` : ''}
-          <div class="read-more">Read story →</div>
-          <div class="attribution">
-            ${it.tfTitle ? `<span class="ai-badge">✦ Edited</span> ` : ''}
-            Reported by ${esc(it.sourceName || it.source || 'local source')}
-          </div>
-        </div>
-      </a>`;
-  }
-
-  function storyCard(it) {
-    const t = getTitle(it), s = getSummary(it);
-    const initial = (it.sourceName || it.source || '?').charAt(0).toUpperCase();
-    const seedHue = strHash(it.sourceName || 'x') % 360;
-    const grad = `linear-gradient(135deg,hsl(${seedHue},50%,40%),hsl(${(seedHue+50)%360},50%,30%))`;
-    const topicCls = topicColors[it.topic] || 'community';
-    return `
-      <a class="story-card" href="#/a/${encodeURIComponent(it.id)}">
-        <div class="card-img" style="background:${grad}">
-          ${it.image
-            ? `<img loading="lazy" referrerpolicy="no-referrer" src="${attr(it.image)}" alt="" onload="this.classList.add('loaded')" onerror="this.remove()">`
-            : `<div class="placeholder">${esc(initial)}</div>`
-          }
-        </div>
-        <div class="card-body">
-          <div class="story-meta">
-            <span class="topic ${topicCls}">${esc((it.topic||'news').toUpperCase())}</span>
-          </div>
-          <h3>${esc(t)}</h3>
-          ${s ? `<div class="card-desc">${esc(s)}</div>` : ''}
-          <div class="card-foot">
-            <span class="via">${esc(it.sourceName || it.source || '')}</span>
-            <span>${fmtRel(it.pubDate)}</span>
-          </div>
-        </div>
-      </a>`;
-  }
-
-  function listItem(it) {
-    const t = getTitle(it), s = getSummary(it);
-    const initial = (it.sourceName || it.source || '?').charAt(0).toUpperCase();
-    const seedHue = strHash(it.sourceName || 'x') % 360;
-    const grad = `linear-gradient(135deg,hsl(${seedHue},50%,42%),hsl(${(seedHue+50)%360},50%,32%))`;
-    return `
-      <a class="list-item" href="#/a/${encodeURIComponent(it.id)}">
-        <div class="list-thumb" style="background:${grad}">
-          ${it.image
-            ? `<img loading="lazy" referrerpolicy="no-referrer" src="${attr(it.image)}" alt="" onload="this.classList.add('loaded')" onerror="this.remove()">`
-            : `<div class="placeholder">${esc(initial)}</div>`
-          }
-        </div>
-        <div class="list-body">
-          <h4>${esc(t)}</h4>
-          ${s ? `<div class="list-desc">${esc(s)}</div>` : ''}
-          <div class="list-foot">${esc(it.sourceName || '')} · ${fmtRel(it.pubDate)}</div>
-        </div>
-      </a>`;
-  }
-
-  function obitCard(it) {
-    const t = getTitle(it), s = it.description; // obits never AI-rewritten
-    return `
-      <a class="obit-card" href="#/a/${encodeURIComponent(it.id)}">
-        <h3>${esc(t)}</h3>
-        ${s ? `<div class="obit-desc">${esc(s)}</div>` : ''}
-        <div class="obit-foot">${esc(it.sourceName || '')} · ${fmtRel(it.pubDate)}</div>
-      </a>`;
-  }
-
-  // ── Wire events
-  function wireHome() {
-    $$('.nav-tab').forEach(b => b.addEventListener('click', () => {
-      state.tab = b.dataset.tab;
-      state.visible = CFG.PAGE_SIZE;
-      $$('.nav-tab').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      renderHome();
-    }));
-    $$('[data-topic]').forEach(b => b.addEventListener('click', () => {
-      const t = b.dataset.topic;
-      if (state.topics.has(t)) state.topics.delete(t); else state.topics.add(t);
-      state.visible = CFG.PAGE_SIZE; renderHome();
-    }));
-    $$('[data-town]').forEach(b => b.addEventListener('click', () => {
-      const t = b.dataset.town;
-      if (state.towns.has(t)) state.towns.delete(t); else state.towns.add(t);
-      state.visible = CFG.PAGE_SIZE; renderHome();
-    }));
-    $('#load-more')?.addEventListener('click', () => { state.visible += CFG.PAGE_SIZE; renderHome(); });
-  }
-
-  // ── Filter
-  function filter(items) {
-    return (items || []).filter(it => {
-      if (state.tab === 'news') {
-        if (state.topics.size && !state.topics.has(it.topic)) return false;
-        if (state.towns.size  && !state.towns.has(it.town))  return false;
+    <div class="a-img" style="${seedGrad(it.sourceName)}">
+      ${it.image
+        ? `<img referrerpolicy="no-referrer" src="${attr(it.image)}" alt="" onerror="this.parentElement.innerHTML='<div class=\\'initials\\'>${esc(init)}</div>'">`
+        : `<div class="initials">${esc(init)}</div>`
       }
-      if (state.search) {
-        const blob = ((it.tfTitle||it.title||'') + ' ' + (it.tfSummary||it.description||'') + ' ' + (it.sourceName||'')).toLowerCase();
-        if (!blob.includes(state.search)) return false;
+    </div>
+
+    ${bodyHtml}
+
+    <div class="source-box">
+      ${hasArticle
+        ? `This article was written by <strong>TownFeed</strong> using information reported by <a href="${attr(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName||it.source||'the source')}</a>. TownFeed only includes facts stated in the original report — nothing is added or invented. All names, numbers, and details are as they appeared in the original.`
+        : `Originally reported by <a href="${attr(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName||it.source||'source')}</a>.`
       }
-      return true;
-    });
-  }
+    </div>
 
-  // ── Article view
-  function renderArticle(id) {
-    const all = [...(state.data.news||[]),...(state.data.sports||[]),...(state.data.obits||[])];
-    const it = all.find(x => x.id === id);
-    if (!it) {
-      $('#app').innerHTML = `<div class="wrap"><div class="status">Story not found. <a href="#/">← Back</a></div></div>`;
-      return;
-    }
-    document.title = `${getTitle(it)} — TownFeed`;
-    const t = getTitle(it), s = getSummary(it);
-    const isObit = it.topic === 'obituaries';
-    const wasRewritten = !!it.tfTitle;
-    const initial = (it.sourceName || it.source || '?').charAt(0).toUpperCase();
-    const seedHue = strHash(it.sourceName || 'x') % 360;
-    const grad = `linear-gradient(135deg,hsl(${seedHue},50%,40%),hsl(${(seedHue+50)%360},50%,30%))`;
-    const topicCls = topicColors[it.topic] || 'community';
-    const related = (it.related || []).filter(r => r.link);
-    const favicon = it.source ? `https://www.google.com/s2/favicons?sz=32&domain=${encodeURIComponent(it.source)}` : '';
+    <a class="read-original" href="${attr(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">
+      Read original at ${esc(it.sourceName||it.source||'source')} ↗
+    </a>
 
-    $('#app').innerHTML = `
-      <div class="wrap">
-        <article class="article-wrap">
-          <a href="#/" class="back">
-            <svg fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
-            Back to feed
-          </a>
+    <div class="ad-slot">
+      <div class="ad-eyebrow">Reach Kossuth County</div>
+      <div class="ad-hed">Advertise with TownFeed</div>
+      <div class="ad-sub">Connect with every reader in the county. <a href="mailto:${CFG.AD_EMAIL}?subject=TownFeed%20Advertising">Email us to get started</a>.</div>
+    </div>
 
-          <div class="a-label">
-            <span class="topic ${topicCls}" style="background:none;color:var(--red);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:0">
-              ${esc((it.topic||'News').toUpperCase())}
-            </span>
-          </div>
+    ${related.length?`<div class="related-wrap">
+      <h3>More coverage of this story</h3>
+      ${related.map(r=>`<a class="related-link" href="${attr(r.link)}" target="_blank" rel="noopener nofollow">
+        ${r.source?`<img src="https://www.google.com/s2/favicons?sz=24&domain=${encodeURIComponent(r.source)}" width="16" height="16" style="border-radius:3px" alt="" onerror="this.remove()">`:'' }
+        ${esc(r.sourceName||r.source||'Source')}
+        <span class="ext">↗</span>
+      </a>`).join('')}
+    </div>`:''}
+  </div>`;
+}
 
-          <h1>${esc(t)}</h1>
-          ${s ? `<div class="a-deck">${esc(s)}</div>` : ''}
-
-          <div class="a-meta">
-            ${favicon ? `<img src="${attr(favicon)}" width="16" height="16" style="border-radius:3px" alt="" onerror="this.remove()">` : ''}
-            <span>${esc(it.sourceName || it.source || 'Local source')}</span>
-            <span>·</span>
-            <span>${fmtRel(it.pubDate)}</span>
-            ${wasRewritten && !isObit ? `<span class="ai-badge">✦ Summarized by TownFeed</span>` : ''}
-          </div>
-
-          <div class="a-img" style="background:${grad}">
-            ${it.image
-              ? `<img referrerpolicy="no-referrer" src="${attr(it.image)}" alt="" onerror="this.parentElement.innerHTML='<div class=\\'placeholder\\'>${esc(initial)}</div>'">`
-              : `<div class="placeholder">${esc(initial)}</div>`
-            }
-          </div>
-
-          <div class="a-attribution">
-            ${wasRewritten && !isObit
-              ? `This summary was written by TownFeed based on reporting by <a href="${attr(it.realLink || it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName || it.source)}</a>. TownFeed only reports facts stated in the original article — nothing is added or invented.`
-              : `Originally reported by <a href="${attr(it.realLink || it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName || it.source)}</a>.`
-            }
-          </div>
-
-          <a class="a-read-original" href="${attr(it.realLink || it.link)}" target="_blank" rel="noopener nofollow">
-            Read full story at ${esc(it.sourceName || it.source || 'source')} ↗
-          </a>
-
-          <div class="ad-slot">
-            <div class="ad-label">Advertisement</div>
-            <div class="ad-pitch">Your business, seen by all of Kossuth County.</div>
-            <div class="ad-sub"><a href="mailto:${CFG.ADVERTISE_EMAIL}?subject=TownFeed%20Advertising">Email us to advertise</a> — rates start at $25/month.</div>
-          </div>
-
-          ${related.length ? `
-            <div class="related-stories">
-              <h3>More coverage of this story</h3>
-              <div class="story-list">
-                ${related.map(r => `
-                  <a class="list-item" href="${attr(r.link)}" target="_blank" rel="noopener nofollow" style="grid-template-columns:1fr">
-                    <div class="list-body">
-                      <div class="list-foot">${esc(r.sourceName || r.source || 'Source')} ↗</div>
-                    </div>
-                  </a>`).join('')}
-              </div>
-            </div>` : ''}
-        </article>
-      </div>`;
-  }
-
-  // ── Footer
-  function updateFooter() {
-    if (!state.data) return;
-    const m = state.data.meta || {};
-    const total = (state.data.news?.length||0)+(state.data.sports?.length||0)+(state.data.obits?.length||0);
-    $('#footer-meta').textContent = `Updated ${m.lastRun ? fmtRel(m.lastRun) : 'never'} · ${total} stories tracked`;
-  }
-
-  // ── Utils
-  function esc(s) {
-    return String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
-  function attr(s) { return esc(s); }
-  function strHash(s) {
-    let h = 0; for (let i = 0; i < s.length; i++) h = ((h<<5)-h+s.charCodeAt(i))|0;
-    return Math.abs(h);
-  }
-  function fmtRel(when) {
-    if (!when) return '—';
-    const ts = typeof when === 'string' ? Date.parse(when) : when;
-    if (!ts) return '—';
-    const d = (Date.now()-ts)/1000;
-    if (d < 60) return 'just now';
-    if (d < 3600) return Math.floor(d/60)+'m ago';
-    if (d < 86400) return Math.floor(d/3600)+'h ago';
-    if (d < 604800) return Math.floor(d/86400)+'d ago';
-    return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});
-  }
-  </script>
+// ── Footer ───────────────────────────────────────────────────
+function renderFoot(){
+  if(!S.data) return;
+  const m=S.data.meta||{};
+  const total=(S.data.news?.length||0)+(S.data.sports?.length||0)+(S.data.obits?.length||0);
+  $('#foot-meta').innerHTML=`<span class="live-pill"><span class="dot"></span>Live</span> Updated ${m.lastRun?ago(m.lastRun):'never'} · ${total} stories`;
+}
+</script>
 </body>
 </html>
