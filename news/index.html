@@ -836,7 +836,9 @@ const getLede  = it => {
 // Color seeding for placeholder
 const seedGrad = name => {
   const h=hash(name||'x')%360;
-  return `background:linear-gradient(135deg,hsl(${h},40%,${document.documentElement.dataset.theme==='dark'?'18':'82'}%),hsl(${(h+60)%360},35%,${document.documentElement.dataset.theme==='dark'?'14':'75'}%))`;
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  const l1=dark?'22':'78', l2=dark?'16':'72';
+  return `background:linear-gradient(135deg,hsl(${h},35%,${l1}%),hsl(${(h+60)%360},30%,${l2}%))`;
 };
 
 function heroHtml(it){
