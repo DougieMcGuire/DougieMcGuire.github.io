@@ -361,6 +361,15 @@ function cleanText(s){
     .replace(/https?:\/\/\S+/g,'').replace(/\s+/g,' ').trim();
 }
 
+// ── Image proxy ─────────────────────────────────────────────
+// Routes images through our worker to avoid referrer blocks
+function proxyImg(url) {
+  if (!url) return '';
+  // Don't proxy data URLs or already-proxied URLs
+  if (url.startsWith('data:') || url.includes('/img?src=')) return url;
+  return `https://townfeed.dtm2210.workers.dev/img?src=${encodeURIComponent(url)}`;
+}
+
 // ── SEO helpers ──────────────────────────────────────────────
 function setMeta(name,content){
   let el=document.querySelector(`meta[name="${name}"],meta[property="${name}"]`);
@@ -583,7 +592,7 @@ function renderObits(items){
 
 // Image block — lazy loads, shows placeholder until loaded
 function imgBlock(it){
-  if(it.image)return`<img loading="lazy" referrerpolicy="no-referrer" src="${esc(it.image)}" alt="${esc(getTitle(it))}" onload="this.classList.add('vis')" onerror="this.remove()">`;
+  if(it.image)return`<img loading="lazy" src="${esc(proxyImg(it.image))}" alt="${esc(getTitle(it))}" onload="this.classList.add('vis')" onerror="this.remove()">`;
   return phHtml(it.topic);
 }
 
@@ -699,7 +708,7 @@ function renderArticle(id){
 
     <div class="art-hero-img ${bgCls(it)}">
       ${it.image
-        ? `<img referrerpolicy="no-referrer" src="${esc(it.image)}" alt="${esc(t)}" onload="this.classList.add('vis')" onerror="this.remove()">`
+        ? `<img src="${esc(proxyImg(it.image))}" alt="${esc(t)}" onload="this.classList.add('vis')" onerror="this.remove()">`
         : phHtml(it.topic)
       }
     </div>
