@@ -1,57 +1,588 @@
-Great — I went through the full site carefully (Local News, Sports, Obituaries, filters, footer, card layouts, etc.) and here's a detailed breakdown of everything I spotted that could be improved to make TownFeed the go-to feed for everyone in Kossuth County:
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f9f6f0">
+<title>TownFeed — Kossuth County, Iowa</title>
+<meta name="description" content="All of Kossuth County's news in one place. Local, sports, obituaries, agriculture — updated every 10 minutes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Lora',Georgia,serif;line-height:1.65;min-height:100vh;transition:background .2s,color .2s}
+a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;border:none;background:none}img{display:block;max-width:100%}
+:root{
+  --bg:#f9f6f0;--bg2:#f0ebe1;--card:#fff;--ink:#18120a;--ink2:#5a4e40;--ink3:#9a8e7e;--border:#e0d8cc;
+  --red:#c92b0a;--blue:#1a3a6e;--green:#1a5c2e;--amber:#8a6400;--purple:#5b21b6;--teal:#0f766e;
+  --r:6px;--fh:'Outfit',sans-serif;
+}
+[data-theme=dark]{
+  --bg:#100e0b;--bg2:#1a1710;--card:#1e1b14;--ink:#f0ebe0;--ink2:#b0a890;--ink3:#706856;--border:#2e2b20;
+  --red:#e8402a;--blue:#4a7ab8;--green:#4aaa6e;--amber:#d4a017;
+}
 
-🖼️ Content & Images
-Missing images everywhere — this is the #1 visual problem. Nearly every article card is showing a broken/placeholder icon (a briefcase for business, a globe for sports, a person silhouette for community, a shield for crime). These placeholders are dull and make the feed look unfinished. Fix:
+/* Placeholders */
+.ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.ph svg{opacity:.3}
+.bg-crime{background:linear-gradient(135deg,#7f1d1d,#991b1b)}
+.bg-sports{background:linear-gradient(135deg,#1e3a5f,#1d4ed8)}
+.bg-schools{background:linear-gradient(135deg,#14532d,#166534)}
+.bg-weather{background:linear-gradient(135deg,#78350f,#b45309)}
+.bg-government{background:linear-gradient(135deg,#3b0764,#5b21b6)}
+.bg-agriculture{background:linear-gradient(135deg,#365314,#4d7c0f)}
+.bg-business{background:linear-gradient(135deg,#451a03,#92400e)}
+.bg-events{background:linear-gradient(135deg,#0f172a,#1e3a5f)}
+.bg-community{background:linear-gradient(135deg,#1c1917,#3c2a1a)}
+.bg-obituaries{background:linear-gradient(135deg,#1c1917,#292524)}
 
-Pull Open Graph / meta images automatically from linked articles (most Algona Radio posts have them)
-Allow editors to upload a featured image manually
-As a fallback, use a relevant stock photo by topic (e.g., cornfield for agriculture, courthouse for government)
+.wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+.wrap-narrow{max-width:740px;margin:0 auto;padding:0 28px}
 
+/* ── Masthead ── */
+.mast{background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.mast-top{display:flex;align-items:center;gap:16px;padding:12px 0 10px}
+.logo{font-family:var(--fh);font-weight:800;font-size:clamp(22px,3.5vw,36px);letter-spacing:-.03em;line-height:1;color:var(--ink);display:flex;align-items:center}
+.logo-dot{display:inline-block;width:8px;height:8px;background:var(--red);border-radius:50%;margin:0 1px 9px;flex-shrink:0}
+.mast-loc{font-family:var(--fh);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);border-left:1px solid var(--border);padding-left:12px;line-height:1.3}
+.mast-loc strong{display:block;color:var(--ink2)}
+/* Live pill in header */
+.live-pill{display:inline-flex;align-items:center;gap:4px;font-family:var(--fh);font-weight:700;color:var(--green);background:rgba(26,92,46,.1);padding:3px 9px;border-radius:100px;font-size:11px;white-space:nowrap}
+.live-pill .d{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.mast-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.search-box{display:flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--border);border-radius:100px;padding:7px 14px;transition:border-color .15s}
+.search-box:focus-within{border-color:var(--ink)}
+.search-box svg{color:var(--ink3);flex-shrink:0}
+.search-box input{border:none;background:transparent;outline:none;font-family:var(--fh);font-size:13px;font-weight:500;color:var(--ink);width:130px}
+.search-box input::placeholder{color:var(--ink3)}
+.icon-btn{width:36px;height:36px;border-radius:50%;background:var(--bg2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--ink2);transition:background .15s,border-color .15s}
+.icon-btn:hover{background:var(--card);border-color:var(--ink);color:var(--ink)}
+.mast-tabs{display:flex;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--border)}
+.mast-tabs::-webkit-scrollbar{display:none}
+.mast-tab{font-family:var(--fh);font-weight:600;font-size:12px;letter-spacing:.05em;text-transform:uppercase;padding:10px 16px;color:var(--ink3);border-bottom:2.5px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.mast-tab:hover{color:var(--ink)}
+.mast-tab.active{color:var(--red);border-bottom-color:var(--red)}
+.badge{background:var(--bg2);color:var(--ink3);font-size:11px;font-weight:700;padding:1px 6px;border-radius:100px}
+.mast-tab.active .badge{background:var(--red);color:#fff}
 
-📰 Content Quality & Freshness
+/* ── Weather bar ── */
+.wx-bar{background:var(--red);color:#fff;font-family:var(--fh);font-size:13px;font-weight:500;padding:9px 0}
+.wx-bar .wrap{display:flex;align-items:center;gap:12px;min-width:0}
+.wx-tag{background:#fff;color:var(--red);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px;flex-shrink:0}
+.wx-text{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.wx-btns{display:flex;gap:4px;flex-shrink:0}
+.wx-btns button{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:3px;padding:2px 9px;font-family:var(--fh);font-size:12px;font-weight:600}
+.wx-btns button:disabled{opacity:.35}
 
-Single source problem: Every single story — Local News, Sports, Obituaries — comes from Algona Radio only. That's a critical trust and breadth issue. Add sources like the Algona Upper Des Moines newspaper, KIOW 107.3 FM, local school district announcements, county government press releases, the Kossuth County Sheriff's office blotter, and city council agendas.
-Stale stories in "More Stories": The lower list has articles dated Jun 27, Jun 16, and Apr 3, 2025 — over a year old — mixed in with fresh content. Old stories need to be deprioritized or clearly labeled as archival.
-Article excerpts cut off inconsistently. Some previews end in mid-sentence with "…" at 10 words, others give 25 words. A consistent 2-sentence preview would be much more useful and clickable.
-"Farm Safety Day Held Thursday at fairgrounds" has no excerpt/description at all. Several "More Stories" cards are bare headlines with no preview text and no image, making them nearly impossible to engage with.
+/* ── Filters ── */
+.filters{padding:12px 0 10px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.filter-sep{width:1px;height:20px;background:var(--border);margin:0 3px}
+.fl{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.chip{font-family:var(--fh);font-size:12px;font-weight:600;color:var(--ink2);border:1.5px solid var(--border);border-radius:100px;padding:4px 12px;background:var(--card);transition:all .12s}
+.chip:hover{border-color:var(--ink);color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 
+/* ── Feed ── */
+.feed-wrap{padding:24px 0 60px}
+.sec-head{display:flex;align-items:center;gap:14px;margin:30px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--ink)}
+.sec-head h2{font-family:var(--fh);font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.sec-count{font-family:var(--fh);font-size:11px;color:var(--ink3);margin-left:auto}
 
-🗂️ Organization & Navigation
+/* Topic tag */
+.ttag{font-family:var(--fh);font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;align-items:center;gap:4px}
+.ttag .d{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.tc-crime{color:#dc2626}.tc-crime .d{background:#dc2626}
+.tc-sports{color:var(--blue)}.tc-sports .d{background:var(--blue)}
+.tc-schools{color:var(--green)}.tc-schools .d{background:var(--green)}
+.tc-weather{color:#d97706}.tc-weather .d{background:#d97706}
+.tc-government{color:var(--purple)}.tc-government .d{background:var(--purple)}
+.tc-agriculture{color:#4d7c0f}.tc-agriculture .d{background:#4d7c0f}
+.tc-business{color:var(--amber)}.tc-business .d{background:var(--amber)}
+.tc-events{color:var(--teal)}.tc-events .d{background:var(--teal)}
+.tc-community{color:var(--ink3)}.tc-community .d{background:var(--ink3)}
+.tc-obituaries{color:var(--ink3)}.tc-obituaries .d{background:var(--ink3)}
 
-Topic filters are great but incomplete. You have Crime, Schools, Government, Weather, Business, Community — but there's no "Agriculture/Farming" tag, which is arguably the most important topic for a county-level Iowa feed. Also no "Events" tag for community happenings.
-Town filters are incomplete. Algona, Bancroft, Burt, Titonka, Swea City, Wesley, Whittemore, Lu Verne, Lakota, Lone Rock, Ledyard, Fenton are listed — but Corwith, Buffalo Center, and Seneca are missing, which are also Kossuth County communities.
-No "Breaking" or "Pinned" story designation. There's no way to flag urgent/breaking news (e.g., disaster assistance centers, road closures, weather emergencies) so it rises above everything else.
-Sports section has a categorization error: "Seton Renovation Project is Underway" appears as the lead sports story, but it's really a school facilities/community story — not sports. Miscategorization undermines trust.
-No search results feedback. The search bar is present but there's no indication of how it behaves — does it search across all tabs (News + Sports + Obits) or just the active one? This should be clarified.
+/* Hero */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--card);margin-bottom:2px;transition:box-shadow .2s}
+.hero:hover{box-shadow:0 6px 28px rgba(24,18,10,.1)}
+.hero-img{position:relative;overflow:hidden;min-height:260px}
+.hero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.22,.68,0,1.2)}
+.hero:hover .hero-img img{transform:scale(1.04)}
+.hero-body{padding:28px 32px;display:flex;flex-direction:column;gap:11px;border-left:1px solid var(--border)}
+.hero-body h2{font-family:var(--fh);font-weight:800;font-size:clamp(18px,2vw,28px);line-height:1.15;letter-spacing:-.02em;color:var(--ink)}
+.hero-lede{font-size:15px;line-height:1.6;color:var(--ink2)}
+.hero-meta{font-family:var(--fh);font-size:12px;color:var(--ink3);margin-top:auto;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hero-meta .via{font-weight:700;color:var(--ink2)}
+.art-badge{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:.06em;background:var(--bg2);padding:2px 7px;border-radius:3px;color:var(--ink3)}
 
+/* Grid */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:2px}
+.card{background:var(--card);display:flex;flex-direction:column;transition:background .15s}
+.card:hover{background:var(--bg2)}
+.card-img{aspect-ratio:16/9;overflow:hidden;position:relative}
+.card-img img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s,transform .4s}
+.card-img img.vis{opacity:1}
+.card:hover .card-img img{transform:scale(1.04)}
+.card-body{padding:13px 15px 15px;flex:1;display:flex;flex-direction:column;gap:7px}
+.card-body h3{font-family:var(--fh);font-weight:700;font-size:14px;line-height:1.25;letter-spacing:-.01em;color:var(--ink)}
+.card-desc{font-size:13px;line-height:1.45;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card-foot{margin-top:auto;padding-top:9px;border-top:1px solid var(--border);font-family:var(--fh);font-size:11px;color:var(--ink3);display:flex;justify-content:space-between}
 
-🎨 Design & UX
+/* List */
+.story-list{border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.list-row{display:grid;grid-template-columns:80px 1fr;background:var(--card);border-bottom:1px solid var(--border);transition:background .15s}
+.list-row:last-child{border-bottom:none}
+.list-row:hover{background:var(--bg2)}
+.list-thumb{aspect-ratio:1;overflow:hidden;position:relative}
+.list-thumb img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
+.list-thumb img.vis{opacity:1}
+.list-body{padding:11px 14px;display:flex;flex-direction:column;gap:3px;justify-content:center}
+.list-body h4{font-family:var(--fh);font-weight:700;font-size:13px;line-height:1.3;color:var(--ink)}
+.list-desc{font-size:12px;color:var(--ink2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.list-foot{font-family:var(--fh);font-size:10px;color:var(--ink3);display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap}
 
-The dark theme is sharp, but the contrast between the burnt orange/red placeholders and the dark background draws the eye to the absence of images rather than the content. This would be fixed entirely by loading real images.
-No light mode default. The site seems to default to dark mode for everyone. A light mode default (or auto-detect from OS preference) would serve older/daytime readers better, especially given the demographic.
-Featured story layout on Local News: The hero card (Farmer's Market) shows only a large burnt-orange placeholder — the biggest card on the page is the most visually broken one. That's the first thing visitors see.
-"More Stories" section feels like a dump. The lower list switches from rich cards to plain list rows with tiny thumbnails. The visual drop-off signals "less important," making people stop scrolling. Consistent card formatting throughout would help.
-Obituaries have no imagery or design differentiation. They look identical to a plain text list, despite being a deeply important section for a small-town community. A subtle cross icon (already showing on each entry — ✝) is good, but the cards deserve more dignity — a soft background, maybe a floral or county seal motif.
-Footer is minimal. It just says "Independent local news · Advertise · Send a tip." There's no About page, no contact info, no social media links, no "submit a community event" form — all of which would build trust and community buy-in.
+/* Obits — dignified design */
+.obit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.obit-card{background:var(--card);padding:22px 26px;transition:background .15s;display:flex;flex-direction:column;gap:8px;border-left:3px solid transparent}
+.obit-card:hover{background:var(--bg2);border-left-color:var(--border)}
+.obit-orn{color:var(--ink3);font-size:15px;letter-spacing:.2em}
+.obit-card h3{font-family:var(--fh);font-weight:700;font-size:17px;line-height:1.2;color:var(--ink);font-style:italic}
+.obit-desc{font-size:13px;color:var(--ink2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.obit-foot{font-family:var(--fh);font-size:11px;color:var(--ink3);margin-top:auto;padding-top:8px;border-top:1px solid var(--border)}
 
+.load-wrap{text-align:center;padding:22px 0 0}
+.load-btn{font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--border);border-radius:100px;padding:10px 28px;background:var(--card);color:var(--ink);transition:border-color .15s}
+.load-btn:hover{border-color:var(--ink)}
+.empty{padding:70px 24px;text-align:center;font-family:var(--fh);color:var(--ink3)}
+.spin{display:inline-block;width:20px;height:20px;border:2.5px solid var(--border);border-top-color:var(--ink);border-radius:50%;animation:spin .65s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-🔔 Engagement & Retention
+/* ── Article page ── */
+.art-page{padding:30px 0 70px}
+.back-btn{display:inline-flex;align-items:center;gap:5px;font-family:var(--fh);font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);margin-bottom:24px;transition:color .15s}
+.back-btn:hover{color:var(--ink)}
+.art-page h1{font-family:var(--fh);font-weight:800;font-size:clamp(24px,4vw,44px);line-height:1.08;letter-spacing:-.03em;margin:10px 0 14px}
+.art-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--fh);font-size:12px;color:var(--ink3);margin-bottom:20px}
+.art-meta .via{font-weight:700;color:var(--ink2)}
+.art-img{margin:0 0 24px;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;position:relative}
+.art-img img{width:100%;height:100%;object-fit:cover}
+.art-body{font-size:17px;line-height:1.8;margin-bottom:26px}
+.art-body p{margin-bottom:1.4em}
+.art-body p:last-child{margin-bottom:0}
+.src-box{padding:16px 20px;background:var(--bg2);border-left:3px solid var(--border);border-radius:0 var(--r) var(--r) 0;font-family:var(--fh);font-size:13px;color:var(--ink2);line-height:1.5;margin-bottom:14px}
+.src-box a{color:var(--blue);font-weight:600;text-decoration:underline}
+.read-orig{display:inline-flex;align-items:center;gap:7px;font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:var(--ink);color:var(--bg);padding:12px 24px;border-radius:100px;margin-bottom:28px;transition:opacity .15s}
+.read-orig:hover{opacity:.82}
+.share-row{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap}
+.share-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--fh);font-size:12px;font-weight:700;padding:9px 18px;border-radius:100px;border:1.5px solid var(--border);color:var(--ink);background:var(--card);transition:border-color .15s,background .15s;cursor:pointer}
+.share-btn:hover{border-color:var(--ink)}
+.share-btn.fb{background:#1877f2;border-color:#1877f2;color:#fff}
+.share-btn.fb:hover{background:#166fe5}
+.ad-slot{padding:22px;border:1.5px dashed var(--border);border-radius:var(--r);text-align:center;margin-bottom:10px}
+.ad-eye{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+.ad-hed{font-family:var(--fh);font-weight:800;font-size:18px;color:var(--ink);margin-bottom:4px}
+.ad-sub{font-size:14px;color:var(--ink2)}
+.ad-sub a{color:var(--red);font-weight:600}
+.rel-wrap{margin-top:32px;padding-top:22px;border-top:2px solid var(--ink)}
+.rel-wrap h3{font-family:var(--fh);font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.rel-link{display:flex;align-items:center;gap:9px;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:6px;font-family:var(--fh);font-size:13px;font-weight:600;color:var(--ink);transition:background .15s,border-color .15s}
+.rel-link:hover{background:var(--bg2);border-color:var(--ink)}
+.rel-link .ext{color:var(--ink3);font-weight:400;font-size:11px;margin-left:auto}
 
-No push notifications or email newsletter signup. For a feed meant to be the primary source for the county, there's no way to bring readers back. A daily digest email ("Here's what happened in Kossuth County today") would be huge.
-No comments or community reactions. Even a simple thumbs-up or emoji reaction on stories would make people feel invested.
-No "Send a Tip" workflow beyond a bare link. The footer says "Send a tip" but community members should be able to submit local events, photos from games/fairs, school announcements, etc. directly in a structured way.
-No social sharing buttons on article cards. Word of mouth in small towns is everything — one-tap sharing to Facebook especially (huge in rural Iowa) would drive massive organic reach.
-Live update indicator at the bottom ("Live · Updated 3m ago") is a great touch! But most users will never see it — it's buried at the very bottom of the page. Move it to the top nav bar.
+/* Footer */
+footer{border-top:1px solid var(--border);padding:14px 0 30px;font-family:var(--fh);font-size:12px;color:var(--ink3)}
+.foot-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+footer a{color:var(--ink3);text-decoration:underline}
+footer a:hover{color:var(--ink)}
 
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr}
+  .hero-img{min-height:180px}
+  .hero-body{border-left:none;border-top:1px solid var(--border);padding:18px 20px}
+  .grid3{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:640px){
+  .wrap,.wrap-narrow{padding:0 16px}
+  .grid3,.obit-grid{grid-template-columns:1fr}
+  .search-box input{width:70px}
+  .mast-loc{display:none}
+}
+</style>
+</head>
+<body>
+<script>
+window.TF={
+  WORKER:'https://townfeed.dtm2210.workers.dev',
+  CACHE:'tf-v5-kossuth',PAGE:15,NEW_HRS:6,REFRESH:5*60*1000,AD:'ads@townfeed.app',
+  TOWNS:[['algona','Algona'],['bancroft','Bancroft'],['burt','Burt'],['titonka','Titonka'],['swea-city','Swea City'],['wesley','Wesley'],['whittemore','Whittemore'],['lu-verne','Lu Verne'],['lakota','Lakota'],['lone-rock','Lone Rock'],['ledyard','Ledyard'],['fenton','Fenton'],['corwith','Corwith'],['buffalo-center','Buffalo Center'],['seneca','Seneca']],
+  TOPICS:[['crime','Crime'],['schools','Schools'],['government','Government'],['agriculture','Agriculture'],['weather','Weather'],['business','Business'],['events','Events'],['community','Community']],
+};
+</script>
 
-✅ Accuracy & Trust
+<header class="mast">
+  <div class="wrap">
+    <div class="mast-top">
+      <a href="#/" class="logo">Town<span class="logo-dot"></span>Feed</a>
+      <div class="mast-loc"><strong>Kossuth County</strong>Iowa</div>
+      <span class="live-pill" id="live-pill" style="display:none"><span class="d"></span>Live</span>
+      <div class="mast-right">
+        <label class="search-box">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+          <input id="q" placeholder="Search all stories…" autocomplete="off">
+        </label>
+        <button class="icon-btn" id="theme-btn" aria-label="Toggle dark mode">
+          <svg id="ico-sun" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg id="ico-moon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        </button>
+      </div>
+    </div>
+    <nav class="mast-tabs">
+      <button class="mast-tab active" data-tab="news">Local News <span class="badge" id="cnt-news">0</span></button>
+      <button class="mast-tab" data-tab="sports">Sports <span class="badge" id="cnt-sports">0</span></button>
+      <button class="mast-tab" data-tab="obits">Obituaries <span class="badge" id="cnt-obits">0</span></button>
+    </nav>
+  </div>
+</header>
 
-Source attribution is inconsistent. Some stories say "↗ algonaradio.com" (linking out), some have no external link shown, and the "More Stories" rows show "Algona Radio" but without the outbound link icon. Be consistent about showing where each story comes from and making it linkable.
-Relative timestamps ("1d ago," "10h ago") without absolute dates can confuse for older stories. For anything over 48 hours, show the actual date (e.g., "May 26").
-No corrections/update policy visible. For a trusted news feed, showing a brief "We correct errors promptly" statement or a corrections section builds credibility enormously.
-County scope isn't enforced. "NW Iowa Man Arrested at Emmet County State Park" — Emmet County is a neighboring county, not Kossuth. It can be adjacent news, but it should be clearly labeled as regional/adjacent rather than local Kossuth County news.
+<div id="wx-bar"></div>
+<main id="app"><div class="empty"><span class="spin"></span>Loading…</div></main>
+<footer><div class="wrap foot-inner">
+  <span id="foot-meta">Loading…</span>
+  <span>Independent local news · <a href="mailto:ads@townfeed.app">Advertise</a> · <a href="mailto:tips@townfeed.app">Send a tip</a></span>
+</div></footer>
 
+<script>
+(function(){
+'use strict';
+const CFG=window.TF;
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function strHash(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h+s.charCodeAt(i))|0;return Math.abs(h);}
+function ago(when){
+  if(!when)return'—';
+  const ts=typeof when==='string'?Date.parse(when):when;
+  if(!ts)return'—';
+  const d=(Date.now()-ts)/1000;
+  if(d<60)return'just now';
+  if(d<3600)return Math.floor(d/60)+'m ago';
+  if(d<86400)return Math.floor(d/3600)+'h ago';
+  // After 48h show actual date
+  return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:new Date(ts).getFullYear()!==new Date().getFullYear()?'numeric':undefined});
+}
+function cleanText(s){
+  return String(s||'').replace(/\s*[-–]\s*The post .+? first appeared on .+?\.?\s*$/i,'')
+    .replace(/https?:\/\/\S+/g,'').replace(/\s+/g,' ').trim();
+}
 
-📊 Quick-Win Priority List
-PriorityFix🔴 CriticalLoad real article images🔴 CriticalAdd more news sources beyond Algona Radio🟠 HighAdd Facebook share buttons🟠 HighEmail newsletter signup🟠 HighFix stale stories in "More Stories"🟡 MediumAdd Agriculture/Events topic tags + missing towns🟡 MediumMove "Live" indicator to the header🟡 MediumFix "Seton Renovation" miscategorized as Sports🟢 LowerImprove Obituaries visual design🟢 LowerCommunity tip/event submission form
-The bones of this site are genuinely solid — the layout, the tabs, the town/topic filters, the dark theme, the live ticker are all good ideas. Fixing the images and expanding the sources alone would make it dramatically more compelling.
+// Topic icons for placeholders
+const ICONS={
+  crime:'<svg width="36" height="36" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  sports:'<svg width="36" height="36" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>',
+  schools:'<svg width="36" height="36" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>',
+  weather:'<svg width="36" height="36" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/></svg>',
+  government:'<svg width="36" height="36" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+  agriculture:'<svg width="36" height="36" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7"/><path d="M12 3v18"/><path d="M3 17h18"/><path d="M5 17V9"/><path d="M19 17V9"/></svg>',
+  business:'<svg width="36" height="36" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>',
+  events:'<svg width="36" height="36" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  community:'<svg width="36" height="36" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  obituaries:'<svg width="36" height="36" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+};
+function phHtml(topic){const t=topic||'community';return `<div class="ph">${ICONS[t]||ICONS.community}</div>`;}
+
+const TAG_LABELS={crime:'Crime',sports:'Sports',schools:'Schools',weather:'Weather',government:'Government',agriculture:'Agriculture',business:'Business',events:'Events',community:'Community',obituaries:'Obituary'};
+function tagHtml(topic){const c=topic||'community';return `<span class="ttag tc-${c}"><span class="d"></span>${esc(TAG_LABELS[c]||'News')}</span>`;}
+function getTitle(it){return it.articleTitle||it.title||'';}
+function getLede(it){
+  if(it.article){const f=it.article.split('\n\n')[0]||'';if(f.length>30)return cleanText(f).slice(0,200)+(f.length>200?'…':'');}
+  return cleanText(it.description||'');
+}
+function storyHref(it){return it.article?`#/a/${encodeURIComponent(it.id)}`:(it.realLink||it.link);}
+function storyAttrs(it){return it.article?'':' target="_blank" rel="noopener nofollow"';}
+function bgClass(it){return `bg-${it.topic||'community'}`;}
+
+// State
+const S={data:null,etag:null,tab:'news',topics:new Set(),towns:new Set(),q:'',vis:CFG.PAGE,wIdx:0};
+
+// Theme — default to system preference
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  $('meta[name=theme-color]').content=t==='dark'?'#100e0b':'#f9f6f0';
+  $('#ico-sun').style.display=t==='dark'?'block':'none';
+  $('#ico-moon').style.display=t==='dark'?'none':'block';
+}
+const savedTheme=localStorage.getItem('tf-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+applyTheme(savedTheme);
+$('#theme-btn').addEventListener('click',()=>{
+  const n=document.documentElement.dataset.theme==='dark'?'light':'dark';
+  localStorage.setItem('tf-theme',n);applyTheme(n);
+});
+
+// Search
+let st;
+$('#q').addEventListener('input',e=>{
+  clearTimeout(st);st=setTimeout(()=>{S.q=e.target.value.toLowerCase().trim();S.vis=CFG.PAGE;render();},150);
+});
+
+// Data
+function loadCache(){try{const r=localStorage.getItem(CFG.CACHE);if(!r)return null;const{data,etag}=JSON.parse(r);if(data?.news){S.data=data;S.etag=etag;return data;}}catch{}return null;}
+function saveCache(){try{localStorage.setItem(CFG.CACHE,JSON.stringify({data:S.data,etag:S.etag,ts:Date.now()}));}catch{}}
+let fetching=false;
+async function fetchFeed(force){
+  if(fetching)return;fetching=true;
+  try{
+    const h={};if(S.etag&&!force)h['If-None-Match']=S.etag;
+    const r=await fetch(CFG.WORKER+'/feed',{headers:h});
+    if(r.status===304)return;
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    S.data=await r.json();S.etag=r.headers.get('ETag');
+    saveCache();render();
+    // Flash live pill
+    const pill=$('#live-pill');
+    pill.style.display='inline-flex';
+    setTimeout(()=>pill.style.display='none',5000);
+  }catch(e){
+    if(!S.data)$('#app').innerHTML=`<div class="empty">Couldn't load the feed.<br><small>${esc(e.message)}</small></div>`;
+  }finally{fetching=false;}
+}
+(async()=>{
+  if(loadCache())render();
+  await fetchFeed(true);
+  setInterval(()=>{if(!document.hidden)fetchFeed();},CFG.REFRESH);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchFeed();});
+})();
+
+window.addEventListener('hashchange',render);
+
+// ── Render ──────────────────────────────────────────────────
+function render(){
+  if(!S.data)return;
+  updateCounts();renderWx();
+  const h=location.hash.replace(/^#/,'')||'/';
+  if(h.startsWith('/a/')){renderArticle(decodeURIComponent(h.slice(3)));}
+  else{document.title='TownFeed — Kossuth County, Iowa';renderHome();}
+  renderFoot();
+}
+
+function updateCounts(){
+  function fc(arr){return S.q?arr.filter(it=>(getTitle(it)+' '+(it.description||'')+' '+(it.sourceName||'')).toLowerCase().includes(S.q)).length:arr.length;}
+  $('#cnt-news').textContent=fc(S.data.news||[]);
+  $('#cnt-sports').textContent=fc(S.data.sports||[]);
+  $('#cnt-obits').textContent=fc(S.data.obits||[]);
+}
+
+function renderWx(){
+  const wx=S.data?.weather||[];const bar=$('#wx-bar');
+  if(!wx.length){bar.innerHTML='';return;}
+  const idx=Math.min(S.wIdx,wx.length-1),a=wx[idx];
+  bar.innerHTML=`<div class="wx-bar"><div class="wrap"><span class="wx-tag">⚠ ${esc(a.event)}</span><span class="wx-text">${esc((a.headline||a.description||'').slice(0,140))}</span>${wx.length>1?`<div class="wx-btns"><button id="wx-p"${idx===0?' disabled':''}>‹</button><button id="wx-n"${idx===wx.length-1?' disabled':''}>›</button></div>`:''}</div></div>`;
+  $('#wx-p')?.addEventListener('click',()=>{S.wIdx=Math.max(0,S.wIdx-1);renderWx();});
+  $('#wx-n')?.addEventListener('click',()=>{S.wIdx=Math.min(wx.length-1,S.wIdx+1);renderWx();});
+}
+
+function renderHome(){
+  const allSearch=S.q?[...(S.data.news||[]),...(S.data.sports||[]),...(S.data.obits||[])].filter(it=>(getTitle(it)+' '+(it.description||'')+' '+(it.sourceName||'')).toLowerCase().includes(S.q)):null;
+  const raw=allSearch||(S.tab==='news'?S.data.news:S.tab==='sports'?S.data.sports:S.data.obits)||[];
+  const items=S.tab==='news'&&!S.q?raw.filter(it=>{
+    if(S.topics.size&&!S.topics.has(it.topic))return false;
+    if(S.towns.size&&!S.towns.has(it.town))return false;
+    return true;
+  }):raw;
+
+  let html=`<div class="wrap feed-wrap">`;
+  if(S.tab==='news'&&!S.q){
+    html+=`<div class="filters">
+      <span class="fl">Topic</span>
+      ${CFG.TOPICS.map(([s,n])=>`<button class="chip${S.topics.has(s)?' on':''}" data-topic="${s}" aria-pressed="${S.topics.has(s)}">${n}</button>`).join('')}
+      <span class="filter-sep"></span>
+      <span class="fl">Town</span>
+      ${CFG.TOWNS.map(([s,n])=>`<button class="chip${S.towns.has(s)?' on':''}" data-town="${s}" aria-pressed="${S.towns.has(s)}">${n}</button>`).join('')}
+    </div>`;
+  }
+  if(S.q)html+=`<div class="sec-head"><h2>Results for "${esc(S.q)}"</h2><span class="sec-count">${items.length} stories</span></div>`;
+
+  if(!items.length){
+    html+=`<div class="empty">No stories found${S.q?` for "${esc(S.q)}"`:''}.${!S.q?' Try clearing filters.':''}</div>`;
+  }else if(S.tab==='obits'&&!S.q){
+    html+=renderObits(items);
+  }else{
+    html+=renderStories(items);
+  }
+  html+=`</div>`;
+  $('#app').innerHTML=html;
+  wireHome();
+}
+
+function renderStories(items){
+  const vis=items.slice(0,S.vis);
+  if(!vis.length)return'<div class="empty">No stories.</div>';
+  const[hero,...rest]=vis;
+  let html=heroHtml(hero);
+  if(rest.length){
+    const grid=rest.slice(0,6),list=rest.slice(6);
+    if(grid.length)html+=`<div class="grid3">${grid.map(cardHtml).join('')}</div>`;
+    if(list.length){
+      html+=`<div class="sec-head"><h2>More Stories</h2><span class="sec-count">${list.length} stories</span></div>`;
+      html+=`<div class="story-list">${list.map(listRowHtml).join('')}</div>`;
+    }
+  }
+  if(items.length>S.vis)html+=`<div class="load-wrap"><button class="load-btn" id="load-more">Load more stories</button></div>`;
+  return html;
+}
+
+function renderObits(items){
+  const vis=items.slice(0,S.vis);
+  let html=`<div class="sec-head"><h2>Obituaries</h2><span class="sec-count">${items.length} notices</span></div>`;
+  html+=`<div class="obit-grid">${vis.map(obitCardHtml).join('')}</div>`;
+  if(items.length>S.vis)html+=`<div class="load-wrap"><button class="load-btn" id="load-more">Load more</button></div>`;
+  return html;
+}
+
+function imgOrPh(it){
+  if(it.image)return`<img loading="lazy" referrerpolicy="no-referrer" src="${esc(it.image)}" alt="${esc(getTitle(it))}" onload="this.classList.add('vis')" onerror="this.remove()">`;
+  return phHtml(it.topic);
+}
+
+function heroHtml(it){
+  const t=getTitle(it),l=getLede(it);
+  const isNew=(Date.now()-(Date.parse(it.pubDate)||Date.now()))<CFG.NEW_HRS*3600000;
+  return`<a class="hero" href="${esc(storyHref(it))}"${storyAttrs(it)} onclick="window._sy=window.scrollY">
+    <div class="hero-img ${bgClass(it)}">${imgOrPh(it)}</div>
+    <div class="hero-body">
+      <div style="display:flex;align-items:center;gap:10px">
+        ${tagHtml(it.topic)}
+        ${isNew?`<span style="font-family:var(--fh);font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--red)">● JUST IN</span>`:''}
+      </div>
+      <h2>${esc(t)}</h2>
+      ${l?`<div class="hero-lede">${esc(l)}</div>`:''}
+      <div class="hero-meta">
+        <span class="via">${esc(it.sourceName||it.source||'Local')}</span>
+        <span>·</span><span>${ago(it.pubDate)}</span>
+        ${it.article?`<span class="art-badge">Full article</span>`:`<span style="font-family:var(--fh);font-size:10px;color:var(--ink3)">↗ ${esc(it.source||'')}</span>`}
+      </div>
+    </div>
+  </a>`;
+}
+
+function cardHtml(it){
+  const t=getTitle(it),l=getLede(it);
+  return`<a class="card" href="${esc(storyHref(it))}"${storyAttrs(it)} onclick="window._sy=window.scrollY">
+    <div class="card-img ${bgClass(it)}">${imgOrPh(it)}</div>
+    <div class="card-body">
+      ${tagHtml(it.topic)}
+      <h3>${esc(t)}</h3>
+      ${l?`<div class="card-desc">${esc(l)}</div>`:''}
+      <div class="card-foot"><span>${esc(it.sourceName||'')}</span><span>${ago(it.pubDate)}</span></div>
+    </div>
+  </a>`;
+}
+
+function listRowHtml(it){
+  const t=getTitle(it),l=getLede(it);
+  return`<a class="list-row" href="${esc(storyHref(it))}"${storyAttrs(it)} onclick="window._sy=window.scrollY">
+    <div class="list-thumb ${bgClass(it)}">${imgOrPh(it)}</div>
+    <div class="list-body">
+      <h4>${esc(t)}</h4>
+      ${l?`<div class="list-desc">${esc(l)}</div>`:''}
+      <div class="list-foot">${tagHtml(it.topic)}<span>${esc(it.sourceName||'')}</span><span>${ago(it.pubDate)}</span></div>
+    </div>
+  </a>`;
+}
+
+function obitCardHtml(it){
+  const desc=cleanText(it.description||'');
+  return`<a class="obit-card" href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">
+    <div class="obit-orn">✦ ✦ ✦</div>
+    <h3>${esc(it.title)}</h3>
+    ${desc?`<div class="obit-desc">${esc(desc)}</div>`:''}
+    <div class="obit-foot">${esc(it.sourceName||'')} · ${ago(it.pubDate)}</div>
+  </a>`;
+}
+
+function wireHome(){
+  $$('.mast-tab').forEach(b=>b.addEventListener('click',()=>{
+    S.tab=b.dataset.tab;S.vis=CFG.PAGE;
+    $$('.mast-tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderHome();
+  }));
+  $$('[data-topic]').forEach(b=>b.addEventListener('click',()=>{
+    const t=b.dataset.topic;S.topics.has(t)?S.topics.delete(t):S.topics.add(t);b.classList.toggle('on');S.vis=CFG.PAGE;renderHome();
+  }));
+  $$('[data-town]').forEach(b=>b.addEventListener('click',()=>{
+    const t=b.dataset.town;S.towns.has(t)?S.towns.delete(t):S.towns.add(t);b.classList.toggle('on');S.vis=CFG.PAGE;renderHome();
+  }));
+  $('#load-more')?.addEventListener('click',()=>{S.vis+=CFG.PAGE;renderHome();});
+}
+
+function renderArticle(id){
+  const all=[...(S.data.news||[]),...(S.data.sports||[]),...(S.data.obits||[])];
+  const it=all.find(x=>x.id===id);
+  if(!it){$('#app').innerHTML=`<div class="wrap"><div class="empty">Story not found. <a href="#/">← Back</a></div></div>`;return;}
+  document.title=`${getTitle(it)} — TownFeed`;
+  const t=getTitle(it);
+  const hasArticle=!!it.article&&it.topic!=='obituaries';
+  const favicon=it.source?`https://www.google.com/s2/favicons?sz=32&domain=${encodeURIComponent(it.source)}`:'';
+  const related=(it.related||[]).filter(r=>r.link);
+  const shareUrl=encodeURIComponent(location.href);
+  const shareText=encodeURIComponent(t+' — TownFeed');
+
+  let bodyHtml='';
+  if(hasArticle){
+    const paras=it.article.split(/\n\n+/).filter(p=>p.trim()).map(p=>cleanText(p));
+    bodyHtml=`<div class="art-body">${paras.map(p=>`<p>${esc(p)}</p>`).join('')}</div>`;
+  }else if(it.description){
+    bodyHtml=`<div class="art-body"><p>${esc(cleanText(it.description))}</p></div>`;
+  }
+
+  $('#app').innerHTML=`<div class="wrap-narrow art-page">
+    <button class="back-btn" onclick="history.back();setTimeout(()=>window.scrollTo(0,window._sy||0),60)">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Back
+    </button>
+    ${tagHtml(it.topic)}
+    <h1>${esc(t)}</h1>
+    <div class="art-meta">
+      ${favicon?`<img src="${esc(favicon)}" width="15" height="15" style="border-radius:3px;display:inline" alt="" onerror="this.remove()">`:'' }
+      <span class="via">${esc(it.sourceName||it.source||'Local')}</span>
+      <span>·</span><span>${ago(it.pubDate)}</span>
+    </div>
+    <div class="art-img ${bgClass(it)}">
+      ${it.image?`<img referrerpolicy="no-referrer" src="${esc(it.image)}" alt="${esc(t)}" onerror="this.remove()">`:`${phHtml(it.topic)}`}
+    </div>
+    ${bodyHtml}
+    <div class="src-box">
+      ${hasArticle
+        ?`Written by <strong>TownFeed</strong> using reporting from <a href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName||it.source)}</a>. Only facts from the original report are included — nothing added or invented.`
+        :`Reported by <a href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName||it.source)}</a>.`
+      }
+    </div>
+    <a class="read-orig" href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">Read full story at ${esc(it.sourceName||it.source||'source')} ↗</a>
+    <div class="share-row">
+      <a class="share-btn fb" href="https://www.facebook.com/sharer/sharer.php?u=${shareUrl}" target="_blank" rel="noopener">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Share
+      </a>
+      <button class="share-btn" onclick="navigator.clipboard?.writeText(location.href);this.textContent='Copied!'">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy link
+      </button>
+    </div>
+    <div class="ad-slot">
+      <div class="ad-eye">Reach Kossuth County</div>
+      <div class="ad-hed">Advertise with TownFeed</div>
+      <div class="ad-sub">Connect with every reader in the county. <a href="mailto:${CFG.AD}?subject=TownFeed%20Advertising">Email us to get started</a>.</div>
+    </div>
+    ${related.length?`<div class="rel-wrap"><h3>More coverage</h3>${related.map(r=>`<a class="rel-link" href="${esc(r.link)}" target="_blank" rel="noopener nofollow">${r.source?`<img src="https://www.google.com/s2/favicons?sz=24&domain=${encodeURIComponent(r.source)}" width="14" height="14" style="border-radius:3px" alt="" onerror="this.remove()">`:''}<span>${esc(r.sourceName||r.source||'Source')}</span><span class="ext">↗</span></a>`).join('')}</div>`:''}
+  </div>`;
+  window.scrollTo(0,0);
+}
+
+function renderFoot(){
+  if(!S.data)return;
+  const m=S.data.meta||{};
+  const n=S.data.news?.length||0,sp=S.data.sports?.length||0,ob=S.data.obits?.length||0;
+  $('#foot-meta').textContent=`Updated ${m.lastRun?ago(m.lastRun):'never'} · News ${n} · Sports ${sp} · Obits ${ob}`;
+}
+})();
+</script>
+</body>
+</html>
