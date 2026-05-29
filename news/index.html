@@ -259,9 +259,6 @@ getAnalytics(app);
 window.saveArticleToFirestore = async (it) => {
   if (!it?.id) return;
   try {
-    const ref = doc(db, 'articles', it.id);
-    const snap = await getDoc(ref);
-    // Only write if new or content changed
     const payload = {
       id: it.id,
       title: it.articleTitle || it.title,
@@ -284,8 +281,10 @@ window.saveArticleToFirestore = async (it) => {
       state: 'iowa',
       url: `https://townfeed.app/article/${it.id}`,
     };
+    const articleRef = doc(db, 'articles', it.id);
+    const snap = await getDoc(articleRef);
     if (!snap.exists() || snap.data().article !== payload.article) {
-      await setDoc(ref, payload, { merge: true });
+      await setDoc(articleRef, payload, { merge: true });
     }
   } catch(e) {
     console.warn('Firestore save failed:', e.message);
