@@ -364,9 +364,9 @@ function cleanText(s){
 // Routes images through our worker to avoid referrer blocks
 function proxyImg(url) {
   if (!url) return '';
-  // Don't proxy data URLs or already-proxied URLs
   if (url.startsWith('data:') || url.includes('/img?src=')) return url;
-  return `https://townfeed.dtm2210.workers.dev/img?src=${encodeURIComponent(url)}`;
+  // Always proxy through worker to avoid referrer/CORS blocks
+  return 'https://townfeed.dtm2210.workers.dev/img?src=' + encodeURIComponent(url);
 }
 
 // ── SEO helpers ──────────────────────────────────────────────
