@@ -35,8 +35,6 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;border:n
   --shadow:0 1px 3px rgba(0,0,0,.2),0 4px 16px rgba(0,0,0,.25);
   --shadow-lg:0 4px 24px rgba(0,0,0,.3),0 12px 40px rgba(0,0,0,.2);
 }
-
-/* Placeholder topic backgrounds */
 .bg-crime{background:linear-gradient(135deg,#7f1d1d,#991b1b)}
 .bg-sports{background:linear-gradient(135deg,#1e3a5f,#1d4ed8)}
 .bg-schools{background:linear-gradient(135deg,#14532d,#166534)}
@@ -49,11 +47,8 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;border:n
 .bg-obituaries{background:linear-gradient(135deg,#1c1917,#292524)}
 .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 .ph svg{opacity:.25}
-
 .wrap{max-width:1240px;margin:0 auto;padding:0 28px}
 .wrap-narrow{max-width:760px;margin:0 auto;padding:0 28px}
-
-/* ── Masthead ── */
 .mast{background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .mast-top{display:flex;align-items:center;gap:14px;padding:12px 0 10px}
 .logo{font-family:var(--fh);font-weight:800;font-size:clamp(20px,3vw,34px);letter-spacing:-.03em;line-height:1;color:var(--ink);display:flex;align-items:center}
@@ -79,30 +74,22 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;border:n
 .mast-tab.active{color:var(--red);border-bottom-color:var(--red)}
 .badge{background:var(--bg2);color:var(--ink3);font-size:11px;font-weight:700;padding:1px 6px;border-radius:100px}
 .mast-tab.active .badge{background:var(--red);color:#fff}
-
-/* ── Weather ── */
 .wx-bar{background:var(--red);color:#fff;font-family:var(--fh);font-size:13px;font-weight:500;padding:9px 0}
 .wx-bar .wrap{display:flex;align-items:center;gap:12px;min-width:0}
 .wx-tag{background:#fff;color:var(--red);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px;flex-shrink:0}
 .wx-text{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .wx-btns button{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:3px;padding:2px 9px;font-family:var(--fh);font-size:12px;font-weight:600;margin-left:4px}
 .wx-btns button:disabled{opacity:.35}
-
-/* ── Filters ── */
 .filters{padding:12px 0 10px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:5px;align-items:center}
 .filter-sep{width:1px;height:20px;background:var(--border);margin:0 4px}
 .fl{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
 .chip{font-family:var(--fh);font-size:12px;font-weight:600;color:var(--ink2);border:1.5px solid var(--border);border-radius:100px;padding:4px 12px;background:var(--card);transition:all .12s;cursor:pointer}
 .chip:hover{border-color:var(--ink);color:var(--ink)}
 .chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-
-/* ── Feed ── */
 .feed-wrap{padding:24px 0 60px}
 .sec-head{display:flex;align-items:center;gap:14px;margin:28px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--ink)}
 .sec-head h2{font-family:var(--fh);font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
 .sec-count{font-family:var(--fh);font-size:11px;color:var(--ink3);margin-left:auto}
-
-/* Topic tags */
 .ttag{font-family:var(--fh);font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;align-items:center;gap:4px}
 .ttag .d{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .tc-crime{color:#dc2626}.tc-crime .d{background:#dc2626}
@@ -115,8 +102,6 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;border:n
 .tc-events{color:var(--teal)}.tc-events .d{background:var(--teal)}
 .tc-community{color:var(--ink3)}.tc-community .d{background:var(--ink3)}
 .tc-obituaries{color:var(--ink3)}.tc-obituaries .d{background:var(--ink3)}
-
-/* ── Cards ── */
 .hero{display:grid;grid-template-columns:1.1fr .9fr;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--card);margin-bottom:2px;box-shadow:var(--shadow);transition:box-shadow .2s,transform .2s}
 .hero:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
 .hero-img{position:relative;overflow:hidden;min-height:280px;background:var(--bg2)}
@@ -129,7 +114,6 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;border:n
 .hero-meta{font-family:var(--fh);font-size:12px;color:var(--ink3);margin-top:auto;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .hero-meta .via{font-weight:700;color:var(--ink2)}
 .art-badge{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:.06em;background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);padding:2px 8px;border-radius:3px;border:1px solid color-mix(in srgb,var(--green) 30%,transparent)}
-
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:2px;box-shadow:var(--shadow)}
 .card{background:var(--card);display:flex;flex-direction:column;transition:background .15s;cursor:pointer}
 .card:hover{background:var(--bg2)}
@@ -141,7 +125,6 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;border:n
 .card-body h3{font-family:var(--fh);font-weight:700;font-size:14px;line-height:1.3;letter-spacing:-.01em;color:var(--ink)}
 .card-desc{font-size:13px;line-height:1.5;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .card-foot{margin-top:auto;padding-top:9px;border-top:1px solid var(--border);font-family:var(--fh);font-size:11px;color:var(--ink3);display:flex;justify-content:space-between}
-
 .story-list{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
 .list-row{display:grid;grid-template-columns:88px 1fr;background:var(--card);border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
 .list-row:last-child{border-bottom:none}
@@ -153,8 +136,6 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;border:n
 .list-body h4{font-family:var(--fh);font-weight:700;font-size:13px;line-height:1.3;color:var(--ink)}
 .list-desc{font-size:12px;color:var(--ink2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .list-foot{font-family:var(--fh);font-size:10px;color:var(--ink3);display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap}
-
-/* Obits */
 .obit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
 .obit-card{background:var(--card);padding:22px 26px;cursor:pointer;transition:background .15s;display:flex;flex-direction:column;gap:8px;border-left:3px solid transparent}
 .obit-card:hover{background:var(--bg2);border-left-color:var(--ink3)}
@@ -162,15 +143,12 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;border:n
 .obit-card h3{font-family:var(--fh);font-weight:700;font-size:17px;line-height:1.2;color:var(--ink);font-style:italic}
 .obit-desc{font-size:13px;color:var(--ink2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .obit-foot{font-family:var(--fh);font-size:11px;color:var(--ink3);margin-top:auto;padding-top:8px;border-top:1px solid var(--border)}
-
 .load-wrap{text-align:center;padding:24px 0 0}
 .load-btn{font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--border);border-radius:100px;padding:10px 30px;background:var(--card);color:var(--ink);transition:border-color .15s,box-shadow .15s}
 .load-btn:hover{border-color:var(--ink);box-shadow:var(--shadow)}
 .empty{padding:70px 24px;text-align:center;font-family:var(--fh);color:var(--ink3)}
 .spin{display:inline-block;width:20px;height:20px;border:2.5px solid var(--border);border-top-color:var(--ink);border-radius:50%;animation:spin .65s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── Article page ── */
 .art-page{padding:32px 0 80px}
 .back-btn{display:inline-flex;align-items:center;gap:5px;font-family:var(--fh);font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);margin-bottom:28px;transition:color .15s;cursor:pointer}
 .back-btn:hover{color:var(--ink)}
@@ -179,46 +157,37 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;border:n
 .art-byline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--fh);font-size:13px;color:var(--ink3);margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
 .art-byline .via{font-weight:700;color:var(--ink2)}
 .art-byline img{border-radius:4px}
-/* Hero image */
 .art-hero-img{position:relative;margin:0 0 32px;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;background:var(--bg2);box-shadow:var(--shadow)}
 .art-hero-img img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .4s}
 .art-hero-img img.vis{opacity:1}
-/* Article body — proper editorial typography */
 .art-body{font-size:18px;line-height:1.85;color:var(--ink);margin-bottom:32px}
 .art-body p{margin-bottom:1.5em}
 .art-body p:last-child{margin-bottom:0}
 .art-body p:first-child::first-letter{font-family:var(--fh);font-size:4em;font-weight:800;float:left;line-height:.8;margin:.05em .12em 0 0;color:var(--ink)}
-/* Source attribution */
 .src-box{display:flex;align-items:flex-start;gap:14px;padding:18px 22px;background:var(--bg2);border-radius:var(--r);font-family:var(--fh);font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:20px;border:1px solid var(--border)}
 .src-box svg{flex-shrink:0;margin-top:2px;color:var(--ink3)}
 .src-box a{color:var(--blue);font-weight:600;text-decoration:underline;text-underline-offset:2px}
 .read-orig{display:inline-flex;align-items:center;gap:7px;font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--ink);color:var(--bg);padding:13px 26px;border-radius:100px;margin-bottom:28px;transition:opacity .15s,transform .15s}
 .read-orig:hover{opacity:.85;transform:translateY(-1px)}
-/* Share */
 .share-row{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap}
 .share-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--fh);font-size:12px;font-weight:700;padding:9px 18px;border-radius:100px;border:1.5px solid var(--border);color:var(--ink);background:var(--card);transition:all .15s;cursor:pointer}
 .share-btn:hover{border-color:var(--ink);transform:translateY(-1px);box-shadow:var(--shadow)}
 .share-btn.fb{background:#1877f2;border-color:#1877f2;color:#fff}
 .share-btn.fb:hover{background:#166fe5;border-color:#166fe5}
-/* Ad */
 .ad-slot{padding:24px;border:1.5px dashed var(--border);border-radius:var(--r);text-align:center;margin:4px 0 32px}
 .ad-eye{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
 .ad-hed{font-family:var(--fh);font-weight:800;font-size:18px;color:var(--ink);margin-bottom:4px}
 .ad-sub{font-size:14px;color:var(--ink2)}
 .ad-sub a{color:var(--red);font-weight:600}
-/* Related */
 .rel-wrap{margin-top:36px;padding-top:24px;border-top:2px solid var(--ink)}
 .rel-wrap h3{font-family:var(--fh);font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
 .rel-link{display:flex;align-items:center;gap:9px;padding:11px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:7px;font-family:var(--fh);font-size:13px;font-weight:600;color:var(--ink);transition:all .15s}
 .rel-link:hover{background:var(--bg2);border-color:var(--ink);transform:translateX(2px)}
 .rel-link .ext{color:var(--ink3);font-weight:400;font-size:11px;margin-left:auto}
-
-/* Footer */
 footer{border-top:1px solid var(--border);padding:16px 0 32px;font-family:var(--fh);font-size:12px;color:var(--ink3)}
 .foot-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 footer a{color:var(--ink3);text-decoration:underline}
 footer a:hover{color:var(--ink)}
-
 @media(max-width:900px){
   .hero{grid-template-columns:1fr}
   .hero-img{min-height:200px}
@@ -237,7 +206,6 @@ footer a:hover{color:var(--ink)}
 </head>
 <body>
 
-<!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
@@ -255,7 +223,6 @@ const app = initializeApp({
 const db = getFirestore(app);
 getAnalytics(app);
 
-// Save article to Firestore — called when article page loads
 window.saveArticleToFirestore = async (it) => {
   if (!it?.id) return;
   try {
@@ -264,9 +231,7 @@ window.saveArticleToFirestore = async (it) => {
       title: it.articleTitle || it.title,
       originalTitle: it.title,
       slug: slugify(it.articleTitle || it.title),
-      description: it.article
-        ? it.article.split('\n\n')[0].slice(0, 200)
-        : (it.description || '').slice(0, 200),
+      description: it.article ? it.article.split('\n\n')[0].slice(0, 200) : (it.description || '').slice(0, 200),
       article: it.article || '',
       topic: it.topic || 'community',
       town: it.town || null,
@@ -290,16 +255,15 @@ window.saveArticleToFirestore = async (it) => {
     console.warn('Firestore save failed:', e.message);
   }
 };
-
-function slugify(s) {
-  return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,80);
-}
+function slugify(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,80);}
 </script>
 
 <script>
 window.TF={
   WORKER:'https://townfeed.dtm2210.workers.dev',
-  CACHE:'tf-final-kossuth',PAGE:15,NEW_HRS:6,REFRESH:5*60*1000,AD:'ads@townfeed.app',
+  CACHE:'tf-kossuth-ia',PAGE:15,NEW_HRS:6,REFRESH:5*60*1000,AD:'ads@townfeed.app',
+  // Towns/topics are populated from the feed's editionConfig at load time,
+  // with these as the pre-load fallback.
   TOWNS:[['algona','Algona'],['bancroft','Bancroft'],['burt','Burt'],['titonka','Titonka'],['swea-city','Swea City'],['wesley','Wesley'],['whittemore','Whittemore'],['lu-verne','Lu Verne'],['lakota','Lakota'],['lone-rock','Lone Rock'],['ledyard','Ledyard'],['fenton','Fenton'],['corwith','Corwith'],['buffalo-center','Buffalo Center'],['seneca','Seneca']],
   TOPICS:[['crime','Crime'],['schools','Schools'],['government','Government'],['agriculture','Agriculture'],['weather','Weather'],['business','Business'],['events','Events'],['community','Community']],
 };
@@ -309,7 +273,7 @@ window.TF={
   <div class="wrap">
     <div class="mast-top">
       <a href="/" class="logo" id="logo-link">Town<span class="logo-dot"></span>Feed</a>
-      <div class="mast-loc"><strong>Kossuth County</strong>Iowa</div>
+      <div class="mast-loc" id="mast-loc"><strong>Kossuth County</strong>Iowa</div>
       <span class="live-pill" id="live-pill"><span class="d"></span>Live</span>
       <div class="mast-right">
         <label class="search-box">
@@ -360,16 +324,12 @@ function cleanText(s){
     .replace(/https?:\/\/\S+/g,'').replace(/\s+/g,' ').trim();
 }
 
-// ── Image proxy ─────────────────────────────────────────────
-// Routes images through our worker to avoid referrer blocks
-function proxyImg(url) {
-  if (!url) return '';
-  if (url.startsWith('data:') || url.includes('/img?src=')) return url;
-  // Always proxy through worker to avoid referrer/CORS blocks
-  return 'https://townfeed.dtm2210.workers.dev/img?src=' + encodeURIComponent(url);
+function proxyImg(url){
+  if(!url)return'';
+  if(url.startsWith('data:')||url.includes('/img?src='))return url;
+  return CFG.WORKER+'/img?src='+encodeURIComponent(url);
 }
 
-// ── SEO helpers ──────────────────────────────────────────────
 function setMeta(name,content){
   let el=document.querySelector(`meta[name="${name}"],meta[property="${name}"]`);
   if(!el){el=document.createElement('meta');el.setAttribute(name.startsWith('og:')||name.startsWith('twitter:')?'property':'name',name);document.head.appendChild(el);}
@@ -385,6 +345,8 @@ function setJsonLd(data){
   if(!el){el=document.createElement('script');el.type='application/ld+json';el.id='json-ld';document.head.appendChild(el);}
   el.textContent=JSON.stringify(data);
 }
+function edName(){return (S.edition&&S.edition.name)||'Kossuth County';}
+function edState(){return (S.edition&&S.edition.state)||'Iowa';}
 
 function setArticleSeo(it){
   const title=getTitle(it);
@@ -403,35 +365,26 @@ function setArticleSeo(it){
   setMeta('twitter:image',it.image||'https://townfeed.app/og-default.jpg');
   setCanonical(url);
   setJsonLd({
-    '@context':'https://schema.org',
-    '@type':'NewsArticle',
-    'headline':title,
-    'description':desc,
-    'image':it.image?[it.image]:[],
-    'datePublished':it.pubDate||new Date().toISOString(),
+    '@context':'https://schema.org','@type':'NewsArticle','headline':title,'description':desc,
+    'image':it.image?[it.image]:[],'datePublished':it.pubDate||new Date().toISOString(),
     'dateModified':it.pubDate||new Date().toISOString(),
     'author':{'@type':'Organization','name':it.sourceName||'TownFeed'},
     'publisher':{'@type':'Organization','name':'TownFeed','url':'https://townfeed.app'},
-    'url':url,
-    'mainEntityOfPage':{'@type':'WebPage','@id':url},
-    'articleSection':it.topic||'news',
-    'keywords':`Kossuth County, Iowa, ${it.town||'Algona'}, ${it.topic||'news'}`,
-    'isAccessibleForFree':true,
-    'copyrightHolder':{'@type':'Organization','name':'TownFeed'},
+    'url':url,'mainEntityOfPage':{'@type':'WebPage','@id':url},'articleSection':it.topic||'news',
+    'keywords':`${edName()}, ${edState()}, ${it.town||''}, ${it.topic||'news'}`,
+    'isAccessibleForFree':true,'copyrightHolder':{'@type':'Organization','name':'TownFeed'},
   });
 }
-
 function resetSeo(){
-  document.title='TownFeed — Kossuth County, Iowa';
-  setMeta('description','All of Kossuth County\'s news in one place. Local, sports, obituaries, agriculture — updated every 10 minutes.');
-  setMeta('og:title','TownFeed — Kossuth County, Iowa');
-  setMeta('og:description','All of Kossuth County\'s news in one place.');
+  document.title=`TownFeed — ${edName()}, ${edState()}`;
+  setMeta('description',`All of ${edName()}'s news in one place. Local, sports, obituaries, agriculture — updated every 10 minutes.`);
+  setMeta('og:title',`TownFeed — ${edName()}, ${edState()}`);
+  setMeta('og:description',`All of ${edName()}'s news in one place.`);
   setMeta('og:url','https://townfeed.app/');
   setMeta('og:type','website');
   setCanonical('https://townfeed.app/');
 }
 
-// ── Topic icons / placeholders ───────────────────────────────
 const ICONS={
   crime:'<svg width="40" height="40" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
   sports:'<svg width="40" height="40" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg>',
@@ -455,11 +408,9 @@ function getLede(it){
   return cleanText(it.description||'');
 }
 
-// Article route: /article/ID, feed route: /
 function getRoute(){
   const p=location.pathname;
   if(p.startsWith('/article/')){return{view:'article',id:decodeURIComponent(p.slice(9))};}
-  // Also support hash routing for SPAs
   const h=location.hash.replace(/^#/,'')||'/';
   if(h.startsWith('/a/')){return{view:'article',id:decodeURIComponent(h.slice(3))};}
   return{view:'home'};
@@ -469,14 +420,15 @@ function navTo(path, pushState=true){
   render();
   window.scrollTo(0,0);
 }
-// Logo always goes home
 $('#logo-link').addEventListener('click',e=>{e.preventDefault();S.q='';S.vis=CFG.PAGE;navTo('/');});
 window.addEventListener('popstate',render);
 
-// ── State ────────────────────────────────────────────────────
-const S={data:null,etag:null,tab:'news',topics:new Set(),towns:new Set(),q:'',vis:CFG.PAGE,wIdx:0,scrollY:0};
+const S={data:null,etag:null,tab:'news',topics:new Set(),towns:new Set(),q:'',vis:CFG.PAGE,wIdx:0,scrollY:0,edition:null};
 
-// ── Theme ────────────────────────────────────────────────────
+// Expose for inline onclick handlers (they run in global scope).
+window.S=S;
+window.navTo=navTo;
+
 function applyTheme(t){
   document.documentElement.setAttribute('data-theme',t);
   $('meta[name=theme-color]').content=t==='dark'?'#100e0b':'#f9f6f0';
@@ -486,12 +438,20 @@ function applyTheme(t){
 applyTheme(localStorage.getItem('tf-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
 $('#theme-btn').addEventListener('click',()=>{const n=document.documentElement.dataset.theme==='dark'?'light':'dark';localStorage.setItem('tf-theme',n);applyTheme(n);});
 
-// ── Search ───────────────────────────────────────────────────
 let st;
 $('#q').addEventListener('input',e=>{clearTimeout(st);st=setTimeout(()=>{S.q=e.target.value.toLowerCase().trim();S.vis=CFG.PAGE;render();},150);});
 
-// ── Data ─────────────────────────────────────────────────────
-function loadCache(){try{const r=localStorage.getItem(CFG.CACHE);if(!r)return null;const{data,etag}=JSON.parse(r);if(data?.news){S.data=data;S.etag=etag;return data;}}catch{}return null;}
+// Pull towns/topics/name from feed meta so the worker stays the source of truth.
+function applyEdition(cfg){
+  if(!cfg)return;
+  S.edition=cfg;
+  if(Array.isArray(cfg.towns)&&cfg.towns.length)CFG.TOWNS=cfg.towns;
+  if(Array.isArray(cfg.topics)&&cfg.topics.length)CFG.TOPICS=cfg.topics;
+  const ml=$('#mast-loc');
+  if(ml)ml.innerHTML=`<strong>${esc(cfg.name||'')}</strong>${esc(cfg.state||'')}`;
+}
+
+function loadCache(){try{const r=localStorage.getItem(CFG.CACHE);if(!r)return null;const{data,etag}=JSON.parse(r);if(data?.news){S.data=data;S.etag=etag;applyEdition(data.meta&&data.meta.editionConfig);return data;}}catch{}return null;}
 function saveCache(){try{localStorage.setItem(CFG.CACHE,JSON.stringify({data:S.data,etag:S.etag,ts:Date.now()}));}catch{}}
 let fetching=false;
 async function fetchFeed(force){
@@ -500,14 +460,15 @@ async function fetchFeed(force){
     const h={};if(S.etag&&!force)h['If-None-Match']=S.etag;
     const r=await fetch(CFG.WORKER+'/feed',{headers:h});
     if(r.status===304)return;if(!r.ok)throw new Error('HTTP '+r.status);
-    S.data=await r.json();S.etag=r.headers.get('ETag');saveCache();render();
+    S.data=await r.json();S.etag=r.headers.get('ETag');
+    applyEdition(S.data.meta&&S.data.meta.editionConfig);
+    saveCache();render();
     const pill=$('#live-pill');pill.classList.add('show');setTimeout(()=>pill.classList.remove('show'),5000);
   }catch(e){if(!S.data)$('#app').innerHTML=`<div class="empty">Couldn't load the feed.<br><small>${esc(e.message)}</small></div>`;}
   finally{fetching=false;}
 }
 (async()=>{if(loadCache())render();await fetchFeed(true);setInterval(()=>{if(!document.hidden)fetchFeed();},CFG.REFRESH);document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchFeed();});})();
 
-// ── Render ───────────────────────────────────────────────────
 function render(){
   if(!S.data)return;
   updateCounts();renderWx();
@@ -533,7 +494,6 @@ function renderWx(){
   $('#wx-n')?.addEventListener('click',()=>{S.wIdx=Math.min(wx.length-1,S.wIdx+1);renderWx();});
 }
 
-// ── Home ─────────────────────────────────────────────────────
 function renderHome(){
   const allSearch=S.q?[...(S.data.news||[]),...(S.data.sports||[]),...(S.data.obits||[])].filter(it=>(getTitle(it)+' '+(it.description||'')+' '+(it.sourceName||'')).toLowerCase().includes(S.q)):null;
   const raw=allSearch||(S.tab==='news'?S.data.news:S.tab==='sports'?S.data.sports:S.data.obits)||[];
@@ -589,19 +549,16 @@ function renderObits(items){
   return html;
 }
 
-// Image block — lazy loads, shows placeholder until loaded
 function imgBlock(it){
   if(it.image)return`<img loading="lazy" src="${esc(proxyImg(it.image))}" alt="${esc(getTitle(it))}" onload="this.classList.add('vis')" onerror="this.remove()">`;
   return phHtml(it.topic);
 }
-
 function articleUrl(it){return`/article/${encodeURIComponent(it.id)}`;}
 
 function heroHtml(it){
   const t=getTitle(it),l=getLede(it);
   const isNew=(Date.now()-(Date.parse(it.pubDate)||Date.now()))<CFG.NEW_HRS*3600000;
-  // All stories go to TownFeed article page
-  return`<a class="hero" href="${articleUrl(it)}" onclick="S.scrollY=window.scrollY">
+  return`<a class="hero" href="${articleUrl(it)}" onclick="window.S.scrollY=window.scrollY">
     <div class="hero-img ${bgCls(it)}">${imgBlock(it)}</div>
     <div class="hero-body">
       <div style="display:flex;align-items:center;gap:10px">
@@ -615,10 +572,9 @@ function heroHtml(it){
     </div>
   </a>`;
 }
-
 function cardHtml(it){
   const t=getTitle(it),l=getLede(it);
-  return`<a class="card" href="${articleUrl(it)}" onclick="S.scrollY=window.scrollY">
+  return`<a class="card" href="${articleUrl(it)}" onclick="window.S.scrollY=window.scrollY">
     <div class="card-img ${bgCls(it)}">${imgBlock(it)}</div>
     <div class="card-body">
       ${tagHtml(it.topic)}
@@ -628,10 +584,9 @@ function cardHtml(it){
     </div>
   </a>`;
 }
-
 function listRowHtml(it){
   const t=getTitle(it),l=getLede(it);
-  return`<a class="list-row" href="${articleUrl(it)}" onclick="S.scrollY=window.scrollY">
+  return`<a class="list-row" href="${articleUrl(it)}" onclick="window.S.scrollY=window.scrollY">
     <div class="list-thumb ${bgCls(it)}">${imgBlock(it)}</div>
     <div class="list-body">
       <h4>${esc(t)}</h4>
@@ -640,10 +595,9 @@ function listRowHtml(it){
     </div>
   </a>`;
 }
-
 function obitCardHtml(it){
   const desc=cleanText(it.description||'');
-  return`<a class="obit-card" href="${articleUrl(it)}" onclick="S.scrollY=window.scrollY">
+  return`<a class="obit-card" href="${articleUrl(it)}" onclick="window.S.scrollY=window.scrollY">
     <div class="obit-orn">✦ ✦ ✦</div>
     <h3>${esc(it.title)}</h3>
     ${desc?`<div class="obit-desc">${esc(desc)}</div>`:''}
@@ -659,27 +613,22 @@ function wireHome(){
   $$('[data-topic]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.topic;S.topics.has(t)?S.topics.delete(t):S.topics.add(t);b.classList.toggle('on');S.vis=CFG.PAGE;renderHome();}));
   $$('[data-town]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.town;S.towns.has(t)?S.towns.delete(t):S.towns.add(t);b.classList.toggle('on');S.vis=CFG.PAGE;renderHome();}));
   $('#load-more')?.addEventListener('click',()=>{S.vis+=CFG.PAGE;renderHome();});
-  // Intercept article link clicks for SPA navigation
   $$('a[href^="/article/"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();navTo(a.getAttribute('href'));}));
 }
 
-// ── Article page ─────────────────────────────────────────────
 function renderArticle(id){
   const all=[...(S.data.news||[]),...(S.data.sports||[]),...(S.data.obits||[])];
   const it=all.find(x=>x.id===id);
-  if(!it){$('#app').innerHTML=`<div class="wrap"><div class="empty">Story not found. <a href="/" onclick="event.preventDefault();navTo('/')">← Back to feed</a></div></div>`;return;}
+  if(!it){$('#app').innerHTML=`<div class="wrap"><div class="empty">Story not found. <a href="/" id="nf-back">← Back to feed</a></div></div>`;$('#nf-back')?.addEventListener('click',e=>{e.preventDefault();navTo('/');});return;}
 
   setArticleSeo(it);
-
-  // Save to Firestore async (non-blocking)
-  if(typeof window.saveArticleToFirestore==='function') window.saveArticleToFirestore(it);
+  if(typeof window.saveArticleToFirestore==='function')window.saveArticleToFirestore(it);
 
   const t=getTitle(it);
   const hasArticle=!!it.article&&it.topic!=='obituaries';
   const favicon=it.source?`https://www.google.com/s2/favicons?sz=32&domain=${encodeURIComponent(it.source)}`:'';
   const related=(it.related||[]).filter(r=>r.link);
   const shareUrl=encodeURIComponent(`https://townfeed.app/article/${it.id}`);
-  const shareText=encodeURIComponent(t);
 
   let bodyHtml='';
   if(hasArticle){
@@ -690,7 +639,7 @@ function renderArticle(id){
   }
 
   $('#app').innerHTML=`<div class="wrap-narrow art-page">
-    <button class="back-btn" onclick="navTo('/');setTimeout(()=>window.scrollTo(0,S.scrollY||0),60)">
+    <button class="back-btn" id="art-back">
       <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Back to feed
     </button>
 
@@ -736,13 +685,15 @@ function renderArticle(id){
     </div>
 
     <div class="ad-slot">
-      <div class="ad-eye">Reach all of Kossuth County</div>
+      <div class="ad-eye">Reach all of ${esc(edName())}</div>
       <div class="ad-hed">Advertise with TownFeed</div>
       <div class="ad-sub">Connect with every reader in the county. <a href="mailto:${CFG.AD}?subject=TownFeed%20Advertising">Email us to get started</a>.</div>
     </div>
 
     ${related.length?`<div class="rel-wrap"><h3>More coverage of this story</h3>${related.map(r=>`<a class="rel-link" href="${esc(r.link)}" target="_blank" rel="noopener nofollow">${r.source?`<img src="https://www.google.com/s2/favicons?sz=24&domain=${encodeURIComponent(r.source)}" width="16" height="16" style="border-radius:3px" alt="" onerror="this.remove()">`:''}<span>${esc(r.sourceName||r.source||'Source')}</span><span class="ext">↗</span></a>`).join('')}</div>`:''}
   </div>`;
+
+  $('#art-back')?.addEventListener('click',()=>{navTo('/');setTimeout(()=>window.scrollTo(0,S.scrollY||0),60);});
 }
 
 function renderFoot(){
