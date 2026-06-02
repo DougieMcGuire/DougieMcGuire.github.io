@@ -59,8 +59,9 @@ img{display:block;max-width:100%}
 .mast-top{display:flex;align-items:center;gap:14px;padding:16px 0 13px}
 .logo{font-family:var(--fd);font-weight:900;font-size:clamp(24px,3.6vw,36px);letter-spacing:-.03em;line-height:1;color:var(--ink);display:flex;align-items:baseline;gap:1px}
 .logo-dot{width:9px;height:9px;background:var(--accent);border-radius:50%;align-self:flex-end;margin-bottom:7px}
-.mast-loc{font-family:var(--fh);font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);border-left:2px solid var(--border2);padding-left:13px;line-height:1.4}
+.mast-loc{font-family:var(--fh);font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);border-left:2px solid var(--border2);padding-left:13px;line-height:1.4;white-space:nowrap}
 .mast-loc strong{display:block;color:var(--ink2);font-size:12px;letter-spacing:.07em}
+.mast-loc span{display:block}
 .live-pill{display:none;align-items:center;gap:5px;font-family:var(--fh);font-weight:700;color:#fff;background:var(--green);padding:4px 11px;border-radius:var(--r-pill);font-size:11px;white-space:nowrap}
 .live-pill.show{display:inline-flex}
 .live-pill .d{width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1.8s infinite}
@@ -179,13 +180,14 @@ img{display:block;max-width:100%}
 .byline{display:flex;align-items:center;gap:11px;flex-wrap:wrap;font-family:var(--fh);font-size:14px;color:var(--ink3);margin-bottom:26px;padding-bottom:22px;border-bottom:2px solid var(--border)}
 .byline .via{font-weight:700;color:var(--ink2)}
 .byline img{border-radius:5px}
-.art-hero{position:relative;margin:0 0 34px;border-radius:var(--r-lg);overflow:hidden;aspect-ratio:16/9;background:var(--bg2);border:2px solid var(--border)}
-.art-hero img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s}
+.art-hero{position:relative;margin:0 0 34px;border-radius:var(--r-lg);overflow:hidden;aspect-ratio:16/9;background:var(--tc,var(--ink3));border:2px solid var(--border)}
+.art-hero img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s;position:relative;z-index:1}
 .art-hero img.vis{opacity:1}
-.art-body{font-size:20px;line-height:1.78;color:var(--ink);margin-bottom:34px}
-.art-body p{margin-bottom:1.4em}
+.art-hero .fill{z-index:0}
+.art-body{font-size:20px;line-height:1.8;color:var(--ink);margin-bottom:34px}
+.art-body p{margin-bottom:1.3em}
 .art-body p:last-child{margin-bottom:0}
-.art-body p:first-of-type::first-letter{font-family:var(--fd);font-weight:900;font-size:3.5em;float:left;line-height:.76;margin:.06em .1em 0 0;color:var(--accent)}
+.art-body p:first-of-type::first-letter{font-family:var(--fd);font-weight:900;font-size:3.2em;float:left;line-height:.82;margin:.04em .12em -.04em 0;color:var(--accent)}
 .srcbox{display:flex;align-items:flex-start;gap:14px;padding:18px 22px;background:var(--bg2);border-radius:var(--r);font-family:var(--fh);font-size:14px;color:var(--ink2);line-height:1.6;margin-bottom:22px}
 .srcbox svg{flex-shrink:0;margin-top:2px;color:var(--ink3)}
 .srcbox a{color:var(--blue);font-weight:700;text-decoration:underline;text-underline-offset:2px}
@@ -263,7 +265,7 @@ TOPICS:[['crime','Crime'],['schools','Schools'],['government','Government'],['ag
 <header class="mast"><div class="wrap">
   <div class="mast-top">
     <a href="/" class="logo" id="logo-link">Town<span class="logo-dot"></span>Feed</a>
-    <div class="mast-loc" id="mast-loc"><strong>Kossuth County</strong>Iowa</div>
+    <div class="mast-loc" id="mast-loc"><strong>Kossuth County</strong><span>Iowa</span></div>
     <span class="live-pill" id="live-pill"><span class="d"></span>Updated</span>
     <div class="mast-right">
       <label class="search-box"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg><input id="q" placeholder="Search stories…" autocomplete="off" aria-label="Search"></label>
@@ -325,7 +327,7 @@ $('#theme-btn').addEventListener('click',()=>{const n=document.documentElement.d
 $('#logo-link').addEventListener('click',e=>{e.preventDefault();S.q='';$('#q').value='';S.vis=CFG.PAGE;S.topics.clear();S.towns.clear();S.tab='news';navTo('/');});
 let st;$('#q').addEventListener('input',e=>{clearTimeout(st);st=setTimeout(()=>{S.q=e.target.value.toLowerCase().trim();S.vis=CFG.PAGE;render();},150);});
 
-function applyEdition(cfg){if(!cfg)return;S.edition=cfg;if(Array.isArray(cfg.towns)&&cfg.towns.length)CFG.TOWNS=cfg.towns;if(Array.isArray(cfg.topics)&&cfg.topics.length)CFG.TOPICS=cfg.topics;const ml=$('#mast-loc');if(ml)ml.innerHTML=`<strong>${esc(cfg.name||'')}</strong>${esc(cfg.state||'')}`;}
+function applyEdition(cfg){if(!cfg)return;S.edition=cfg;if(Array.isArray(cfg.towns)&&cfg.towns.length)CFG.TOWNS=cfg.towns;if(Array.isArray(cfg.topics)&&cfg.topics.length)CFG.TOPICS=cfg.topics;const ml=$('#mast-loc');if(ml)ml.innerHTML=`<strong>${esc(cfg.name||'')}</strong><span>${esc(cfg.state||'')}</span>`;}
 function loadCache(){try{const r=localStorage.getItem(CFG.CACHE);if(!r)return null;const{data,etag}=JSON.parse(r);if(data?.news){S.data=data;S.etag=etag;applyEdition(data.meta&&data.meta.editionConfig);return data;}}catch{}return null;}
 function saveCache(){try{localStorage.setItem(CFG.CACHE,JSON.stringify({data:S.data,etag:S.etag,ts:Date.now()}));}catch{}}
 let fetching=false;
@@ -372,8 +374,27 @@ function drawArticle(it){
   const t=getTitle(it);const hasArticle=!!it.article&&it.topic!=='obituaries';
   const favicon=it.source?`https://www.google.com/s2/favicons?sz=32&domain=${encodeURIComponent(it.source)}`:'';
   const related=(it.related||[]).filter(r=>r.link);const shareUrl=encodeURIComponent(`https://townfeed.app/article/${it.id}`);
-  let body='';if(hasArticle){const paras=it.article.split(/\n\n+/).filter(p=>p.trim()).map(p=>cleanText(p));body=`<div class="art-body">${paras.map(p=>`<p>${esc(p)}</p>`).join('')}</div>`;}else if(it.description){body=`<div class="art-body"><p>${esc(cleanText(it.description))}</p></div>`;}
-  $('#app').innerHTML=`<div class="wrap-narrow art t-${it.topic||'community'}"><button class="back-btn" id="art-back"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Back to news</button><div class="art-tags">${tagHtml(it.topic)}${it.article?`<span class="art-badge">✦ Written by TownFeed</span>`:''}</div><h1>${esc(t)}</h1><div class="byline">${favicon?`<img src="${esc(favicon)}" width="20" height="20" alt="" onerror="this.remove()">`:''}<span class="via">${esc(it.sourceName||it.source||'Local')}</span><span class="dot">•</span><time datetime="${esc(it.pubDate)}">${ago(it.pubDate)||'Recently'}</time></div><div class="art-hero">${it.image?`<img src="${esc(proxyImg(it.image))}" alt="${esc(t)}" onload="this.classList.add('vis')" onerror="this.parentElement.innerHTML='${fillHtml(it.topic).replace(/'/g,"\\'")}'">`:fillHtml(it.topic)}</div>${body}<div class="srcbox"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div>${hasArticle?`This article was written by <strong>TownFeed</strong> using reporting from <a href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName||it.source)}</a>. Only facts from the original report are included.`:`Reported by <a href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName||it.source)}</a>.`}</div></div><a class="read-orig" href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">Read the full story at ${esc(it.sourceName||it.source||'the source')} ↗</a><div class="share-row"><a class="share-btn fb" href="https://www.facebook.com/sharer/sharer.php?u=${shareUrl}" target="_blank" rel="noopener"><svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Share</a><button class="share-btn" id="copy-btn"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy link</button></div><div class="ad"><div class="ad-eye">Reach all of ${esc(edName())}</div><div class="ad-hed">Advertise with TownFeed</div><div class="ad-sub">Connect with readers across the county. <a href="mailto:${CFG.AD}?subject=TownFeed%20Advertising">Get started ↗</a></div></div>${related.length?`<div class="rel"><h3>More coverage of this story</h3>${related.map(r=>`<a class="rel-link" href="${esc(r.link)}" target="_blank" rel="noopener nofollow">${r.source?`<img src="https://www.google.com/s2/favicons?sz=24&domain=${encodeURIComponent(r.source)}" width="18" height="18" style="border-radius:4px" alt="" onerror="this.remove()">`:''}<span>${esc(r.sourceName||r.source||'Source')}</span><span class="ext">↗</span></a>`).join('')}</div>`:''}</div>`;
+  let body='';
+  if(hasArticle){const paras=it.article.split(/\n\n+/).filter(p=>p.trim()).map(p=>cleanText(p));body=`<div class="art-body">${paras.map(p=>`<p>${esc(p)}</p>`).join('')}</div>`;}
+  else if(it.description){body=`<div class="art-body"><p>${esc(cleanText(it.description))}</p></div>`;}
+  // Hero image: on error just hide the <img> — the .art-hero block keeps its
+  // topic-color fill underneath, so it degrades cleanly (no leaked markup).
+  const heroImg=it.image
+    ? `<img src="${esc(proxyImg(it.image))}" alt="${esc(t)}" onload="this.classList.add('vis')" onerror="this.style.display='none'">`
+    : fillHtml(it.topic);
+  $('#app').innerHTML=`<div class="wrap-narrow art t-${it.topic||'community'}">
+    <button class="back-btn" id="art-back"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Back to news</button>
+    <div class="art-tags">${tagHtml(it.topic)}${it.article?`<span class="art-badge">✦ Written by TownFeed</span>`:''}</div>
+    <h1>${esc(t)}</h1>
+    <div class="byline">${favicon?`<img src="${esc(favicon)}" width="20" height="20" alt="" onerror="this.remove()">`:''}<span class="via">${esc(it.sourceName||it.source||'Local')}</span><span class="dot">•</span><time datetime="${esc(it.pubDate)}">${ago(it.pubDate)||'Recently'}</time></div>
+    <div class="art-hero ${it.image?'':'noimg'}">${heroImg}</div>
+    ${body}
+    <div class="srcbox"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div>${hasArticle?`This article was written by <strong>TownFeed</strong> using reporting from <a href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName||it.source)}</a>. Only facts from the original report are included.`:`Reported by <a href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">${esc(it.sourceName||it.source)}</a>.`}</div></div>
+    <a class="read-orig" href="${esc(it.realLink||it.link)}" target="_blank" rel="noopener nofollow">Read the full story at ${esc(it.sourceName||it.source||'the source')} ↗</a>
+    <div class="share-row"><a class="share-btn fb" href="https://www.facebook.com/sharer/sharer.php?u=${shareUrl}" target="_blank" rel="noopener"><svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Share</a><button class="share-btn" id="copy-btn"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy link</button></div>
+    <div class="ad"><div class="ad-eye">Reach all of ${esc(edName())}</div><div class="ad-hed">Advertise with TownFeed</div><div class="ad-sub">Connect with readers across the county. <a href="mailto:${CFG.AD}?subject=TownFeed%20Advertising">Get started ↗</a></div></div>
+    ${related.length?`<div class="rel"><h3>More coverage of this story</h3>${related.map(r=>`<a class="rel-link" href="${esc(r.link)}" target="_blank" rel="noopener nofollow">${r.source?`<img src="https://www.google.com/s2/favicons?sz=24&domain=${encodeURIComponent(r.source)}" width="18" height="18" style="border-radius:4px" alt="" onerror="this.remove()">`:''}<span>${esc(r.sourceName||r.source||'Source')}</span><span class="ext">↗</span></a>`).join('')}</div>`:''}
+  </div>`;
   $('#art-back')?.addEventListener('click',()=>{navTo('/');setTimeout(()=>window.scrollTo(0,S.scrollY||0),50);});
   $('#copy-btn')?.addEventListener('click',function(){navigator.clipboard?.writeText(`https://townfeed.app/article/${it.id}`);this.innerHTML='✓ Copied!';});
 }
