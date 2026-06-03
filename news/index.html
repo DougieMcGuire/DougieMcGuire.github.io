@@ -971,13 +971,27 @@ async function renderProfile(uid){
 function renderFoot(){const m=(S.data&&S.data.meta)||{};$('#foot-meta').textContent=m.lastRun?`News updated ${ago(m.lastRun)}`:'';}
 
 // ════ BOOT ════
-window.TFB&&window.TFB.onReady?window.TFB.onReady(()=>{window.TFB.onAuth=()=>{renderAuthSlot();};}):0;
-(async()=>{
+// The Firebase <script type="module"> is deferred, so window.TFB may not exist
+// yet when this regular script runs. Wait for it before booting anything that
+// touches Firebase. If it never shows (e.g. Firebase blocked), boot anyway in a
+// degraded mode so the news feed still renders.
+function bootApp(){
+  if(window.TFB){ window.TFB.onAuth=()=>renderAuthSlot(); }
   if(loadCache())render(); else render();
-  await fetchFeed(true);
+  fetchFeed(true);
   setInterval(()=>{if(!document.hidden)fetchFeed();},CFG.REFRESH);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchFeed();});
-})();
+}
+if(window.TFB){
+  window.TFB.onReady(bootApp);
+}else{
+  let waited=0;
+  const iv=setInterval(()=>{
+    waited+=50;
+    if(window.TFB){ clearInterval(iv); window.TFB.onReady(bootApp); }
+    else if(waited>=4000){ clearInterval(iv); console.warn('TFB (Firebase) did not load — booting news-only'); bootApp(); }
+  },50);
+}
 })();
 </script>
 </body>
