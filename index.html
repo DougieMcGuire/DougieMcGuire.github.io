@@ -11,11 +11,12 @@
 
 <style>
 :root{
-  --cream:#FAF1DE;
-  --cream-2:#FFF8EC;
+  --cream:#E9E9E9;
+  --cream-2:#F4F4F4;
   --paper:#FFFFFF;
-  --ink:#17120A;
-  --blue:#0A6BFF;
+  --ink:#151515;
+  --blue:#151515;
+  --muted:#7d7d7d;
   --green:#1FC77C;
   --r:18px;
 }
@@ -26,14 +27,14 @@ body{font-family:'Bricolage Grotesque',sans-serif;background:var(--cream);color:
 
 /* ---------- background ---------- */
 .bg{position:fixed;inset:0;z-index:-3;overflow:hidden;
-  background:radial-gradient(120% 120% at 80% 0%, #FFF7E6 0%, var(--cream) 60%);}
+  background:radial-gradient(120% 120% at 80% 0%, #FAFAFA 0%, var(--cream) 60%);}
 .blob{position:absolute;border-radius:50%;filter:blur(55px);mix-blend-mode:multiply;will-change:transform}
-.blob.b1{width:44vmax;height:44vmax;background:#EFD6A6;opacity:.4;top:-14vmax;left:-12vmax;animation:drift1 22s ease-in-out infinite}
-.blob.b2{width:40vmax;height:40vmax;background:#BBCFEE;opacity:.36;bottom:-16vmax;right:-12vmax;animation:drift2 26s ease-in-out infinite}
+.blob.b1{width:44vmax;height:44vmax;background:#D9D9D9;opacity:.55;top:-14vmax;left:-12vmax;animation:drift1 22s ease-in-out infinite}
+.blob.b2{width:40vmax;height:40vmax;background:#CACACA;opacity:.5;bottom:-16vmax;right:-12vmax;animation:drift2 26s ease-in-out infinite}
 @keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(5vmax,4vmax) scale(1.1)}}
 @keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-6vmax,-3vmax) scale(1.08)}}
 .grid{position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:.45;
-  background-image:radial-gradient(rgba(23,18,10,.15) 1.3px, transparent 1.3px);background-size:26px 26px;
+  background-image:radial-gradient(rgba(20,20,20,.16) 1.3px, transparent 1.3px);background-size:26px 26px;
   -webkit-mask-image:radial-gradient(120% 90% at 50% 30%, #000 40%, transparent 100%);
   mask-image:radial-gradient(120% 90% at 50% 30%, #000 40%, transparent 100%);}
 .grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.045;
@@ -46,7 +47,7 @@ body{font-family:'Bricolage Grotesque',sans-serif;background:var(--cream);color:
 .gate.gone{opacity:0;transform:translateY(-30px);pointer-events:none}
 .gate .mark{font-weight:800;letter-spacing:-.045em;line-height:.9;text-align:center;
   font-size:clamp(3rem,15vw,6rem);animation:gateIn .8s cubic-bezier(.2,.9,.2,1) both}
-.gate .mark em{font-style:normal;color:var(--blue)}
+.gate .mark em{font-style:normal;color:var(--muted)}
 @keyframes gateIn{0%{opacity:0;transform:scale(.85) translateY(20px)}100%{opacity:1;transform:none}}
 .enter{font-family:inherit;font-weight:800;font-size:1.15rem;letter-spacing:.02em;
   background:var(--blue);color:#fff;border:3px solid var(--ink);border-radius:999px;
@@ -79,7 +80,7 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
   font-weight:800;font-size:2.8rem;color:#fff;text-transform:uppercase}
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .name{font-weight:800;letter-spacing:-.05em;line-height:.95;font-size:clamp(2.6rem,10vw,3.4rem)}
-.name .dot{color:var(--blue)}
+.name .dot{color:var(--muted)}
 
 /* ---------- links ---------- */
 .links{display:flex;flex-direction:column;gap:11px;margin-top:clamp(20px,5vw,26px)}
@@ -92,7 +93,7 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
   background:var(--ink);display:flex;align-items:center;justify-content:center;color:#fff}
 .chip svg{width:22px;height:22px}
 .link .meta{display:flex;flex-direction:column;line-height:1.15;text-align:left}
-.link .plat{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9a8f7b}
+.link .plat{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .link .handle{font-size:1.02rem;font-weight:800;letter-spacing:-.01em}
 .link .go{margin-left:auto;font-weight:800;font-size:1.3rem;color:var(--ink);transition:transform .15s ease;opacity:.5}
 .link:hover .go{transform:translateX(4px);opacity:1}
@@ -102,8 +103,12 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
 #yt{position:fixed;right:0;bottom:0;width:1px;height:1px;opacity:0;border:0;pointer-events:none;z-index:-1}
 .player .top{display:flex;align-items:center;gap:13px}
 .cover{position:relative;flex:0 0 auto;width:64px;height:64px;border:3px solid var(--ink);border-radius:12px;
-  overflow:hidden;box-shadow:3px 3px 0 var(--ink);background:linear-gradient(140deg,#2b2b2b,var(--ink))}
+  overflow:hidden;box-shadow:3px 3px 0 var(--ink);background:linear-gradient(140deg,#3a3a3a,var(--ink));cursor:pointer}
 .cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cover .play-ov{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4)}
+.cover .play-ov svg{width:26px;height:26px;color:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+body.paused .cover .play-ov{display:flex}
+body.paused .cover .eq{opacity:0}
 .cover .eq{position:absolute;left:6px;bottom:6px;display:flex;gap:2.5px;align-items:flex-end;height:13px;filter:drop-shadow(0 0 2px rgba(0,0,0,.6))}
 .cover .eq span{width:3px;background:#fff;border-radius:2px;height:30%;animation:eq .9s ease-in-out infinite}
 .cover .eq span:nth-child(2){animation-delay:.15s;height:80%}
@@ -112,9 +117,9 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
 @keyframes eq{0%,100%{height:22%}50%{height:95%}}
 body.paused .cover .eq span{animation-play-state:paused}
 .trk{min-width:0;flex:1}
-.trk .lbl{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#9a8f7b}
+.trk .lbl{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .trk .ttl{font-weight:800;font-size:1.08rem;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trk .art-name{font-weight:600;font-size:.85rem;color:#9a8f7b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trk .art-name{font-weight:600;font-size:.85rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar{height:9px;background:var(--cream);border:2.5px solid var(--ink);border-radius:999px;overflow:hidden;cursor:pointer}
 .bar .fill{height:100%;width:0;background:var(--blue);transition:width .25s linear}
 .ctrls{display:flex;align-items:center;justify-content:center;gap:12px}
@@ -144,7 +149,7 @@ body.paused .cover .eq span{animation-play-state:paused}
 .verse .shuffle:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
 
 /* ---------- footer ---------- */
-.foot{text-align:center;font-weight:700;font-size:.82rem;color:#8a7f6b;
+.foot{text-align:center;font-weight:700;font-size:.82rem;color:var(--muted);
   background:var(--cream-2);border:2.5px solid var(--ink);border-radius:999px;padding:9px 0;box-shadow:4px 4px 0 var(--ink)}
 .foot .hb{color:var(--ink);display:inline-block;animation:beat 1.6s ease-in-out infinite}
 @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.22)}}
@@ -211,7 +216,7 @@ body.paused .cover .eq span{animation-play-state:paused}
 
     <div class="card player" id="player">
       <div class="top">
-        <div class="cover"><img id="cover" alt="album art" style="display:none"><div class="eq"><span></span><span></span><span></span><span></span></div></div>
+        <div class="cover" id="coverBtn"><img id="cover" alt="album art" style="display:none"><div class="eq"><span></span><span></span><span></span><span></span></div><div class="play-ov"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
         <div class="trk">
           <div class="lbl">now playing</div>
           <div class="ttl" id="trkTitle">Passionfruit</div>
@@ -413,6 +418,9 @@ function loadTrack(i){
 }
 
 document.getElementById('play').addEventListener('click',()=>{
+  if(ytReady&&player.getPlayerState()===YT.PlayerState.PLAYING)pauseVideo();else play();
+});
+document.getElementById('coverBtn').addEventListener('click',()=>{
   if(ytReady&&player.getPlayerState()===YT.PlayerState.PLAYING)pauseVideo();else play();
 });
 document.getElementById('next').addEventListener('click',()=>loadTrack(cur+1));
