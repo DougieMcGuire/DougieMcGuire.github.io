@@ -11,23 +11,21 @@
 
 <style>
 :root{
-  --cream:#E9E9E9;
-  --cream-2:#F4F4F4;
+  --bg:#E9E9E9;
+  --surface:#F4F4F4;
   --paper:#FFFFFF;
   --ink:#151515;
-  --blue:#151515;
   --muted:#7d7d7d;
-  --green:#1FC77C;
   --r:18px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{font-family:'Bricolage Grotesque',sans-serif;background:var(--cream);color:var(--ink);
+body{font-family:'Bricolage Grotesque',sans-serif;background:var(--bg);color:var(--ink);
   min-height:100dvh;overflow-x:hidden;position:relative}
 
 /* ---------- background ---------- */
 .bg{position:fixed;inset:0;z-index:-3;overflow:hidden;
-  background:radial-gradient(120% 120% at 80% 0%, #FAFAFA 0%, var(--cream) 60%);}
+  background:radial-gradient(120% 120% at 80% 0%, #FAFAFA 0%, var(--bg) 60%);}
 .blob{position:absolute;border-radius:50%;filter:blur(55px);mix-blend-mode:multiply;will-change:transform}
 .blob.b1{width:44vmax;height:44vmax;background:#D9D9D9;opacity:.55;top:-14vmax;left:-12vmax;animation:drift1 22s ease-in-out infinite}
 .blob.b2{width:40vmax;height:40vmax;background:#CACACA;opacity:.5;bottom:-16vmax;right:-12vmax;animation:drift2 26s ease-in-out infinite}
@@ -41,7 +39,7 @@ body{font-family:'Bricolage Grotesque',sans-serif;background:var(--cream);color:
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 
 /* ---------- intro gate ---------- */
-.gate{position:fixed;inset:0;z-index:1000;background:var(--cream);
+.gate{position:fixed;inset:0;z-index:1000;background:var(--bg);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
   transition:opacity .7s ease, transform .7s cubic-bezier(.7,0,.3,1);padding:24px}
 .gate.gone{opacity:0;transform:translateY(-30px);pointer-events:none}
@@ -50,7 +48,7 @@ body{font-family:'Bricolage Grotesque',sans-serif;background:var(--cream);color:
 .gate .mark em{font-style:normal;color:var(--muted)}
 @keyframes gateIn{0%{opacity:0;transform:scale(.85) translateY(20px)}100%{opacity:1;transform:none}}
 .enter{font-family:inherit;font-weight:800;font-size:1.15rem;letter-spacing:.02em;
-  background:var(--blue);color:#fff;border:3px solid var(--ink);border-radius:999px;
+  background:var(--ink);color:#fff;border:3px solid var(--ink);border-radius:999px;
   padding:16px 48px;cursor:pointer;box-shadow:5px 5px 0 var(--ink);
   transition:transform .12s ease, box-shadow .12s ease;animation:gateIn .8s .15s both}
 .enter:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
@@ -75,7 +73,7 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
 .pfp{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;border:3px solid var(--ink);
   object-fit:cover;display:none;box-shadow:4px 4px 0 var(--ink);animation:floaty 4.5s ease-in-out infinite}
 .pfp-fallback{position:absolute;inset:0;border-radius:50%;border:3px solid var(--ink);
-  background:linear-gradient(135deg,#2b2b2b,var(--ink));box-shadow:4px 4px 0 var(--ink);
+  background:linear-gradient(135deg,#3a3a3a,var(--ink));box-shadow:4px 4px 0 var(--ink);
   animation:floaty 4.5s ease-in-out infinite;display:flex;align-items:center;justify-content:center;
   font-weight:800;font-size:2.8rem;color:#fff;text-transform:uppercase}
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
@@ -85,7 +83,7 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
 /* ---------- links ---------- */
 .links{display:flex;flex-direction:column;gap:11px;margin-top:clamp(20px,5vw,26px)}
 .link{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--ink);
-  background:var(--cream-2);border:3px solid var(--ink);border-radius:14px;padding:11px 14px;
+  background:var(--surface);border:3px solid var(--ink);border-radius:14px;padding:11px 14px;
   box-shadow:4px 4px 0 var(--ink);transition:transform .13s ease, box-shadow .13s ease, background .13s ease;font-weight:700}
 .link:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--ink);background:#fff}
 .link:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
@@ -99,58 +97,40 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
 .link:hover .go{transform:translateX(4px);opacity:1}
 
 /* ---------- music player ---------- */
-.player{padding:14px;display:flex;flex-direction:column;gap:12px}
-#yt{position:fixed;right:0;bottom:0;width:1px;height:1px;opacity:0;border:0;pointer-events:none;z-index:-1}
-.player .top{display:flex;align-items:center;gap:13px}
-.cover{position:relative;flex:0 0 auto;width:64px;height:64px;border:3px solid var(--ink);border-radius:12px;
-  overflow:hidden;box-shadow:3px 3px 0 var(--ink);background:linear-gradient(140deg,#3a3a3a,var(--ink));cursor:pointer}
-.cover img{width:100%;height:100%;object-fit:cover;display:block}
-.cover .play-ov{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4)}
-.cover .play-ov svg{width:26px;height:26px;color:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
-body.paused .cover .play-ov{display:flex}
-body.paused .cover .eq{opacity:0}
-.cover .eq{position:absolute;left:6px;bottom:6px;display:flex;gap:2.5px;align-items:flex-end;height:13px;filter:drop-shadow(0 0 2px rgba(0,0,0,.6))}
-.cover .eq span{width:3px;background:#fff;border-radius:2px;height:30%;animation:eq .9s ease-in-out infinite}
-.cover .eq span:nth-child(2){animation-delay:.15s;height:80%}
-.cover .eq span:nth-child(3){animation-delay:.3s;height:50%}
-.cover .eq span:nth-child(4){animation-delay:.45s;height:95%}
-@keyframes eq{0%,100%{height:22%}50%{height:95%}}
-body.paused .cover .eq span{animation-play-state:paused}
-.trk{min-width:0;flex:1}
+.player{padding:14px;display:flex;flex-direction:column;gap:13px}
+.ytbox{position:relative;width:100%;aspect-ratio:16/9;border:3px solid var(--ink);border-radius:12px;
+  overflow:hidden;box-shadow:4px 4px 0 var(--ink);background:#000}
+.ytbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.prow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.trk{min-width:0}
 .trk .lbl{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.trk .ttl{font-weight:800;font-size:1.08rem;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trk .art-name{font-weight:600;font-size:.85rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bar{height:9px;background:var(--cream);border:2.5px solid var(--ink);border-radius:999px;overflow:hidden;cursor:pointer}
-.bar .fill{height:100%;width:0;background:var(--blue);transition:width .25s linear}
-.ctrls{display:flex;align-items:center;justify-content:center;gap:12px}
-.btn{font-family:inherit;border:3px solid var(--ink);background:var(--cream-2);border-radius:50%;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink);
+.trk .ttl{font-weight:800;font-size:1.05rem;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trk .art-name{font-weight:600;font-size:.85rem;color:var(--muted)}
+.ctrls{display:flex;gap:10px;flex:0 0 auto}
+.btn{font-family:inherit;border:3px solid var(--ink);background:var(--surface);border-radius:50%;
+  width:46px;height:46px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink);
   box-shadow:3px 3px 0 var(--ink);transition:transform .12s ease, box-shadow .12s ease}
 .btn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
 .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
 .btn svg{width:20px;height:20px}
-.btn.sm{width:42px;height:42px}
-.btn.play{width:56px;height:56px;background:var(--blue);color:#fff}
-.btn.play svg{width:25px;height:25px}
-.btn.mute{width:42px;height:42px}
 
 /* ---------- verse ---------- */
 .verse{padding:clamp(18px,5vw,24px)}
 .verse .tag{display:inline-block;font-weight:800;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
-  background:var(--blue);color:#fff;border:2.5px solid var(--ink);border-radius:999px;padding:5px 12px;box-shadow:2px 2px 0 var(--ink);margin-bottom:13px}
+  background:var(--ink);color:#fff;border:2.5px solid var(--ink);border-radius:999px;padding:5px 12px;box-shadow:2px 2px 0 var(--ink);margin-bottom:13px}
 .verse .text{font-family:'Newsreader',serif;font-style:italic;font-size:clamp(1.05rem,3.6vw,1.22rem);
   line-height:1.45;transition:opacity .4s ease, transform .4s ease}
 .verse .text.swap{opacity:0;transform:translateY(8px)}
-.verse .ref{display:block;font-family:'Bricolage Grotesque',sans-serif;font-style:normal;font-weight:800;font-size:.9rem;margin-top:12px;color:var(--ink);opacity:.55}
+.verse .ref{display:block;font-family:'Bricolage Grotesque',sans-serif;font-style:normal;font-weight:800;font-size:.9rem;margin-top:12px;color:var(--muted)}
 .verse .shuffle{margin-top:15px;font-family:inherit;font-weight:800;font-size:.82rem;
-  background:var(--cream-2);border:2.5px solid var(--ink);border-radius:999px;padding:8px 16px;cursor:pointer;
+  background:var(--surface);border:2.5px solid var(--ink);border-radius:999px;padding:8px 16px;cursor:pointer;
   box-shadow:3px 3px 0 var(--ink);transition:transform .12s ease, box-shadow .12s ease;display:inline-flex;align-items:center;gap:7px}
 .verse .shuffle:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
 .verse .shuffle:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
 
 /* ---------- footer ---------- */
 .foot{text-align:center;font-weight:700;font-size:.82rem;color:var(--muted);
-  background:var(--cream-2);border:2.5px solid var(--ink);border-radius:999px;padding:9px 0;box-shadow:4px 4px 0 var(--ink)}
+  background:var(--surface);border:2.5px solid var(--ink);border-radius:999px;padding:9px 0;box-shadow:4px 4px 0 var(--ink)}
 .foot .hb{color:var(--ink);display:inline-block;animation:beat 1.6s ease-in-out infinite}
 @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.22)}}
 
@@ -160,7 +140,7 @@ body.paused .cover .eq span{animation-play-state:paused}
 }
 </style>
 </head>
-<body class="paused">
+<body>
 
 <div class="bg"><div class="blob b1"></div><div class="blob b2"></div></div>
 <div class="grid"></div>
@@ -214,21 +194,20 @@ body.paused .cover .eq span{animation-play-state:paused}
       </div>
     </div>
 
-    <div class="card player" id="player">
-      <div class="top">
-        <div class="cover" id="coverBtn"><img id="cover" alt="album art" style="display:none"><div class="eq"><span></span><span></span><span></span><span></span></div><div class="play-ov"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
+    <div class="card player">
+      <div class="ytbox">
+        <iframe id="yt" title="music" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+      </div>
+      <div class="prow">
         <div class="trk">
           <div class="lbl">now playing</div>
           <div class="ttl" id="trkTitle">Passionfruit</div>
           <div class="art-name" id="trkArtist">Drake</div>
         </div>
-      </div>
-      <div class="bar" id="bar"><div class="fill" id="fill"></div></div>
-      <div class="ctrls">
-        <button class="btn sm" id="prev" aria-label="previous"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-        <button class="btn play" id="play" aria-label="play / pause"><svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
-        <button class="btn sm" id="next" aria-label="next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zm-9.5 6L15 6v12z"/></svg></button>
-        <button class="btn mute" id="mute" aria-label="mute"><svg id="muteIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M5 9v6h4l5 5V4L9 9H5zm11.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4z"/></svg></button>
+        <div class="ctrls">
+          <button class="btn" id="prev" aria-label="previous"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+          <button class="btn" id="next" aria-label="next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zm-9.5 6L15 6v12z"/></svg></button>
+        </div>
       </div>
     </div>
 
@@ -243,40 +222,40 @@ body.paused .cover .eq span{animation-play-state:paused}
   </div>
 </div>
 
-<div id="yt"></div>
-
 <script>
-const body=document.body;
-
 /* ===================================================================
    PROFILE PIC
-   There's no reliable way to auto-pull a LIVE Instagram pic into a static
-   site — IG blocks logged-out scraping, so that approach just doesn't work
-   (that's why unavatar AND the proxies both failed). Two options that DO:
-     1) GITHUB_USER — set your GitHub username and the pic auto-updates
-        whenever you change your GitHub avatar (rock solid, CORS-friendly).
-     2) pfp.jpg — drop a file next to this page (manual, but bulletproof).
-   It tries GitHub first (if set), then pfp.jpg, then a plain initial.
+   NOTE: a static website cannot pull your LIVE Instagram pic — Instagram
+   blocks it, full stop. To show your actual photo, do ONE of these:
+     A) put your GitHub username in GITHUB_USER below — then it auto-updates
+        whenever you change your GitHub avatar.
+     B) drop a file named pfp.jpg in the same folder as this page.
+   Until then it shows a clean "D".
 =================================================================== */
-const GITHUB_USER=""; /* <-- optional: put your GitHub username here for an auto-updating pic */
-const pfp=document.getElementById('pfp');
-const pfpFallback=document.getElementById('pfpFallback');
-const pfpSources=[];
-if(GITHUB_USER)pfpSources.push("https://github.com/"+GITHUB_USER+".png?size=240");
+const GITHUB_USER = "";  /* <-- e.g. "dougie123" for an auto-updating pic */
+
+const pfp = document.getElementById('pfp');
+const pfpFallback = document.getElementById('pfpFallback');
+const pfpSources = [];
+if (GITHUB_USER) pfpSources.push("https://github.com/" + GITHUB_USER + ".png?size=240");
 pfpSources.push("pfp.jpg");
-let pfpIdx=0;
+let pfpIdx = 0;
 function tryPfp(){
-  if(pfpIdx>=pfpSources.length){pfp.style.display='none';pfpFallback.style.display='flex';return;}
-  pfp.src=pfpSources[pfpIdx++];
+  if (pfpIdx >= pfpSources.length){
+    pfp.style.display = 'none';
+    pfpFallback.style.display = 'flex';
+    return;
+  }
+  pfp.src = pfpSources[pfpIdx++];
 }
-pfp.onload=()=>{pfp.style.display='block';pfpFallback.style.display='none';};
-pfp.onerror=tryPfp;
+pfp.onload = function(){ pfp.style.display = 'block'; pfpFallback.style.display = 'none'; };
+pfp.onerror = tryPfp;
 tryPfp();
 
 /* ===================================================================
    VERSES
 =================================================================== */
-const verses=[
+const verses = [
 ["For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, to give you hope and a future.","Jeremiah 29:11"],
 ["Trust in the Lord with all your heart and lean not on your own understanding.","Proverbs 3:5"],
 ["I can do all things through Christ who strengthens me.","Philippians 4:13"],
@@ -318,144 +297,59 @@ const verses=[
 ["Though outwardly we are wasting away, yet inwardly we are being renewed day by day.","2 Corinthians 4:16"],
 ["This is the day the Lord has made; we will rejoice and be glad in it.","Psalm 118:24"]
 ];
-const vText=document.getElementById('verseText');
-let lastV=-1;
+const vText = document.getElementById('verseText');
+let lastV = -1;
 function showVerse(){
-  let i;do{i=Math.floor(Math.random()*verses.length)}while(i===lastV&&verses.length>1);
-  lastV=i;
+  let i;
+  do { i = Math.floor(Math.random() * verses.length); } while (i === lastV && verses.length > 1);
+  lastV = i;
   vText.classList.add('swap');
-  setTimeout(()=>{vText.innerHTML=verses[i][0]+'<span class="ref">— '+verses[i][1]+'</span>';vText.classList.remove('swap');},380);
+  setTimeout(function(){
+    vText.innerHTML = verses[i][0] + '<span class="ref">— ' + verses[i][1] + '</span>';
+    vText.classList.remove('swap');
+  }, 380);
 }
 showVerse();
-document.getElementById('shuffleVerse').addEventListener('click',showVerse);
-setInterval(showVerse,9000);
+document.getElementById('shuffleVerse').addEventListener('click', showVerse);
+setInterval(showVerse, 9000);
 
 /* ===================================================================
-   MUSIC — full, uncensored tracks streamed from YouTube (official
-   uploads), driven by a HIDDEN player so you only ever see the album art,
-   not a video. Album covers are pulled automatically from Apple's free
-   catalog. To change a song, swap "id" for the YouTube video ID (the
-   part after watch?v=).
+   MUSIC — a visible YouTube player (the official full, uncensored
+   uploads). It HAS to be visible: hidden players get blocked by iPhones
+   and by sandboxed previews, which is why it wasn't playing before.
+   A tap (ENTER, prev, or next) starts it with sound. To change a song,
+   swap the "id" for the YouTube video id (the part after watch?v=).
 =================================================================== */
-const playlist=[
-  {title:"Passionfruit", artist:"Drake", id:"FPTjza-EKGk", term:"Drake Passionfruit More Life", art:""},
-  {title:"Hold On, We're Going Home", artist:"Drake", id:"GxgqpCdOKak", term:"Drake Hold On We're Going Home Nothing Was the Same", art:""}
+const playlist = [
+  { title: "Passionfruit", artist: "Drake", id: "FPTjza-EKGk" },
+  { title: "Hold On, We're Going Home", artist: "Drake", id: "GxgqpCdOKak" }
 ];
+const yt = document.getElementById('yt');
+const trkTitle = document.getElementById('trkTitle');
+const trkArtist = document.getElementById('trkArtist');
+let cur = 0;
 
-const cover=document.getElementById('cover');
-const trkTitle=document.getElementById('trkTitle');
-const trkArtist=document.getElementById('trkArtist');
-const fill=document.getElementById('fill');
-const bar=document.getElementById('bar');
-const playIcon=document.getElementById('playIcon');
-const muteIcon=document.getElementById('muteIcon');
-const ICON_PLAY='<path d="M8 5v14l11-7z"/>';
-const ICON_PAUSE='<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
-const ICON_VOL='<path d="M5 9v6h4l5 5V4L9 9H5zm11.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4z"/>';
-const ICON_MUTE='<path d="M5 9v6h4l5 5V4L9 9H5z"/><path d="M16 9l5 5m0-5l-5 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>';
-
-let player, ytReady=false, pendingPlay=false, cur=0, muted=false;
-
-/* --- album covers via Apple (artwork only) --- */
-function jsonp(url){
-  return new Promise((resolve,reject)=>{
-    const cb='itcb_'+Math.random().toString(36).slice(2);
-    const s=document.createElement('script');
-    let done=false;
-    window[cb]=d=>{done=true;resolve(d);cleanup();};
-    s.onerror=()=>{cleanup();reject();};
-    function cleanup(){try{delete window[cb];}catch(e){window[cb]=undefined;}s.remove();}
-    setTimeout(()=>{if(!done){cleanup();reject();}},8000);
-    s.src=url+(url.indexOf('?')>-1?'&':'?')+'callback='+cb;
-    document.body.appendChild(s);
-  });
+function loadTrack(i, autoplay){
+  cur = (i + playlist.length) % playlist.length;
+  trkTitle.textContent = playlist[cur].title;
+  trkArtist.textContent = playlist[cur].artist;
+  yt.src = "https://www.youtube.com/embed/" + playlist[cur].id +
+           "?rel=0&playsinline=1&modestbranding=1" + (autoplay ? "&autoplay=1" : "");
 }
-async function fetchArt(t){
-  try{
-    const data=await jsonp("https://itunes.apple.com/search?term="+encodeURIComponent(t.term)+"&entity=song&limit=12");
-    const list=(data&&data.results)||[];
-    const hit=list.find(r=>/drake/i.test(r.artistName||"")&&r.artworkUrl100)||list[0];
-    if(hit)t.art=(hit.artworkUrl100||"").replace("100x100bb","600x600bb");
-  }catch(e){/* leave blank */}
-}
-function applyTrackUI(){
-  const t=playlist[cur];
-  trkTitle.textContent=t.title;
-  trkArtist.textContent=t.artist;
-  if(t.art){
-    cover.onload=()=>{cover.style.display='block';};
-    cover.onerror=()=>{cover.style.display='none';};
-    cover.src=t.art;
-  }else{cover.style.display='none';}
-}
-
-/* --- audio via hidden YouTube player --- */
-window.onYouTubeIframeAPIReady=function(){
-  player=new YT.Player('yt',{
-    width:'1',height:'1',
-    videoId:playlist[cur].id,
-    playerVars:{controls:0,disablekb:1,playsinline:1,rel:0,modestbranding:1,fs:0,iv_load_policy:3},
-    events:{onReady:onYTReady,onStateChange:onYTState,onError:onYTError}
-  });
-};
-function onYTReady(){ytReady=true;player.setVolume(75);if(pendingPlay){pendingPlay=false;player.unMute();player.playVideo();}}
-function onYTState(e){
-  if(e.data===YT.PlayerState.PLAYING){body.classList.remove('paused');playIcon.innerHTML=ICON_PAUSE;}
-  else if(e.data===YT.PlayerState.ENDED){loadTrack(cur+1);}
-  else{body.classList.add('paused');playIcon.innerHTML=ICON_PLAY;}
-}
-function onYTError(){loadTrack(cur+1);} /* skip anything unavailable */
-
-function play(){
-  if(!ytReady){pendingPlay=true;return;}
-  muted=false;player.unMute();muteIcon.innerHTML=ICON_VOL;player.playVideo();
-}
-function pauseVideo(){if(ytReady)player.pauseVideo();}
-function loadTrack(i){
-  cur=(i+playlist.length)%playlist.length;
-  applyTrackUI();
-  if(ytReady)player.loadVideoById(playlist[cur].id); /* autoplays the new track */
-}
-
-document.getElementById('play').addEventListener('click',()=>{
-  if(ytReady&&player.getPlayerState()===YT.PlayerState.PLAYING)pauseVideo();else play();
-});
-document.getElementById('coverBtn').addEventListener('click',()=>{
-  if(ytReady&&player.getPlayerState()===YT.PlayerState.PLAYING)pauseVideo();else play();
-});
-document.getElementById('next').addEventListener('click',()=>loadTrack(cur+1));
-document.getElementById('prev').addEventListener('click',()=>loadTrack(cur-1));
-document.getElementById('mute').addEventListener('click',()=>{
-  muted=!muted;
-  if(ytReady){muted?player.mute():player.unMute();}
-  muteIcon.innerHTML=muted?ICON_MUTE:ICON_VOL;
-});
-bar.addEventListener('click',e=>{
-  if(!ytReady)return;
-  const d=player.getDuration();if(!d)return;
-  const r=bar.getBoundingClientRect();
-  player.seekTo(((e.clientX-r.left)/r.width)*d,true);
-});
-setInterval(()=>{
-  if(ytReady&&player.getDuration&&player.getDuration()>0){
-    fill.style.width=(player.getCurrentTime()/player.getDuration()*100)+'%';
-  }
-},400);
-
-applyTrackUI();
-Promise.all([fetchArt(playlist[0]),fetchArt(playlist[1])]).then(()=>applyTrackUI());
+document.getElementById('prev').addEventListener('click', function(){ loadTrack(cur - 1, true); });
+document.getElementById('next').addEventListener('click', function(){ loadTrack(cur + 1, true); });
+trkTitle.textContent = playlist[0].title;
+trkArtist.textContent = playlist[0].artist;
 
 /* ===================================================================
    INTRO GATE
 =================================================================== */
-document.getElementById('enterBtn').addEventListener('click',()=>{
-  const gate=document.getElementById('gate');
-  gate.classList.add('gone');
-  body.classList.add('in');
-  play();
-  setTimeout(()=>gate.style.display='none',700);
+document.getElementById('enterBtn').addEventListener('click', function(){
+  document.getElementById('gate').classList.add('gone');
+  document.body.classList.add('in');
+  loadTrack(0, true);
+  setTimeout(function(){ document.getElementById('gate').style.display = 'none'; }, 700);
 });
 </script>
-<script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
