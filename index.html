@@ -69,24 +69,20 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
 @keyframes rise{to{opacity:1;transform:none}}
 
 /* ---------- profile ---------- */
-.hero{padding:clamp(24px,6vw,32px) clamp(18px,5vw,26px) clamp(20px,5vw,26px);text-align:center}
-.pfp-wrap{width:clamp(98px,28vw,120px);height:clamp(98px,28vw,120px);margin:0 auto clamp(13px,3vw,17px);position:relative}
+.hero{padding:clamp(26px,6vw,34px) clamp(18px,5vw,26px) clamp(22px,5vw,28px);text-align:center}
+.pfp-wrap{width:clamp(100px,29vw,124px);height:clamp(100px,29vw,124px);margin:0 auto clamp(15px,3.5vw,19px);position:relative}
 .pfp{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;border:3px solid var(--ink);
-  object-fit:cover;display:block;box-shadow:4px 4px 0 var(--ink);animation:floaty 4.5s ease-in-out infinite}
+  object-fit:cover;display:none;box-shadow:4px 4px 0 var(--ink);animation:floaty 4.5s ease-in-out infinite}
 .pfp-fallback{position:absolute;inset:0;border-radius:50%;border:3px solid var(--ink);
   background:linear-gradient(135deg,#2b2b2b,var(--ink));box-shadow:4px 4px 0 var(--ink);
-  animation:floaty 4.5s ease-in-out infinite;align-items:center;justify-content:center;
-  font-weight:800;font-size:2.7rem;color:#fff;text-transform:uppercase}
+  animation:floaty 4.5s ease-in-out infinite;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:2.8rem;color:#fff;text-transform:uppercase}
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.name{font-weight:800;letter-spacing:-.05em;line-height:.95;font-size:clamp(2.4rem,9.5vw,3.2rem)}
+.name{font-weight:800;letter-spacing:-.05em;line-height:.95;font-size:clamp(2.6rem,10vw,3.4rem)}
 .name .dot{color:var(--blue)}
-.status{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-weight:700;font-size:.85rem;
-  background:var(--cream);border:2.5px solid var(--ink);border-radius:999px;padding:7px 15px;box-shadow:3px 3px 0 var(--ink)}
-.status .live{width:9px;height:9px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,199,124,.55)}70%{box-shadow:0 0 0 9px rgba(31,199,124,0)}100%{box-shadow:0 0 0 0 rgba(31,199,124,0)}}
 
 /* ---------- links ---------- */
-.links{display:flex;flex-direction:column;gap:11px;margin-top:clamp(18px,5vw,24px)}
+.links{display:flex;flex-direction:column;gap:11px;margin-top:clamp(20px,5vw,26px)}
 .link{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--ink);
   background:var(--cream-2);border:3px solid var(--ink);border-radius:14px;padding:11px 14px;
   box-shadow:4px 4px 0 var(--ink);transition:transform .13s ease, box-shadow .13s ease, background .13s ease;font-weight:700}
@@ -103,13 +99,21 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
 
 /* ---------- music player ---------- */
 .player{padding:14px;display:flex;flex-direction:column;gap:12px}
-.yt-wrap{position:relative;width:100%;aspect-ratio:16/9;border:3px solid var(--ink);border-radius:12px;
-  overflow:hidden;box-shadow:3px 3px 0 var(--ink);background:#000}
-.yt-wrap iframe,#yt{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}
-.trk{min-width:0}
+.player .top{display:flex;align-items:center;gap:13px}
+.cover{position:relative;flex:0 0 auto;width:64px;height:64px;border:3px solid var(--ink);border-radius:12px;
+  overflow:hidden;box-shadow:3px 3px 0 var(--ink);background:linear-gradient(140deg,#2b2b2b,var(--ink))}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cover .eq{position:absolute;left:6px;bottom:6px;display:flex;gap:2.5px;align-items:flex-end;height:13px;filter:drop-shadow(0 0 2px rgba(0,0,0,.6))}
+.cover .eq span{width:3px;background:#fff;border-radius:2px;height:30%;animation:eq .9s ease-in-out infinite}
+.cover .eq span:nth-child(2){animation-delay:.15s;height:80%}
+.cover .eq span:nth-child(3){animation-delay:.3s;height:50%}
+.cover .eq span:nth-child(4){animation-delay:.45s;height:95%}
+@keyframes eq{0%,100%{height:22%}50%{height:95%}}
+body.paused .cover .eq span{animation-play-state:paused}
+.trk{min-width:0;flex:1}
 .trk .lbl{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#9a8f7b}
 .trk .ttl{font-weight:800;font-size:1.08rem;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trk .art-name{font-weight:600;font-size:.85rem;color:#9a8f7b}
+.trk .art-name{font-weight:600;font-size:.85rem;color:#9a8f7b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar{height:9px;background:var(--cream);border:2.5px solid var(--ink);border-radius:999px;overflow:hidden;cursor:pointer}
 .bar .fill{height:100%;width:0;background:var(--blue);transition:width .25s linear}
 .ctrls{display:flex;align-items:center;justify-content:center;gap:12px}
@@ -167,10 +171,9 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
     <div class="card hero">
       <div class="pfp-wrap">
         <img class="pfp" id="pfp" alt="dougie">
-        <div class="pfp-fallback" id="pfpFallback" style="display:none">D</div>
+        <div class="pfp-fallback" id="pfpFallback">D</div>
       </div>
       <h2 class="name">dougie<span class="dot">.</span></h2>
-      <div class="status"><span class="live"></span>building cool shit • iowa</div>
 
       <div class="links">
         <a class="link" href="https://instagram.com/d8ugie" target="_blank" rel="noopener">
@@ -206,11 +209,13 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
     </div>
 
     <div class="card player" id="player">
-      <div class="yt-wrap"><div id="yt"></div></div>
-      <div class="trk">
-        <div class="lbl">now playing</div>
-        <div class="ttl" id="trkTitle">Passion Fruit</div>
-        <div class="art-name" id="trkArtist">Drake</div>
+      <div class="top">
+        <div class="cover"><img id="cover" alt="album art" style="display:none"><div class="eq"><span></span><span></span><span></span><span></span></div></div>
+        <div class="trk">
+          <div class="lbl">now playing</div>
+          <div class="ttl" id="trkTitle">Passionfruit</div>
+          <div class="art-name" id="trkArtist">Drake</div>
+        </div>
       </div>
       <div class="bar" id="bar"><div class="fill" id="fill"></div></div>
       <div class="ctrls">
@@ -227,33 +232,79 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
       <button class="shuffle" id="shuffleVerse">🔀 new verse</button>
     </div>
 
-    <div class="card foot">made with <span class="hb">♥</span> in iowa — dougie</div>
+    <div class="card foot">made with <span class="hb">♥</span> — dougie</div>
 
   </div>
 </div>
 
+<audio id="audio" crossorigin="anonymous"></audio>
+
 <script>
 const body=document.body;
 
-/* ===== profile pic: try Instagram automatically, then fall back ===== */
+/* ===================================================================
+   PROFILE PIC — pulls your live Instagram pic through a chain of free
+   public CORS proxies. Instagram blocks logged-out scraping hard, so
+   this is best-effort: if every proxy fails it falls back to a local
+   "pfp.jpg" file, then to a plain initial. Add more proxies if you like.
+=================================================================== */
+const IG_USER="d8ugie";
+const IG_TARGET="https://www.instagram.com/"+IG_USER+"/";
 const pfp=document.getElementById('pfp');
-const pfpSources=[
-  "https://unavatar.io/instagram/d8ugie?fallback=false", /* auto-pulls your live IG pic when reachable */
-  "pfp.jpg"                                              /* backup: drop a file with this name next to the page */
-];
-let pfpIdx=0;
-function tryPfp(){
-  if(pfpIdx>=pfpSources.length){
-    pfp.style.display='none';
-    document.getElementById('pfpFallback').style.display='flex';
-    return;
-  }
-  pfp.src=pfpSources[pfpIdx++];
-}
-pfp.onerror=tryPfp;
-tryPfp();
+const pfpFallback=document.getElementById('pfpFallback');
 
-/* ===== verses ===== */
+const proxies=[
+  u=>"https://api.allorigins.win/raw?url="+encodeURIComponent(u),
+  u=>"https://corsproxy.io/?url="+encodeURIComponent(u),
+  u=>"https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u),
+  u=>"https://thingproxy.freeboard.io/fetch/"+u,
+  u=>"https://cors.eu.org/"+u,
+  u=>"https://api.allorigins.win/get?url="+encodeURIComponent(u),
+  u=>"https://whateverorigin.org/get?url="+encodeURIComponent(u),
+  u=>"https://jsonp.afeld.me/?url="+encodeURIComponent(u),
+  u=>"https://yacdn.org/proxy/"+u,
+  u=>"https://test.cors.workers.dev/?"+u,
+  u=>"https://cors-anywhere.herokuapp.com/"+u,
+  u=>"https://crossorigin.me/"+u,
+  u=>"https://www.whateverorigin.org/get?url="+encodeURIComponent(u),
+  u=>"https://api.cors.lol/?url="+encodeURIComponent(u)
+];
+
+function extractPic(html){
+  let m=html.match(/"profile_pic_url_hd":"(.*?)"/)||html.match(/"profile_pic_url":"(.*?)"/);
+  if(m){try{return JSON.parse('"'+m[1]+'"');}catch(e){return m[1].replace(/\\u0026/g,'&').replace(/\\\//g,'/');}}
+  m=html.match(/property="og:image"\s+content="(.*?)"/)||html.match(/content="(.*?)"\s+property="og:image"/);
+  if(m)return m[1].replace(/&amp;/g,'&');
+  return null;
+}
+function testImage(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(true);i.onerror=()=>r(false);i.src=src;});}
+function showPfp(src){
+  pfp.onload=()=>{pfp.style.display='block';pfpFallback.style.display='none';};
+  pfp.onerror=()=>{pfp.style.display='none';pfpFallback.style.display='flex';};
+  pfp.src=src;
+}
+async function fallbackFile(){
+  if(await testImage('pfp.jpg')){showPfp('pfp.jpg');}
+  /* else: keep the initial placeholder */
+}
+async function loadIGPfp(){
+  for(const build of proxies){
+    try{
+      const res=await fetch(build(IG_TARGET),{cache:'no-store'});
+      if(!res.ok)continue;
+      let text=await res.text();
+      try{const j=JSON.parse(text);if(j&&j.contents)text=j.contents;}catch(e){}
+      const pic=extractPic(text);
+      if(pic&&await testImage(pic)){showPfp(pic);return;}
+    }catch(e){/* next proxy */}
+  }
+  fallbackFile();
+}
+loadIGPfp();
+
+/* ===================================================================
+   VERSES
+=================================================================== */
 const verses=[
 ["For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, to give you hope and a future.","Jeremiah 29:11"],
 ["Trust in the Lord with all your heart and lean not on your own understanding.","Proverbs 3:5"],
@@ -308,13 +359,20 @@ showVerse();
 document.getElementById('shuffleVerse').addEventListener('click',showVerse);
 setInterval(showVerse,9000);
 
-/* ===== music: streams the real songs from YouTube (no files needed) =====
-   To change a song, swap the "id" for the YouTube video ID (the part after watch?v=). */
+/* ===================================================================
+   MUSIC — album art + the songs, no YouTube.
+   Audio = the official 30-second preview clip pulled automatically from
+   Apple's free music catalog (legal, meant for previews). To play the
+   FULL track instead, drop an MP3 you own next to this file and set its
+   name in "localSrc" below — it'll use that and skip the preview.
+=================================================================== */
 const playlist=[
-  {title:"Passion Fruit", artist:"Drake", id:"FPTjza-EKGk"},
-  {title:"Hold On, We're Going Home", artist:"Drake", id:"GxgqpCdOKak"}
+  {title:"Passionfruit", artist:"Drake", term:"Drake Passionfruit More Life", localSrc:"", preview:"", art:""},
+  {title:"Hold On, We're Going Home", artist:"Drake", term:"Drake Hold On We're Going Home Nothing Was the Same", localSrc:"", preview:"", art:""}
 ];
 
+const audio=document.getElementById('audio');
+const cover=document.getElementById('cover');
 const trkTitle=document.getElementById('trkTitle');
 const trkArtist=document.getElementById('trkArtist');
 const fill=document.getElementById('fill');
@@ -326,60 +384,88 @@ const ICON_PAUSE='<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
 const ICON_VOL='<path d="M5 9v6h4l5 5V4L9 9H5zm11.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4z"/>';
 const ICON_MUTE='<path d="M5 9v6h4l5 5V4L9 9H5z"/><path d="M16 9l5 5m0-5l-5 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>';
 
-let player, ytReady=false, pendingPlay=false, cur=0, muted=false;
+let cur=0, muted=false, metaReady=false, pendingPlay=false, triedPreview=false;
 
-function setLabels(){trkTitle.textContent=playlist[cur].title;trkArtist.textContent=playlist[cur].artist;}
-
-window.onYouTubeIframeAPIReady=function(){
-  player=new YT.Player('yt',{
-    width:'100%',height:'100%',
-    videoId:playlist[cur].id,
-    playerVars:{controls:0,modestbranding:1,rel:0,playsinline:1,disablekb:1,fs:0,iv_load_policy:3},
-    events:{onReady:onYTReady,onStateChange:onYTState,onError:onYTError}
+function jsonp(url){
+  return new Promise((resolve,reject)=>{
+    const cb='itcb_'+Math.random().toString(36).slice(2);
+    const s=document.createElement('script');
+    let done=false;
+    window[cb]=d=>{done=true;resolve(d);cleanup();};
+    s.onerror=()=>{cleanup();reject();};
+    function cleanup(){try{delete window[cb];}catch(e){window[cb]=undefined;}s.remove();}
+    setTimeout(()=>{if(!done){cleanup();reject();}},8000);
+    s.src=url+(url.indexOf('?')>-1?'&':'?')+'callback='+cb;
+    document.body.appendChild(s);
   });
-};
-function onYTReady(){ytReady=true;player.setVolume(70);if(pendingPlay){player.unMute();player.playVideo();}}
-function onYTState(e){
-  if(e.data===YT.PlayerState.PLAYING){body.classList.remove('paused');playIcon.innerHTML=ICON_PAUSE;}
-  else if(e.data===YT.PlayerState.ENDED){loadTrack(cur+1);}
-  else{body.classList.add('paused');playIcon.innerHTML=ICON_PLAY;}
 }
-function onYTError(){loadTrack(cur+1);} /* skip anything unavailable */
-
+async function fetchMeta(t){
+  try{
+    const data=await jsonp("https://itunes.apple.com/search?term="+encodeURIComponent(t.term)+"&entity=song&limit=12");
+    const list=(data&&data.results)||[];
+    const hit=list.find(r=>/drake/i.test(r.artistName||"")&&r.previewUrl)||list[0];
+    if(hit){
+      t.preview=hit.previewUrl||"";
+      t.art=(hit.artworkUrl100||"").replace("100x100bb","600x600bb");
+    }
+  }catch(e){/* leave blank */}
+}
+function applyTrackUI(){
+  const t=playlist[cur];
+  trkTitle.textContent=t.title;
+  trkArtist.textContent=t.artist;
+  if(t.art){
+    cover.onerror=()=>{cover.style.display='none';};
+    cover.onload=()=>{cover.style.display='block';};
+    cover.src=t.art;
+  }else{
+    cover.style.display='none';
+  }
+}
+function srcFor(){const t=playlist[cur];return t.localSrc||t.preview;}
 function play(){
-  if(!ytReady){pendingPlay=true;return;}
-  muted=false;player.unMute();muteIcon.innerHTML=ICON_VOL;player.playVideo();
+  const s=srcFor();
+  if(!s){pendingPlay=true;return;}
+  triedPreview=!playlist[cur].localSrc;
+  if(audio.src!==s)audio.src=s;
+  audio.muted=muted;
+  audio.play().then(()=>{body.classList.remove('paused');playIcon.innerHTML=ICON_PAUSE;}).catch(()=>{});
 }
-function pause(){if(ytReady)player.pauseVideo();}
+function pauseAudio(){audio.pause();body.classList.add('paused');playIcon.innerHTML=ICON_PLAY;}
 function loadTrack(i){
   cur=(i+playlist.length)%playlist.length;
-  setLabels();
-  if(ytReady)player.loadVideoById(playlist[cur].id); /* autoplays the new track */
+  applyTrackUI();
+  triedPreview=false;
+  const s=srcFor();
+  if(s){audio.src=s;play();}else{pendingPlay=true;}
 }
 
-document.getElementById('play').addEventListener('click',()=>{
-  if(ytReady&&player.getPlayerState()===YT.PlayerState.PLAYING)pause();else play();
+audio.addEventListener('ended',()=>loadTrack(cur+1));
+audio.addEventListener('error',()=>{
+  const t=playlist[cur];
+  if(!triedPreview&&t.preview){triedPreview=true;audio.src=t.preview;audio.muted=muted;audio.play().catch(()=>{});}
 });
+audio.addEventListener('timeupdate',()=>{if(audio.duration)fill.style.width=(audio.currentTime/audio.duration*100)+'%';});
+bar.addEventListener('click',e=>{if(!audio.duration)return;const r=bar.getBoundingClientRect();audio.currentTime=((e.clientX-r.left)/r.width)*audio.duration;});
+
+document.getElementById('play').addEventListener('click',()=>{audio.paused?play():pauseAudio();});
 document.getElementById('next').addEventListener('click',()=>loadTrack(cur+1));
 document.getElementById('prev').addEventListener('click',()=>loadTrack(cur-1));
 document.getElementById('mute').addEventListener('click',()=>{
-  muted=!muted;
-  if(ytReady){muted?player.mute():player.unMute();}
-  muteIcon.innerHTML=muted?ICON_MUTE:ICON_VOL;
+  muted=!muted;audio.muted=muted;muteIcon.innerHTML=muted?ICON_MUTE:ICON_VOL;
 });
-bar.addEventListener('click',e=>{
-  if(!ytReady)return;
-  const d=player.getDuration();if(!d)return;
-  const r=bar.getBoundingClientRect();
-  player.seekTo(((e.clientX-r.left)/r.width)*d,true);
-});
-setInterval(()=>{
-  if(ytReady&&player.getDuration&&player.getDuration()>0){
-    fill.style.width=(player.getCurrentTime()/player.getDuration()*100)+'%';
-  }
-},400);
 
-/* ===== intro gate ===== */
+applyTrackUI();
+Promise.all([fetchMeta(playlist[0]),fetchMeta(playlist[1])]).then(()=>{
+  metaReady=true;
+  applyTrackUI();
+  if(!audio.src){const s=srcFor();if(s)audio.src=s;}
+  if(pendingPlay){pendingPlay=false;play();}
+});
+
+/* ===================================================================
+   INTRO GATE
+=================================================================== */
 document.getElementById('enterBtn').addEventListener('click',()=>{
   const gate=document.getElementById('gate');
   gate.classList.add('gone');
@@ -388,6 +474,5 @@ document.getElementById('enterBtn').addEventListener('click',()=>{
   setTimeout(()=>gate.style.display='none',700);
 });
 </script>
-<script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
