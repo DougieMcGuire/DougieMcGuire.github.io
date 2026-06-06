@@ -97,22 +97,38 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
 .link:hover .go{transform:translateX(4px);opacity:1}
 
 /* ---------- music player ---------- */
-.player{padding:14px;display:flex;flex-direction:column;gap:13px}
-.ytbox{position:relative;width:100%;aspect-ratio:16/9;border:3px solid var(--ink);border-radius:12px;
-  overflow:hidden;box-shadow:4px 4px 0 var(--ink);background:#000}
-.ytbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
-.prow{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.trk{min-width:0}
+.player{padding:14px;display:flex;flex-direction:column;gap:12px}
+.player .top{display:flex;align-items:center;gap:13px}
+.cover{position:relative;flex:0 0 auto;width:64px;height:64px;border:3px solid var(--ink);border-radius:12px;
+  overflow:hidden;box-shadow:3px 3px 0 var(--ink);background:linear-gradient(140deg,#3a3a3a,var(--ink));cursor:pointer}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cover .eq{position:absolute;left:6px;bottom:6px;display:flex;gap:2.5px;align-items:flex-end;height:13px;filter:drop-shadow(0 0 2px rgba(0,0,0,.6))}
+.cover .eq span{width:3px;background:#fff;border-radius:2px;height:30%;animation:eq .9s ease-in-out infinite}
+.cover .eq span:nth-child(2){animation-delay:.15s;height:80%}
+.cover .eq span:nth-child(3){animation-delay:.3s;height:50%}
+.cover .eq span:nth-child(4){animation-delay:.45s;height:95%}
+@keyframes eq{0%,100%{height:22%}50%{height:95%}}
+.cover .play-ov{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4)}
+.cover .play-ov svg{width:26px;height:26px;color:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+body.paused .cover .eq{opacity:0}
+body.paused .cover .play-ov{display:flex}
+.trk{min-width:0;flex:1}
 .trk .lbl{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .trk .ttl{font-weight:800;font-size:1.05rem;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trk .art-name{font-weight:600;font-size:.85rem;color:var(--muted)}
-.ctrls{display:flex;gap:10px;flex:0 0 auto}
+.trk .art-name{font-weight:600;font-size:.85rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{height:9px;background:#E2E2E2;border:2.5px solid var(--ink);border-radius:999px;overflow:hidden;cursor:pointer}
+.bar .fill{height:100%;width:0;background:var(--ink);transition:width .25s linear}
+.ctrls{display:flex;align-items:center;justify-content:center;gap:11px}
 .btn{font-family:inherit;border:3px solid var(--ink);background:var(--surface);border-radius:50%;
-  width:46px;height:46px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink);
   box-shadow:3px 3px 0 var(--ink);transition:transform .12s ease, box-shadow .12s ease}
 .btn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
 .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
 .btn svg{width:20px;height:20px}
+.btn.sm{width:42px;height:42px}
+.btn.play{width:56px;height:56px;background:var(--ink);color:#fff}
+.btn.play svg{width:25px;height:25px}
+.btn.mute{width:42px;height:42px}
 
 /* ---------- verse ---------- */
 .verse{padding:clamp(18px,5vw,24px)}
@@ -140,7 +156,7 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
 }
 </style>
 </head>
-<body>
+<body class="paused">
 
 <div class="bg"><div class="blob b1"></div><div class="blob b2"></div></div>
 <div class="grid"></div>
@@ -195,19 +211,20 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
     </div>
 
     <div class="card player">
-      <div class="ytbox">
-        <iframe id="yt" title="music" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
-      </div>
-      <div class="prow">
+      <div class="top">
+        <div class="cover" id="coverBtn"><img id="cover" alt="album art" style="display:none"><div class="eq"><span></span><span></span><span></span><span></span></div><div class="play-ov"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
         <div class="trk">
           <div class="lbl">now playing</div>
           <div class="ttl" id="trkTitle">Passionfruit</div>
           <div class="art-name" id="trkArtist">Drake</div>
         </div>
-        <div class="ctrls">
-          <button class="btn" id="prev" aria-label="previous"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-          <button class="btn" id="next" aria-label="next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zm-9.5 6L15 6v12z"/></svg></button>
-        </div>
+      </div>
+      <div class="bar" id="bar"><div class="fill" id="fill"></div></div>
+      <div class="ctrls">
+        <button class="btn sm" id="prev" aria-label="previous"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+        <button class="btn play" id="play" aria-label="play / pause"><svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+        <button class="btn sm" id="next" aria-label="next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zm-9.5 6L15 6v12z"/></svg></button>
+        <button class="btn mute" id="mute" aria-label="mute"><svg id="muteIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M5 9v6h4l5 5V4L9 9H5zm11.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4z"/></svg></button>
       </div>
     </div>
 
@@ -222,18 +239,21 @@ body.in .col > *:nth-child(4){animation-delay:.38s}
   </div>
 </div>
 
+<audio id="audio" crossorigin="anonymous"></audio>
+
 <script>
+const body = document.body;
+
 /* ===================================================================
    PROFILE PIC
-   NOTE: a static website cannot pull your LIVE Instagram pic — Instagram
-   blocks it, full stop. To show your actual photo, do ONE of these:
-     A) put your GitHub username in GITHUB_USER below — then it auto-updates
-        whenever you change your GitHub avatar.
-     B) drop a file named pfp.jpg in the same folder as this page.
-   Until then it shows a clean "D".
+   A static website CANNOT pull your live Instagram pic — Instagram blocks
+   it for everyone, no workaround. To show your real photo, do ONE of:
+     A) put your GitHub username in GITHUB_USER (auto-updates with your GH avatar)
+     B) drop a file named pfp.jpg next to this page
+   Easiest of all: send the photo to Dougie's assistant and have it embedded
+   directly. Until a photo exists, it shows a clean "D".
 =================================================================== */
-const GITHUB_USER = "";  /* <-- e.g. "dougie123" for an auto-updating pic */
-
+const GITHUB_USER = "";  /* <-- e.g. "dougie123" */
 const pfp = document.getElementById('pfp');
 const pfpFallback = document.getElementById('pfpFallback');
 const pfpSources = [];
@@ -241,14 +261,10 @@ if (GITHUB_USER) pfpSources.push("https://github.com/" + GITHUB_USER + ".png?siz
 pfpSources.push("pfp.jpg");
 let pfpIdx = 0;
 function tryPfp(){
-  if (pfpIdx >= pfpSources.length){
-    pfp.style.display = 'none';
-    pfpFallback.style.display = 'flex';
-    return;
-  }
+  if (pfpIdx >= pfpSources.length){ pfp.style.display='none'; pfpFallback.style.display='flex'; return; }
   pfp.src = pfpSources[pfpIdx++];
 }
-pfp.onload = function(){ pfp.style.display = 'block'; pfpFallback.style.display = 'none'; };
+pfp.onload = function(){ pfp.style.display='block'; pfpFallback.style.display='none'; };
 pfp.onerror = tryPfp;
 tryPfp();
 
@@ -314,40 +330,124 @@ document.getElementById('shuffleVerse').addEventListener('click', showVerse);
 setInterval(showVerse, 9000);
 
 /* ===================================================================
-   MUSIC — a visible YouTube player (the official full, uncensored
-   uploads). It HAS to be visible: hidden players get blocked by iPhones
-   and by sandboxed previews, which is why it wasn't playing before.
-   A tap (ENTER, prev, or next) starts it with sound. To change a song,
-   swap the "id" for the YouTube video id (the part after watch?v=).
+   MUSIC — MP3 player, autoplays on the ENTER tap.
+   For each track it plays YOUR OWN file first (song1.mp3 etc.) — drop those
+   in the same folder for the full, uncensored songs. Until you do, it auto-
+   falls back to the official 30-second clip so it's never silent.
+   (Full copyrighted MP3s can't be pulled off the web — those are pirated.)
+   Album covers are pulled automatically from Apple's free catalog.
 =================================================================== */
 const playlist = [
-  { title: "Passionfruit", artist: "Drake", id: "FPTjza-EKGk" },
-  { title: "Hold On, We're Going Home", artist: "Drake", id: "GxgqpCdOKak" }
+  { title:"Passionfruit", artist:"Drake", term:"Drake Passionfruit More Life", localSrc:"song1.mp3", preview:"", art:"" },
+  { title:"Hold On, We're Going Home", artist:"Drake", term:"Drake Hold On We're Going Home Nothing Was the Same", localSrc:"song2.mp3", preview:"", art:"" },
+  { title:"Weston Road Flows", artist:"Drake", term:"Drake Weston Road Flows Views", localSrc:"song3.mp3", preview:"", art:"" }
 ];
-const yt = document.getElementById('yt');
+
+const audio = document.getElementById('audio');
+const cover = document.getElementById('cover');
 const trkTitle = document.getElementById('trkTitle');
 const trkArtist = document.getElementById('trkArtist');
-let cur = 0;
+const fill = document.getElementById('fill');
+const bar = document.getElementById('bar');
+const playIcon = document.getElementById('playIcon');
+const muteIcon = document.getElementById('muteIcon');
+const ICON_PLAY = '<path d="M8 5v14l11-7z"/>';
+const ICON_PAUSE = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
+const ICON_VOL = '<path d="M5 9v6h4l5 5V4L9 9H5zm11.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4z"/>';
+const ICON_MUTE = '<path d="M5 9v6h4l5 5V4L9 9H5z"/><path d="M16 9l5 5m0-5l-5 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>';
 
-function loadTrack(i, autoplay){
-  cur = (i + playlist.length) % playlist.length;
-  trkTitle.textContent = playlist[cur].title;
-  trkArtist.textContent = playlist[cur].artist;
-  yt.src = "https://www.youtube.com/embed/" + playlist[cur].id +
-           "?rel=0&playsinline=1&modestbranding=1" + (autoplay ? "&autoplay=1" : "");
+let cur = 0, muted = false, pendingPlay = false, triedPreview = false;
+
+/* album covers via Apple (artwork only) */
+function jsonp(url){
+  return new Promise(function(resolve, reject){
+    const cb = 'itcb_' + Math.random().toString(36).slice(2);
+    const s = document.createElement('script');
+    let done = false;
+    window[cb] = function(d){ done = true; resolve(d); cleanup(); };
+    s.onerror = function(){ cleanup(); reject(); };
+    function cleanup(){ try{ delete window[cb]; }catch(e){ window[cb] = undefined; } s.remove(); }
+    setTimeout(function(){ if(!done){ cleanup(); reject(); } }, 8000);
+    s.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'callback=' + cb;
+    document.body.appendChild(s);
+  });
 }
-document.getElementById('prev').addEventListener('click', function(){ loadTrack(cur - 1, true); });
-document.getElementById('next').addEventListener('click', function(){ loadTrack(cur + 1, true); });
-trkTitle.textContent = playlist[0].title;
-trkArtist.textContent = playlist[0].artist;
+async function fetchMeta(t){
+  try{
+    const data = await jsonp("https://itunes.apple.com/search?term=" + encodeURIComponent(t.term) + "&entity=song&limit=12");
+    const list = (data && data.results) || [];
+    const hit = list.find(function(r){ return /drake/i.test(r.artistName || "") && r.previewUrl; }) || list[0];
+    if (hit){
+      t.preview = hit.previewUrl || "";
+      t.art = (hit.artworkUrl100 || "").replace("100x100bb", "600x600bb");
+    }
+  }catch(e){ /* leave blank */ }
+}
+function setUI(){
+  const t = playlist[cur];
+  trkTitle.textContent = t.title;
+  trkArtist.textContent = t.artist;
+  if (t.art){
+    cover.onload = function(){ cover.style.display = 'block'; };
+    cover.onerror = function(){ cover.style.display = 'none'; };
+    cover.src = t.art;
+  } else {
+    cover.style.display = 'none';
+  }
+}
+function srcFor(){ const t = playlist[cur]; return t.localSrc || t.preview; }
+function onPlaying(){ body.classList.remove('paused'); playIcon.innerHTML = ICON_PAUSE; }
+
+function play(){
+  const s = srcFor();
+  if (!s){ pendingPlay = true; return; }
+  triedPreview = !playlist[cur].localSrc;
+  if (audio.dataset.id !== String(cur)){ audio.src = s; audio.dataset.id = String(cur); }
+  audio.muted = muted;
+  audio.play().then(onPlaying).catch(function(){});
+}
+function pauseAudio(){ audio.pause(); body.classList.add('paused'); playIcon.innerHTML = ICON_PLAY; }
+function loadTrack(i){ cur = (i + playlist.length) % playlist.length; setUI(); triedPreview = false; play(); }
+
+audio.addEventListener('error', function(){
+  const t = playlist[cur];
+  if (!triedPreview && t.preview){
+    triedPreview = true;
+    audio.src = t.preview;
+    audio.dataset.id = String(cur);
+    audio.muted = muted;
+    audio.play().then(onPlaying).catch(function(){});
+  }
+});
+audio.addEventListener('ended', function(){ loadTrack(cur + 1); });
+audio.addEventListener('timeupdate', function(){ if (audio.duration) fill.style.width = (audio.currentTime / audio.duration * 100) + '%'; });
+bar.addEventListener('click', function(e){
+  if (!audio.duration) return;
+  const r = bar.getBoundingClientRect();
+  audio.currentTime = ((e.clientX - r.left) / r.width) * audio.duration;
+});
+
+document.getElementById('play').addEventListener('click', function(){ if (audio.paused) play(); else pauseAudio(); });
+document.getElementById('coverBtn').addEventListener('click', function(){ if (audio.paused) play(); else pauseAudio(); });
+document.getElementById('next').addEventListener('click', function(){ loadTrack(cur + 1); });
+document.getElementById('prev').addEventListener('click', function(){ loadTrack(cur - 1); });
+document.getElementById('mute').addEventListener('click', function(){
+  muted = !muted; audio.muted = muted; muteIcon.innerHTML = muted ? ICON_MUTE : ICON_VOL;
+});
+
+setUI();
+Promise.all([fetchMeta(playlist[0]), fetchMeta(playlist[1]), fetchMeta(playlist[2])]).then(function(){
+  setUI();
+  if (pendingPlay){ pendingPlay = false; play(); }
+});
 
 /* ===================================================================
    INTRO GATE
 =================================================================== */
 document.getElementById('enterBtn').addEventListener('click', function(){
   document.getElementById('gate').classList.add('gone');
-  document.body.classList.add('in');
-  loadTrack(0, true);
+  body.classList.add('in');
+  loadTrack(0);
   setTimeout(function(){ document.getElementById('gate').style.display = 'none'; }, 700);
 });
 </script>
