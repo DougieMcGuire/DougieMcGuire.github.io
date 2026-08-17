@@ -1,340 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>secUid lookup</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Outfit:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TikTok Profile Lookup</title>
 <style>
-  :root{
-    --ink:#0d0d0f; --paper:#14141a; --line:#2a2a35;
-    --chalk:#f2f0e8; --mute:#8c8c9c; --pop:#00e0a4; --warn:#ff5f4d;
+  :root {
+    --bg: #0b0e14;
+    --card: #12161f;
+    --card2: #171c27;
+    --border: #232a38;
+    --text: #e8ecf3;
+    --muted: #8b94a7;
+    --accent: #fe2c55;
+    --accent2: #25f4ee;
+    --green: #3ddc84;
   }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    background:var(--ink); color:var(--chalk);
-    font-family:'Outfit',system-ui,sans-serif; min-height:100vh;
-    padding:22px 16px 60px;
-    background-image:radial-gradient(var(--line) 1px, transparent 1px);
-    background-size:22px 22px;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(1200px 600px at 50% -10%, #16202e 0%, var(--bg) 55%);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px 80px;
   }
-  .wrap{max-width:640px;margin:0 auto}
-  header{margin-bottom:22px}
-  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
-  h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(34px,9vw,54px);line-height:.95;margin:6px 0 8px;letter-spacing:-.02em}
-  h1 em{font-style:normal;color:var(--pop)}
-  .sub{color:var(--mute);font-size:15px;max-width:44ch;line-height:1.45;margin:0}
+  h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  h1 .tt { color: var(--accent2); }
+  h1 .x { color: var(--accent); }
+  .sub { color: var(--muted); margin: 6px 0 26px; font-size: 14px; }
 
-  .card{background:var(--paper);border:2px solid var(--line);box-shadow:6px 6px 0 #000;padding:16px;margin-bottom:18px}
-  label{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:8px}
-  .row{display:flex;gap:10px}
-  input,textarea{width:100%;background:var(--ink);border:2px solid var(--line);color:var(--chalk);font-family:'JetBrains Mono',monospace;font-size:16px;padding:13px 12px;outline:none}
-  input:focus,textarea:focus{border-color:var(--pop)}
-  textarea{min-height:110px;font-size:12px;resize:vertical}
-  button{font-family:'Outfit',sans-serif;font-weight:700;font-size:15px;background:var(--pop);color:#04140f;border:2px solid #000;padding:13px 18px;cursor:pointer;box-shadow:4px 4px 0 #000;transition:transform .08s ease,box-shadow .08s ease;white-space:nowrap}
-  button:active{transform:translate(4px,4px);box-shadow:0 0 0 #000}
-  button:disabled{opacity:.55;cursor:wait}
-  button.ghost{background:transparent;color:var(--chalk);border-color:var(--line);box-shadow:none}
-  button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--pop);outline-offset:2px}
-  .status{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mute);margin-top:12px;min-height:16px}
-  .status.bad{color:var(--warn)}
+  .search {
+    display: flex; gap: 10px; width: 100%; max-width: 460px; margin-bottom: 28px;
+  }
+  .search input {
+    flex: 1; background: var(--card); border: 1px solid var(--border);
+    color: var(--text); padding: 13px 16px; border-radius: 12px; font-size: 15px; outline: none;
+    transition: border-color .15s;
+  }
+  .search input:focus { border-color: var(--accent2); }
+  .search button {
+    background: linear-gradient(135deg, var(--accent), #ff5c7a);
+    border: none; color: #fff; font-weight: 700; font-size: 15px;
+    padding: 0 22px; border-radius: 12px; cursor: pointer; transition: transform .1s, opacity .15s;
+  }
+  .search button:hover { opacity: .92; }
+  .search button:active { transform: scale(.97); }
+  .search button:disabled { opacity: .5; cursor: default; }
+
+  .msg { color: var(--muted); font-size: 14px; margin-bottom: 16px; min-height: 20px; }
+  .msg.error { color: #ff7a8a; }
 
   /* ---- profile card ---- */
-  #result{display:none;padding:0;overflow:hidden}
-  .banner{height:74px;background:linear-gradient(105deg,#04140f 0%,#0a2a20 55%,#00e0a4 340%);border-bottom:2px solid var(--line)}
-  .ident{padding:0 16px 16px;margin-top:-34px}
-  .avatar{width:82px;height:82px;border:3px solid var(--ink);background:var(--paper);object-fit:cover;display:block;box-shadow:4px 4px 0 #000}
-  .nameline{display:flex;align-items:center;gap:7px;margin-top:12px}
-  .nick{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px;letter-spacing:-.01em;line-height:1.1}
-  .tick{width:17px;height:17px;flex:0 0 auto}
-  .handle{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--pop);margin-top:3px}
-  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
-  .tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);color:var(--mute);padding:3px 7px}
-  .tag.live{border-color:var(--warn);color:var(--warn)}
-  .bio{white-space:pre-wrap;font-size:14.5px;line-height:1.5;color:var(--chalk);margin-top:13px;border-left:3px solid var(--line);padding-left:11px}
-  .bio:empty{display:none}
+  .card {
+    width: 100%; max-width: 460px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 18px; overflow: hidden;
+    display: none;
+    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  }
+  .card.show { display: block; animation: pop .25s ease; }
+  @keyframes pop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--line)}
-  .stat{padding:13px 6px;text-align:center;border-right:1px solid var(--line)}
-  .stat:last-child{border-right:0}
-  .stat b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px;letter-spacing:-.01em}
-  .stat span{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--mute)}
+  .banner {
+    height: 110px;
+    background: linear-gradient(120deg, #0d1b2e 0%, #123 40%, #0a2540 100%);
+    position: relative;
+  }
+  .banner::after {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(400px 120px at 80% 0%, rgba(37,244,238,.18), transparent 60%),
+                radial-gradient(300px 120px at 10% 100%, rgba(254,44,85,.18), transparent 60%);
+  }
+  .avatar-wrap { display: flex; justify-content: flex-end; padding: 0 20px; }
+  .avatar {
+    width: 92px; height: 92px; border-radius: 50%; object-fit: cover;
+    border: 4px solid var(--card); margin-top: -46px; background: var(--card2);
+    position: relative; z-index: 2;
+  }
+  .head { padding: 10px 20px 4px; }
+  .nickname { font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 7px; }
+  .badge { width: 18px; height: 18px; flex: none; }
+  .handle { color: var(--muted); font-size: 14px; margin-top: 2px; }
 
-  .ids{border-top:2px solid var(--line);padding:16px}
-  .idrow{margin-bottom:12px}
-  .idrow:last-child{margin-bottom:0}
-  .idlabel{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
-  .slab{position:relative;display:block;width:100%;text-align:left;background:#04140f;border:2px solid var(--pop);padding:11px;cursor:pointer;box-shadow:none;color:var(--chalk)}
-  .slab:active{transform:none;box-shadow:none}
-  .slab code{font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.55;word-break:break-all;color:var(--pop);display:block}
-  .slab.plain{border-color:var(--line);background:var(--ink)}
-  .slab.plain code{color:var(--chalk)}
-  .stamp{position:absolute;top:6px;right:6px;font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--pop);color:#04140f;padding:2px 6px;opacity:0;transition:opacity .15s;pointer-events:none}
-  .stamp.on{opacity:1}
-  .foot{border-top:2px dashed var(--line);padding:11px 16px;display:flex;justify-content:space-between;gap:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute)}
-  .foot a{color:var(--pop);text-decoration:none}
+  .stats {
+    display: flex; gap: 0; margin: 16px 20px 0; background: var(--card2);
+    border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+  }
+  .stat { flex: 1; text-align: center; padding: 13px 4px; }
+  .stat + .stat { border-left: 1px solid var(--border); }
+  .stat .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  .stat .value { font-size: 18px; font-weight: 800; margin-top: 3px; }
 
-  details{margin-top:4px}
-  summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mute);padding:6px 0}
-  summary:hover{color:var(--chalk)}
-  .steps{font-size:13px;color:var(--mute);line-height:1.6;margin:10px 0}
-  .steps b{color:var(--chalk);font-weight:500}
-  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  .section { padding: 14px 20px; }
+  .section h3 {
+    font-size: 11px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: .8px; margin-bottom: 6px;
+  }
+  .bio { font-size: 14px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+  .bio a { color: var(--accent2); text-decoration: none; }
+
+  .rows { border-top: 1px solid var(--border); }
+  .row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 20px; font-size: 14px;
+  }
+  .row + .row { border-top: 1px solid var(--border); }
+  .row .k { color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .row .v { font-weight: 600; text-align: right; }
+  .row .v a { color: var(--accent2); text-decoration: none; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700;
+    padding: 3px 10px; border-radius: 999px;
+  }
+  .pill.yes { background: rgba(61,220,132,.12); color: var(--green); }
+  .pill.no { background: rgba(139,148,167,.12); color: var(--muted); }
+
+  .footer { margin-top: 26px; color: var(--muted); font-size: 12px; text-align: center; }
+  .footer code { background: var(--card2); padding: 2px 7px; border-radius: 6px; font-size: 11px; }
+
+  .spinner {
+    width: 18px; height: 18px; border: 2px solid var(--border);
+    border-top-color: var(--accent2); border-radius: 50%;
+    display: inline-block; animation: spin .7s linear infinite; vertical-align: -4px; margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
 </head>
 <body>
-<div class="wrap">
 
-  <header>
-    <div class="eyebrow">tiktok / public profile data</div>
-    <h1>sec<em>Uid</em> lookup</h1>
-    <p class="sub">Type a handle. Get the profile card and both identifiers TikTok's own endpoints ask for.</p>
-  </header>
+<h1><span class="tt">TikTok</span> <span class="x">Lookup</span></h1>
+<div class="sub">Enter a username to fetch public profile data</div>
 
-  <div class="card">
-    <label for="handle">Handle</label>
+<div class="search">
+  <input id="username" type="text" placeholder="e.g. tiktok" autocomplete="off" spellcheck="false" />
+  <button id="go">Search</button>
+</div>
+
+<div class="msg" id="msg"></div>
+
+<div class="card" id="card">
+  <div class="banner"></div>
+  <div class="avatar-wrap"><img class="avatar" id="avatar" alt="" /></div>
+  <div class="head">
+    <div class="nickname"><span id="nickname"></span><span id="badge"></span></div>
+    <div class="handle" id="handle"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="label">Followers</div><div class="value" id="followers">–</div></div>
+    <div class="stat"><div class="label">Following</div><div class="value" id="following">–</div></div>
+    <div class="stat"><div class="label">Likes</div><div class="value" id="likes">–</div></div>
+    <div class="stat"><div class="label">Videos</div><div class="value" id="videos">–</div></div>
+  </div>
+
+  <div class="section" id="bioSection">
+    <h3>Bio</h3>
+    <div class="bio" id="bio"></div>
+  </div>
+
+  <div class="rows">
+    <div class="row" id="rowLink" style="display:none">
+      <span class="k">🔗 Link</span><span class="v" id="bioLink"></span>
+    </div>
     <div class="row">
-      <input id="handle" placeholder="d8ugie" autocapitalize="off" autocorrect="off" spellcheck="false">
-      <button id="go">Find</button>
+      <span class="k">✔ Verified</span><span class="v" id="verified"></span>
     </div>
-    <div class="status" id="status"></div>
-    <div style="height:14px"></div>
-    <label for="endpoint">Resolver</label>
-    <input id="endpoint" value="https://finda.dtm2210.workers.dev" autocapitalize="off" autocorrect="off" spellcheck="false">
-  </div>
-
-  <div class="card" id="result">
-    <div class="banner"></div>
-    <div class="ident">
-      <img class="avatar" id="avatar" alt="" referrerpolicy="no-referrer">
-      <div class="nameline">
-        <div class="nick" id="nick"></div>
-        <svg class="tick" id="tick" viewBox="0 0 24 24" fill="none" style="display:none" aria-label="verified">
-          <path d="M12 2l2.4 2.1 3.2-.3.9 3.1 2.8 1.6-1.3 2.9 1.3 2.9-2.8 1.6-.9 3.1-3.2-.3L12 22l-2.4-2.1-3.2.3-.9-3.1L2.7 15.5 4 12.6 2.7 9.7l2.8-1.6.9-3.1 3.2.3z" fill="#00e0a4"/>
-          <path d="M8.4 12.3l2.4 2.4 4.8-4.8" stroke="#04140f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div class="handle" id="uniq"></div>
-      <div class="tags" id="tags"></div>
-      <div class="bio" id="bio"></div>
+    <div class="row">
+      <span class="k">📅 Created</span><span class="v" id="created"></span>
     </div>
-
-    <div class="stats" id="stats"></div>
-
-    <div class="ids">
-      <div class="idrow">
-        <div class="idlabel">secUid</div>
-        <button class="slab" data-copy="secuid">
-          <span class="stamp">copied</span>
-          <code id="secuid"></code>
-        </button>
-      </div>
-      <div class="idrow">
-        <div class="idlabel">user id</div>
-        <button class="slab plain" data-copy="userid">
-          <span class="stamp">copied</span>
-          <code id="userid"></code>
-        </button>
-      </div>
+    <div class="row" id="rowRegion" style="display:none">
+      <span class="k">🌍 Region</span><span class="v" id="region"></span>
     </div>
-
-    <div class="foot">
-      <span id="joined"></span>
-      <a id="profileLink" href="#" target="_blank" rel="noopener">open profile →</a>
+    <div class="row">
+      <span class="k">🔒 Private</span><span class="v" id="private"></span>
+    </div>
+    <div class="row">
+      <span class="k">🆔 User ID</span><span class="v" id="uid" style="font-family:monospace;font-size:12px"></span>
     </div>
   </div>
+</div>
 
-  <div class="card">
-    <details>
-      <summary>Resolver down? Paste page text instead</summary>
-      <p class="steps">Any text containing <b>secUid</b> works — the full page source is ideal, since that carries the stats and bio too.</p>
-      <textarea id="pasted" placeholder="paste page source"></textarea>
-      <div style="height:10px"></div>
-      <button class="ghost" id="parseBtn">Read pasted text</button>
-    </details>
-  </div>
-
+<div class="footer">
+  Powered by a Cloudflare Worker · set your worker URL in <code>WORKER_URL</code>
 </div>
 
 <script>
-(function () {
-  const $ = id => document.getElementById(id);
-  const statusEl = $('status');
+  // ⚠️ SET THIS to your deployed worker URL, e.g.:
+  // const WORKER_URL = "https://tiktok-lookup.YOURNAME.workers.dev";
+  const WORKER_URL = ""; // leave empty to try direct fetch (may hit CORS)
 
-  const PROXIES = [
-    { url: u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u) },
-    { url: u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u) },
-    { url: u => 'https://corsproxy.io/?url=' + encodeURIComponent(u) },
-    { url: u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u), unwrap: t => JSON.parse(t).contents }
-  ];
+  const $ = (id) => document.getElementById(id);
+  const input = $("username"), btn = $("go"), msg = $("msg"), card = $("card");
 
-  function say(msg, bad) {
-    statusEl.textContent = msg || '';
-    statusEl.className = 'status' + (bad ? ' bad' : '');
+  const fmt = (n) => {
+    if (n == null) return "–";
+    if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B";
+    if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
+    if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "K";
+    return n.toLocaleString();
+  };
+  const fmtFull = (n) => (n == null ? "–" : n.toLocaleString());
+
+  const VERIFIED_SVG = `<svg class="badge" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#20D5EC"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  function pill(v) {
+    return v
+      ? `<span class="pill yes">✓ Yes</span>`
+      : `<span class="pill no">No</span>`;
   }
 
-  function cleanHandle(v) {
-    return v.trim()
-      .replace(/^https?:\/\/(www\.)?tiktok\.com\//i, '')
-      .replace(/[?#].*$/, '').replace(/^@/, '').replace(/\/.*$/, '');
-  }
-
-  function compact(n) {
-    if (n === undefined || n === null || n === '') return '—';
-    n = Number(n);
-    if (isNaN(n)) return '—';
-    if (n >= 1e9) return (n / 1e9).toFixed(n >= 1e10 ? 0 : 1).replace(/\.0$/, '') + 'B';
-    if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
-    if (n >= 1e3) return (n / 1e3).toFixed(n >= 1e4 ? 0 : 1).replace(/\.0$/, '') + 'K';
-    return String(n);
-  }
-
-  function extract(html) {
-    const m = html.match(/id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>([\s\S]*?)<\/script>/);
-    if (m) {
-      try {
-        const scope = JSON.parse(m[1])['__DEFAULT_SCOPE__'] || {};
-        const info = (scope['webapp.user-detail'] || {}).userInfo;
-        if (info && info.user && info.user.secUid) {
-          return { user: info.user, stats: info.stats || info.statsV2 || null };
-        }
-      } catch (e) { /* fall through */ }
-    }
-    const sec = html.match(/"secUid"\s*:\s*"([^"]+)"/);
-    if (!sec) return null;
-    const grab = re => (html.match(re) || [])[1] || '';
-    return {
-      user: {
-        secUid: sec[1],
-        id: grab(/"id"\s*:\s*"(\d{10,})"/),
-        uniqueId: grab(/"uniqueId"\s*:\s*"([^"]+)"/),
-        nickname: grab(/"nickname"\s*:\s*"([^"]+)"/),
-        avatarThumb: grab(/"avatarThumb"\s*:\s*"([^"]+)"/),
-        signature: grab(/"signature"\s*:\s*"([^"]*)"/).replace(/\\n/g, '\n')
-      },
-      stats: null
-    };
-  }
-
-  function render(data) {
-    const u = data.user || {}, s = data.stats || {};
-
-    const av = (u.avatarMedium || u.avatarLarger || u.avatarThumb || '').replace(/\\u002F/g, '/');
-    const img = $('avatar');
-    if (av) { img.src = av; img.style.visibility = 'visible'; } else { img.removeAttribute('src'); img.style.visibility = 'hidden'; }
-
-    $('nick').textContent = u.nickname || u.uniqueId || 'profile';
-    $('tick').style.display = u.verified ? 'block' : 'none';
-    $('uniq').textContent = '@' + (u.uniqueId || '');
-    $('bio').textContent = (u.signature || '').trim();
-
-    const tags = [];
-    if (u.privateAccount) tags.push(['private', 0]);
-    if (u.roomId) tags.push(['live now', 1]);
-    if (u.ttSeller) tags.push(['tiktok shop', 0]);
-    if (u.commerceUserInfo && u.commerceUserInfo.commerceUser) tags.push(['business', 0]);
-    if (u.isOrganization) tags.push(['organization', 0]);
-    if (u.language) tags.push([u.language, 0]);
-    $('tags').innerHTML = tags
-      .map(t => '<span class="tag' + (t[1] ? ' live' : '') + '">' + t[0] + '</span>')
-      .join('');
-
-    const cells = [
-      ['followers', s.followerCount],
-      ['following', s.followingCount],
-      ['likes', s.heartCount !== undefined ? s.heartCount : s.heart],
-      ['videos', s.videoCount]
-    ];
-    $('stats').innerHTML = cells
-      .map(c => '<div class="stat"><b>' + compact(c[1]) + '</b><span>' + c[0] + '</span></div>')
-      .join('');
-
-    $('secuid').textContent = u.secUid || '';
-    $('userid').textContent = u.id || '—';
-
-    $('joined').textContent = u.createTime
-      ? 'joined ' + new Date(u.createTime * 1000).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })
-      : '';
-    $('profileLink').href = 'https://www.tiktok.com/@' + (u.uniqueId || '');
-
-    $('result').style.display = 'block';
-    $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  function linkify(text) {
+    const esc = text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    return esc.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
   }
 
   async function lookup() {
-    const handle = cleanHandle($('handle').value);
-    if (!handle) { say('Enter a handle first.', true); return; }
+    const username = input.value.trim().replace(/^@/, "");
+    if (!username) { msg.textContent = "Enter a username first."; msg.className = "msg error"; return; }
 
-    $('go').disabled = true;
-    $('result').style.display = 'none';
-    const target = 'https://www.tiktok.com/@' + handle;
+    btn.disabled = true;
+    card.classList.remove("show");
+    msg.className = "msg";
+    msg.innerHTML = `<span class="spinner"></span>Fetching @${username}…`;
 
-    const ep = $('endpoint').value.trim().replace(/\/+$/, '');
-    if (ep) {
-      say('Resolving @' + handle + '…');
-      try {
-        const res = await fetch(ep + '/?user=' + encodeURIComponent(handle));
-        const body = await res.json();
-        if (body.user && body.user.secUid) {
-          say('');
-          render(body);
-          $('go').disabled = false;
-          return;
-        }
-        say(body.error || 'Resolver returned nothing usable — trying relays.', true);
-      } catch (e) {
-        say('Resolver unreachable — trying relays.', true);
+    try {
+      let data;
+      if (WORKER_URL) {
+        const res = await fetch(`${WORKER_URL}/?username=${encodeURIComponent(username)}`);
+        data = await res.json();
+        if (!data.ok) throw new Error(data.error || "Lookup failed");
+        render(data.profile);
+      } else {
+        // Direct fallback (works if browser can reach TikTok without CORS issues — usually it can't,
+        // so deploy the worker for reliable results)
+        throw new Error("Set WORKER_URL to your deployed Cloudflare Worker first.");
       }
+      msg.textContent = "";
+    } catch (e) {
+      msg.textContent = e.message;
+      msg.className = "msg error";
+    } finally {
+      btn.disabled = false;
     }
-
-    for (let i = 0; i < PROXIES.length; i++) {
-      say('Trying relay ' + (i + 1) + ' of ' + PROXIES.length + '…');
-      try {
-        const p = PROXIES[i];
-        const res = await fetch(p.url(target), { headers: { 'Accept': 'text/html' } });
-        if (!res.ok) continue;
-        let html = await res.text();
-        if (p.unwrap) { try { html = p.unwrap(html); } catch (e) { continue; } }
-        const data = extract(html);
-        if (data) { say(''); render(data); $('go').disabled = false; return; }
-        if (/couldn't find this account|Page Not Found/i.test(html)) {
-          say('No account at @' + handle + '.', true); $('go').disabled = false; return;
-        }
-      } catch (e) { /* next relay */ }
-    }
-
-    say('Nothing could reach TikTok. Paste the page text below instead.', true);
-    $('go').disabled = false;
   }
 
-  $('go').addEventListener('click', lookup);
-  $('handle').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
+  function render(p) {
+    $("avatar").src = p.avatar || "";
+    $("nickname").textContent = p.nickname || p.username;
+    $("badge").innerHTML = p.verified ? VERIFIED_SVG : "";
+    $("handle").textContent = "@" + p.username;
 
-  $('parseBtn').addEventListener('click', () => {
-    const data = extract($('pasted').value);
-    if (data) { say(''); render(data); }
-    else { say('No secUid in that text.', true); }
-  });
+    $("followers").textContent = fmt(p.followers);
+    $("followers").title = fmtFull(p.followers);
+    $("following").textContent = fmt(p.following);
+    $("following").title = fmtFull(p.following);
+    $("likes").textContent = fmt(p.likes);
+    $("likes").title = fmtFull(p.likes);
+    $("videos").textContent = fmt(p.videos);
+    $("videos").title = fmtFull(p.videos);
 
-  document.querySelectorAll('.slab').forEach(slab => {
-    slab.addEventListener('click', async () => {
-      const text = $(slab.dataset.copy).textContent;
-      if (!text || text === '—') return;
-      try { await navigator.clipboard.writeText(text); }
-      catch (e) {
-        const t = document.createElement('textarea');
-        t.value = text; document.body.appendChild(t); t.select();
-        document.execCommand('copy'); t.remove();
-      }
-      const stamp = slab.querySelector('.stamp');
-      stamp.classList.add('on');
-      setTimeout(() => stamp.classList.remove('on'), 1200);
-    });
-  });
-})();
+    const bio = p.bio || "(no bio)";
+    $("bio").innerHTML = linkify(bio);
+
+    if (p.bioLink) {
+      $("rowLink").style.display = "";
+      const href = p.bioLink.startsWith("http") ? p.bioLink : "https://" + p.bioLink;
+      $("bioLink").innerHTML = `<a href="${href}" target="_blank" rel="noopener">${p.bioLink}</a>`;
+    } else {
+      $("rowLink").style.display = "none";
+    }
+
+    $("verified").innerHTML = pill(p.verified);
+    $("created").textContent = p.created
+      ? new Date(p.created * 1000).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
+      : "Unknown";
+
+    if (p.region) {
+      $("rowRegion").style.display = "";
+      $("region").textContent = p.region.toUpperCase();
+    } else {
+      $("rowRegion").style.display = "none";
+    }
+
+    $("private").innerHTML = pill(p.private);
+    $("uid").textContent = p.id || "–";
+
+    card.classList.add("show");
+  }
+
+  btn.addEventListener("click", lookup);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") lookup(); });
+  input.focus();
 </script>
 </body>
 </html>
