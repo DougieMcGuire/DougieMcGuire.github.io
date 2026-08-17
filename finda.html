@@ -171,6 +171,9 @@
     <div class="row">
       <span class="k">📅 Created</span><span class="v" id="created"></span>
     </div>
+    <div class="row" id="rowActive" style="display:none">
+      <span class="k">🕒 Last Active</span><span class="v" id="lastActive"></span>
+    </div>
     <div class="row" id="rowRegion" style="display:none">
       <span class="k">🌍 Region</span><span class="v" id="region"></span>
     </div>
@@ -203,6 +206,25 @@
     return n.toLocaleString();
   };
   const fmtFull = (n) => (n == null ? "–" : n.toLocaleString());
+
+  // "x ago" like the reference image
+  function timeAgo(ts) {
+    const s = Math.floor(Date.now() / 1000) - ts;
+    if (s < 60) return "just now";
+    const m = Math.floor(s / 60);   if (m < 60) return m + (m === 1 ? " minute ago" : " minutes ago");
+    const h = Math.floor(m / 60);   if (h < 24) return h + (h === 1 ? " hour ago" : " hours ago");
+    const d = Math.floor(h / 24);   if (d < 30) return d + (d === 1 ? " day ago" : " days ago");
+    const mo = Math.floor(d / 30);  if (mo < 12) return mo + (mo === 1 ? " month ago" : " months ago");
+    const y = Math.floor(mo / 12);  return y + (y === 1 ? " year ago" : " years ago");
+  }
+
+  // 2-letter region code -> flag emoji
+  function flag(code) {
+    if (!code || code.length !== 2) return "";
+    const c = code.toUpperCase();
+    if (!/^[A-Z]{2}$/.test(c)) return "";
+    return String.fromCodePoint(...[...c].map(ch => 127397 + ch.charCodeAt(0)));
+  }
 
   const VERIFIED_SVG = `<svg class="badge" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#20D5EC"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
@@ -278,9 +300,19 @@
       ? new Date(p.created * 1000).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
       : "Unknown";
 
+    if (p.lastActive) {
+      $("rowActive").style.display = "";
+      const d = new Date(p.lastActive * 1000);
+      $("lastActive").textContent = timeAgo(p.lastActive);
+      $("lastActive").title = d.toLocaleString();
+    } else {
+      $("rowActive").style.display = "none";
+    }
+
     if (p.region) {
       $("rowRegion").style.display = "";
-      $("region").textContent = p.region.toUpperCase();
+      const code = p.region.toUpperCase();
+      $("region").textContent = `${flag(code)} ${code}`.trim();
     } else {
       $("rowRegion").style.display = "none";
     }
