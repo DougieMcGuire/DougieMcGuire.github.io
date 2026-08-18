@@ -24,7 +24,8 @@ h1 .ck{font-size:.5em}
 .k.l{animation-play-state:paused;transition:transform .1s linear}
 @keyframes sw{0%,100%{transform:rotateX(4deg) rotateY(-9deg)}50%{transform:rotateX(-3.5deg) rotateY(9deg) translateZ(10px)}}
 .ic{width:52px;height:52px;padding:13px;border-radius:16px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);transform:translateZ(40px);flex:none}
-.vv{display:grid;place-items:center;padding:0;font:800 27px "Bricolage Grotesque",sans-serif;color:#FFC6E2;line-height:1}
+.vv{display:grid;place-items:center;padding:12px}
+.vv svg{width:100%;height:100%}
 .bd{flex:1;min-width:0;transform:translateZ(26px)}
 .hd{display:flex;align-items:center;gap:6px;font:800 19.5px "Bricolage Grotesque",sans-serif;letter-spacing:-.025em}
 .hd .ck{font-size:17px}
@@ -46,12 +47,13 @@ pf.onerror=function(){pf.onerror=null;pf.src='FullSizeRender.jpeg'};pf.src=P;
 var K='lv1',T=+localStorage.getItem(K)||0;if(!T){T=Date.now();localStorage.setItem(K,T)}
 vc.textContent=(2000+Math.max(0,Math.floor((Date.now()-T)/864e5))*1e4).toLocaleString('en-US');
 
-[['venmo','@Lyssamwah','Venmo','https://venmo.com/u/Lyssamwah'],
+[['cashapp','$lyssamwah33','Cash App','https://cash.app/$lyssamwah33'],
+['venmo','@Lyssamwah','Venmo','https://venmo.com/u/Lyssamwah'],
 ['tiktok','@alyssamwahhhs','TikTok','https://www.tiktok.com/@alyssamwahhhs'],
 ['instagram','@lyssamwah','Instagram','https://www.instagram.com/lyssamwah'],
 ['snapchat','@lyssaamwah','Snapchat','https://www.snapchat.com/add/lyssaamwah']].forEach(function(s){
 var w=document.createElement('div');w.className='t';
-w.innerHTML='<a class="k gl" href="'+s[3]+'" target=_blank rel=noopener>'+(s[0]=='venmo'?'<span class="ic vv">V</span>':'<img class=ic src="https://cdn.simpleicons.org/'+s[0]+'/FFC6E2" alt="'+s[0]+'">')+'<span class=bd><span class=hd>'+s[1]+'<i class=ck></i></span><span class=mt>'+s[2]+'</span></span><span class=ar>&#8599;</span></a>';
+w.innerHTML='<a class="k gl" href="'+s[3]+'" target=_blank rel=noopener>'+(s[0]=='venmo'?'<span class="ic vv"><svg viewBox="0 0 24 24" fill="#FFC6E2"><path d="M 14.24,2.40 C 14.68,3.32 14.96,4.44 14.96,6.08 C 14.96,9.08 12.84,13.47 11.11,16.28 L 9.27,1.48 L 1.65,2.20 L 5.14,23.0 L 13.84,23.0 C 17.65,17.99 22.34,10.87 22.34,5.40 C 22.34,3.68 21.98,2.32 21.18,1.00 L 14.24,2.40 L 14.24,2.40"/></svg></span>':'<img class=ic src="https://cdn.simpleicons.org/'+s[0]+'/FFC6E2" alt="'+s[0]+'">')+'<span class=bd><span class=hd>'+s[1]+'<i class=ck></i></span><span class=mt>'+s[2]+'</span></span><span class=ar>&#8599;</span></a>';
 cd.appendChild(w)});
 
 document.querySelectorAll('.k').forEach(function(c){
