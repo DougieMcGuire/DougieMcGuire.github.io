@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halden — Hand-wound watches, made in Geneva</title>
+<meta name="description" content="Halden makes hand-wound mechanical watches in small numbers in Geneva. The Nocturne 39 and the Meridian 36, finished by hand, sold by appointment.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --midnight:#101E2E;
+    --midnight-deep:#0A1622;
+    --salmon:#E3A38B;
+    --salmon-deep:#C77E63;
+    --champagne:#F2E9DC;
+    --steel:#9FAEBC;
+    --brass:#C9A227;
+
+    --display:"Fraunces",Georgia,serif;
+    --text:"Instrument Sans",system-ui,sans-serif;
+
+    --s1:8px; --s2:16px; --s3:24px; --s4:40px; --s5:64px; --s6:104px; --s7:160px;
+    --edge:clamp(20px,5vw,72px);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--midnight);
+    color:var(--champagne);
+    font-family:var(--text);
+    font-size:clamp(17px,1.15vw,19px);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit}
+  ::selection{background:var(--salmon);color:var(--midnight-deep)}
+  :focus-visible{outline:2px solid var(--salmon);outline-offset:4px;border-radius:4px}
+
+  h1,h2,h3{font-family:var(--display);font-weight:300;letter-spacing:-.015em;margin:0}
+  h1{font-size:clamp(44px,7.4vw,104px);line-height:.98}
+  h2{font-size:clamp(32px,4.6vw,62px);line-height:1.04}
+  h3{font-size:clamp(24px,2.6vw,34px);line-height:1.12}
+  p{margin:0 0 var(--s3);max-width:60ch}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    display:flex;align-items:baseline;justify-content:space-between;gap:var(--s3);
+    padding:var(--s3) var(--edge);
+    position:relative;z-index:5;
+  }
+  .wordmark{
+    font-family:var(--display);font-weight:400;
+    font-size:clamp(22px,2vw,27px);letter-spacing:.24em;
+    text-indent:.24em;
+  }
+  .masthead nav{display:flex;gap:var(--s3);font-size:16px;color:var(--steel)}
+  .masthead nav a{text-decoration:none;padding-bottom:2px;border-bottom:1px solid transparent;transition:border-color .25s,color .25s}
+  .masthead nav a:hover{color:var(--champagne);border-color:var(--salmon)}
+  @media(max-width:720px){.masthead nav a:not(.keep){display:none}}
+
+  /* ---------- hero ---------- */
+  .hero{
+    display:grid;
+    grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);
+    align-items:center;
+    gap:var(--s5);
+    padding:var(--s4) var(--edge) var(--s6);
+    position:relative;
+  }
+  .hero::before{
+    content:"";position:absolute;inset:-30% -10% 10% 30%;
+    background:radial-gradient(45% 45% at 55% 45%,rgba(227,163,139,.16),transparent 70%);
+    pointer-events:none;
+  }
+  .hero-copy{position:relative;z-index:2}
+  .hero h1 span{display:block}
+  .hero h1 .indent{padding-left:.34em}
+  .lede{
+    margin-top:var(--s3);
+    font-size:clamp(18px,1.35vw,21px);
+    color:var(--steel);max-width:36ch;
+  }
+  .now{
+    margin-top:var(--s4);
+    display:flex;align-items:baseline;gap:var(--s2);flex-wrap:wrap;
+    font-size:16px;color:var(--steel);
+  }
+  .now b{
+    font-family:var(--display);font-weight:400;font-size:26px;
+    color:var(--salmon);letter-spacing:.02em;
+  }
+  .cta{
+    margin-top:var(--s4);display:inline-block;
+    font-family:var(--display);font-size:20px;font-weight:400;
+    color:var(--midnight-deep);background:var(--salmon);
+    padding:14px 30px;border-radius:999px;text-decoration:none;
+    box-shadow:0 12px 40px -18px rgba(227,163,139,.9);
+    transition:transform .35s cubic-bezier(.2,.8,.3,1),background .35s;
+  }
+  .cta:hover{transform:translateY(-3px);background:var(--champagne)}
+
+  /* ---------- the watch ---------- */
+  .stage{
+    position:relative;z-index:2;
+    display:flex;justify-content:center;
+    filter:drop-shadow(0 60px 70px rgba(0,0,0,.6));
+  }
+  .watch{width:min(100%,460px);height:auto}
+  .hand{transform-origin:200px 200px;transition:none}
+  .boot .hand{transition:transform 2.2s cubic-bezier(.16,.84,.32,1)}
+
+  /* ---------- shared section furniture ---------- */
+  section{padding:var(--s6) var(--edge);position:relative}
+  .rule{height:1px;background:linear-gradient(90deg,rgba(159,174,188,.34),rgba(159,174,188,0));border:0;margin:0 var(--edge)}
+
+  /* ---------- assembly ---------- */
+  .assembly{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:var(--s5)}
+  .stages{display:grid;gap:var(--s4);counter-reset:stage}
+  .stage-row{
+    display:grid;grid-template-columns:64px 1fr;gap:var(--s3);align-items:start;
+    padding-bottom:var(--s4);border-bottom:1px solid rgba(159,174,188,.18);
+  }
+  .stage-row:last-child{border-bottom:0;padding-bottom:0}
+  .stage-row .n{
+    font-family:var(--display);font-size:44px;font-weight:300;
+    color:var(--salmon-deep);line-height:1;
+  }
+  .stage-row p{margin:var(--s1) 0 0;color:var(--steel);font-size:17px}
+  .hours{
+    align-self:start;position:sticky;top:var(--s4);
+    background:linear-gradient(160deg,rgba(159,174,188,.12),rgba(159,174,188,.03));
+    border-radius:28px;padding:var(--s4);
+  }
+  .hours dl{margin:0;display:grid;gap:var(--s3)}
+  .hours dt{color:var(--steel);font-size:15px}
+  .hours dd{
+    margin:2px 0 0;font-family:var(--display);font-weight:300;
+    font-size:clamp(30px,3.4vw,44px);line-height:1;color:var(--champagne);
+  }
+
+  /* ---------- references ---------- */
+  .ref{
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:var(--s5);align-items:center;
+    padding:var(--s5) 0;border-top:1px solid rgba(159,174,188,.18);
+  }
+  .ref:nth-child(even) .ref-art{order:2}
+  .ref-art{
+    aspect-ratio:4/5;border-radius:32px;overflow:hidden;position:relative;
+    background:radial-gradient(70% 60% at 50% 35%,#1B2E42,#0A1622 78%);
+  }
+  .ref-art svg{position:absolute;inset:0;width:100%;height:100%}
+  .ref h3{margin-bottom:var(--s2)}
+  .ref p{color:var(--steel);font-size:17px}
+  .specs{margin:var(--s3) 0 0;display:grid;grid-template-columns:1fr 1fr;gap:var(--s2) var(--s3);font-size:16px}
+  .specs div{border-top:1px solid rgba(159,174,188,.2);padding-top:10px}
+  .specs span{display:block;color:var(--steel);font-size:14px}
+  .price{margin-top:var(--s3);font-family:var(--display);font-size:24px;color:var(--salmon)}
+
+  /* ---------- appointment ---------- */
+  .appointment{
+    background:linear-gradient(175deg,var(--midnight-deep),#132437);
+    border-radius:40px;margin:0 var(--edge) var(--s6);
+    padding:clamp(36px,6vw,88px);
+    display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:var(--s5);
+  }
+  .appointment p{color:var(--steel)}
+  .address{font-style:normal;line-height:1.9;color:var(--steel);font-size:17px}
+  .address strong{display:block;color:var(--champagne);font-family:var(--display);font-size:22px;font-weight:400;margin-bottom:6px}
+
+  footer{
+    padding:var(--s4) var(--edge) var(--s5);
+    display:flex;justify-content:space-between;gap:var(--s3);flex-wrap:wrap;
+    color:var(--steel);font-size:15px;border-top:1px solid rgba(159,174,188,.16);
+  }
+
+  @media(max-width:900px){
+    .hero,.assembly,.ref,.appointment{grid-template-columns:1fr}
+    .hero{padding-bottom:var(--s5);gap:var(--s4)}
+    .ref:nth-child(even) .ref-art{order:0}
+    .hours{position:static}
+    .specs{grid-template-columns:1fr}
+    section{padding-top:var(--s5);padding-bottom:var(--s5)}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  }
+</style>
+</head>
+<body class="boot">
+
+<header class="masthead">
+  <div class="wordmark">HALDEN</div>
+  <nav>
+    <a href="#calibre">The calibre</a>
+    <a href="#watches">Watches</a>
+    <a class="keep" href="#visit">Book a viewing</a>
+  </nav>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="hero-copy">
+      <h1>
+        <span>Ninety hours</span>
+        <span class="indent">of hand-work,</span>
+        <span>then a century</span>
+        <span class="indent">of keeping time.</span>
+      </h1>
+      <p class="lede">We finish around forty watches a year in a workshop above the Rue du Rhône. Every one is wound by hand, by you, every morning.</p>
+
+      <div class="now">
+        <span>The Nocturne 39, set to your time</span>
+        <b id="clock">—</b>
+      </div>
+
+      <a class="cta" href="#visit">Book a viewing</a>
+    </div>
+
+    <div class="stage">
+      <svg class="watch" viewBox="0 0 400 400" role="img" aria-labelledby="watch-title">
+        <title id="watch-title">A Halden Nocturne 39 showing the current time</title>
+        <defs>
+          <radialGradient id="case" cx="35%" cy="22%">
+            <stop offset="0%" stop-color="#F0E4D6"/>
+            <stop offset="45%" stop-color="#C9B49B"/>
+            <stop offset="78%" stop-color="#8E7A63"/>
+            <stop offset="100%" stop-color="#D6C4AC"/>
+          </radialGradient>
+          <radialGradient id="dial" cx="42%" cy="30%">
+            <stop offset="0%" stop-color="#F0BCA5"/>
+            <stop offset="55%" stop-color="#E3A38B"/>
+            <stop offset="100%" stop-color="#B9705A"/>
+          </radialGradient>
+          <linearGradient id="hand" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#233648"/>
+            <stop offset="100%" stop-color="#0A1622"/>
+          </linearGradient>
+          <linearGradient id="index" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#FBF4EA"/>
+            <stop offset="50%" stop-color="#B49B7E"/>
+            <stop offset="100%" stop-color="#F0E4D6"/>
+          </linearGradient>
+          <radialGradient id="crystal" cx="30%" cy="18%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity=".38"/>
+            <stop offset="42%" stop-color="#ffffff" stop-opacity=".05"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          </radialGradient>
+          <clipPath id="dialClip"><circle cx="200" cy="200" r="150"/></clipPath>
+        </defs>
+
+        <!-- lugs -->
+        <path d="M150 62 q10 -34 26 -34 l48 0 q16 0 26 34 z" fill="url(#case)"/>
+        <path d="M150 338 q10 34 26 34 l48 0 q16 0 26 -34 z" fill="url(#case)"/>
+        <!-- crown -->
+        <rect x="362" y="188" width="20" height="24" rx="6" fill="url(#case)"/>
+        <!-- case -->
+        <circle cx="200" cy="200" r="172" fill="url(#case)"/>
+        <circle cx="200" cy="200" r="156" fill="#7A6753" opacity=".55"/>
+        <circle cx="200" cy="200" r="150" fill="url(#dial)"/>
+
+        <g clip-path="url(#dialClip)">
+          <!-- sunburst finish -->
+          <g opacity=".2" id="sunburst"></g>
+          <!-- minute track + indices are drawn by script -->
+          <g id="track"></g>
+          <text x="200" y="128" text-anchor="middle" fill="#4A2418" opacity=".85"
+                style="font-family:Fraunces,serif;font-size:20px;letter-spacing:.22em">HALDEN</text>
+          <text x="200" y="150" text-anchor="middle" fill="#4A2418" opacity=".6"
+                style="font-family:'Instrument Sans',sans-serif;font-size:11px;letter-spacing:.14em">GENÈVE</text>
+
+          <!-- small seconds subdial -->
+          <circle cx="200" cy="262" r="42" fill="#D48F76" opacity=".55"/>
+          <circle cx="200" cy="262" r="42" fill="none" stroke="#5C3020" stroke-opacity=".35"/>
+          <g id="subticks"></g>
+          <g class="hand" id="secHand" style="transform-origin:200px 262px">
+            <line x1="200" y1="274" x2="200" y2="228" stroke="#3A1D12" stroke-width="1.6"/>
+            <circle cx="200" cy="262" r="3" fill="#3A1D12"/>
+          </g>
+        </g>
+
+        <!-- hands -->
+        <g class="hand" id="hourHand">
+          <path d="M200 210 L193 196 L200 108 L207 196 Z" fill="url(#hand)"/>
+        </g>
+        <g class="hand" id="minHand">
+          <path d="M200 214 L194 198 L200 74 L206 198 Z" fill="url(#hand)"/>
+        </g>
+        <circle cx="200" cy="200" r="6" fill="#0A1622"/>
+        <circle cx="200" cy="200" r="2.2" fill="#E3A38B"/>
+
+        <!-- crystal -->
+        <circle cx="200" cy="200" r="150" fill="url(#crystal)" pointer-events="none"/>
+      </svg>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <section id="calibre">
+    <div class="assembly">
+      <div class="hours">
+        <dl>
+          <div><dt>Calibre</dt><dd>HR&nbsp;1120</dd></div>
+          <div><dt>Beat rate</dt><dd>21,600 vph</dd></div>
+          <div><dt>Power reserve, fully wound</dt><dd>62 hours</dd></div>
+          <div><dt>Jewels</dt><dd>27</dd></div>
+          <div><dt>Watches finished last year</dt><dd>41</dd></div>
+        </dl>
+      </div>
+
+      <div>
+        <h2>Four people build it, in this order.</h2>
+        <p>The HR 1120 is hand-wound because a rotor would hide the bridges, and the bridges are the part we spend the most time on. Here is what happens between the raw brass and the box.</p>
+
+        <div class="stages">
+          <div class="stage-row">
+            <div class="n">1</div>
+            <div>
+              <h3>Cutting the bridges</h3>
+              <p>Brass plate goes on the mill on a Monday. The bridge outlines, the jewel seats and the click spring all come off one setup, so nothing drifts between operations.</p>
+            </div>
+          </div>
+          <div class="stage-row">
+            <div class="n">2</div>
+            <div>
+              <h3>Anglage, by hand</h3>
+              <p>Every bridge edge is filed to a 45-degree bevel and polished with a boxwood stick until it throws a hard line of light. This is the slowest stage: eleven hours a movement, and the reason we finish forty a year rather than four hundred.</p>
+            </div>
+          </div>
+          <div class="stage-row">
+            <div class="n">3</div>
+            <div>
+              <h3>First assembly, then apart again</h3>
+              <p>The movement is built up, run for a week, then completely stripped. Assembly marks the finish, so the parts are re-polished and it is built a second time. You only ever see the second build.</p>
+            </div>
+          </div>
+          <div class="stage-row">
+            <div class="n">4</div>
+            <div>
+              <h3>Timing in five positions</h3>
+              <p>Regulated over fourteen days, dial up, dial down, and on each of three crown positions. It leaves the bench inside two seconds a day. We record the numbers and send them with the watch.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="watches">
+    <h2>Two references. That is the whole catalogue.</h2>
+    <p>Both are 39mm and 8.4mm thick, so they sit under a shirt cuff. The difference is the dial and what it is for.</p>
+
+    <div class="ref">
+      <div class="ref-art">
+        <svg viewBox="0 0 320 400" aria-hidden="true">
+          <circle cx="160" cy="200" r="118" fill="#C9B49B"/>
+          <circle cx="160" cy="200" r="104" fill="#E3A38B"/>
+          <circle cx="160" cy="200" r="104" fill="none" stroke="#8E5B47" stroke-opacity=".5"/>
+          <circle cx="160" cy="248" r="28" fill="#D48F76"/>
+          <path d="M160 206 L155 196 L160 118 L165 196 Z" fill="#12202F"/>
+          <path d="M160 208 L156 200 L196 236 L188 240 Z" fill="#12202F"/>
+          <circle cx="160" cy="200" r="4.5" fill="#0A1622"/>
+        </svg>
+      </div>
+      <div>
+        <h3>Nocturne 39</h3>
+        <p>Salmon dial, small seconds, no date. Made for people who look at a watch to read the time and then stop looking at it. The dial is galvanic-treated brass, sunburst from the centre, and it shifts from copper to pink as you turn your wrist.</p>
+        <div class="specs">
+          <div><span>Case</span>Stainless steel, 39mm</div>
+          <div><span>Dial</span>Sunburst salmon, applied indices</div>
+          <div><span>Strap</span>Chestnut alligator, pin buckle</div>
+          <div><span>Water resistance</span>50 metres</div>
+        </div>
+        <div class="price">CHF 14,800, delivery around 9 months</div>
+      </div>
+    </div>
+
+    <div class="ref">
+      <div class="ref-art">
+        <svg viewBox="0 0 320 400" aria-hidden="true">
+          <circle cx="160" cy="200" r="118" fill="#C9B49B"/>
+          <circle cx="160" cy="200" r="104" fill="#16283A"/>
+          <circle cx="160" cy="200" r="104" fill="none" stroke="#7E92A6" stroke-opacity=".45"/>
+          <circle cx="160" cy="200" r="72" fill="none" stroke="#7E92A6" stroke-opacity=".3"/>
+          <path d="M160 206 L155 196 L160 118 L165 196 Z" fill="#E9DDCB"/>
+          <path d="M160 208 L156 200 L120 244 L128 248 Z" fill="#E9DDCB"/>
+          <circle cx="160" cy="200" r="4.5" fill="#E3A38B"/>
+        </svg>
+      </div>
+      <div>
+        <h3>Meridian 36</h3>
+        <p>Midnight blue with a second hour hand you set to wherever you are not. Turn the crown one click and the local hand jumps forward in whole hours without stopping the balance, so the watch never loses its rate while you travel.</p>
+        <div class="specs">
+          <div><span>Case</span>Stainless steel, 36mm</div>
+          <div><span>Dial</span>Lacquered midnight blue, twelve coats</div>
+          <div><span>Complication</span>Jumping local hour</div>
+          <div><span>Water resistance</span>50 metres</div>
+        </div>
+        <div class="price">CHF 19,400, delivery around 14 months</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="appointment" id="visit">
+    <div>
+      <h2>Come and wind one.</h2>
+      <p>There is no shop. The workshop has two chairs and a loupe, and we set aside an hour so you can handle both references and see the movements out of their cases. Bring a watch you already own, if you want something to compare against.</p>
+      <a class="cta" href="mailto:atelier@halden.ch">Write to the atelier</a>
+    </div>
+    <address class="address">
+      <strong>Halden Genève</strong>
+      Rue du Rhône 42, third floor<br>
+      1204 Genève, Switzerland<br>
+      Tuesday to Friday, by appointment<br><br>
+      atelier@halden.ch<br>
+      +41 22 000 00 00
+    </address>
+  </div>
+</main>
+
+<footer>
+  <div>Halden Genève, founded 2009</div>
+  <div>Every watch is delivered with its timing certificate and a five-year guarantee.</div>
+</footer>
+
+<script>
+(function(){
+  var svgns="http://www.w3.org/2000/svg";
+
+  function el(name,attrs){
+    var n=document.createElementNS(svgns,name);
+    for(var k in attrs) n.setAttribute(k,attrs[k]);
+    return n;
+  }
+
+  // sunburst finish on the dial
+  var burst=document.getElementById("sunburst");
+  for(var a=0;a<360;a+=2){
+    var r=(a*Math.PI)/180;
+    burst.appendChild(el("line",{
+      x1:200,y1:200,
+      x2:200+Math.cos(r)*152, y2:200+Math.sin(r)*152,
+      stroke:(a%4?"#FFF1E6":"#8E5B47"), "stroke-width":.7, "stroke-opacity":.5
+    }));
+  }
+
+  // minute track and applied indices
+  var track=document.getElementById("track");
+  for(var m=0;m<60;m++){
+    var ang=(m*6-90)*Math.PI/180, hour=(m%5===0);
+    if(m>=25&&m<=35) continue;               // cleared for the subdial
+    if(hour){
+      var len=18, w=6;
+      var cx=200+Math.cos(ang)*(132-len/2), cy=200+Math.sin(ang)*(132-len/2);
+      var g=el("g",{transform:"rotate("+(m*6)+" 200 200)"});
+      g.appendChild(el("rect",{x:200-w/2,y:200-138,width:w,height:len,rx:2,fill:"url(#index)"}));
+      track.appendChild(g);
+    }else{
+      track.appendChild(el("circle",{
+        cx:200+Math.cos(ang)*140, cy:200+Math.sin(ang)*140,
+        r:1.5, fill:"#5C3020", "fill-opacity":.55
+      }));
+    }
+  }
+
+  // subdial ticks
+  var sub=document.getElementById("subticks");
+  for(var s=0;s<60;s+=5){
+    var sa=(s*6-90)*Math.PI/180;
+    sub.appendChild(el("line",{
+      x1:200+Math.cos(sa)*30, y1:262+Math.sin(sa)*30,
+      x2:200+Math.cos(sa)*36, y2:262+Math.sin(sa)*36,
+      stroke:"#5C3020","stroke-opacity":".55","stroke-width":1.4
+    }));
+  }
+
+  var hourHand=document.getElementById("hourHand"),
+      minHand=document.getElementById("minHand"),
+      secHand=document.getElementById("secHand"),
+      clock=document.getElementById("clock"),
+      reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function tick(){
+    var d=new Date(),
+        ms=d.getMilliseconds(),
+        sec=d.getSeconds(),
+        min=d.getMinutes(),
+        hr=d.getHours()%12;
+
+    // 21,600 vph is six beats a second, so the hand steps rather than sweeps
+    var beat=Math.floor(ms/1000*6)/6;
+    hourHand.style.transform="rotate("+((hr+min/60)*30)+"deg)";
+    minHand.style.transform="rotate("+((min+sec/60)*6)+"deg)";
+    secHand.style.transform="rotate("+((sec+beat)*6)+"deg)";
+
+    clock.textContent=d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+  }
+
+  // one orchestrated moment: the hands run up from twelve to the real time
+  tick();
+  if(reduce){
+    document.body.classList.remove("boot");
+  }else{
+    hourHand.style.transform="rotate(0deg)";
+    minHand.style.transform="rotate(0deg)";
+    secHand.style.transform="rotate(0deg)";
+    requestAnimationFrame(function(){ requestAnimationFrame(tick); });
+    setTimeout(function(){ document.body.classList.remove("boot"); },2300);
+  }
+
+  function loop(){ tick(); requestAnimationFrame(loop); }
+  setTimeout(function(){ reduce ? setInterval(tick,1000) : loop(); }, reduce?0:2400);
+})();
+</script>
+</body>
+</html>
