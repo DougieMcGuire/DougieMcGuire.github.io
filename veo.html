@@ -6,7 +6,7 @@
   :root{
     --bg:#12161C; --panel:#1A2029; --line:#2A323E;
     --ink:#E8EDF4; --dim:#8A97A8; --gold:#F0B341; --gold-d:#C88F26;
-    --ok:#5BC98A; --bad:#E4685D;
+    --bad:#E4685D; --ok:#5BC98A;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--ink);
@@ -23,6 +23,7 @@
     font:inherit;font-size:14px;outline:none}
   textarea{min-height:110px;resize:vertical;line-height:1.55}
   textarea:focus,select:focus,input:focus{border-color:var(--gold)}
+  #key{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
   .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:14px}
   button{background:var(--gold);color:#181206;border:0;border-radius:8px;
     padding:12px 20px;font:inherit;font-weight:650;cursor:pointer}
@@ -40,29 +41,36 @@
   @keyframes p{0%,100%{opacity:1}50%{opacity:.25}}
   .err{color:var(--bad);white-space:pre-wrap;font-size:13px;
     background:rgba(228,104,93,.09);border:1px solid rgba(228,104,93,.3);
-    border-radius:8px;padding:11px 12px;margin-top:14px}
+    border-radius:8px;padding:12px 13px;margin-top:14px;line-height:1.55}
+  .err a{color:var(--bad)}
   .out{margin-top:18px;display:none}
-  video{width:100%;max-width:320px;border-radius:12px;background:#000;display:block}
   .clip{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
   .clip:last-child{border-bottom:0}
-  .clip video{width:112px;flex:none;border-radius:8px}
+  .clip video{width:112px;flex:none;border-radius:8px;background:#000}
   .meta{font-size:13px;min-width:0}
   .meta p{color:var(--dim);margin-bottom:7px;word-break:break-word}
   .tag{display:inline-block;font-size:11px;color:var(--dim);
     border:1px solid var(--line);border-radius:5px;padding:2px 7px;margin-right:5px}
   a.dl{color:var(--gold);text-decoration:none;font-size:12.5px;font-weight:600}
   a.dl:hover{text-decoration:underline}
-  .note{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.5}
+  .note{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.55}
   h2{font-size:14px;font-weight:650;color:var(--dim);margin-bottom:4px}
+  .warn{font-size:12px;color:var(--gold);margin-top:7px}
 </style>
 
 <div class="shell">
   <h1>Veo Shorts</h1>
-  <div class="sub">Prompt in, vertical clip out. Local use only — the key is in the source.</div>
+  <div class="sub">Prompt in, vertical clip out.</div>
+
+  <div class="card">
+    <label for="key">API key</label>
+    <input id="key" spellcheck="false" value="AQ.Ab8RN6Kmax_aLwDEHJUa4S8YQjU_tQkf86Pq-X487OoOszLiag">
+    <div class="warn" id="keywarn"></div>
+  </div>
 
   <div class="card">
     <label for="p">Prompt</label>
-    <textarea id="p" placeholder="A beaver in a tiny hard hat gnawing through a log at golden hour, shallow depth of field, cinematic, slow push in"></textarea>
+    <textarea id="p" placeholder="A beaver in a tiny hard hat gnawing through a log at golden hour, shallow depth of field, slow push in"></textarea>
 
     <div class="row">
       <div>
@@ -106,7 +114,7 @@
 
     <div class="bar">
       <button id="go">Generate clip</button>
-      <button class="ghost" id="check">Check available models</button>
+      <button class="ghost" id="check">Test key</button>
       <div class="cost">this clip <b id="est">$0.90</b> · session <b id="spent">$0.00</b></div>
     </div>
 
@@ -114,7 +122,7 @@
     <div id="err" class="err" style="display:none"></div>
 
     <div class="note">
-      Each request bills whether you like the result or not. At 6 seconds, $100 buys roughly
+      Each request bills whether you keep the result or not. At 6 seconds, $100 buys roughly
       330 Lite clips, 110 Fast, or 41 Quality. 1080p forces 8 seconds.
     </div>
   </div>
@@ -127,12 +135,20 @@
 </div>
 
 <script>
-const KEY = 'AQ.Ab8RN6Kmax_aLwDEHJUa4S8YQjU_tQkf86Pq-X487OoOszLiag';
 const BASE = 'https://generativelanguage.googleapis.com/v1beta';
-
 const $ = id => document.getElementById(id);
-const H = { 'x-goog-api-key': KEY };
 let spent = 0, busy = false;
+
+function key(){ return $('key').value.trim(); }
+function hdr(){ return { 'x-goog-api-key': key() }; }
+
+function keyNote(){
+  const k = key();
+  $('keywarn').textContent = k.startsWith('AQ.')
+    ? 'New-format Auth key. Some projects reject these on this endpoint — hit Test key first.'
+    : '';
+}
+$('key').addEventListener('input', keyNote); keyNote();
 
 function rate(){ return +$('model').selectedOptions[0].dataset.rate; }
 function estimate(){ return rate() * +$('dur').value; }
@@ -142,7 +158,6 @@ function refresh(){
 }
 ['model','dur'].forEach(id => $(id).addEventListener('change', refresh));
 
-// 1080p is 8s only — keep the two selects honest
 function syncRes(){
   const hi = $('res').value === '1080p';
   if(hi && $('dur').value !== '8'){ $('dur').value = '8'; refresh(); }
@@ -156,55 +171,74 @@ $('dur').addEventListener('change', () => {
 refresh(); syncRes();
 
 function say(msg, spin=true){
-  $('status').innerHTML = msg
-    ? `<span class="dot ${spin?'spin':''}"></span><span>${msg}</span>` : '';
+  $('status').innerHTML = msg ? `<span class="dot ${spin?'spin':''}"></span><span>${msg}</span>` : '';
 }
-function fail(msg){
-  $('err').style.display = 'block';
-  $('err').textContent = msg;
-  say('', false);
-}
+function fail(msg){ $('err').style.display='block'; $('err').textContent = msg; say('', false); }
 function clearErr(){ $('err').style.display = 'none'; }
 
+// Translate the errors you're actually going to hit into something actionable.
+function explain(msg, status){
+  if(/ACCESS_TOKEN_TYPE_UNSUPPORTED|Expected OAuth 2 access token/i.test(msg)){
+    return msg + '\n\n' +
+      'This is the AQ-key problem, not a code bug. The new "Authentication Key" format is\n' +
+      'being rejected by this endpoint. Try, in order:\n\n' +
+      '  1. Cloud Console -> APIs & Services -> Library -> "Generative Language API" -> Enable\n' +
+      '  2. Cloud Console -> APIs & Services -> Credentials -> Create credentials -> API key\n' +
+      '     (sometimes still issues an old-format AIza... key; paste it above)\n' +
+      '  3. If every key comes out AQ. and still fails, the account is in the AQ-only rollout\n' +
+      '     and you are waiting on Google.';
+  }
+  if(/limit: 0|free_tier|RESOURCE_EXHAUSTED/i.test(msg)){
+    return msg + '\n\nQuota of 0 means billing is not active on this project. Veo has no free tier.';
+  }
+  if(/is not found|not supported for/i.test(msg)){
+    return msg + '\n\nModel name is stale. Hit "Test key" — it rebuilds the dropdown from what your key can actually reach.';
+  }
+  if(status === 403){
+    return msg + '\n\n403 usually means the Generative Language API is not enabled on the project.';
+  }
+  return msg;
+}
+
 async function jget(url){
-  const r = await fetch(url, { headers: H });
+  const r = await fetch(url, { headers: hdr() });
   const txt = await r.text();
   let j = null; try{ j = JSON.parse(txt); }catch(e){}
-  if(!r.ok) throw new Error(j?.error?.message || `HTTP ${r.status}\n${txt.slice(0,400)}`);
+  if(!r.ok) throw new Error(explain(j?.error?.message || `HTTP ${r.status}\n${txt.slice(0,400)}`, r.status));
   return j;
 }
 
 $('check').onclick = async () => {
   if(busy) return;
-  clearErr(); say('Listing models your key can reach…');
+  if(!key()){ fail('Paste a key first.'); return; }
+  clearErr(); say('Testing key…');
   try{
     const j = await jget(`${BASE}/models?pageSize=200`);
     const vids = (j.models||[])
       .filter(m => (m.supportedGenerationMethods||[]).includes('predictLongRunning'))
       .map(m => m.name.replace('models/',''));
-    say('', false);
     if(!vids.length){
-      fail('No video models on this key.\nThe free tier does not include Veo — the project needs billing enabled.');
-    } else {
-      const sel = $('model');
-      const keep = sel.value;
-      sel.innerHTML = '';
-      const rateFor = n => n.includes('lite') ? 0.05 : n.includes('fast') ? 0.15 : 0.40;
-      vids.forEach(n => {
-        const o = document.createElement('option');
-        o.value = n; o.dataset.rate = rateFor(n);
-        o.textContent = `${n} — $${rateFor(n).toFixed(2)}/s`;
-        sel.appendChild(o);
-      });
-      if(vids.includes(keep)) sel.value = keep;
-      refresh();
-      say(`${vids.length} video model${vids.length>1?'s':''} available — list updated.`, false);
+      fail('Key works, but no video models are available on it.\n\nVeo needs billing enabled on the project — the free tier returns a quota of 0.');
+      return;
     }
+    const sel = $('model'), keep = sel.value;
+    const rateFor = n => n.includes('lite') ? 0.05 : n.includes('fast') ? 0.15 : 0.40;
+    sel.innerHTML = '';
+    vids.forEach(n => {
+      const o = document.createElement('option');
+      o.value = n; o.dataset.rate = rateFor(n);
+      o.textContent = `${n} — $${rateFor(n).toFixed(2)}/s`;
+      sel.appendChild(o);
+    });
+    if(vids.includes(keep)) sel.value = keep;
+    refresh();
+    say(`Key works. ${vids.length} video model${vids.length>1?'s':''} available — list updated.`, false);
   }catch(e){ fail(e.message); }
 };
 
 $('go').onclick = async () => {
   if(busy) return;
+  if(!key()){ fail('Paste a key first.'); return; }
   const prompt = $('p').value.trim();
   if(!prompt){ fail('Write a prompt first.'); $('p').focus(); return; }
 
@@ -222,26 +256,24 @@ $('go').onclick = async () => {
 
     const start = await fetch(`${BASE}/models/${model}:predictLongRunning`, {
       method:'POST',
-      headers:{ ...H, 'Content-Type':'application/json' },
+      headers:{ ...hdr(), 'Content-Type':'application/json' },
       body: JSON.stringify({ instances:[{ prompt }], parameters: params })
     });
     const startTxt = await start.text();
     let op = null; try{ op = JSON.parse(startTxt); }catch(e){}
-    if(!start.ok) throw new Error(op?.error?.message || `HTTP ${start.status}\n${startTxt.slice(0,500)}`);
+    if(!start.ok) throw new Error(explain(op?.error?.message || `HTTP ${start.status}\n${startTxt.slice(0,500)}`, start.status));
     if(!op?.name) throw new Error('No operation returned:\n' + startTxt.slice(0,400));
 
-    // bill lands the moment the job is accepted
-    spent += cost; refresh();
+    spent += cost; refresh();   // billed the moment the job is accepted
 
     const t0 = Date.now();
     let done = null;
     for(let i=0;;i++){
       await new Promise(r => setTimeout(r, 6000));
-      const el = Math.round((Date.now()-t0)/1000);
-      say(`Rendering… ${el}s elapsed (usually 40–120s)`);
+      say(`Rendering… ${Math.round((Date.now()-t0)/1000)}s elapsed (usually 40–120s)`);
       const st = await jget(`${BASE}/${op.name}`);
       if(st.done){
-        if(st.error) throw new Error(st.error.message || JSON.stringify(st.error));
+        if(st.error) throw new Error(explain(st.error.message || JSON.stringify(st.error)));
         done = st; break;
       }
       if(i > 60) throw new Error('Timed out after 6 minutes. The job may still finish — check AI Studio.');
@@ -252,7 +284,7 @@ $('go').onclick = async () => {
     if(!uri) throw new Error('Finished but no video URI:\n' + JSON.stringify(done.response).slice(0,500));
 
     say('Downloading…');
-    const vr = await fetch(uri, { headers: H });
+    const vr = await fetch(uri, { headers: hdr() });
     if(!vr.ok) throw new Error(`Download failed: HTTP ${vr.status}`);
     const url = URL.createObjectURL(await vr.blob());
 
@@ -262,7 +294,7 @@ $('go').onclick = async () => {
   }catch(e){
     const m = e.message || String(e);
     fail(/Failed to fetch|NetworkError/i.test(m)
-      ? m + '\n\nIf you opened this as a file:// page, the browser may be blocking the request. Serve it instead:\n  python -m http.server 8000\nthen open http://localhost:8000/veo-shorts.html'
+      ? m + '\n\nThe browser blocked the request. If you opened this as a file:// page, serve it instead:\n\n  python -m http.server 8000\n\nthen open http://localhost:8000/veo-shorts.html'
       : m);
   }finally{
     busy = false; $('go').disabled = false; $('check').disabled = false;
