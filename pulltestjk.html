@@ -7,178 +7,1915 @@
 
 <style>
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f4f4f4;
-  font-family: Arial, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    background: #f5f5f5;
+    color: #111;
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.app {
+    width: 100%;
+    max-width: 680px;
 }
 
 .card {
-  width: 90%;
-  max-width: 520px;
-  background: white;
-  padding: 30px;
-  border-radius: 18px;
-  box-shadow: 0 10px 35px rgba(0,0,0,.08);
+    background: white;
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.08);
 }
 
 h1 {
-  margin: 0 0 8px;
-  font-size: 28px;
+    margin: 0;
+    font-size: 28px;
 }
 
-p {
-  margin: 0 0 22px;
-  color: #777;
+.subtitle {
+    margin-top: 8px;
+    margin-bottom: 24px;
+    color: #777;
 }
 
-.row {
-  display: flex;
-  gap: 10px;
+.search {
+    display: flex;
+    gap: 10px;
 }
 
 input {
-  min-width: 0;
-  flex: 1;
-  height: 50px;
-  padding: 0 15px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  font-size: 16px;
-  color: #111;
-  background: white;
-  outline: none;
+    flex: 1;
+    min-width: 0;
+    height: 52px;
+    border: 1px solid #d2d2d2;
+    border-radius: 11px;
+    padding: 0 16px;
+    font-size: 16px;
+    outline: none;
+    background: white;
+    color: #111;
 }
 
 input:focus {
-  border-color: #111;
+    border-color: #111;
 }
 
 button {
-  height: 50px;
-  padding: 0 20px;
-  border: 0;
-  border-radius: 10px;
-  background: #111;
-  color: white;
-  font-size: 15px;
-  cursor: pointer;
+    border: 0;
+    border-radius: 11px;
+    background: #111;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 0 20px;
 }
 
 button:hover {
-  opacity: .85;
+    opacity: .85;
 }
 
-#result {
-  display: none;
-  margin-top: 20px;
-  padding: 15px;
-  border-radius: 10px;
-  background: #f5f5f5;
-  word-break: break-all;
+button:disabled {
+    opacity: .5;
+    cursor: wait;
 }
 
-#id {
-  font-family: monospace;
+.result {
+    display: none;
+    margin-top: 20px;
+    padding: 18px;
+    border-radius: 12px;
+    background: #f6f6f6;
+}
+
+.result-label {
+    font-size: 11px;
+    color: #777;
+    margin-bottom: 7px;
+    letter-spacing: .08em;
+}
+
+.channel-id {
+    font-family: monospace;
+    font-size: 18px;
+    word-break: break-all;
+}
+
+.channel-name {
+    margin-top: 8px;
+    color: #666;
+}
+
+.error {
+    color: #c62828;
 }
 
 .copy {
-  width: 100%;
-  margin-top: 12px;
-  background: #ddd;
-  color: #111;
+    width: 100%;
+    height: 44px;
+    margin-top: 14px;
+    background: #ddd;
+    color: #111;
+}
+
+/* DEBUG */
+
+.debug-toggle {
+    width: 100%;
+    height: 45px;
+    margin-top: 15px;
+    background: #e9e9e9;
+    color: #111;
+}
+
+.debug {
+    display: none;
+    margin-top: 10px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #0d0d0d;
+    color: #ddd;
+}
+
+.debug-top {
+    height: 44px;
+    padding: 0 12px;
+    background: #171717;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.debug-title {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.debug-actions {
+    display: flex;
+    gap: 7px;
+}
+
+.debug-actions button {
+    height: 29px;
+    padding: 0 9px;
+    border-radius: 6px;
+    background: #333;
+    font-size: 11px;
+}
+
+#debugLog {
+    max-height: 390px;
+    overflow-y: auto;
+    padding: 13px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.log {
+    margin-bottom: 6px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.info {
+    color: #aaa;
+}
+
+.try {
+    color: #ffe08a;
+}
+
+.success {
+    color: #75e381;
+}
+
+.fail {
+    color: #ff7777;
+}
+
+.warn {
+    color: #ffb86c;
 }
 </style>
 </head>
 
 <body>
 
+<div class="app">
+
 <div class="card">
 
-  <h1>YouTube Channel ID</h1>
+    <h1>YouTube Channel ID Finder</h1>
 
-  <p>Enter a YouTube @handle to find its channel ID.</p>
+    <div class="subtitle">
+        Enter a YouTube @handle, channel URL, or video URL.
+    </div>
 
-  <div class="row">
-    <input
-      id="handle"
-      type="text"
-      placeholder="@MrBeast"
-      spellcheck="false"
-      autocomplete="off"
-    >
+    <div class="search">
 
-    <button id="find">Find</button>
-  </div>
+        <input
+            id="input"
+            type="text"
+            placeholder="@MrBeast"
+            autocomplete="off"
+            spellcheck="false"
+        >
 
-  <div id="result">
-    <strong>Channel ID</strong>
-    <div id="id"></div>
-    <button class="copy" id="copy">Copy ID</button>
-  </div>
+        <button id="find">
+            Find ID
+        </button>
+
+    </div>
+
+
+    <div id="result" class="result">
+
+        <div class="result-label">
+            CHANNEL ID
+        </div>
+
+        <div id="channelId" class="channel-id"></div>
+
+        <div id="channelName" class="channel-name"></div>
+
+        <button id="copy" class="copy">
+            Copy Channel ID
+        </button>
+
+    </div>
+
+
+    <button id="debugToggle" class="debug-toggle">
+        Show Debug Console
+    </button>
+
+
+    <div id="debug" class="debug">
+
+        <div class="debug-top">
+
+            <div class="debug-title">
+                Resolver Debug Console
+            </div>
+
+            <div class="debug-actions">
+
+                <button id="copyDebug">
+                    Copy
+                </button>
+
+                <button id="clearDebug">
+                    Clear
+                </button>
+
+            </div>
+
+        </div>
+
+        <div id="debugLog"></div>
+
+    </div>
 
 </div>
 
+</div>
+
+
 <script>
-const input = document.getElementById("handle");
-const findButton = document.getElementById("find");
-const result = document.getElementById("result");
-const idBox = document.getElementById("id");
-const copyButton = document.getElementById("copy");
 
-function cleanHandle(value) {
-  value = value.trim();
+/* ============================================================
+   YOUTUBE CHANNEL ID FINDER
+   Browser-only / no API key / no Worker
+   ============================================================ */
 
-  // Full YouTube URL
-  value = value.replace(/^https?:\/\/(www\.)?youtube\.com\/@/i, "");
 
-  // @username
-  value = value.replace(/^@/, "");
+const $ = id => document.getElementById(id);
 
-  // Remove anything after the username
-  value = value.split(/[/?#]/)[0];
+const input = $("input");
+const findButton = $("find");
+const result = $("result");
+const channelIdBox = $("channelId");
+const channelNameBox = $("channelName");
+const copyButton = $("copy");
 
-  return value;
+const debugToggle = $("debugToggle");
+const debugBox = $("debug");
+const debugLog = $("debugLog");
+const clearDebug = $("clearDebug");
+const copyDebug = $("copyDebug");
+
+
+/* ============================================================
+   DEBUG LOGGER
+   ============================================================ */
+
+let debugLines = [];
+
+function log(message, type = "info") {
+
+    const time = new Date().toLocaleTimeString();
+
+    const line =
+        `[${time}] ${message}`;
+
+    debugLines.push(line);
+
+    const div = document.createElement("div");
+
+    div.className = `log ${type}`;
+
+    div.textContent = line;
+
+    debugLog.appendChild(div);
+
+    debugLog.scrollTop =
+        debugLog.scrollHeight;
+
+    console.log(line);
 }
 
-function findChannel() {
-  const handle = cleanHandle(input.value);
 
-  if (!handle) {
-    input.focus();
-    return;
-  }
+/* ============================================================
+   VALID CHANNEL ID
+   ============================================================ */
 
-  // For now, show exactly what was entered.
-  // The actual YouTube lookup should happen through a Worker/API.
-  result.style.display = "block";
-  idBox.textContent = "Looking up @" + handle + "...";
+function isChannelId(value) {
+
+    return /^UC[a-zA-Z0-9_-]{22}$/.test(value);
+
 }
 
-findButton.addEventListener("click", findChannel);
 
-input.addEventListener("keydown", function(e) {
-  if (e.key === "Enter") {
-    findChannel();
-  }
-});
+/* ============================================================
+   EXTRACT UC ID FROM ANY TEXT
+   ============================================================ */
 
-copyButton.addEventListener("click", async function() {
-  await navigator.clipboard.writeText(idBox.textContent);
+function extractChannelId(text) {
 
-  copyButton.textContent = "Copied!";
+    if (!text) return null;
 
-  setTimeout(() => {
-    copyButton.textContent = "Copy ID";
-  }, 1200);
-});
+    /*
+       Most useful first:
+
+       externalId = page's OWN channel.
+    */
+
+    const externalPatterns = [
+
+        /"externalId"\s*:\s*"(UC[a-zA-Z0-9_-]{22})"/,
+
+        /\\"externalId\\"\s*:\s*\\"(UC[a-zA-Z0-9_-]{22})\\"/,
+
+        /externalId[^A-Za-z0-9_-]{1,20}(UC[a-zA-Z0-9_-]{22})/i
+
+    ];
+
+
+    for (const regex of externalPatterns) {
+
+        const match =
+            text.match(regex);
+
+        if (
+            match &&
+            isChannelId(match[1])
+        ) {
+
+            return match[1];
+
+        }
+
+    }
+
+
+    /*
+       Canonical channel URL.
+    */
+
+    const channelURL =
+        text.match(
+            /\/channel\/(UC[a-zA-Z0-9_-]{22})/
+        );
+
+    if (channelURL) {
+
+        return channelURL[1];
+
+    }
+
+
+    /*
+       channelId field.
+    */
+
+    const channelIdPatterns = [
+
+        /"channelId"\s*:\s*"(UC[a-zA-Z0-9_-]{22})"/,
+
+        /\\"channelId\\"\s*:\s*\\"(UC[a-zA-Z0-9_-]{22})\\"/,
+
+        /channelId[^A-Za-z0-9_-]{1,20}(UC[a-zA-Z0-9_-]{22})/i
+
+    ];
+
+
+    for (const regex of channelIdPatterns) {
+
+        const match =
+            text.match(regex);
+
+        if (
+            match &&
+            isChannelId(match[1])
+        ) {
+
+            return match[1];
+
+        }
+
+    }
+
+
+    /*
+       Last resort:
+       Find UC IDs anywhere.
+
+       NOTE:
+       This is less trustworthy than externalId.
+    */
+
+    const all =
+        text.match(
+            /UC[a-zA-Z0-9_-]{22}/g
+        );
+
+    if (all && all.length) {
+
+        return all[0];
+
+    }
+
+
+    return null;
+}
+
+
+/* ============================================================
+   CLEAN INPUT
+   ============================================================ */
+
+function parseInput(raw) {
+
+    raw = raw.trim();
+
+    if (!raw) {
+
+        throw new Error(
+            "Nothing was entered."
+        );
+
+    }
+
+
+    /*
+       Already a UC ID
+    */
+
+    if (isChannelId(raw)) {
+
+        return {
+            type: "channel",
+            url: null,
+            value: raw
+        };
+
+    }
+
+
+    /*
+       Add protocol to URLs.
+    */
+
+    let value = raw;
+
+    if (
+        /^www\.youtube\.com/i.test(value)
+    ) {
+        value =
+            "https://" + value;
+    }
+
+    if (
+        /^youtube\.com/i.test(value)
+    ) {
+        value =
+            "https://" + value;
+    }
+
+
+    /*
+       Full URL
+    */
+
+    if (
+        /^https?:\/\//i.test(value)
+    ) {
+
+        let url;
+
+        try {
+
+            url =
+                new URL(value);
+
+        } catch {
+
+            throw new Error(
+                "That does not look like a valid URL."
+            );
+
+        }
+
+
+        /*
+           /channel/UC...
+        */
+
+        const channelMatch =
+            url.pathname.match(
+                /\/channel\/(UC[a-zA-Z0-9_-]{22})/
+            );
+
+        if (channelMatch) {
+
+            return {
+                type: "channel",
+                url: url.href,
+                value: channelMatch[1]
+            };
+
+        }
+
+
+        /*
+           Video URL
+        */
+
+        const video =
+            extractVideoId(url);
+
+        if (video) {
+
+            return {
+                type: "video",
+                url: url.href,
+                value: video
+            };
+
+        }
+
+
+        /*
+           Handle / custom / user URL
+        */
+
+        if (
+            url.pathname.startsWith("/@") ||
+            url.pathname.startsWith("/c/") ||
+            url.pathname.startsWith("/user/")
+        ) {
+
+            return {
+                type: "channel",
+                url: url.href,
+                value: url.href
+            };
+
+        }
+
+
+        return {
+            type: "channel",
+            url: url.href,
+            value: url.href
+        };
+
+    }
+
+
+    /*
+       Bare @handle
+    */
+
+    let handle =
+        value.replace(/^@/, "");
+
+    handle =
+        handle.split(/[/?#]/)[0];
+
+    if (!handle) {
+
+        throw new Error(
+            "Invalid handle."
+        );
+
+    }
+
+
+    return {
+        type: "channel",
+        url:
+            `https://www.youtube.com/@${encodeURIComponent(handle)}`,
+        value: handle
+    };
+
+}
+
+
+/* ============================================================
+   VIDEO ID EXTRACTION
+   ============================================================ */
+
+function extractVideoId(url) {
+
+    try {
+
+        const u =
+            typeof url === "string"
+                ? new URL(url)
+                : url;
+
+
+        /*
+           youtube.com/watch?v=
+        */
+
+        if (
+            u.hostname.includes("youtube.com") &&
+            u.searchParams.get("v")
+        ) {
+
+            return u.searchParams.get("v");
+
+        }
+
+
+        /*
+           youtu.be/VIDEO
+        */
+
+        if (
+            u.hostname === "youtu.be"
+        ) {
+
+            return u.pathname
+                .split("/")
+                .filter(Boolean)[0] || null;
+
+        }
+
+
+        /*
+           Shorts
+        */
+
+        const shorts =
+            u.pathname.match(
+                /\/shorts\/([^/?#]+)/
+            );
+
+        if (shorts) {
+
+            return shorts[1];
+
+        }
+
+
+        /*
+           Embed
+        */
+
+        const embed =
+            u.pathname.match(
+                /\/embed\/([^/?#]+)/
+            );
+
+        if (embed) {
+
+            return embed[1];
+
+        }
+
+
+        /*
+           Live
+        */
+
+        const live =
+            u.pathname.match(
+                /\/live\/([^/?#]+)/
+            );
+
+        if (live) {
+
+            return live[1];
+
+        }
+
+    } catch {}
+
+    return null;
+}
+
+
+/* ============================================================
+   FETCH WITH TIMEOUT
+   ============================================================ */
+
+async function fetchText(
+    url,
+    options = {},
+    timeout = 8000
+) {
+
+    const controller =
+        new AbortController();
+
+    const timer =
+        setTimeout(
+            () => controller.abort(),
+            timeout
+        );
+
+    try {
+
+        const response =
+            await fetch(
+                url,
+                {
+                    ...options,
+                    signal:
+                        controller.signal
+                }
+            );
+
+        const text =
+            await response.text();
+
+        return {
+            ok: response.ok,
+            status: response.status,
+            text,
+            headers: response.headers
+        };
+
+    } finally {
+
+        clearTimeout(timer);
+
+    }
+
+}
+
+
+/* ============================================================
+   METHOD 1
+   DIRECT YOUTUBE PAGE
+   ============================================================ */
+
+async function tryDirectYouTube(url) {
+
+    log(
+        "METHOD 1 — Direct YouTube page",
+        "try"
+    );
+
+    const started =
+        performance.now();
+
+    try {
+
+        const response =
+            await fetchText(
+                url,
+                {
+                    headers: {
+                        "Accept":
+                            "text/html,application/xhtml+xml"
+                    }
+                }
+            );
+
+
+        log(
+            `HTTP ${response.status} • ${response.text.length} bytes`
+        );
+
+
+        const id =
+            extractChannelId(
+                response.text
+            );
+
+
+        if (id) {
+
+            log(
+                `SUCCESS — found ${id}`,
+                "success"
+            );
+
+            return {
+                id,
+                method:
+                    "Direct YouTube page"
+            };
+
+        }
+
+
+        log(
+            `No channel ID found (${Math.round(performance.now() - started)}ms)`,
+            "fail"
+        );
+
+    } catch (error) {
+
+        log(
+            `FAILED — ${error.name}: ${error.message}`,
+            "fail"
+        );
+
+    }
+
+    return null;
+}
+
+
+/* ============================================================
+   METHOD 2
+   CORS.PROXY
+   ============================================================ */
+
+async function tryCorsProxy(url) {
+
+    const proxy =
+        "https://corsproxy.io/?" +
+        encodeURIComponent(url);
+
+    log(
+        "METHOD 2 — corsproxy.io",
+        "try"
+    );
+
+    try {
+
+        const response =
+            await fetchText(
+                proxy,
+                {},
+                10000
+            );
+
+
+        log(
+            `HTTP ${response.status} • ${response.text.length} bytes`
+        );
+
+
+        const id =
+            extractChannelId(
+                response.text
+            );
+
+
+        if (id) {
+
+            log(
+                `SUCCESS — found ${id}`,
+                "success"
+            );
+
+            return {
+                id,
+                method:
+                    "corsproxy.io"
+            };
+
+        }
+
+
+        log(
+            "Proxy responded, but no ID was found.",
+            "fail"
+        );
+
+    } catch (error) {
+
+        log(
+            `FAILED — ${error.name}: ${error.message}`,
+            "fail"
+        );
+
+    }
+
+    return null;
+}
+
+
+/* ============================================================
+   METHOD 3
+   ALLORIGINS
+   ============================================================ */
+
+async function tryAllOrigins(url) {
+
+    const proxy =
+        "https://api.allorigins.win/raw?url=" +
+        encodeURIComponent(url);
+
+    log(
+        "METHOD 3 — AllOrigins",
+        "try"
+    );
+
+    try {
+
+        const response =
+            await fetchText(
+                proxy,
+                {},
+                10000
+            );
+
+
+        log(
+            `HTTP ${response.status} • ${response.text.length} bytes`
+        );
+
+
+        const id =
+            extractChannelId(
+                response.text
+            );
+
+
+        if (id) {
+
+            log(
+                `SUCCESS — found ${id}`,
+                "success"
+            );
+
+            return {
+                id,
+                method:
+                    "AllOrigins"
+            };
+
+        }
+
+
+        log(
+            "No ID found in AllOrigins response.",
+            "fail"
+        );
+
+    } catch (error) {
+
+        log(
+            `FAILED — ${error.name}: ${error.message}`,
+            "fail"
+        );
+
+    }
+
+    return null;
+}
+
+
+/* ============================================================
+   METHOD 4
+   R.JINA.AI READER
+   ============================================================ */
+
+async function tryJina(url) {
+
+    const proxy =
+        "https://r.jina.ai/" + url;
+
+    log(
+        "METHOD 4 — Jina Reader",
+        "try"
+    );
+
+    try {
+
+        const response =
+            await fetchText(
+                proxy,
+                {},
+                12000
+            );
+
+
+        log(
+            `HTTP ${response.status} • ${response.text.length} bytes`
+        );
+
+
+        const id =
+            extractChannelId(
+                response.text
+            );
+
+
+        if (id) {
+
+            log(
+                `SUCCESS — found ${id}`,
+                "success"
+            );
+
+            return {
+                id,
+                method:
+                    "Jina Reader"
+            };
+
+        }
+
+
+        log(
+            "Jina responded but no ID was detected.",
+            "fail"
+        );
+
+    } catch (error) {
+
+        log(
+            `FAILED — ${error.name}: ${error.message}`,
+            "fail"
+        );
+
+    }
+
+    return null;
+}
+
+
+/* ============================================================
+   METHOD 5
+   GOOGLE WEB CACHE STYLE SEARCH
+   ============================================================ */
+
+async function tryGoogleCacheStyle(url) {
+
+    /*
+       This is intentionally only a best-effort
+       public fetch route.
+
+       It does NOT use an API key.
+    */
+
+    const target =
+        "https://r.jina.ai/http://r.jina.ai/http://" +
+        url.replace(/^https?:\/\//, "");
+
+    log(
+        "METHOD 5 — secondary public reader route",
+        "try"
+    );
+
+    try {
+
+        const response =
+            await fetchText(
+                target,
+                {},
+                10000
+            );
+
+
+        log(
+            `HTTP ${response.status} • ${response.text.length} bytes`
+        );
+
+
+        const id =
+            extractChannelId(
+                response.text
+            );
+
+
+        if (id) {
+
+            log(
+                `SUCCESS — found ${id}`,
+                "success"
+            );
+
+            return {
+                id,
+                method:
+                    "Secondary public reader"
+            };
+
+        }
+
+
+        log(
+            "No ID found.",
+            "fail"
+        );
+
+    } catch (error) {
+
+        log(
+            `FAILED — ${error.name}: ${error.message}`,
+            "fail"
+        );
+
+    }
+
+    return null;
+}
+
+
+/* ============================================================
+   VIDEO → OEmbed → AUTHOR URL
+   ============================================================ */
+
+async function tryVideoOEmbed(videoId) {
+
+    log(
+        "VIDEO FALLBACK — YouTube oEmbed",
+        "try"
+    );
+
+
+    const videoURL =
+        `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
+
+
+    const endpoints = [
+
+        "https://www.youtube.com/oembed?format=json&url=",
+
+        "https://noembed.com/embed?url="
+
+    ];
+
+
+    for (
+        const endpoint of endpoints
+    ) {
+
+        log(
+            `Trying ${endpoint.split("?")[0]}`
+        );
+
+        try {
+
+            const response =
+                await fetchText(
+                    endpoint +
+                    encodeURIComponent(videoURL),
+                    {},
+                    8000
+                );
+
+
+            log(
+                `HTTP ${response.status} • ${response.text.length} bytes`
+            );
+
+
+            if (!response.ok) {
+
+                continue;
+
+            }
+
+
+            let data;
+
+            try {
+
+                data =
+                    JSON.parse(
+                        response.text
+                    );
+
+            } catch {
+
+                continue;
+
+            }
+
+
+            log(
+                `Author: ${data.author_name || "unknown"}`
+            );
+
+
+            /*
+               author_url is often /user/
+               or another canonical YouTube URL.
+            */
+
+            if (
+                data.author_url
+            ) {
+
+                log(
+                    "Author URL found: " +
+                    data.author_url,
+                    "success"
+                );
+
+
+                /*
+                   First try direct extraction
+                   from the author URL.
+                */
+
+                const direct =
+                    extractChannelId(
+                        data.author_url
+                    );
+
+
+                if (direct) {
+
+                    return {
+                        id: direct,
+                        method:
+                            "Video oEmbed author URL"
+                    };
+
+                }
+
+
+                /*
+                   Then run page/proxy methods
+                   against author URL.
+                */
+
+                const attempts = [
+
+                    () =>
+                        tryDirectYouTube(
+                            data.author_url
+                        ),
+
+                    () =>
+                        tryCorsProxy(
+                            data.author_url
+                        ),
+
+                    () =>
+                        tryAllOrigins(
+                            data.author_url
+                        ),
+
+                    () =>
+                        tryJina(
+                            data.author_url
+                        )
+
+                ];
+
+
+                for (
+                    const attempt of attempts
+                ) {
+
+                    const result =
+                        await attempt();
+
+                    if (result) {
+                        return result;
+                    }
+
+                }
+
+            }
+
+        } catch (error) {
+
+            log(
+                `oEmbed failed — ${error.message}`,
+                "fail"
+            );
+
+        }
+
+    }
+
+    return null;
+}
+
+
+/* ============================================================
+   HANDLE → VIDEO SEARCH FALLBACK
+   ============================================================ */
+
+async function tryHandleWithPublicSearch(handle) {
+
+    /*
+       We don't treat a search result as definitive.
+       This is only another route to discover a video
+       belonging to the requested handle.
+    */
+
+    log(
+        "METHOD 6 — public search fallback",
+        "try"
+    );
+
+    const query =
+        encodeURIComponent(
+            `"@${handle}" site:youtube.com/watch`
+        );
+
+    const url =
+        "https://www.google.com/search?q=" +
+        query;
+
+    try {
+
+        const response =
+            await fetchText(
+                "https://r.jina.ai/" + url,
+                {},
+                10000
+            );
+
+
+        log(
+            `Search reader HTTP ${response.status} • ${response.text.length} bytes`
+        );
+
+
+        const matches =
+            response.text.match(
+                /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/g
+            );
+
+
+        if (!matches || !matches.length) {
+
+            log(
+                "No YouTube video URLs discovered.",
+                "fail"
+            );
+
+            return null;
+        }
+
+
+        log(
+            `Found ${matches.length} possible video URL(s).`
+        );
+
+
+        for (
+            const match of matches.slice(0, 5)
+        ) {
+
+            const videoId =
+                match.match(
+                    /v=([a-zA-Z0-9_-]{11})/
+                )?.[1];
+
+
+            if (!videoId) continue;
+
+
+            log(
+                "Trying discovered video: " +
+                videoId
+            );
+
+
+            const result =
+                await tryVideoOEmbed(
+                    videoId
+                );
+
+
+            if (result) {
+
+                return result;
+
+            }
+
+        }
+
+    } catch (error) {
+
+        log(
+            `Search fallback failed — ${error.message}`,
+            "fail"
+        );
+
+    }
+
+    return null;
+}
+
+
+/* ============================================================
+   MAIN RESOLVER
+   ============================================================ */
+
+async function resolve(raw) {
+
+    const parsed =
+        parseInput(raw);
+
+
+    log(
+        `Input type detected: ${parsed.type}`
+    );
+
+
+    /*
+       Already known ID
+    */
+
+    if (
+        parsed.type === "channel" &&
+        isChannelId(parsed.value)
+    ) {
+
+        return {
+            id: parsed.value,
+            method:
+                "Input already contained channel ID"
+        };
+
+    }
+
+
+    /*
+       VIDEO
+    */
+
+    if (
+        parsed.type === "video"
+    ) {
+
+        return await tryVideoOEmbed(
+            parsed.value
+        );
+
+    }
+
+
+    /*
+       CHANNEL URL
+    */
+
+    const url =
+        parsed.url;
+
+
+    /*
+       Run multiple independent routes.
+    */
+
+    const methods = [
+
+        () =>
+            tryDirectYouTube(url),
+
+        () =>
+            tryCorsProxy(url),
+
+        () =>
+            tryAllOrigins(url),
+
+        () =>
+            tryJina(url),
+
+        () =>
+            tryGoogleCacheStyle(url)
+
+    ];
+
+
+    for (
+        const method of methods
+    ) {
+
+        const result =
+            await method();
+
+        if (result) {
+
+            return result;
+
+        }
+
+    }
+
+
+    /*
+       If it is a bare handle, attempt
+       indirect discovery.
+    */
+
+    if (
+        !/^https?:\/\//i.test(
+            parsed.value
+        )
+    ) {
+
+        return await tryHandleWithPublicSearch(
+            parsed.value
+        );
+
+    }
+
+
+    return null;
+}
+
+
+/* ============================================================
+   DISPLAY RESULT
+   ============================================================ */
+
+function showResult(data) {
+
+    result.style.display =
+        "block";
+
+    channelIdBox.className =
+        "channel-id";
+
+    channelIdBox.textContent =
+        data.id;
+
+    channelNameBox.textContent =
+        data.method
+            ? "Resolved via " + data.method
+            : "";
+
+}
+
+
+/* ============================================================
+   DISPLAY ERROR
+   ============================================================ */
+
+function showError(message) {
+
+    result.style.display =
+        "block";
+
+    channelIdBox.className =
+        "channel-id error";
+
+    channelIdBox.textContent =
+        message;
+
+    channelNameBox.textContent =
+        "";
+
+}
+
+
+/* ============================================================
+   FIND BUTTON
+   ============================================================ */
+
+async function findChannel() {
+
+    const raw =
+        input.value.trim();
+
+
+    result.style.display =
+        "none";
+
+
+    if (!raw) {
+
+        input.focus();
+
+        return;
+
+    }
+
+
+    findButton.disabled =
+        true;
+
+    findButton.textContent =
+        "Searching...";
+
+
+    log("");
+    log("======================================");
+    log("STARTING NEW LOOKUP");
+    log("======================================");
+    log("Input: " + raw);
+
+
+    const started =
+        performance.now();
+
+
+    try {
+
+        const resultData =
+            await resolve(raw);
+
+
+        if (resultData) {
+
+            showResult(
+                resultData
+            );
+
+
+            log("");
+            log(
+                "======================================"
+            );
+
+            log(
+                "FINAL RESULT: " +
+                resultData.id,
+                "success"
+            );
+
+            log(
+                "Successful method: " +
+                resultData.method,
+                "success"
+            );
+
+            log(
+                "Total time: " +
+                Math.round(
+                    performance.now() -
+                    started
+                ) +
+                "ms",
+                "success"
+            );
+
+            log(
+                "======================================",
+                "success"
+            );
+
+
+        } else {
+
+            showError(
+                "Could not resolve this channel."
+            );
+
+
+            log("");
+            log(
+                "ALL METHODS FAILED.",
+                "fail"
+            );
+
+            log(
+                "Try pasting a video/Short URL from the channel.",
+                "warn"
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        showError(
+            error.message ||
+            "Lookup failed."
+        );
+
+
+        log(
+            "FATAL ERROR: " +
+            error.message,
+            "fail"
+        );
+
+    } finally {
+
+        findButton.disabled =
+            false;
+
+        findButton.textContent =
+            "Find ID";
+
+    }
+
+}
+
+
+/* ============================================================
+   COPY
+   ============================================================ */
+
+copyButton.addEventListener(
+    "click",
+    async () => {
+
+        const id =
+            channelIdBox.textContent;
+
+
+        if (
+            !id ||
+            !isChannelId(id)
+        ) {
+
+            return;
+
+        }
+
+
+        try {
+
+            await navigator.clipboard.writeText(
+                id
+            );
+
+            copyButton.textContent =
+                "Copied!";
+
+            setTimeout(
+                () => {
+                    copyButton.textContent =
+                        "Copy Channel ID";
+                },
+                1200
+            );
+
+        } catch {
+
+            log(
+                "Clipboard permission denied.",
+                "fail"
+            );
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+
+findButton.addEventListener(
+    "click",
+    findChannel
+);
+
+
+input.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            findChannel();
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   DEBUG TOGGLE
+   ============================================================ */
+
+debugToggle.addEventListener(
+    "click",
+    () => {
+
+        const open =
+            debugBox.style.display === "block";
+
+
+        debugBox.style.display =
+            open
+                ? "none"
+                : "block";
+
+
+        debugToggle.textContent =
+            open
+                ? "Show Debug Console"
+                : "Hide Debug Console";
+
+    }
+);
+
+
+/* ============================================================
+   CLEAR DEBUG
+   ============================================================ */
+
+clearDebug.addEventListener(
+    "click",
+    () => {
+
+        debugLines = [];
+
+        debugLog.innerHTML = "";
+
+        log(
+            "Debug console cleared."
+        );
+
+    }
+);
+
+
+/* ============================================================
+   COPY DEBUG
+   ============================================================ */
+
+copyDebug.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            await navigator.clipboard.writeText(
+                debugLines.join("\n")
+            );
+
+            copyDebug.textContent =
+                "Copied!";
+
+            setTimeout(
+                () => {
+                    copyDebug.textContent =
+                        "Copy";
+                },
+                1000
+            );
+
+        } catch {
+
+            log(
+                "Could not copy debug log.",
+                "fail"
+            );
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   INITIALIZATION
+   ============================================================ */
+
+log(
+    "Resolver loaded."
+);
+
+log(
+    "No API key required."
+);
+
+log(
+    "No Worker required."
+);
+
+log(
+    "Ready."
+);
+
 </script>
 
 </body>
