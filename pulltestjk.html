@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Channel ID Finder</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f4f4;
+  font-family: Arial, sans-serif;
+}
+
+.card {
+  width: 90%;
+  max-width: 520px;
+  background: white;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 10px 35px rgba(0,0,0,.08);
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+p {
+  margin: 0 0 22px;
+  color: #777;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+input {
+  min-width: 0;
+  flex: 1;
+  height: 50px;
+  padding: 0 15px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+  color: #111;
+  background: white;
+  outline: none;
+}
+
+input:focus {
+  border-color: #111;
+}
+
+button {
+  height: 50px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 10px;
+  background: #111;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: .85;
+}
+
+#result {
+  display: none;
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  background: #f5f5f5;
+  word-break: break-all;
+}
+
+#id {
+  font-family: monospace;
+}
+
+.copy {
+  width: 100%;
+  margin-top: 12px;
+  background: #ddd;
+  color: #111;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <h1>YouTube Channel ID</h1>
+
+  <p>Enter a YouTube @handle to find its channel ID.</p>
+
+  <div class="row">
+    <input
+      id="handle"
+      type="text"
+      placeholder="@MrBeast"
+      spellcheck="false"
+      autocomplete="off"
+    >
+
+    <button id="find">Find</button>
+  </div>
+
+  <div id="result">
+    <strong>Channel ID</strong>
+    <div id="id"></div>
+    <button class="copy" id="copy">Copy ID</button>
+  </div>
+
+</div>
+
+<script>
+const input = document.getElementById("handle");
+const findButton = document.getElementById("find");
+const result = document.getElementById("result");
+const idBox = document.getElementById("id");
+const copyButton = document.getElementById("copy");
+
+function cleanHandle(value) {
+  value = value.trim();
+
+  // Full YouTube URL
+  value = value.replace(/^https?:\/\/(www\.)?youtube\.com\/@/i, "");
+
+  // @username
+  value = value.replace(/^@/, "");
+
+  // Remove anything after the username
+  value = value.split(/[/?#]/)[0];
+
+  return value;
+}
+
+function findChannel() {
+  const handle = cleanHandle(input.value);
+
+  if (!handle) {
+    input.focus();
+    return;
+  }
+
+  // For now, show exactly what was entered.
+  // The actual YouTube lookup should happen through a Worker/API.
+  result.style.display = "block";
+  idBox.textContent = "Looking up @" + handle + "...";
+}
+
+findButton.addEventListener("click", findChannel);
+
+input.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    findChannel();
+  }
+});
+
+copyButton.addEventListener("click", async function() {
+  await navigator.clipboard.writeText(idBox.textContent);
+
+  copyButton.textContent = "Copied!";
+
+  setTimeout(() => {
+    copyButton.textContent = "Copy ID";
+  }, 1200);
+});
+</script>
+
+</body>
+</html>
