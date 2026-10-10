@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#000000"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Zones</title>
+<style>
+:root{--bg:#000;--glass:rgba(16,18,26,.55);--line:rgba(255,255,255,.16);--tx:#f5f7fb;--mu:#a3acbf;--ac:#7cf5c8;--dg:#ff6b81;--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--tx);font:500 15px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;overflow:hidden;overscroll-behavior:none}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#cam{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:radial-gradient(120% 80% at 50% 25%,#17263d,#000)}
+#app{position:fixed;inset:0;pointer-events:none}
+#app button,#app #sheet,#app #pill{pointer-events:auto}
+.glass{background:var(--glass);border:1px solid var(--line);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.top{position:absolute;top:calc(var(--sat) + 12px);left:14px;right:14px;display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;align-items:center;gap:8px;padding:9px 14px 9px 10px;border-radius:99px;font-weight:700;font-size:17px;letter-spacing:.2px}
+.brand svg{width:20px;height:20px;stroke:var(--ac)}
+.rb{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;transition:transform .15s}
+.rb:active{transform:scale(.92)}
+#bExit{width:42px;height:42px;display:none}
+#pill{position:absolute;top:calc(var(--sat) + 68px);left:50%;transform:translateX(-50%);max-width:88%;padding:8px 16px;border-radius:99px;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+#pill i{width:9px;height:9px;border-radius:50%;background:var(--mu);flex:none;transition:background .2s}
+#cross{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border:2px solid rgba(255,255,255,.75);border-radius:50%;pointer-events:none;transition:.15s}
+#cross::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px;border-radius:50%;background:#fff}
+#cross.ok{border-color:var(--ac)}#cross.on{transform:scale(.6);background:rgba(124,245,200,.25)}
+#toast{position:absolute;top:calc(var(--sat) + 116px);left:50%;transform:translate(-50%,-12px);padding:10px 18px;border-radius:14px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;max-width:88%;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.bar{position:absolute;bottom:calc(var(--sab) + 26px);left:0;right:0;display:flex;justify-content:center;align-items:center;gap:30px}
+#hint{position:absolute;bottom:calc(var(--sab) + 120px);left:0;right:0;text-align:center;padding:0 36px;color:var(--tx);text-shadow:0 1px 8px #000;font-size:14px;pointer-events:none}
+.start{padding:18px 38px;border-radius:99px;background:var(--ac);color:#03251c;font-weight:700;font-size:17px;box-shadow:0 8px 30px rgba(124,245,200,.35);transition:transform .15s}
+.start:active{transform:scale(.96)}.start.off{background:#566;color:#ccd;box-shadow:none}
+#bDraw{display:none;width:92px;height:92px;border-radius:50%;border:4px solid #fff;background:rgba(255,255,255,.1);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);place-items:center;touch-action:none;transition:.15s}
+#bDraw::after{content:"";width:62px;height:62px;border-radius:50%;background:var(--ac);transition:.15s}
+#bDraw.on{transform:scale(1.1);border-color:var(--ac)}#bDraw.on::after{transform:scale(.62);background:#fff}
+#bDraw.dis::after{background:#69707f}
+#bAlign{display:none}
+body.ar #bDraw{display:grid}body.ar #bAlign,body.ar #bExit{display:grid}body.ar .start,body.ar #hint{display:none}
+#sheet{position:absolute;left:0;right:0;bottom:0;max-height:66%;display:flex;flex-direction:column;padding:8px 16px calc(var(--sab) + 16px);background:rgba(12,14,20,.9);-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px);border-radius:26px 26px 0 0;border-top:1px solid var(--line);transform:translateY(106%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+#sheet.open{transform:none}
+.grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 10px}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.sh h2{margin:0;font-size:20px}.sh small{color:var(--mu);margin-left:8px;font-weight:500}
+.chip{padding:7px 13px;border-radius:99px;font-size:13px;border:1px solid var(--line);color:var(--mu)}.chip.on{color:var(--ac);border-color:var(--ac)}
+#list{overflow:auto;margin:0 -4px;padding:0 4px}
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.row i{width:14px;height:14px;border-radius:5px;flex:none}
+.row input{flex:1;min-width:0;background:none;border:0;color:var(--tx);font:inherit;font-weight:600;outline:0;-webkit-user-select:text;user-select:text}
+.row input:focus{border-bottom:1px solid var(--ac)}
+.row small{color:var(--mu)}.del{color:var(--dg);width:34px;height:34px;display:grid;place-items:center}
+.empty{color:var(--mu);margin:14px 0 6px;line-height:1.5}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<video id="cam" autoplay playsinline muted></video>
+<div id="app">
+ <div class="top">
+  <div class="brand glass"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 3v18M4 7.5l16 9" opacity=".4"/></svg>Zones</div>
+  <button id="bExit" class="rb glass" aria-label="Exit AR"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+ </div>
+ <div id="pill" class="glass"><i></i><span>Starting…</span></div>
+ <div id="toast" class="glass"></div>
+ <div id="cross"></div>
+ <div id="hint">Stand where you usually start zones, face the same way, then start AR.</div>
+ <div class="bar">
+  <button id="bList" class="rb glass" aria-label="Zones"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
+  <button id="bStart" class="start">Start AR</button>
+  <button id="bDraw" aria-label="Hold to draw a zone"></button>
+  <button id="bAlign" class="rb glass" aria-label="Set origin here"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+ </div>
+ <div id="sheet">
+  <div class="grab"></div>
+  <div class="sh"><h2>Zones<small id="count"></small></h2><div><button id="bAlert" class="chip on">Alerts on</button> <button id="bClose" class="chip">Done</button></div></div>
+  <div id="list"></div>
+ </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),COLORS=['#7cf5c8','#ff7ab8','#ffd24a','#6cb4ff','#ff9a52','#b79bff','#7be06a'],H=2,MAXP=1500;
+let zones=[],alerts=true,xr=null,hitSrc=null,hit=null,drawing=false,pts=[],inside=new Set(),stream=null,ac=null,wl=null,lastPill='';
+try{zones=JSON.parse(localStorage.getItem('zones.v1')||'[]');alerts=localStorage.getItem('zones.alerts')!=='0'}catch(e){}
+const save=()=>{try{localStorage.setItem('zones.v1',JSON.stringify(zones));localStorage.setItem('zones.alerts',alerts?1:0)}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+const area=p=>p.reduce((s,a,i)=>{const b=p[(i+1)%p.length];return s+a[0]*b[1]-b[0]*a[1]},0)/2;
+const inPoly=(x,z,p)=>{let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const a=p[i],b=p[j];if((a[1]>z)!=(b[1]>z)&&x<(b[0]-a[0])*(z-a[1])/(b[1]-a[1])+a[0])c=!c}return c};
+const buzz=v=>{try{alerts&&navigator.vibrate&&navigator.vibrate(v)}catch(e){}};
+function tone(a,b){if(!alerts||!ac)return;try{const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();o.frequency.setValueAtTime(a,t);o.frequency.linearRampToValueAtTime(b,t+.18);g.gain.setValueAtTime(.18,t);g.gain.exponentialRampToValueAtTime(.001,t+.32);o.connect(g);g.connect(ac.destination);o.start();o.stop(t+.33)}catch(e){}}
+let tt;function toast(m,c){const t=$('#toast');t.textContent=m;t.style.borderColor=c||'';t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200)}
+function pill(t,c){const k=t+c;if(k===lastPill)return;lastPill=k;$('#pill span').textContent=t;$('#pill i').style.background=c||'var(--mu)'}
+
+/* ---------- 3D ---------- */
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.xr.enabled=true;renderer.setPixelRatio(devicePixelRatio);renderer.setSize(innerWidth,innerHeight);
+renderer.domElement.style.cssText='position:fixed;inset:0;z-index:-1';document.body.appendChild(renderer.domElement);
+const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.01,50),root=new THREE.Group();scene.add(root);
+const reticle=new THREE.Group(),rm=new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide});
+reticle.add(new THREE.Mesh(new THREE.RingGeometry(.06,.075,48).rotateX(-Math.PI/2),rm),new THREE.Mesh(new THREE.CircleGeometry(.012,16).rotateX(-Math.PI/2),rm));
+reticle.visible=false;scene.add(reticle);
+const liveGeo=new THREE.BufferGeometry();liveGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(MAXP*3),3));liveGeo.setDrawRange(0,0);
+const liveLine=new THREE.Line(liveGeo,new THREE.LineBasicMaterial({color:0xffffff})),livePts=new THREE.Points(liveGeo,new THREE.PointsMaterial({color:0x7cf5c8,size:9,sizeAttenuation:false}));
+liveLine.frustumCulled=livePts.frustumCulled=false;root.add(liveLine,livePts);
+const meshes={};
+function add(z){
+  const g=new THREE.Group(),col=new THREE.Color(z.color),n=z.pts.length;
+  const fg=new THREE.ShapeGeometry(new THREE.Shape(z.pts.map(p=>new THREE.Vector2(p[0],p[1]))));fg.rotateX(Math.PI/2);
+  const fill=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.22,side:THREE.DoubleSide,depthWrite:false});
+  const v=[],ix=[];z.pts.forEach((p,i)=>{v.push(p[0],0,p[1],p[0],H,p[1]);const a=i*2,b=((i+1)%n)*2;ix.push(a,b,a+1,b,b+1,a+1)});
+  const wg=new THREE.BufferGeometry();wg.setAttribute('position',new THREE.Float32BufferAttribute(v,3));wg.setIndex(ix);
+  const wall=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.1,side:THREE.DoubleSide,depthWrite:false});
+  const lg=new THREE.BufferGeometry().setFromPoints(z.pts.map(p=>new THREE.Vector3(p[0],.01,p[1])));
+  g.add(new THREE.Mesh(fg,fill),new THREE.Mesh(wg,wall),new THREE.LineLoop(lg,new THREE.LineBasicMaterial({color:col})),new THREE.Points(lg,new THREE.PointsMaterial({color:col,size:5,sizeAttenuation:false})));
+  g.position.y=z.y||0;root.add(g);meshes[z.id]={g,fill,wall};
+}
+zones.forEach(add);
+
+/* ---------- tracking loop ---------- */
+const camPos=new THREE.Vector3(),camQ=new THREE.Quaternion(),UP=new THREE.Vector3(0,1,0);
+renderer.setAnimationLoop((t,frame)=>{
+  if(!frame||!xr)return;
+  const ref=renderer.xr.getReferenceSpace();root.updateMatrixWorld(true);
+  const vp=frame.getViewerPose(ref);
+  if(vp){const p=vp.transform.position,o=vp.transform.orientation;camPos.set(p.x,p.y,p.z);camQ.set(o.x,o.y,o.z,o.w);track()}
+  reticle.visible=false;hit=null;
+  if(hitSrc){const r=frame.getHitTestResults(hitSrc)[0],ps=r&&r.getPose(ref);
+    if(ps){const tr=ps.transform,o=tr.orientation;
+      if(UP.clone().applyQuaternion(new THREE.Quaternion(o.x,o.y,o.z,o.w)).y>.8){
+        const w=new THREE.Vector3(tr.position.x,tr.position.y,tr.position.z);reticle.position.copy(w);reticle.visible=true;hit=root.worldToLocal(w.clone())}}}
+  rm.color.set(drawing?0x7cf5c8:0xffffff);
+  $('#cross').classList.toggle('ok',!!hit);$('#bDraw').classList.toggle('dis',!hit);
+  if(drawing&&hit){const l=pts[pts.length-1];
+    if(!l||Math.hypot(hit.x-l[0],hit.z-l[1])>.06){
+      if(pts.length>=MAXP)return finish();
+      const i=pts.length,a=liveGeo.attributes.position.array;pts.push([hit.x,hit.z,hit.y]);
+      a[i*3]=hit.x;a[i*3+1]=hit.y+.015;a[i*3+2]=hit.z;liveGeo.attributes.position.needsUpdate=true;liveGeo.setDrawRange(0,pts.length)}}
+  renderer.render(scene,camera);
+});
+function track(){
+  const l=root.worldToLocal(camPos.clone()),now=new Set();
+  zones.forEach(z=>{if(inPoly(l.x,l.z,z.pts))now.add(z.id)});
+  zones.forEach(z=>{const was=inside.has(z.id),is=now.has(z.id);if(was===is)return;
+    toast((is?'Entered ':'Left ')+z.name,z.color);tone(is?520:460,is?900:280);buzz(is?[60,40,60]:40);
+    const m=meshes[z.id];if(m){m.fill.opacity=is?.5:.22;m.wall.opacity=is?.22:.1}});
+  inside=now;
+  if(drawing)pill('Drawing · '+pts.length+' points','#fff');
+  else if(now.size){const zs=zones.filter(z=>now.has(z.id));pill('Inside · '+zs.map(z=>z.name).join(', '),zs[0].color)}
+  else pill(hit?'Outside all zones':'Scanning the floor…',hit?'':'#ffd24a');
+}
+
+/* ---------- drawing ---------- */
+function finish(){
+  if(!drawing)return;drawing=false;liveGeo.setDrawRange(0,0);$('#bDraw').classList.remove('on');$('#cross').classList.remove('on');
+  const raw=pts;pts=[];if(!raw.length)return;
+  const p=raw.map(a=>[+a[0].toFixed(3),+a[1].toFixed(3)]);
+  if(raw.length<8||Math.abs(area(p))<.15)return toast('Too small. Trace a bigger loop.');
+  const z={id:Date.now().toString(36),name:'Zone '+(zones.length+1),color:COLORS[zones.length%COLORS.length],y:raw.reduce((s,a)=>s+a[2],0)/raw.length,pts:p};
+  zones.push(z);save();add(z);renderList();buzz(30);toast('Saved '+z.name+' · '+Math.abs(area(p)).toFixed(1)+' m²',z.color);
+}
+const bd=$('#bDraw');
+bd.addEventListener('pointerdown',e=>{if(!hit)return toast('Aim at the floor first');bd.setPointerCapture(e.pointerId);drawing=true;pts=[];bd.classList.add('on');$('#cross').classList.add('on');buzz(15)});
+['pointerup','pointercancel'].forEach(ev=>bd.addEventListener(ev,finish));
+bd.addEventListener('contextmenu',e=>e.preventDefault());
+$('#app').addEventListener('beforexrselect',e=>e.preventDefault());
+$('#bAlign').onclick=()=>{const d=new THREE.Vector3(0,0,-1).applyQuaternion(camQ);root.position.set(camPos.x,0,camPos.z);root.rotation.y=Math.atan2(-d.x,-d.z);buzz(25);toast('Origin set where you stand')};
+
+/* ---------- list sheet ---------- */
+function renderList(){
+  $('#count').textContent=zones.length+(zones.length==1?' zone':' zones');
+  $('#list').innerHTML=zones.length?zones.map(z=>`<div class="row" data-id="${z.id}"><i style="background:${z.color}"></i><input value="${esc(z.name)}" maxlength="24" aria-label="Zone name"><small>${Math.abs(area(z.pts)).toFixed(1)} m²</small><button class="del" aria-label="Delete zone"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></svg></button></div>`).join(''):'<p class="empty">No zones yet. Start AR, aim at the floor, then hold the round button while you walk the edge of your zone.</p>';
+}
+$('#list').addEventListener('change',e=>{const z=zones.find(z=>z.id===e.target.closest('.row').dataset.id);if(z){z.name=e.target.value.trim()||z.name;save();renderList()}});
+$('#list').addEventListener('click',e=>{const b=e.target.closest('.del');if(!b)return;const id=b.closest('.row').dataset.id,m=meshes[id];
+  if(m){root.remove(m.g);delete meshes[id]}zones=zones.filter(z=>z.id!==id);inside.delete(id);save();renderList();buzz(20)});
+const sheet=$('#sheet');$('#bList').onclick=()=>sheet.classList.add('open');$('#bClose').onclick=()=>sheet.classList.remove('open');
+function setAlerts(){const b=$('#bAlert');b.textContent=alerts?'Alerts on':'Alerts off';b.classList.toggle('on',alerts)}
+$('#bAlert').onclick=()=>{alerts=!alerts;setAlerts();save();buzz(20)};
+setAlerts();renderList();
+
+/* ---------- camera + AR session ---------- */
+const cam=$('#cam');
+async function startCam(){if(stream||xr)return;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920}},audio:false});cam.srcObject=stream;pill(zones.length+(zones.length==1?' zone saved':' zones saved'),'')}catch(e){pill('Camera unavailable. Allow access.','#ff6b81')}}
+function stopCam(){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;cam.srcObject=null}
+let supported=false;
+(async()=>{try{supported=!!(navigator.xr&&await navigator.xr.isSessionSupported('immersive-ar'))}catch(e){}
+  if(!supported){$('#bStart').classList.add('off');$('#hint').textContent='Precise floor tracking needs WebXR AR: Chrome on an ARCore Android phone, served over HTTPS.'}})();
+$('#bStart').onclick=async()=>{
+  if(!supported)return toast('AR tracking isn’t available on this device or frame');
+  try{
+    ac=ac||new(window.AudioContext||window.webkitAudioContext)();
+    const s=await navigator.xr.requestSession('immersive-ar',{requiredFeatures:['hit-test','local-floor'],optionalFeatures:['dom-overlay'],domOverlay:{root:$('#app')}});
+    stopCam();await renderer.xr.setSession(s);xr=s;
+    hitSrc=await s.requestHitTestSource({space:await s.requestReferenceSpace('viewer')});
+    s.addEventListener('end',onEnd);document.body.classList.add('ar');lastPill='';
+    try{wl=await navigator.wakeLock.request('screen')}catch(e){}
+    toast('Move your phone slowly to map the floor')
+  }catch(e){toast('Couldn’t start AR: '+(e.message||e));startCam()}
+};
+$('#bExit').onclick=()=>xr&&xr.end();
+function onEnd(){finish();xr=null;hitSrc=null;hit=null;inside.clear();reticle.visible=false;document.body.classList.remove('ar');lastPill='';try{wl&&wl.release()}catch(e){}startCam()}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)startCam()});
+try{const u=URL.createObjectURL(new Blob([JSON.stringify({name:'Zones',short_name:'Zones',display:'standalone',orientation:'portrait',background_color:'#000000',theme_color:'#000000',start_url:'.'})],{type:'application/manifest+json'}));
+  const l=document.createElement('link');l.rel='manifest';l.href=u;document.head.appendChild(l)}catch(e){}
+startCam();
+</script></body></html>
