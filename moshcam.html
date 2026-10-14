@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MoshCam — segmented camera</title>
+<style>
+:root{color-scheme:dark;--bg:#090a0d;--panel:#15171d;--muted:#9da3b2;--accent:#b7ff55;--danger:#ff4f68}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f7f7fb;font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh;display:flex;justify-content:center}
+.app{width:min(100%,560px);min-height:100vh;padding:env(safe-area-inset-top) 16px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 2px 2px}.brand{font-size:19px;font-weight:800;letter-spacing:-.5px}.brand span{color:var(--accent)}.sub{font-size:12px;color:var(--muted);margin-top:2px}
+.pill{font-size:11px;border:1px solid #333744;border-radius:99px;padding:6px 9px;color:#c8ccda}
+.stage{position:relative;background:#11131a;border-radius:22px;overflow:hidden;aspect-ratio:9/14;max-height:68vh;min-height:320px;box-shadow:0 12px 50px #0008}
+canvas{width:100%;height:100%;display:block;object-fit:cover}video{display:none}
+.stageTop{position:absolute;left:14px;right:14px;top:13px;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+.live{display:flex;gap:7px;align-items:center;background:#0009;border-radius:99px;padding:7px 10px;font-size:11px;letter-spacing:.7px}.dot{width:7px;height:7px;border-radius:50%;background:#777}.dot.on{background:var(--danger);box-shadow:0 0 12px var(--danger)}
+.timer{background:#0009;border-radius:99px;padding:7px 10px;font-variant-numeric:tabular-nums;font-size:12px}
+.hint{position:absolute;bottom:14px;left:14px;right:14px;text-align:center;font-size:12px;color:#fff;background:#0008;border-radius:12px;padding:9px;pointer-events:none}
+.controls{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;padding:2px 4px}
+.sideBtn{border:1px solid #2d303a;background:var(--panel);color:#f4f5fa;border-radius:14px;padding:12px 10px;font:inherit;font-size:12px;min-height:48px}
+.recordWrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.record{width:72px;height:72px;border:4px solid #f5f5f7;border-radius:50%;background:transparent;display:grid;place-items:center;padding:0}
+.recordInner{width:52px;height:52px;border-radius:50%;background:var(--danger);transition:all .15s}
+.record.recording .recordInner{border-radius:10px;width:25px;height:25px}.record:disabled{opacity:.35}
+.recLabel{font-size:11px;color:var(--muted)}
+.panel{background:var(--panel);border:1px solid #262933;border-radius:18px;padding:13px}
+.panelHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.panelHead strong{font-size:13px}.small{color:var(--muted);font-size:11px}
+.clips{display:flex;gap:8px;overflow-x:auto;padding:1px 0 4px}.empty{font-size:12px;color:var(--muted);padding:10px 0}
+.clip{flex:0 0 78px;background:#20232c;border-radius:11px;padding:8px;position:relative;min-height:72px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid #343844}
+.clipNum{font-weight:800;font-size:12px}.clipDur{font-size:11px;color:#b9bfcc}.clip a{font-size:10px;color:var(--accent);text-decoration:none}
+.actions{display:flex;gap:8px}.actions button{flex:1}
+button{cursor:pointer}button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.settings{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}.setting{display:flex;gap:8px;align-items:center;color:#d4d7e1;font-size:12px}
+input[type=range]{width:100px;accent-color:var(--accent)}select{background:#20232c;color:white;border:1px solid #3a3e4b;border-radius:8px;padding:7px}
+.status{font-size:12px;color:var(--muted);min-height:17px;text-align:center}
+@media(max-height:720px){.stage{max-height:57vh;min-height:260px}.record{width:62px;height:62px}.recordInner{width:44px;height:44px}}
+</style>
+</head>
+<body>
+<main class="app">
+<header><div><div class="brand">MOSH<span>CAM</span></div><div class="sub">Segmented camera · frame-to-frame mosh</div></div><div class="pill" id="cameraBadge">CAMERA OFF</div></header>
+<div class="stage">
+  <canvas id="view" width="720" height="1120"></canvas>
+  <video id="camera" autoplay playsinline muted></video>
+  <div class="stageTop"><div class="live"><span class="dot" id="recDot"></span><span id="liveLabel">STANDBY</span></div><div class="timer" id="timer">00:00.0</div></div>
+  <div class="hint" id="hint">Tap Enable camera to begin</div>
+</div>
+<div class="controls">
+  <button class="sideBtn" id="cameraBtn">Enable camera</button>
+  <div class="recordWrap"><button class="record" id="recordBtn" disabled aria-label="Start recording"><span class="recordInner"></span></button><div class="recLabel" id="recordLabel">RECORD PART</div></div>
+  <button class="sideBtn" id="flipBtn" disabled>Flip camera</button>
+</div>
+<section class="panel">
+  <div class="panelHead"><strong>YOUR TAKES <span id="clipCount">0</span></strong><span class="small">Each part saves separately</span></div>
+  <div class="clips" id="clips"><div class="empty">Your recorded parts will show up here.</div></div>
+  <div class="actions" style="margin-top:10px"><button class="sideBtn" id="downloadAll" disabled>Download all parts</button><button class="sideBtn" id="resetBtn">Reset session</button></div>
+</section>
+<section class="panel">
+  <div class="panelHead"><strong>MOSH SETTINGS</strong><span class="small">Fast transition for hooks</span></div>
+  <div class="settings">
+    <label class="setting">Transition <select id="transition"><option value="350">Quick · 0.35s</option><option value="600" selected>Fast · 0.6s</option><option value="900">Smooth · 0.9s</option></select></label>
+    <label class="setting">Ghost frame <input id="ghost" type="range" min="15" max="75" value="50"><span id="ghostVal">50%</span></label>
+  </div>
+</section>
+<div class="status" id="status" role="status">Camera stays on your device. Clips are saved locally in this browser session.</div>
+</main>
+<script>
+(() => {
+const video=document.querySelector('#camera'), canvas=document.querySelector('#view'), ctx=canvas.getContext('2d',{alpha:false});
+const cameraBtn=document.querySelector('#cameraBtn'), recordBtn=document.querySelector('#recordBtn'), flipBtn=document.querySelector('#flipBtn');
+const hint=document.querySelector('#hint'), status=document.querySelector('#status'), timer=document.querySelector('#timer');
+const recDot=document.querySelector('#recDot'), liveLabel=document.querySelector('#liveLabel'), recordLabel=document.querySelector('#recordLabel');
+const clipsEl=document.querySelector('#clips'), clipCount=document.querySelector('#clipCount'), downloadAll=document.querySelector('#downloadAll');
+const transitionEl=document.querySelector('#transition'), ghostEl=document.querySelector('#ghost'), ghostVal=document.querySelector('#ghostVal');
+let stream=null, facing='user', raf=0, running=false, recorder=null, chunks=[], clips=[], segmentStart=0, timerRAF=0;
+let previousFrame=null, transitionStart=0, transitionMs=600, recording=false, lastFrameTime=0;
+const W=720,H=1120;
+function say(t){status.textContent=t}
+function fitCanvas(){canvas.width=W;canvas.height=H}
+function drawCover(source, targetCtx, alpha=1, dx=0,dy=0,dw=W,dh=H){
+  if(!source)return;
+  const sw=source.videoWidth||source.width, sh=source.videoHeight||source.height;if(!sw||!sh)return;
+  const scale=Math.max(dw/sw,dh/sh), rw=sw*scale,rh=sh*scale;
+  targetCtx.save();targetCtx.globalAlpha=alpha;targetCtx.drawImage(source,dx+(dw-rw)/2,dy+(dh-rh)/2,rw,rh);targetCtx.restore();
+}
+function frameLoop(now){
+  if(!running)return;
+  ctx.fillStyle='#101116';ctx.fillRect(0,0,W,H);
+  if(video.readyState>=2){
+    if(previousFrame && transitionStart){
+      const p=Math.min(1,(now-transitionStart)/transitionMs);
+      // Hold a ghost of the previous take, then quickly break it into offset blocks as the new live frame takes over.
+      drawCover(previousFrame,ctx,Number(ghostEl.value)/100);
+      const tile= Math.max(18,Math.round(110*(1-p)+18));
+      const cols=Math.ceil(W/tile),rows=Math.ceil(H/tile);
+      for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+        const jitter=(1-p)*Math.min(34,tile*.65);
+        const jx=(Math.random()-.5)*jitter,jy=(Math.random()-.5)*jitter;
+        const sx=x*tile,sy=y*tile,sw=Math.min(tile,W-sx),sh=Math.min(tile,H-sy);
+        ctx.save();ctx.globalAlpha=p;
+        try{ctx.drawImage(video,sx/video.videoWidth*video.videoWidth,sy/video.videoHeight*video.videoHeight,sw,sh,sx+jx,sy+jy,sw,sh)}catch(e){}
+        ctx.restore();
+      }
+      // Increasing live opacity makes the old frame dissolve quickly instead of simply cutting.
+      ctx.save();ctx.globalAlpha=p*.78;drawCover(video,ctx,1);ctx.restore();
+      if(p>=1){transitionStart=0;previousFrame=null}
+    }else{
+      drawCover(video,ctx,1);
+      if(previousFrame && !recording)drawCover(previousFrame,ctx,Number(ghostEl.value)/100);
+    }
+  }
+  if(recording){
+    // Small RGB channel offsets create a digital mosh texture without obscuring the footage.
+    const p=transitionStart?Math.min(1,(now-transitionStart)/transitionMs):1;
+    if(p<1){ctx.save();ctx.globalAlpha=(1-p)*.18;ctx.drawImage(canvas,3,0);ctx.restore()}
+  }
+  raf=requestAnimationFrame(frameLoop);
+}
+function capturePrevious(){
+  const c=document.createElement('canvas');c.width=W;c.height=H;c.getContext('2d').drawImage(canvas,0,0,W,H);return c;
+}
+async function enableCamera(){
+  try{
+    if(stream)stream.getTracks().forEach(t=>t.stop());
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1080},height:{ideal:1920}},audio:true});
+    video.srcObject=stream;await video.play();
+    running=true;cancelAnimationFrame(raf);raf=requestAnimationFrame(frameLoop);
+    cameraBtn.textContent='Camera ready';document.querySelector('#cameraBadge').textContent='CAMERA ON';
+    recordBtn.disabled=false;flipBtn.disabled=false;hint.textContent='Record a part, stop, then record the next';say('Ready. Your last frame will ghost over the next take.'); 
+  }catch(e){say('Could not access camera. Allow camera/microphone permissions and try again.');hint.textContent='Camera permission needed';}
+}
+function tickTimer(){if(!recording)return;const ms=performance.now()-segmentStart;timer.textContent=format(ms);timerRAF=requestAnimationFrame(tickTimer)}
+function format(ms){let t=Math.max(0,ms)/1000;return String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0')+'.'+Math.floor(t%1*10)}
+function bestMime(){return ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm','video/mp4'].find(x=>window.MediaRecorder&&MediaRecorder.isTypeSupported(x))||''}
+async function startRecording(){
+  if(!stream||recording)return;
+  transitionMs=Number(transitionEl.value);
+  if(previousFrame)transitionStart=performance.now();
+  recording=true;chunks=[];segmentStart=performance.now();
+  const canvasStream=canvas.captureStream(30);
+  const audioTrack=stream.getAudioTracks()[0];if(audioTrack)canvasStream.addTrack(audioTrack);
+  try{recorder=new MediaRecorder(canvasStream,bestMime()?{mimeType:bestMime()}:undefined)}catch(e){recording=false;say('Recording is not supported in this browser. Try Chrome or Safari.');return}
+  recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  recorder.onstop=()=>{
+    const type=recorder.mimeType||'video/webm';const blob=new Blob(chunks,{type});
+    if(blob.size){const url=URL.createObjectURL(blob);clips.push({blob,url,duration:performance.now()-segmentStart,type});renderClips();say('Part saved. Record the next part whenever you’re ready.')}
+    canvasStream.getTracks().forEach(t=>{if(t!==audioTrack)t.stop()});
+  };
+  recorder.start(100);recordBtn.classList.add('recording');recDot.classList.add('on');liveLabel.textContent='RECORDING';recordLabel.textContent='STOP PART';hint.textContent='Tap the button to stop this part';timer.textContent='00:00.0';cancelAnimationFrame(timerRAF);timerRAF=requestAnimationFrame(tickTimer);say('Recording part '+(clips.length+1)+'…');
+}
+function stopRecording(){
+  if(!recording)return;
+  // Save the last composited frame as the ghost reference for the next part.
+  previousFrame=capturePrevious();transitionStart=0;
+  recording=false;cancelAnimationFrame(timerRAF);
+  if(recorder&&recorder.state!=='inactive')recorder.stop();
+  recordBtn.classList.remove('recording');recDot.classList.remove('on');liveLabel.textContent='PART SAVED';recordLabel.textContent='RECORD NEXT';hint.textContent='Last frame held at '+ghostEl.value+'% opacity';
+  timer.textContent=format(performance.now()-segmentStart);
+}
+function renderClips(){
+  clipCount.textContent=clips.length;downloadAll.disabled=!clips.length;
+  clipsEl.innerHTML='';
+  if(!clips.length){clipsEl.innerHTML='<div class="empty">Your recorded parts will show up here.</div>';return}
+  clips.forEach((c,i)=>{
+    const el=document.createElement('div');el.className='clip';
+    const n=document.createElement('div');n.className='clipNum';n.textContent='PART '+String(i+1).padStart(2,'0');
+    const d=document.createElement('div');d.className='clipDur';d.textContent=format(c.duration);
+    const a=document.createElement('a');a.href=c.url;a.download='moshcam-part-'+String(i+1).padStart(2,'0')+'.webm';a.textContent='Save clip';
+    el.append(n,d,a);clipsEl.appendChild(el);
+  });
+}
+recordBtn.addEventListener('click',()=>recording?stopRecording():startRecording());
+cameraBtn.addEventListener('click',enableCamera);
+flipBtn.addEventListener('click',async()=>{facing=facing==='user'?'environment':'user';await enableCamera()});
+ghostEl.addEventListener('input',()=>{ghostVal.textContent=ghostEl.value+'%'});
+downloadAll.addEventListener('click',()=>clips.forEach((c,i)=>{const a=document.createElement('a');a.href=c.url;a.download='moshcam-part-'+String(i+1).padStart(2,'0')+'.webm';document.body.appendChild(a);a.click();a.remove()}));
+document.querySelector('#resetBtn').addEventListener('click',()=>{
+  if(recording)stopRecording();
+  clips.forEach(c=>URL.revokeObjectURL(c.url));clips=[];previousFrame=null;transitionStart=0;renderClips();timer.textContent='00:00.0';hint.textContent=stream?'Record a part, stop, then record the next':'Tap Enable camera to begin';say('Session reset.');
+});
+fitCanvas();ctx.fillStyle='#101116';ctx.fillRect(0,0,W,H);ctx.fillStyle='#777d8d';ctx.textAlign='center';ctx.font='600 26px system-ui';ctx.fillText('MOSHCAM',W/2,H/2-12);ctx.font='16px system-ui';ctx.fillText('Your next hook starts here',W/2,H/2+24);
+if(!navigator.mediaDevices?.getUserMedia){cameraBtn.disabled=true;say('This browser does not expose camera access. Open this page on HTTPS or localhost.')}
+})();
+</script>
+</body>
+</html>
