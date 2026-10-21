@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brand___ finder</title>
+<style>
+  :root{--bg:#0b0b0d;--card:#141418;--line:#26262d;--txt:#f2f2f5;--mut:#8a8a96;--acc:#ff3b3b;--ok:#3ddc84}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;padding:24px;max-width:900px;margin-inline:auto}
+  h1{font-size:28px;margin:0 0 4px}
+  h1 span{color:var(--acc)}
+  p.sub{color:var(--mut);margin:0 0 20px}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+  button,input,select{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font:inherit}
+  button{cursor:pointer}
+  button.primary{background:var(--acc);border-color:var(--acc);font-weight:600}
+  button:disabled{opacity:.5;cursor:default}
+  input[type=number]{width:90px}
+  .prog{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin:6px 0 4px}
+  .prog>div{height:100%;width:0;background:var(--acc);transition:width .2s}
+  .stat{color:var(--mut);font-size:13px;margin-bottom:16px}
+  #list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+  .item b{font-size:18px}
+  .item b i{color:var(--acc);font-style:normal}
+  .row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut)}
+  .price{color:var(--ok);font-weight:600}
+  .links a{color:var(--mut);text-decoration:none;margin-right:10px;font-size:13px;border-bottom:1px dotted var(--mut)}
+  .links a:hover{color:var(--txt)}
+  .note{color:var(--mut);font-size:12px;margin-top:24px;line-height:1.5}
+  label{color:var(--mut);font-size:13px}
+</style>
+</head>
+<body>
+<h1><span>Brand</span>___ finder</h1>
+<p class="sub">Combines "Brand" + a short word, checks if the .com is open, shows only the ones under your price cap.</p>
+
+<div class="bar">
+  <button id="go" class="primary">Start search</button>
+  <button id="stop" disabled>Stop</button>
+  <label>Max price $ <input id="max" type="number" value="30" min="1"></label>
+  <label><input id="shuf" type="checkbox" checked> shuffle</label>
+  <button id="copy">Copy results</button>
+</div>
+
+<div class="prog"><div id="pb"></div></div>
+<div class="stat" id="stat">Ready. <span id="count"></span></div>
+
+<div id="list"></div>
+
+<p class="note">
+How it works: availability is checked live against the official .com registry (Verisign RDAP). An unregistered .com is a standard-price domain (~$10-15 at most registrars), so it passes the cap. A registered domain is skipped. Premium-priced domains (rare for compound names like these) can't be detected without a registrar API key, so each hit has quick links to confirm the exact price before you buy.
+</p>
+
+<script>
+const PREFIX = "brand";
+const EST_PRICE = 12; // typical standard .com price
+
+const RAW = `
+flag park peak wave bold core edge grid hub lab loop mark name nest node path pine pulse
+star spark tide arc ace aim air alp ant ark ash axe bay bee bit bow box bud cap cog cub dew dot dune
+elm eon eye fan fin fir fit fix fog fox gem gap gift glow gold gust halo haze hive hope icon idea inch
+ink iris isle jade jet joy jump keen key kind king kite knot lake lamp land lane lark leaf lens life lift
+line link lion list loft logo lore luck lux lynx made main map mast meld mesh mind mint mist moon moss
+muse navy neon next nova oak oasis opal orb otter owl pace pack page palm peak pear pier pilot pixel
+plan play plot plus pond pool port pro pure quest quick rain rank rare reach real reed rely rest rich
+ride rift ring rise road rock roam root rose rove rush sage sail salt sand scan seed shift shine ship
+shop show sign silk site skip sky slate snap soar soul sound spin spot spur star stay step stone story
+storm style sun surf swan swift tale team tent tide tile time tone top tour tower trace trail tree trek
+true trust tune turn twin unit urge vale vast veil view vibe vine vista vivid voice wake walk wall wave
+way west wide wild wind wing wire wise wolf wood work yard year zeal zen zest zone zoom
+able acre aged ally apex arch area aura avid axis back bark base beam bear beat bell best blue boat bolt
+bond book boom born brew brisk calm camp care cast cave chat chic chip city clan claim clay clear clip
+club coach code coin cool copy cove craft crew crisp crown cube curve cute dare dash data dawn deal deep
+deft dial dive door draw dream drift drive drop dusk each earn ease east easy echo edit elite ember
+epic ever exit face fact fair fame fast fate feat fern field fill film find fire firm fish flame flash
+fleet flip flow flux focus foil folk font form fort frame free fresh fuel full fuse gain game gate gear
+gift give glad glass glide globe goal grab grace grand grant grasp great green grow guide guru hack
+hail half hall hand harp haven head heal heart help hero high hike hill hint hold home hone hour hype
+idle image inner iron item jazz join jolly just keep kick kids kin lace lead lean learn lift light like
+lime live load loud love loyal lush magic major make many mass meet mega mild mill mine mode more most
+move much nano near neat need nice noble none noon north note nova novel nudge ocean odd omen only open
+orbit order origin pace pair panel paper pass past pave pearl pick pitch plain plane plush poet point
+polar poly pop posh power press prime prize proof proud pull punch pup push quiet quote race radar raft
+ramp range rapid ray ready realm reef relay rev rhyme rim ripe river robot rule rung sail same save
+scale scene scope scout sea self sense set sharp sheen shelf shore side sight silver simple sleek slim
+smart smile smooth snow solid solo some song sort source space span speak speed spice spike split
+spoke spring square stack staff stage stamp stand stark start state steam steel steer stem stir stock
+stout straw stream stride strike strong studio suit super sure sweet swim sync table tack tact tag take
+talk tall task teal tech tempo test thin think thread three throne thrive tidy tiger tint tiny toast
+token tool torch touch tough trade trend tribe trim trip truth tulip turbo twist ultra unity upper
+urban use user valid value vault venue verse vigor vital vow wage want warm wary watch weave web well
+whale wheel white whole will wish wit wonder world worth wrap yes young youth zap zeal zip
+alpha amber anchor atlas aura beta blaze bliss bloom brave bright brook cedar charm civic clever cliff
+cloud clover comet coral crest cypress delta dune ember fable flint forge frost gala gleam glory grove
+harbor haven helix honor ignite indigo ivory jewel jungle karma lotus lunar maple mirth mocha nectar
+nimbus olive onyx orchid pebble phoenix prism quartz radiant raven ridge ripple saber sable sierra
+solar sonic summit sunny tango thunder topaz trident tundra umber valor velvet vertex violet vortex
+willow zenith zephyr
+`;
+
+// keep only 3-4 letter words, dedupe
+const WORDS = [...new Set(RAW.split(/\s+/).map(w=>w.trim().toLowerCase()).filter(w=>/^[a-z]{3,4}$/.test(w)))];
+
+const $ = id => document.getElementById(id);
+let running = false, found = [];
+
+function cap(w){return w[0].toUpperCase()+w.slice(1)}
+
+async function check(domain, tries=0){
+  try{
+    const r = await fetch(`https://rdap.verisign.com/com/v1/domain/${domain}`, {headers:{accept:"application/rdap+json"}});
+    if(r.status===404) return "free";
+    if(r.status===200) return "taken";
+    if(r.status===429 && tries<4){ await new Promise(s=>setTimeout(s,1500*(tries+1))); return check(domain,tries+1); }
+    return "error";
+  }catch(e){
+    if(tries<2){ await new Promise(s=>setTimeout(s,800)); return check(domain,tries+1); }
+    return "error";
+  }
+}
+
+function addCard(word){
+  const dom = PREFIX+word+".com";
+  const el = document.createElement("div");
+  el.className="item";
+  el.innerHTML = `
+    <b><i>Brand</i>${cap(word)}</b>
+    <div class="row"><span>${dom}</span><span class="price">~$${EST_PRICE}</span></div>
+    <div class="links">
+      <a target="_blank" rel="noopener" href="https://www.namecheap.com/domains/registration/results/?domain=${dom}">Namecheap</a>
+      <a target="_blank" rel="noopener" href="https://porkbun.com/checkout/search?q=${dom}">Porkbun</a>
+      <a target="_blank" rel="noopener" href="https://www.godaddy.com/domainsearch/find?domainToCheck=${dom}">GoDaddy</a>
+    </div>`;
+  $("list").appendChild(el);
+}
+
+async function run(){
+  if(running) return;
+  running = true; found = [];
+  $("list").innerHTML = "";
+  $("go").disabled = true; $("stop").disabled = false;
+  const max = Number($("max").value) || 30;
+  let queue = WORDS.slice();
+  if($("shuf").checked) queue.sort(()=>Math.random()-.5);
+  const total = queue.length; let done=0, errs=0;
+
+  async function worker(){
+    while(running && queue.length){
+      const w = queue.pop();
+      const res = await check(PREFIX+w+".com");
+      done++;
+      if(res==="free" && EST_PRICE<=max){ found.push(PREFIX+w+".com"); addCard(w); }
+      if(res==="error") errs++;
+      $("pb").style.width = (done/total*100)+"%";
+      $("stat").textContent = `Checked ${done}/${total} · ${found.length} available` + (errs?` · ${errs} failed`:"");
+      await new Promise(s=>setTimeout(s,120));
+    }
+  }
+  await Promise.all(Array.from({length:5},worker));
+  running = false; $("go").disabled=false; $("stop").disabled=true;
+  $("stat").textContent += running ? "" : " · done";
+}
+
+$("go").onclick = run;
+$("stop").onclick = ()=>{running=false};
+$("copy").onclick = ()=>{ navigator.clipboard.writeText(found.join("\n")); $("copy").textContent="Copied"; setTimeout(()=>$("copy").textContent="Copy results",1200) };
+$("count").textContent = `${WORDS.length} words loaded.`;
+</script>
+</body>
+</html>
