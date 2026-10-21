@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brand___ finder v2</title>
+<style>
+  :root{--bg:#0b0b0d;--card:#141418;--line:#26262d;--txt:#f2f2f5;--mut:#8a8a96;--acc:#ff3b3b;--ok:#3ddc84}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;padding:24px;max-width:960px;margin-inline:auto}
+  h1{font-size:28px;margin:0 0 4px}
+  h1 span{color:var(--acc)}
+  p.sub{color:var(--mut);margin:0 0 20px}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+  button,input{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font:inherit}
+  button{cursor:pointer}
+  button.primary{background:var(--acc);border-color:var(--acc);font-weight:600}
+  button:disabled{opacity:.5;cursor:default}
+  input[type=number]{width:90px}
+  label{color:var(--mut);font-size:13px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+  .chip{padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--mut);font-size:13px;cursor:pointer;user-select:none}
+  .chip.on{border-color:var(--acc);color:var(--txt)}
+  .prog{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin:6px 0 4px}
+  .prog>div{height:100%;width:0;background:var(--acc);transition:width .2s}
+  .stat{color:var(--mut);font-size:13px;margin-bottom:16px}
+  #list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;position:relative}
+  .item b{font-size:19px}
+  .item b i{color:var(--acc);font-style:normal}
+  .row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut)}
+  .price{color:var(--ok);font-weight:600}
+  .tag{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+  .links a{color:var(--mut);text-decoration:none;margin-right:10px;font-size:13px;border-bottom:1px dotted var(--mut)}
+  .links a:hover{color:var(--txt)}
+  .heart{position:absolute;top:8px;right:8px;border:none;background:none;padding:4px 8px;font-size:18px;color:var(--mut)}
+  .heart.on{color:var(--acc)}
+  .note{color:var(--mut);font-size:12px;margin-top:24px;line-height:1.5}
+</style>
+</head>
+<body>
+<h1><span>Brand</span>___ finder <small style="font-size:14px;color:var(--mut)">v2</small></h1>
+<p class="sub">Positive-meaning 3-4 letter words only. Shows the ones where the .com is open and under your price cap.</p>
+
+<div class="chips" id="chips"></div>
+
+<div class="bar" style="align-items:stretch">
+  <textarea id="custom" rows="3" placeholder="Add your own words (space, comma or new line separated)" style="flex:1;min-width:220px;background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font:inherit;resize:vertical"></textarea>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <button id="addc">Add words</button>
+    <button id="onlyc">Search only mine</button>
+  </div>
+</div>
+
+<div class="bar">
+  <button id="go" class="primary">Start search</button>
+  <button id="stop" disabled>Stop</button>
+  <label>Max price $ <input id="max" type="number" value="30" min="1"></label>
+  <label><input id="shuf" type="checkbox" checked> shuffle</label>
+  <button id="copy">Copy</button>
+</div>
+
+<div class="prog"><div id="pb"></div></div>
+<div class="stat" id="stat">Ready.</div>
+<div id="list"></div>
+
+<p class="note">
+Availability is checked live against the official .com registry (Verisign RDAP). An unregistered .com is standard price (~$10-15), so it passes the cap; registered ones are skipped. Premium-priced domains can't be detected without a registrar API key, so each hit links to Namecheap / Porkbun / GoDaddy to confirm the exact price. Heart the ones you like; "Copy" copies hearted names if you have any, otherwise all hits.
+</p>
+
+<script>
+const PREFIX = "brand";
+const EST_PRICE = 12;
+
+const CATS = {
+ "Growth & success": `rise grow soar lift peak apex lead gain win wins ace aces top best max plus high tall vast mega rank tier boom leap jump push dash rush zoom zip race ride sail earn rich gold gild fame hero epic boss king goal aim zeal zest edge nail vip pro idol icon chief head boon perk prime`,
+ "Light & energy": `glow beam ray sun dawn halo aura nova star lume luma luna sol lux luxe day fire lit zap volt amp wave flux hum buzz zing vim pep pop spry brio elan mojo hype live life alive fly jet aero air wing sky`,
+ "Joy & warmth": `joy glee love hope calm ease zen kind warm glad fun grin luck wish muse awe wow cozy cosy fond dear pal pals hug good nice fine yum eden bon ally mate kin fam club crew team band clan duo trio gala fete fest bash rave tao soft snug nest home hub camp`,
+ "Nature": `pine oak elm fir bay sea tide surf lake pond rain snow wind gust mist moon rose lily fern moss leaf bud seed root vine palm reed sage mint lime plum pear fig kiwi jade opal ruby onyx alp hill dune cove isle reef cape vale glen dale mesa sand tree wood park path road way gate arch dome echo eon aqua blue teal navy ivy yew teak flora lava iron rock arc orb eve noon`,
+ "Animals": `lion wolf hawk fox owl lynx bear stag swan dove lark wren kite orca deer elk jay bee ram cub hare fawn colt foal pony oryx ibex koi`,
+ "Make & move": `make mold form mint spin flow roam trek hike step move teach show share give gift help care heal mend save keep hold join link bond meld fuse sync tune play game sing song tone note beat art draw open ship post talk chat tell pen ink type edit film snap reel clip view look scan seek find lure woo vow pact deal swap`,
+ "Brand & identity": `mark name sign logo tag face lens scope eye sight style chic vibe mood poise grace charm glam posh slim neat cool hip crisp new now next neo mode fit gear kit pack flag seal tale lore myth saga plot cast self soul mind will core base idea plan guru sage seer bard poet ode aria opus arts skill silk lace gilt gem coin bank port dock pier ark door key lane`,
+ "Qualities": `bold true real pure wise keen deft able apt sure firm fair just best rich full free easy fast wit lush deep rare lean hale safe tidy`
+};
+
+const WORD_CAT = {};
+for(const [cat, str] of Object.entries(CATS)){
+  for(const w of str.split(/\s+/)){
+    const x = w.trim().toLowerCase();
+    if(/^[a-z]{3,4}$/.test(x) && !WORD_CAT[x]) WORD_CAT[x] = cat;
+  }
+}
+const getAll = () => Object.keys(WORD_CAT);
+
+const $ = id => document.getElementById(id);
+const active = new Set(Object.keys(CATS));
+let running=false, found=[], favs=new Set();
+try{ favs = new Set(JSON.parse(localStorage.getItem("brandFavs")||"[]")); }catch(e){}
+const saveFavs = ()=>{ try{ localStorage.setItem("brandFavs", JSON.stringify([...favs])); }catch(e){} };
+
+function renderChips(){
+  $("chips").innerHTML = "";
+  for(const cat of [...Object.keys(CATS), "Custom"]){
+    const n = getAll().filter(w=>WORD_CAT[w]===cat).length;
+    if(cat==="Custom" && n===0) continue;
+    const c = document.createElement("div");
+    c.className = "chip"+(active.has(cat)?" on":"");
+    c.textContent = `${cat} (${n})`;
+    c.onclick = ()=>{ active.has(cat)?active.delete(cat):active.add(cat); renderChips(); updateCount(); };
+    $("chips").appendChild(c);
+  }
+}
+function pool(){ return getAll().filter(w=>active.has(WORD_CAT[w])); }
+function updateCount(){ if(!running) $("stat").textContent = `${pool().length} words selected.`; }
+
+const cap = w => w[0].toUpperCase()+w.slice(1);
+
+async function check(domain, tries=0){
+  try{
+    const r = await fetch(`https://rdap.verisign.com/com/v1/domain/${domain}`, {headers:{accept:"application/rdap+json"}});
+    if(r.status===404) return "free";
+    if(r.status===200) return "taken";
+    if(r.status===429 && tries<4){ await new Promise(s=>setTimeout(s,1500*(tries+1))); return check(domain,tries+1); }
+    return "error";
+  }catch(e){
+    if(tries<2){ await new Promise(s=>setTimeout(s,800)); return check(domain,tries+1); }
+    return "error";
+  }
+}
+
+function addCard(word){
+  const dom = PREFIX+word+".com";
+  const el = document.createElement("div");
+  el.className="item";
+  el.innerHTML = `
+    <button class="heart ${favs.has(dom)?"on":""}" title="Shortlist">♥</button>
+    <span class="tag">${WORD_CAT[word]}</span>
+    <b><i>Brand</i>${cap(word)}</b>
+    <div class="row"><span>${dom}</span><span class="price">~$${EST_PRICE}</span></div>
+    <div class="links">
+      <a target="_blank" rel="noopener" href="https://www.namecheap.com/domains/registration/results/?domain=${dom}">Namecheap</a>
+      <a target="_blank" rel="noopener" href="https://porkbun.com/checkout/search?q=${dom}">Porkbun</a>
+      <a target="_blank" rel="noopener" href="https://www.godaddy.com/domainsearch/find?domainToCheck=${dom}">GoDaddy</a>
+    </div>`;
+  const h = el.querySelector(".heart");
+  h.onclick = ()=>{ favs.has(dom)?favs.delete(dom):favs.add(dom); h.classList.toggle("on"); saveFavs(); };
+  $("list").appendChild(el);
+}
+
+async function run(){
+  if(running) return;
+  const queue = pool();
+  if(!queue.length) return;
+  running=true; found=[];
+  $("list").innerHTML="";
+  $("go").disabled=true; $("stop").disabled=false;
+  const max = Number($("max").value)||30;
+  if($("shuf").checked) queue.sort(()=>Math.random()-.5);
+  const total = queue.length; let done=0, errs=0;
+
+  async function worker(){
+    while(running && queue.length){
+      const w = queue.pop();
+      const res = await check(PREFIX+w+".com");
+      done++;
+      if(res==="free" && EST_PRICE<=max){ found.push(PREFIX+w+".com"); addCard(w); }
+      if(res==="error") errs++;
+      $("pb").style.width = (done/total*100)+"%";
+      $("stat").textContent = `Checked ${done}/${total} · ${found.length} available`+(errs?` · ${errs} failed`:"");
+      await new Promise(s=>setTimeout(s,120));
+    }
+  }
+  await Promise.all(Array.from({length:5},worker));
+  running=false; $("go").disabled=false; $("stop").disabled=true;
+  $("stat").textContent += " · done";
+}
+
+$("go").onclick = run;
+$("stop").onclick = ()=>{running=false};
+$("copy").onclick = ()=>{
+  const out = favs.size ? [...favs] : found;
+  navigator.clipboard.writeText(out.join("\n"));
+  $("copy").textContent = "Copied";
+  setTimeout(()=>$("copy").textContent="Copy",1200);
+};
+// ---- custom words ----
+let customWords = [];
+try{ customWords = JSON.parse(localStorage.getItem("brandCustom")||"[]"); }catch(e){}
+function applyCustom(){
+  for(const w of customWords) WORD_CAT[w] = "Custom";
+  if(customWords.length) active.add("Custom");
+}
+$("addc").onclick = ()=>{
+  const words = $("custom").value.toLowerCase().split(/[\s,;]+/)
+    .map(w=>w.replace(/[^a-z]/g,"")).filter(w=>w.length>=2 && w.length<=12);
+  if(!words.length) return;
+  customWords = [...new Set([...customWords, ...words])];
+  try{ localStorage.setItem("brandCustom", JSON.stringify(customWords)); }catch(e){}
+  applyCustom();
+  $("custom").value = "";
+  renderChips(); updateCount();
+};
+$("onlyc").onclick = ()=>{
+  if(!customWords.length) return;
+  active.clear(); active.add("Custom");
+  renderChips(); updateCount();
+};
+applyCustom();
+renderChips(); updateCount();
+</script>
+</body>
+</html>
